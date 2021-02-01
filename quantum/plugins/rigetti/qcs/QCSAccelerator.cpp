@@ -24,6 +24,75 @@
 namespace xacc {
 namespace quantum {
 
+
+void QCSPlacement::apply(std::shared_ptr<CompositeInstruction> program,
+                         const std::shared_ptr<Accelerator> acc,
+                         const HeterogeneousMap &options) {
+
+  // If we are here - this is a contributed service, not public - 
+  // then we already have python initialized, and the backend has been given 
+  // to us. 
+  auto visitor = std::make_shared<QuilVisitor>(true);
+  InstructionIterator it(program);
+  while (it.hasNext()) {
+    auto nextInst = it.next();
+    if (nextInst->isEnabled()) {
+      nextInst->accept(visitor);
+    }
+  }
+  auto quilStr = visitor->getQuilString();
+  quilStr = "DECLARE ro BIT[" + std::to_string(program->nLogicalBits()) +
+            "]\n" + quilStr;
+
+  auto locals = py::dict();
+  locals["quil_str"] = quilStr;
+  locals["backend"] = backend;
+  locals["isa"] = isa;
+
+  //  std::cout << "Original:\n" << quilStr << "\n";
+
+  auto py_src_get_native =
+      R"#(import json
+from pyquil.quil import Program
+from pyquil.device._main import Device
+from pyquil.api._compiler import QVMCompiler
+device = Device(locals()['backend'], json.loads(locals()['isa']))
+compiler = QVMCompiler('tcp://localhost:5555', device)
+p = Program(locals()['quil_str'])
+np = compiler.quil_to_native_quil(p, protoquil=True)
+print('printing this,', np)
+result = str(np)
+)#";
+
+  try {
+    py::exec(py_src_get_native, py::globals(), locals);
+  } catch (std::exception &e) {
+    std::stringstream ss;
+    ss << "XACC QCS Exec Error:\n";
+    ss << e.what();
+    xacc::error(ss.str());
+  }
+
+  // py::print("AfterPlacement:\n", locals["result"]);
+  std::string tmp2 = "";
+  auto tmp = locals["result"].cast<std::string>();
+  for (auto line : xacc::split(tmp, '\n')) {
+    if (line.find("DECLARE") == std::string::npos) {
+      tmp2 += line + "\n";
+    }
+  }
+
+  // std::cout << "TMP2:\n" << tmp2 << "\n";
+
+  auto compiler = xacc::getCompiler("quil");
+  auto new_program = compiler->compile("__qpu__ void foo(qreg q) {\n" + tmp2 + "}\n")
+                         ->getComposites()[0];
+
+  program->clear();
+  program->addInstructions(new_program->getInstructions());
+  return;
+}
+
 void QCSAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
@@ -60,15 +129,19 @@ void QCSAccelerator::initialize(const HeterogeneousMap &params) {
     endpoint = params.getString("endpoint");
   }
 
+  std::string isa_str = "";
   if (params.stringExists("backend")) {
     backend = params.getString("backend");
 
     auto response = this->get(forest_server_url, "/lattices/" + backend);
     auto lattice_json = json::parse(response);
     auto twoq = lattice_json["lattice"]["isa"]["2Q"].get<json::object_t>();
+
+    // Save the ISA for TargetDevice quil_to_native_quil
+    isa_str = lattice_json["lattice"].dump();
+
     for (auto element : twoq) {
       if (element.second.find("dead") == element.second.end()) {
-        // std::cout << "adding " << element.first << "\n";
         auto bits = xacc::split(element.first, '-');
         latticeEdges.push_back(
             std::make_pair(std::stoi(bits[0]), std::stoi(bits[1])));
@@ -84,6 +157,10 @@ void QCSAccelerator::initialize(const HeterogeneousMap &params) {
   }
 
   _internal_init();
+
+  // This Accelerator requires a custom Placement strategy
+  auto placement = std::make_shared<QCSPlacement>(backend, isa_str);
+  xacc::contributeService("qcs-quilc", placement);
 
   updateConfiguration(params);
 }

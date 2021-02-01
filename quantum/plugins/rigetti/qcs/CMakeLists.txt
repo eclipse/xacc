@@ -15,7 +15,7 @@ if(Python_FOUND)
 
   target_include_directories(
     ${LIBRARY_NAME}
-    PUBLIC ${XACC_ROOT}/include ${CMAKE_SOURCE_DIR}/tpls/eigen
+    PUBLIC .. ${XACC_ROOT}/include ${CMAKE_SOURCE_DIR}/tpls/eigen
            ${CMAKE_SOURCE_DIR}/tpls/pybind11/include ${Python_INCLUDE_DIRS})
 
   target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate cpr

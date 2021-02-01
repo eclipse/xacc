@@ -27,7 +27,7 @@ usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
-                           PUBLIC accelerator
+                           PUBLIC . accelerator
                                   compiler
                                   compiler/generated
                                   ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src

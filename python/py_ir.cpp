@@ -230,6 +230,18 @@ void bind_ir(py::module &m) {
       .def(
           "apply",
           [](IRTransformation &t, std::shared_ptr<CompositeInstruction> k,
+             const PyHeterogeneousMap &options = {}) {
+            HeterogeneousMap m;
+            for (auto &item : options) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            t.apply(k, nullptr, m);
+          },
+          py::arg("k"), py::arg("options") = PyHeterogeneousMap(), "")
+      .def(
+          "apply",
+          [](IRTransformation &t, std::shared_ptr<CompositeInstruction> k,
              std::shared_ptr<Accelerator> acc,
              const PyHeterogeneousMap &options = {}) {
             HeterogeneousMap m;

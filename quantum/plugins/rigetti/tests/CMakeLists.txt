@@ -10,7 +10,7 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-include_directories(${CMAKE_SOURCE_DIR}/quantum/plugins/rigetti/accelerator)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/plugins/rigetti)
 #add_xacc_test(QVMAccelerator)
 #target_link_libraries(QVMAcceleratorTester xacc-quantum-gate CppMicroServices)
 
