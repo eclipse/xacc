@@ -1,0 +1,48 @@
+/*******************************************************************************
+ * Copyright (c) 2019 UT-Battelle, LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompanies this
+ * distribution. The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
+ *
+ * Contributors:
+ *   Alexander J. McCaskey - initial API and implementation
+ *******************************************************************************/
+#include "xacc.hpp"
+#include "xacc_service.hpp"
+#include "py_graph.hpp"
+#include "py_heterogeneous_map.hpp"
+
+void bind_graph(py::module &m) {
+  // Expose xacc::Graph
+  py::class_<xacc::Graph, std::shared_ptr<xacc::Graph>, PyGraph> graph(
+      m, "Graph", "Graph wraps the XACC C++ Graph class");
+  graph.def(py::init<>())
+      .def("name", &xacc::Graph::name, "")
+      .def("description", &xacc::Graph::description, "")
+      .def("clone", &xacc::Graph::clone, "")
+      .def("gen_random_graph", &xacc::Graph::gen_random_graph, "")
+      // .def("addEdge", &xacc::Graph::addEdge, "")
+      .def("removeEdge", &xacc::Graph::removeEdge, "")
+      //.def("addVertex", &xacc::Graph::addVertex, "")
+      //.def("setVertexProperties", &xacc::Graph::setVertexProperties, "")
+      .def("getVertexProperties", &xacc::Graph::getVertexProperties, "")
+      .def("setEdgeWeight", &xacc::Graph::setEdgeWeight, "")
+      .def("getEdgeWeight", &xacc::Graph::getEdgeWeight, "")
+      .def("edgeExists", &xacc::Graph::edgeExists, "")
+      .def("degree", &xacc::Graph::degree, "")
+      .def("diameter", &xacc::Graph::diameter, "")
+      .def("size", &xacc::Graph::size, "")
+      .def("order", &xacc::Graph::order, "")
+      .def("depth", &xacc::Graph::depth, "")
+      .def("getNeighborList", &xacc::Graph::getNeighborList, "")
+      .def("computeShortestPath", &xacc::Graph::computeShortestPath, "");
+
+  m.def("getGraph",
+        [](const std::string &name) -> std::shared_ptr<xacc::Graph> {
+          auto graph = xacc::getService<xacc::Graph>(name);
+          return graph;
+        });
+}
