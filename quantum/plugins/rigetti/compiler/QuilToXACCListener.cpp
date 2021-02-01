@@ -74,6 +74,8 @@ void QuilToXACCListener::exitGate(quil::QuilParser::GateContext *ctx) {
     gateName = "Rz";
   if (gateName == "CX")
     gateName = "CNOT";
+  if (gateName == "CPHASE")
+      gateName = "CPhase";
 
   std::vector<std::size_t> qubits;
   for (int i = 0; i < ctx->qubit().size(); i++) {

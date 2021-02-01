@@ -63,7 +63,7 @@ public:
 class ResultsDecoder {
 public:
   void decode(std::shared_ptr<AcceleratorBuffer> buffer, py::object results,
-              std::set<int> qbitIdxs, int shots);
+               int shots);
 };
 
 class QCSPlacement : public IRTransformation {
