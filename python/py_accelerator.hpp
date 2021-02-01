@@ -23,6 +23,7 @@
 
 #include "xacc.hpp"
 #include "AcceleratorDecorator.hpp"
+#include "NoiseModel.hpp"
 
 namespace py = pybind11;
 using namespace xacc;
@@ -106,6 +107,45 @@ public:
   const std::vector<std::string> configurationKeys() override {
     PYBIND11_OVERLOAD_PURE(std::vector<std::string>, xacc::AcceleratorDecorator,
                            configurationKeys)
+  }
+};
+
+// Forward declare
+namespace quantum {
+class Gate;
+}
+class PyNoiseModel : public xacc::NoiseModel {
+public:
+  using NoiseModel::NoiseModel;
+  const std::string name() const override {
+    PYBIND11_OVERLOAD_PURE(const std::string, xacc::NoiseModel, name);
+  }
+  const std::string description() const override { return ""; }
+  void initialize(const HeterogeneousMap &params = {}) override {
+    PYBIND11_OVERLOAD_PURE(void, xacc::NoiseModel, initialize, params);
+  }
+  std::string toJson() const override {
+    PYBIND11_OVERLOAD_PURE(std::string, xacc::NoiseModel, toJson);
+  }
+
+  std::vector<RoErrors> readoutErrors() const override {
+    PYBIND11_OVERLOAD_PURE(std::vector<RoErrors>, xacc::NoiseModel,
+                           readoutErrors);
+  }
+  RoErrors readoutError(size_t qubitIdx) const override {
+    PYBIND11_OVERLOAD_PURE(RoErrors, xacc::NoiseModel, readoutError, qubitIdx);
+  }
+
+  double gateErrorProb(xacc::quantum::Gate &gate) const override { return 0.0; }
+  size_t nQubits() const override {
+    PYBIND11_OVERLOAD_PURE(size_t, xacc::NoiseModel, nQubits);
+  }
+  std::vector<double> averageSingleQubitGateFidelity() const override {
+    return {};
+  }
+  std::vector<std::tuple<size_t, size_t, double>>
+  averageTwoQubitGateFidelity() const override {
+    return {};
   }
 };
 
