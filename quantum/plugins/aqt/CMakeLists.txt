@@ -59,7 +59,7 @@ if(Python_FOUND)
     # We always build the accelerator, but only test if the qtrl library is
     # installed.
     if(XACC_BUILD_TESTS)
-      #add_subdirectory(tests)
+      add_subdirectory(tests)
     endif()
   endif()
 else()

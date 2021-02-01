@@ -21,6 +21,16 @@
 #include "xacc_service.hpp"
 
 using namespace pybind11::literals;
+
+namespace {
+std::vector<std::string> openQasm2QtrlSeq(pybind11::object &transpiler,
+                                          const std::string &openQasmSrc) {
+  auto ll_seq = transpiler.attr("transpile_qasm")(openQasmSrc);
+  pybind11::print(ll_seq);
+  return {};
+}
+} // namespace
+
 namespace xacc {
 namespace quantum {
 void AqtAccelerator::initialize(const HeterogeneousMap &params) {
@@ -38,6 +48,8 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
     } catch (...) {
     }
     PythonInit = true;
+    // Requirement: openqasm_transpiler module is available
+    m_openQASM2qtrl = pybind11::module::import("openqasm_transpiler");
   }
 }
 
@@ -47,7 +59,12 @@ std::vector<std::pair<int, int>> AqtAccelerator::getConnectivity() {
 
 void AqtAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
-    const std::shared_ptr<CompositeInstruction> compositeInstruction) {}
+    const std::shared_ptr<CompositeInstruction> compositeInstruction) {
+  auto compiler = xacc::getCompiler("staq");
+  auto circuit_src = compiler->translate(compositeInstruction);
+  std::cout << "HOWDY: \n" << circuit_src << "\n";
+  auto qtrlSeq = openQasm2QtrlSeq(m_openQASM2qtrl, circuit_src);
+}
 
 void AqtAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,

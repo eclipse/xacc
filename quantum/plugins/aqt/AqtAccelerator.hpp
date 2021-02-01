@@ -44,6 +44,9 @@ public:
                            compositeInstructions) override;
   virtual void apply(std::shared_ptr<AcceleratorBuffer> buffer,
                      std::shared_ptr<Instruction> inst) override{};
+
+private:
+  pybind11::object m_openQASM2qtrl;
 };
 } // namespace quantum
 } // namespace xacc

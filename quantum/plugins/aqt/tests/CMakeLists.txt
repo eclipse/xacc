@@ -1,0 +1,2 @@
+add_xacc_test(AqtAccelerator)
+target_link_libraries(AqtAcceleratorTester xacc xacc-quantum-gate)
