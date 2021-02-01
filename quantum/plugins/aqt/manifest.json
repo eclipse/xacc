@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_aqt",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC AQT Accelerator",
+  "bundle.description" : "This bundle provides a remote Accelerator interface to the Advanced Quantum Testbed QPU."
+}
