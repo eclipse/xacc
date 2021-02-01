@@ -14,6 +14,7 @@
 #include "aswap.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include <assert.h>
 
 namespace {
     // Value to denote that an empty (not set) SZ value
@@ -118,24 +119,58 @@ namespace circuits {
 
     void ASWAP::initializeParamList()
     {
-        const int numberParams = [&]() -> int {
-            if (m_nbQubits == 2)
-            {
-                return m_timeReversalSymmetry ? 1 : 2;
-            }
-            else
-            {
-                return m_timeReversalSymmetry ? binomialCoefficient(m_nbQubits, m_nbParticles) : 2*(binomialCoefficient(m_nbQubits, m_nbParticles));
-            }            
-        }();       
-        
-        m_paramList.reserve(numberParams);
-        for (int i = 0; i < numberParams; ++i)
-        {
-            m_paramList.emplace_back(generateString(PARAM_PREFIX, i));
-        }
+      const int nAblocks = (m_nbQubits == 2)
+                               ? 1
+                               : binomialCoefficient(m_nbQubits, m_nbParticles);
 
-        addVariables(m_paramList);
+      const int numberParams = [&]() -> int {
+        if (m_nbQubits == 2) {
+          return m_timeReversalSymmetry ? 1 : 2;
+        } else {
+          // Minimum number of parameters: not include the ones that we can
+          // fixed: For timeReversalSymmetry: all phi params are set to zero and
+          // 1 extra theta param can be set to zero. For
+          // non-timeReversalSymmetry: two phi params are *free* params.
+          return m_timeReversalSymmetry
+                     ? binomialCoefficient(m_nbQubits, m_nbParticles) - 1
+                     : 2 * (binomialCoefficient(m_nbQubits, m_nbParticles) - 1);
+        }
+      }();
+
+      // Compute the separate limits for theta and phi params:
+      const int numThetaParams = m_timeReversalSymmetry ? numberParams : nAblocks;
+      const int numPhiParams = numberParams - numThetaParams;
+      int thetaCount = 0;
+      int phiCount = 0;
+      const int NB_ANGLES_PER_BLOCK = m_timeReversalSymmetry ? 1 : 2;
+      for (int i = 0; i < nAblocks; ++i) {
+        // Theta:
+        if (thetaCount < numThetaParams) {
+          m_paramList.emplace_back(generateString("theta", i));
+          addVariable(m_paramList.back());
+          thetaCount++;
+        } else {
+          // Fix the free theta paramter to zero:
+          // Note: an A block with both theta and phi are zero
+          // ==> CZ gate.
+          // Just add a zero value to be resolved by expr_tk 
+          m_paramList.emplace_back("0.0");
+        }
+        // Only need phi if non-time reversal symmetry
+        if (!m_timeReversalSymmetry) {
+          // Phi
+          if (phiCount < numPhiParams) {
+            m_paramList.emplace_back(generateString("phi", i));
+            addVariable(m_paramList.back());
+            phiCount++;
+          } else {
+            m_paramList.emplace_back("0.0");
+          }
+        }
+      }
+      assert(phiCount == numPhiParams);
+      assert(thetaCount == numThetaParams);
+      assert(getArguments().size() == numberParams);
     }
     
     void ASWAP::constructCircuit()
