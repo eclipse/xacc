@@ -91,6 +91,8 @@ namespace circuits {
             return false;
         }
 
+        // Always set default time reversal symmetry
+        m_timeReversalSymmetry = true;
         if (runtimeOptions.keyExists<bool>("timeReversalSymmetry"))
         {
             m_timeReversalSymmetry = runtimeOptions.get<bool>("timeReversalSymmetry");
@@ -143,34 +145,71 @@ namespace circuits {
       int thetaCount = 0;
       int phiCount = 0;
       const int NB_ANGLES_PER_BLOCK = m_timeReversalSymmetry ? 1 : 2;
-      for (int i = 0; i < nAblocks; ++i) {
-        // Theta:
-        if (thetaCount < numThetaParams) {
-          m_paramList.emplace_back(generateString("theta", i));
-          addVariable(m_paramList.back());
-          thetaCount++;
-        } else {
-          // Fix the free theta paramter to zero:
-          // Note: an A block with both theta and phi are zero
-          // ==> CZ gate.
-          // Just add a zero value to be resolved by expr_tk 
-          m_paramList.emplace_back("0.0");
+      // Named variables are provided
+      if (!variables.empty()) {
+        if (variables.size() != numberParams) {
+          xacc::error("[ASwap] The number of variables doesn't match the "
+                      "configuration. Provided " +
+                      std::to_string(variables.size()) + "; expected " +
+                      std::to_string(numberParams));
         }
-        // Only need phi if non-time reversal symmetry
-        if (!m_timeReversalSymmetry) {
-          // Phi
-          if (phiCount < numPhiParams) {
-            m_paramList.emplace_back(generateString("phi", i));
-            addVariable(m_paramList.back());
-            phiCount++;
+
+        int varIdx = 0;
+        for (int i = 0; i < nAblocks; ++i) {
+          // Theta:
+          if (thetaCount < numThetaParams) {
+            m_paramList.emplace_back(variables[varIdx++]);
+            thetaCount++;
           } else {
+            // Fix the free theta paramter to zero:
+            // Note: an A block with both theta and phi are zero
+            // ==> CZ gate.
+            // Just add a zero value to be resolved by expr_tk
             m_paramList.emplace_back("0.0");
+          }
+          // Only need phi if non-time reversal symmetry
+          if (!m_timeReversalSymmetry) {
+            // Phi
+            if (phiCount < numPhiParams) {
+              m_paramList.emplace_back(variables[varIdx++]);
+              phiCount++;
+            } else {
+              m_paramList.emplace_back("0.0");
+            }
+          }
+        }
+      } else {
+        // No named variables, create variables if needed.
+        for (int i = 0; i < nAblocks; ++i) {
+          // Theta:
+          if (thetaCount < numThetaParams) {
+            m_paramList.emplace_back(generateString("theta", i));
+            addVariable(m_paramList.back());
+            thetaCount++;
+          } else {
+            // Fix the free theta paramter to zero:
+            // Note: an A block with both theta and phi are zero
+            // ==> CZ gate.
+            // Just add a zero value to be resolved by expr_tk
+            m_paramList.emplace_back("0.0");
+          }
+          // Only need phi if non-time reversal symmetry
+          if (!m_timeReversalSymmetry) {
+            // Phi
+            if (phiCount < numPhiParams) {
+              m_paramList.emplace_back(generateString("phi", i));
+              addVariable(m_paramList.back());
+              phiCount++;
+            } else {
+              m_paramList.emplace_back("0.0");
+            }
           }
         }
       }
+
       assert(phiCount == numPhiParams);
       assert(thetaCount == numThetaParams);
-      assert(getArguments().size() == numberParams);
+      assert(variables.size() == numberParams);
     }
     
     void ASWAP::constructCircuit()
