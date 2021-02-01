@@ -13,7 +13,6 @@
 #ifndef XACC_ELECTRON_ATTACHMENT_POOL_HPP_
 #define XACC_ELECTRON_ATTACHMENT_POOL_HPP_
 
-#include "adapt.hpp"
 #include "OperatorPool.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
@@ -64,17 +63,17 @@ public:
     auto _nOccupied = (int)std::ceil(_nElectrons / 2.0);
     auto _nVirtual = nQubits / 2 - _nOccupied;
     auto _nOrbs = _nOccupied + _nVirtual;
+    
+    if (_rank == 1) {
+      for (int a = 0; a < _nVirtual; a++) {
+        int aa = a + _nOccupied;
+        int ab = a + _nOccupied + _nOrbs;
+        operators.push_back(
+            std::make_shared<FermionOperator>(FermionOperator({{aa, 1}}, 2.0)));
 
-    std::shared_ptr<Observable> fermiOp;
-    // i
-    for (int a = 0; a < _nVirtual; a++) {
-      int aa = a + _nOccupied;
-      int ab = a + _nOccupied + _nOrbs;
-      operators.push_back(
-          std::make_shared<FermionOperator>(FermionOperator({{aa, 1}}, 4.0)));
-
-      operators.push_back(
-          std::make_shared<FermionOperator>(FermionOperator({{ab, 1}}, 4.0)));
+        operators.push_back(
+            std::make_shared<FermionOperator>(FermionOperator({{ab, 1}}, 2.0)));
+      }
     }
 
     if (_rank == 2) {
@@ -82,6 +81,10 @@ public:
       for (int a = 0; a < _nVirtual; a++) {
         int aa = a + _nOccupied;
         int ab = a + _nOccupied + _nOrbs;
+
+        operators.push_back(std::make_shared<FermionOperator>(
+            FermionOperator({{aa, 1}, {ab, 1}}, 4.0)));
+
         for (int b = a + 1; b < _nVirtual; b++) {
           int ba = b + _nOccupied;
           int bb = b + _nOccupied + _nOrbs;

@@ -19,6 +19,7 @@
 #include "operator_pools/SinglesDoublesPool.hpp"
 #include "operator_pools/IonizationPotential.hpp"
 #include "operator_pools/ElectronAttachment.hpp"
+#include "operator_pools/SpinFlip.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -62,6 +63,9 @@ public:
 
     auto ea = std::make_shared<xacc::quantum::ElectronAttachment>();
     context.RegisterService<xacc::quantum::OperatorPool>(ea); 
+
+    auto sf = std::make_shared<xacc::quantum::SpinFlip>();
+    context.RegisterService<xacc::quantum::OperatorPool>(sf); 
 
   }
 

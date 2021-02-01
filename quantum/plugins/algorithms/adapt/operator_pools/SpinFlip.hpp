@@ -10,8 +10,8 @@
  * Contributors:
  *   Daniel Claudino - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_IONIZATION_POTENTIAL_POOL_HPP_
-#define XACC_IONIZATION_POTENTIAL_POOL_HPP_
+#ifndef XACC_SPIN_FLIP_POOL_HPP_
+#define XACC_SPIN_FLIP_POOL_HPP_
 
 #include "OperatorPool.hpp"
 #include "xacc.hpp"
@@ -28,14 +28,14 @@ using namespace xacc::quantum;
 namespace xacc {
 namespace quantum {
 
-class IonizationPotential : public OperatorPool {
+class SpinFlip : public OperatorPool {
 
 protected:
   int _nElectrons, _rank = 1;
   std::vector<std::shared_ptr<Observable>> pool, operators;
 
 public:
-  IonizationPotential() = default;
+  SpinFlip() = default;
 
   bool optionalParameters(const HeterogeneousMap parameters) override {
 
@@ -49,8 +49,8 @@ public:
       _rank = parameters.get<int>("rank");
     }
 
-    if (_rank > 2) {
-      xacc::info("Cannot remove more than two electrons");
+    if (_rank > 3) {
+      xacc::error("Cannot flip more than three spins");
     }
 
     return true;
@@ -68,12 +68,11 @@ public:
       for (int i = 0; i < _nOccupied; i++) {
         int ia = i;
         int ib = i + _nOrbs;
+        operators.push_back(std::make_shared<FermionOperator>(
+            FermionOperator({{ib, 1}, {ia, 0}}, 4.0)));
 
-        operators.push_back(
-            std::make_shared<FermionOperator>(FermionOperator({{ia, 0}}, 2.0)));
-
-        operators.push_back(
-            std::make_shared<FermionOperator>(FermionOperator({{ib, 0}}, 2.0)));
+        operators.push_back(std::make_shared<FermionOperator>(
+            FermionOperator({{ia, 1}, {ib, 0}}, 4.0)));
       }
     }
 
@@ -82,22 +81,37 @@ public:
       for (int i = 0; i < _nOccupied; i++) {
         int ia = i;
         int ib = i + _nOrbs;
-
-        operators.push_back(std::make_shared<FermionOperator>(
-            FermionOperator({{ia, 0}, {ib, 0}}, 4.0)));
-
         for (int j = i + 1; j < _nOccupied; j++) {
           int ja = j;
           int jb = j + _nOrbs;
 
           operators.push_back(std::make_shared<FermionOperator>(
-              FermionOperator({{ia, 0}, {ja, 0}}, 4.0)));
+              FermionOperator({{ib, 1}, {ia, 0}, {jb, 1}, {ja, 0}}, 16.0)));
+
           operators.push_back(std::make_shared<FermionOperator>(
-              FermionOperator({{ib, 0}, {jb, 0}}, 4.0)));
-          operators.push_back(std::make_shared<FermionOperator>(
-              FermionOperator({{ia, 0}, {jb, 0}}, 4.0)));
-          operators.push_back(std::make_shared<FermionOperator>(
-              FermionOperator({{ib, 0}, {ja, 0}}, 4.0)));
+              FermionOperator({{ia, 1}, {ib, 0}, {ja, 1}, {jb, 0}}, 16.0)));
+        }
+      }
+    }
+
+    if (_rank == 3) {
+
+      for (int i = 0; i < _nOccupied; i++) {
+        int ia = i;
+        int ib = i + _nOrbs;
+
+        for (int j = i + 1; j < _nOccupied; j++) {
+          int ja = j;
+          int jb = j + _nOrbs;
+          for (int k = j + 1; k < _nOccupied; k++) {
+            int ka = k;
+            int kb = k + _nOrbs;
+
+            operators.push_back(
+                std::make_shared<FermionOperator>(FermionOperator(
+                    {{ib, 1}, {ia, 0}, {jb, 1}, {ja, 0}, {kb, 1}, {ka, 0}},
+                    16.0)));
+          }
         }
       }
     }
@@ -139,7 +153,7 @@ public:
     return gate;
   }
 
-  const std::string name() const override { return "ionization-potential"; }
+  const std::string name() const override { return "spin-flip"; }
   const std::string description() const override { return ""; }
 };
 
