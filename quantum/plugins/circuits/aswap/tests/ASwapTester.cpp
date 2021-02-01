@@ -48,6 +48,15 @@ TEST(ASwapTester, checkSimple)
         const int nbInstrPerA = 7;
         const int nbA = 6;
         EXPECT_EQ(aswap->nInstructions(), nbInstrPerA*nbA + 2);
+        // Expect: C(4,2) - 1 = 5 params
+        EXPECT_EQ(aswap->getVariables().size(), 5);
+    }
+    {
+        auto tmp = xacc::getService<Instruction>("ASWAP");
+        auto aswap = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
+        aswap->expand({ std::make_pair("nbQubits", 4), std::make_pair("nbParticles", 2), std::make_pair("timeReversalSymmetry", false) });
+        // Expect: 2 * (C(4,2) - 1) = 10 params
+        EXPECT_EQ(aswap->getVariables().size(), 10);
     }
 }
 
@@ -69,8 +78,7 @@ TEST(ASwapTester, checkDeuteron2)
         .qbit q
         ASWAP(q, t0, {{"nbQubits", 2}, {"nbParticles", 1}});
     )");
-    auto ansatz = xacc::getCompiled("deuteron_ansatz");   
-    
+    auto ansatz = xacc::getCompiled("deuteron_ansatz");
     // Get the VQE Algorithm and initialize it
     auto vqe = xacc::getAlgorithm("vqe");
     vqe->initialize({std::make_pair("ansatz", ansatz),
@@ -101,12 +109,12 @@ TEST(ASwapTester, checkDeuteron3)
     xacc::qasm(R"(
     .compiler xasm
     .circuit deuteron_ansatz_h3
-    .parameters t0, t1, t2
+    .parameters t0, t1
     .qbit q
-    ASWAP(q, t0, t1, t2, {{"nbQubits", 3}, {"nbParticles", 1}});
+    ASWAP(q, t0, t1, {{"nbQubits", 3}, {"nbParticles", 1}});
     )");
     auto ansatz = xacc::getCompiled("deuteron_ansatz_h3");
-
+    EXPECT_EQ(ansatz->getVariables().size(), 2);
     // Get the VQE Algorithm and initialize it
     auto vqe = xacc::getAlgorithm("vqe");
     vqe->initialize({std::make_pair("ansatz", ansatz),
@@ -119,6 +127,34 @@ TEST(ASwapTester, checkDeuteron3)
     vqe->execute(buffer);
     // Expected result: -2.04482
     EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -2.04482, 1e-4);
+}
+
+TEST(ASwapTester, checkDeuteronH3) {
+  auto accelerator = xacc::getAccelerator("qpp");
+
+  // Create the N=3 deuteron Hamiltonian
+  auto H_N_3 = xacc::quantum::getObservable(
+      "pauli",
+      std::string("5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1 + "
+                  "9.625 - 9.625 Z2 - 3.91 X1 X2 - 3.91 Y1 Y2"));
+
+  auto optimizer = xacc::getOptimizer("nlopt");
+  auto tmp = xacc::getService<Instruction>("ASWAP");
+  auto aswap = std::dynamic_pointer_cast<CompositeInstruction>(tmp);
+  aswap->expand({{"nbQubits", 3}, {"nbParticles", 1}});
+  EXPECT_EQ(aswap->getVariables().size(), 2);
+  // Get the VQE Algorithm and initialize it
+  auto vqe = xacc::getAlgorithm("vqe");
+  vqe->initialize({std::make_pair("ansatz", aswap),
+                   std::make_pair("observable", H_N_3),
+                   std::make_pair("accelerator", accelerator),
+                   std::make_pair("optimizer", optimizer)});
+
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(3);
+  vqe->execute(buffer);
+  // Expected result: -2.04482
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -2.04482, 1e-4);
 }
 
 int main(int argc, char **argv) {
