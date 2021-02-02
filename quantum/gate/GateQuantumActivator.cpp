@@ -51,6 +51,7 @@ public:
     auto sw = std::make_shared<xacc::quantum::Swap>();
     auto isw = std::make_shared<xacc::quantum::iSwap>();
     auto fsim = std::make_shared<xacc::quantum::fSim>();
+    auto xy = std::make_shared<xacc::quantum::XY>();
     auto u = std::make_shared<xacc::quantum::U>();
     auto u1 = std::make_shared<xacc::quantum::U1>();
 
@@ -85,6 +86,7 @@ public:
     context.RegisterService<xacc::Instruction>(sw);
     context.RegisterService<xacc::Instruction>(isw);
     context.RegisterService<xacc::Instruction>(fsim);
+    context.RegisterService<xacc::Instruction>(xy);
     context.RegisterService<xacc::Instruction>(u);
     context.RegisterService<xacc::Instruction>(u1);
 

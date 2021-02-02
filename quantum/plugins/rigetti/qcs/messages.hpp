@@ -92,6 +92,7 @@ public:
   RPCRequestBinaryExecutable(std::string i, BinaryExecutableParams &p) :params(p), id(i) {}
   MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type);
 };
+    
 
 class QPURequest {
   protected:
@@ -108,10 +109,10 @@ class QPURequest {
 class QPURequestParams {
 protected:
   QPURequest& request;
-  std::string user = "";
+  std::string user = "00u4i1atsfsrjqiiy356";
   int priority = 1;
 public:
-  QPURequestParams(QPURequest &a, std::string& uid) : request(a), user(uid) {}
+  QPURequestParams(QPURequest &a) : request(a) {}
   MSGPACK_DEFINE_MAP(MSGPACK_NVP("request", request), user, priority);
 };
 
@@ -123,11 +124,11 @@ protected:
   QPURequestParams& params;
   std::string _type = "RPCRequest";
   msgpack::type::nil_t client_key;
-//   double client_tim/eout;
+  msgpack::type::nil_t client_timeout;
 
 public:
   RPCRequestQPURequest(std::string i, QPURequestParams &p) : params(p), id(i) {}
-  MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type, client_key);
+  MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type, client_key, client_timeout);
 };
 
 }

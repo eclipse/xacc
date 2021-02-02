@@ -126,8 +126,7 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
       m_optimizer->isGradientBased()) {
     gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(
         parameters.getString("gradient_strategy"));
-    gradientStrategy->initialize(
-        {std::make_pair("observable", xacc::as_shared_ptr(m_costHamObs))});
+    gradientStrategy->initialize(parameters);
   }
 
   if ((parameters.stringExists("gradient_strategy") ||

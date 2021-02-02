@@ -24,10 +24,67 @@ namespace py = pybind11;
 using namespace xacc;
 using namespace xacc::quantum;
 
+#define EXPOSE_PYGATE(GATE) py::class_<GATE, Gate, std::shared_ptr<GATE>>(k, #GATE);
+#define EXPOSE_PY_VISIT_METHOD(GATE) .def("visit", (void (AllGateVisitor::*)(GATE& )) &AllGateVisitor::visit)
+
 void bind_quantum(py::module &m) {
   py::module k = m.def_submodule("quantum", "XACC python quantum submodule");
-
   py::class_<Term>(k, "Term").def("coeff", &Term::coeff).def("ops", &Term::ops);
+
+  py::class_<Gate, Instruction, std::shared_ptr<Gate>>(k, "Gate");
+  EXPOSE_PYGATE(Hadamard)
+  EXPOSE_PYGATE(CNOT)   
+  EXPOSE_PYGATE(Rz)
+  EXPOSE_PYGATE(Rx)
+  EXPOSE_PYGATE(Ry)
+  EXPOSE_PYGATE(X)
+  EXPOSE_PYGATE(Y)
+  EXPOSE_PYGATE(Z)
+  EXPOSE_PYGATE(CPhase)
+  EXPOSE_PYGATE(Swap)
+  EXPOSE_PYGATE(iSwap)
+  EXPOSE_PYGATE(fSim)
+  EXPOSE_PYGATE(Measure)
+  EXPOSE_PYGATE(Identity)
+  EXPOSE_PYGATE(CZ)
+  EXPOSE_PYGATE(CY)
+  EXPOSE_PYGATE(CRZ)
+  EXPOSE_PYGATE(CH)
+  EXPOSE_PYGATE(S)
+  EXPOSE_PYGATE(Sdg)  
+  EXPOSE_PYGATE(T)
+  EXPOSE_PYGATE(Tdg)
+  EXPOSE_PYGATE(U)
+  EXPOSE_PYGATE(U1)
+  EXPOSE_PYGATE(XY)
+
+  py::class_<AllGateVisitor, std::shared_ptr<AllGateVisitor>, PyAllGateVisitor, xacc::BaseInstructionVisitor>(k, "AllGateVisitor")
+    .def(py::init<>(), "")
+  EXPOSE_PY_VISIT_METHOD(Hadamard)
+  EXPOSE_PY_VISIT_METHOD(CNOT)
+  EXPOSE_PY_VISIT_METHOD(Rz)
+  EXPOSE_PY_VISIT_METHOD(Rx)
+  EXPOSE_PY_VISIT_METHOD(Ry)
+  EXPOSE_PY_VISIT_METHOD(X)
+  EXPOSE_PY_VISIT_METHOD(Y)
+  EXPOSE_PY_VISIT_METHOD(Z)
+  EXPOSE_PY_VISIT_METHOD(CPhase)
+  EXPOSE_PY_VISIT_METHOD(Swap)
+  EXPOSE_PY_VISIT_METHOD(iSwap)
+  EXPOSE_PY_VISIT_METHOD(fSim)
+  EXPOSE_PY_VISIT_METHOD(Measure)
+  EXPOSE_PY_VISIT_METHOD(Identity)
+  EXPOSE_PY_VISIT_METHOD(CZ)
+  EXPOSE_PY_VISIT_METHOD(CY)
+  EXPOSE_PY_VISIT_METHOD(CRZ)
+  EXPOSE_PY_VISIT_METHOD(CH)
+  EXPOSE_PY_VISIT_METHOD(S)
+  EXPOSE_PY_VISIT_METHOD(Sdg)  
+  EXPOSE_PY_VISIT_METHOD(T)
+  EXPOSE_PY_VISIT_METHOD(Tdg)
+  EXPOSE_PY_VISIT_METHOD(U)
+  EXPOSE_PY_VISIT_METHOD(U1)
+  EXPOSE_PY_VISIT_METHOD(XY);
 
   py::class_<PauliOperator, xacc::Observable, std::shared_ptr<PauliOperator>>(
       k, "PauliOperator")
@@ -174,7 +231,14 @@ void bind_quantum(py::module &m) {
       "The Optimizer interface provides optimization routine implementations "
       "for use in algorithms.")
       .def(py::init<>(), "")
-      .def("initialize", &AlgorithmGradientStrategy::initialize)
+      .def("initialize", [](AlgorithmGradientStrategy &a, PyHeterogeneousMap &params) {
+            HeterogeneousMap m;
+            for (auto &item : params) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            return a.initialize(m);
+          })
       .def("isNumerical", &AlgorithmGradientStrategy::isNumerical)
       .def("setFunctionValue", &AlgorithmGradientStrategy::setFunctionValue)
       .def("getGradientExecutions",

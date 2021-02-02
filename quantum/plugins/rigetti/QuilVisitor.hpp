@@ -15,6 +15,7 @@
 
 #include <memory>
 #include "AllGateVisitor.hpp"
+#include "xacc.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -35,13 +36,25 @@ protected:
 
   int numAddresses = 0;
 
+  bool retain_xacc_gates = false;
 public:
   QuilVisitor() {}
   QuilVisitor(bool measures) : includeMeasures(measures) {}
+  QuilVisitor(bool measures, bool retain) : includeMeasures(measures), retain_xacc_gates(retain) {}
 
   void visit(Hadamard &h) {
     std::string qubit = std::to_string(h.bits()[0]);
-    quilStr += "RZ(pi/2) " + qubit + "\nRX(pi/2) " + qubit + "\nRZ(pi/2) " + qubit + "\n";
+    if (retain_xacc_gates) {
+      quilStr += "H " + qubit + "\n";
+    } else {
+      Rz rz1(h.bits()[0], xacc::constants::pi/2.);
+      Rx rx1(h.bits()[0], xacc::constants::pi/2.);
+      Rz rz2(h.bits()[0], xacc::constants::pi/2.);
+      
+      visit(rz1);
+      visit(rx1);
+      visit(rz2);
+    }
   }
 
   void visit(Identity &i) {
@@ -59,7 +72,23 @@ public:
   void visit(CNOT &cn) {
     std::string q1 = std::to_string(cn.bits()[0]);
     std::string q2 = std::to_string(cn.bits()[1]);
-    quilStr += "RZ(-pi/2) " + q2 + "\nRX(pi/2) " + q2 + "\nCZ " + q2 + " " + q1 + "\nRZ(pi) " + q1 + "\nRX(-pi/2) " + q2 + "\nRZ(pi/2) " + q2 + "\n";
+    if (retain_xacc_gates) {
+      quilStr += "CNOT " + q1 + " " + q2 + "\n";
+    } else {
+      Rz rz1(cn.bits()[1], -xacc::constants::pi/2.);
+      Rx rx1(cn.bits()[1], xacc::constants::pi/2.);
+      CZ cz(cn.bits()[1], cn.bits()[0]);
+      Rz rz2(cn.bits()[0], xacc::constants::pi);
+      Rx rx2(cn.bits()[1], -xacc::constants::pi/2.);
+      Rz rz3(cn.bits()[1], xacc::constants::pi/2.);
+      
+      visit(rz1);
+      visit(rx1);
+      visit(cz);
+      visit(rz2);
+      visit(rx2);
+      visit(rz3);
+    }
   }
 
   void visit(X &x) {
@@ -96,20 +125,35 @@ public:
     auto angleStr = rx.getParameter(0).toString();
 
     auto angleDouble = rx.getParameter(0).as<double>();
-    // if (std::fabs(angleDouble % (xacc::constants::pi / 2.0)) < 1e-3) {
-    //     int multiple = (int) angleDouble / (xacc::constants::pi / 2.);
-    //     quilStr += "RX(" + std::to_string(multiple) + "* pi/2) " + qubit + "\n";
-    // } else {
-    // quilStr += "RX(" + angleStr + ") " + qubit + "\n";
-       // decompose into rigetti gate set
-       quilStr += "RZ(pi/2) " + qubit + "\nRX(pi/2) " + qubit +"\nRz(" + angleStr + ") " + qubit + "\nRX(-pi/2) " + qubit + "\nRZ(-pi/2) "+ qubit + "\n";
-    // }
+    
+    if (retain_xacc_gates) {
+      quilStr += "RX("+angleStr+") " + qubit + "\n";
+    } else {
+      if (std::fabs(std::fmod(angleDouble, xacc::constants::pi)) < 1e-6 || std::fabs(std::fmod(angleDouble,xacc::constants::pi/2.)) < 1e-6) {
+        quilStr += "RX("+angleStr+") " + qubit + "\n";
+      } else {
+        // decompose into rigetti gate set
+        quilStr += "RZ(pi/2) " + qubit + "\nRX(pi/2) " + qubit +"\nRZ(" + angleStr + ") " + qubit + "\nRX(-pi/2) " + qubit + "\nRZ(-pi/2) "+ qubit + "\n";
+      }
+    }
   }
 
   void visit(Ry &ry) {
     auto angleStr = ry.getParameter(0).toString();
     std::string qubit = std::to_string(ry.bits()[0]);
-    quilStr += "RX(pi/2) " + qubit + "\nRZ(" + angleStr + ") " + qubit + "\nRX(-pi/2) " + qubit + "\n";
+      
+    if (retain_xacc_gates) {
+        quilStr += "RY("+angleStr+") " + qubit + "\n";
+    } else {
+      Rx rx1(ry.bits()[0], xacc::constants::pi/2.);
+      Rz rz1(ry.bits()[0], ry.getParameter(0).as<double>());
+      Rx rx2(ry.bits()[0], -xacc::constants::pi/2.);
+      
+      visit(rx1);
+      visit(rz1);
+      visit(rx2);
+    }
+      
   }
 
   void visit(Rz &rz) {
@@ -157,6 +201,13 @@ public:
     // s << "   Rz(" << l << ", " << u.bits()[0] << ")\n";
 
     // quilStr += s.str();
+  }
+
+  void visit(XY& xy) override {
+    auto angleStr = xy.getParameter(0).toString();
+    std::string ctrl = std::to_string(xy.bits()[0]);
+    std::string tgt = std::to_string(xy.bits()[1]);
+    quilStr += "XY("+angleStr+") " +ctrl + " " + tgt + "\n";
   }
 
   /**

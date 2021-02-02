@@ -492,7 +492,7 @@ PauliOperator &PauliOperator::operator-=(const PauliOperator &v) noexcept {
 
 PauliOperator &PauliOperator::operator*=(const PauliOperator &v) noexcept {
 
-  std::unordered_map<std::string, Term> newTerms;
+  std::map<std::string, Term> newTerms;
   for (auto &kv : terms) {
     for (auto &vkv : v.terms) {
       auto multTerm = kv.second * vkv.second;

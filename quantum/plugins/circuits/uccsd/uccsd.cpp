@@ -47,7 +47,7 @@ bool UCCSD::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   auto _nVirtual = nQubits / 2 - _nOccupied;
   auto _nOrbitals = _nOccupied + _nVirtual;
 
-  std::unordered_map<std::string, Term> terms;
+  std::map<std::string, Term> terms;
   std::vector<xacc::InstructionParameter> variables;
 
   if (runtimeOptions.stringExists("pool")) {

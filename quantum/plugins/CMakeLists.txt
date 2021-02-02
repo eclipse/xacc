@@ -26,6 +26,7 @@ add_subdirectory(qpp)
 add_subdirectory(staq)
 add_subdirectory(observable_transforms)
 add_subdirectory(dmsim)
+#add_subdirectory(jaqal)
 
 find_library(QRACK_LIBRARY NAMES qrack)
 if (QRACK_LIBRARY)

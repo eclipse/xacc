@@ -15,8 +15,7 @@
 
 #include "InstructionIterator.hpp"
 #include "RemoteAccelerator.hpp"
-#include "messages.hpp"
-#include <zmq.hpp>
+
 #include <fstream>
 #include "IRTransformation.hpp"
 #include "xacc.hpp"
@@ -24,11 +23,11 @@
 #include "json.hpp"
 using json = nlohmann::json;
 
-#define RAPIDJSON_HAS_STDSTRING 1
+#include <dlfcn.h>
 
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/document.h"
-using namespace rapidjson;
+#include <pybind11/embed.h>
+
+namespace py = pybind11;
 
 using namespace xacc;
 
@@ -63,27 +62,24 @@ public:
 // AcceleratorBuffer
 class ResultsDecoder {
 public:
-  void decode(std::shared_ptr<AcceleratorBuffer> buffer,
-              qcs::GetBuffersResponse &results, std::set<int> qbitIdxs,
-              int shots);
+  void decode(std::shared_ptr<AcceleratorBuffer> buffer, py::object results,
+               int shots);
 };
 
-// MapToPhysical is an IRTransformation that maps
-// the logical program IR qubit indices to the
-// physical qubits available on the given lattice
-class MapToPhysical : public xacc::IRTransformation {
+class QCSPlacement : public IRTransformation {
 protected:
-  std::vector<std::pair<int, int>> _edges;
-
+  std::string backend;
+  std::string isa;
 public:
-  MapToPhysical(std::vector<std::pair<int, int>> &edges) : _edges(edges) {}
+  QCSPlacement() {}
+  QCSPlacement(const std::string& _backend, const std::string& _isa) : backend(_backend), isa(_isa) {}
   void apply(std::shared_ptr<CompositeInstruction> program,
-             const std::shared_ptr<Accelerator> accelerator,
+             const std::shared_ptr<Accelerator> acc,
              const HeterogeneousMap &options = {}) override;
   const IRTransformationType type() const override {
     return IRTransformationType::Placement;
   }
-  const std::string name() const override { return "qcs-map-qubits"; }
+  const std::string name() const override { return "qcs-quilc"; }
   const std::string description() const override { return ""; }
 };
 
@@ -91,9 +87,15 @@ class QCSAccelerator : virtual public Accelerator {
 protected:
   std::vector<int> physicalQubits;
   std::vector<std::pair<int, int>> latticeEdges;
-  Document latticeJson;
   std::string backend;
+  std::string endpoint;
+
+  std::string engagement_url = "https://api.qcs.rigetti.com";
+  std::string qpu_compiler_url = "https://translation.services.qcs.rigetti.com";
+  std::string forest_server_url = "https://forest-server.qcs.rigetti.com";
+
   int shots = 1024;
+  
   std::string qpu_compiler_endpoint;
   std::string qpu_endpoint;
   std::shared_ptr<QCSRestClient> restClient;
@@ -103,109 +105,13 @@ protected:
   std::string server_public = "";
   std::string auth_token = "";
   std::string user_id = "";
+  bool use_rpcq_auth_config = true;
 
-  template <typename T>
-  msgpack::unpacked request(T &requestType, zmq::socket_t &socket) {
-    msgpack::sbuffer sbuf;
-    msgpack::pack(sbuf, requestType);
-    zmq::message_t msg(sbuf.size());
-    memcpy(msg.data(), sbuf.data(), sbuf.size());
-    // std::cout << msg << "\n";
-    socket.send(msg);
-    zmq::message_t reply;
-    socket.recv(&reply, 0);
-    msgpack::unpacked unpackedData;
-    msgpack::unpack(unpackedData, static_cast<const char *>(reply.data()),
-                    reply.size());
-    return unpackedData;
-  }
+  bool initialized = false;
+  std::shared_ptr<py::scoped_interpreter> guard;
 
-  void getSocketURLs() {
-    if (!xacc::directoryExists(std::getenv("HOME") + std::string("/.qcs"))) {
-      xacc::warning("[QCS] $HOME/.qcs directory does not exists.");
-      return;
-    }
-
-    if (!xacc::fileExists(std::getenv("HOME") + std::string("/.qcs_config"))) {
-      xacc::warning("[QCS] $HOME/.qcs_config file does not exist.");
-      return;
-    }
-
-    if (!xacc::fileExists(std::getenv("HOME") +
-                          std::string("/.qcs/user_auth_token"))) {
-      xacc::warning("[QCS] $HOME/.qcs/user_auth_token file does not exist.");
-      return;
-    }
-    std::ifstream stream(std::getenv("HOME") +
-                         std::string("/.qcs/user_auth_token"));
-    std::string contents((std::istreambuf_iterator<char>(stream)),
-                         std::istreambuf_iterator<char>());
-
-    // std::cout << "HELLO2:\n" << contents << "\n";
-    auto auth_json = json::parse(contents);
-
-    std::string graph_ql_query =
-        "\\n          mutation Engage($name: String!) {\\n            "
-        "engage(input: { lattice: { name: $name }}) {\\n              "
-        "success\\n              message\\n              engagement {\\n       "
-        "         type\\n                qpu {\\n                    "
-        "endpoint\\n                    credentials {\\n                       "
-        " clientPublic\\n                        clientSecret\\n               "
-        "         serverPublic\\n                    }\\n                }\\n  "
-        "              compiler {\\n                    endpoint\\n            "
-        "    }\\n                expiresAt\\n              }\\n            "
-        "}\\n          }\\n        ";
-    std::string json_data = "{\"query\": \"" + graph_ql_query +
-                            "\", \"variables\": {\"name\": \"" + backend +
-                            "\"}}";
-    std::map<std::string, std::string> headers{
-        {"Content-Type", "application/json"},
-        {"Connection", "keep-alive"},
-        {"Accept", "application/octet-stream"},
-        {"Content-Length", std::to_string(json_data.length())},
-        {"Authorization",
-         "Bearer " + auth_json["access_token"].get<std::string>()}};
-    auth_token = auth_json["access_token"].get<std::string>();
-
-    // std::cout << json_data.length() << "\n";
-    // std::cout << json_data << "\n";
-    auto resp = this->post("https://dispatch.services.qcs.rigetti.com",
-                           "/graphql", json_data, headers);
-
-    // std::cout << "HELLO:\n" << resp << "\n";
-
-    // this came back
-    auto resp_json = json::parse(resp);
-    qpu_endpoint = resp_json["data"]["engage"]["engagement"]["qpu"]["endpoint"]
-                       .get<std::string>();
-    auto qpu_creds =
-        resp_json["data"]["engage"]["engagement"]["qpu"]["credentials"];
-    qpu_compiler_endpoint =
-        resp_json["data"]["engage"]["engagement"]["compiler"]["endpoint"]
-            .get<std::string>();
-
-    client_public = qpu_creds["clientPublic"].get<std::string>();
-    client_secret = qpu_creds["clientSecret"].get<std::string>();
-    server_public = qpu_creds["serverPublic"].get<std::string>();
-
-    if (qpu_compiler_endpoint.empty() || qpu_endpoint.empty()) {
-      xacc::error("QCS Error: Cannot find qpu_compiler or qpu endpoint.");
-    }
-
-    std::ifstream stream2(std::getenv("HOME") + std::string("/.qcs_config"));
-    std::string contents2((std::istreambuf_iterator<char>(stream2)),
-                          std::istreambuf_iterator<char>());
-    auto lines = xacc::split(contents2, '\n');
-    for (auto &l : lines) {
-      if (l.find("user_id") != std::string::npos) {
-        auto id = xacc::split(l, '=')[1];
-        xacc::trim(id);
-        user_id = id;
-        break;
-      }
-    }
-  }
-
+  void _internal_init();
+  
 public:
   QCSAccelerator()
       : Accelerator(), restClient(std::make_shared<QCSRestClient>()) {}
@@ -216,44 +122,7 @@ public:
                const std::vector<std::shared_ptr<CompositeInstruction>>
                    functions) override;
 
-  void initialize(const HeterogeneousMap &params = {}) override {
-    if (params.stringExists("backend")) {
-      backend = params.getString("backend");
-
-      if (backend.find("-qvm") != std::string::npos) {
-        backend.erase(backend.find("-qvm"), 4);
-      }
-
-      Client client;
-      auto response = client.get("https://forest-server.qcs.rigetti.com",
-                                 "/lattices/" + backend);
-
-      latticeJson.Parse(response);
-      const auto &oneq = latticeJson["lattice"]["isa"]["1Q"];
-      auto &twoq = latticeJson["lattice"]["isa"]["2Q"];
-
-      for (auto itr = oneq.MemberBegin(); itr != oneq.MemberEnd(); ++itr) {
-        physicalQubits.push_back(std::stoi(itr->name.GetString()));
-      }
-      for (auto itr = twoq.MemberBegin(); itr != twoq.MemberEnd(); ++itr) {
-        auto connStr = itr->name.GetString();
-        auto split = xacc::split(connStr, '-');
-        latticeEdges.push_back({std::stoi(split[0]), std::stoi(split[1])});
-      }
-    }
-
-    // Read .forest_config
-    getSocketURLs();
-
-    updateConfiguration(params);
-
-    auto irt = std::make_shared<MapToPhysical>(latticeEdges);
-    xacc::contributeService("qcs-map-qubits", irt);
-  }
-
-  const std::string defaultPlacementTransformation() override {
-    return "qcs-map-qubits";
-  }
+  void initialize(const HeterogeneousMap &params = {}) override;
 
   void updateConfiguration(const HeterogeneousMap &config) override {
     if (config.keyExists<int>("shots")) {
@@ -271,6 +140,7 @@ public:
   HeterogeneousMap getProperties() override { return HeterogeneousMap(); }
 
   const std::string getSignature() override { return "qcs:" + backend; }
+  const std::string defaultPlacementTransformation() override {return "qcs-quilc";}
 
   std::vector<std::pair<int, int>> getConnectivity() override {
     if (!latticeEdges.empty()) {

@@ -49,7 +49,7 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
     paramLetter = parameters.getString("param_id");
   }
 
-  std::unordered_map<std::string, xacc::quantum::Term> terms;
+  std::map<std::string, xacc::quantum::Term> terms;
   if (pauli_or_fermion == "fermion") {
     auto fermionStr = parameters.getString("fermion");
     auto op = std::make_shared<FermionOperator>(fermionStr);
@@ -196,7 +196,7 @@ void Exp::applyRuntimeArguments() {
 
   // Have to make sure this wasn't already expanded
   if (nInstructions() == 0) {
-    std::unordered_map<std::string, xacc::quantum::Term> terms;
+    std::map<std::string, xacc::quantum::Term> terms;
     if (dynamic_cast<FermionOperator *>(observable)) {
       terms = std::dynamic_pointer_cast<PauliOperator>(
                   xacc::getService<ObservableTransform>("jw")->transform(
