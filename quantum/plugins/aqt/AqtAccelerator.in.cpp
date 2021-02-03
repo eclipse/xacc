@@ -98,9 +98,10 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
   auto varManager = qtrlManagers.attr("VariableManager")(varFileName);
   auto pulseManager =
       qtrlManagers.attr("PulseManager")(pulseFileName, varManager);
-  auto adcManager = pybind11::module::import("qtrl.managers.ZurichDAC_manager")
+  // auto zi_mixin = pybind11::module::import("qtrl.instruments.zurich.ZurichMixin");
+  auto dacManager = pybind11::module::import("qtrl.managers.ZurichDAC_manager")
                         .attr("ZurichDACManager")(adcFileName, varManager);
-  auto dacManager = pybind11::module::import("qtrl.managers.ZurichADC_manager")
+  auto adcManager = pybind11::module::import("qtrl.managers.ZurichADC_manager")
                         .attr("ZurichADCManager")(dacFileName, varManager);
   auto kwargs =
       pybind11::dict("variables"_a = varManager, "pulses"_a = pulseManager,
@@ -130,16 +131,17 @@ pybind11::object AqtAccelerator::createQtrlCircuit(
   auto compiler = xacc::getCompiler("staq");
   auto circuit_src = compiler->translate(compositeInstruction);
   auto qtrlSeq = openQasm2QtrlSeq(m_openQASM2qtrl, circuit_src);
-  // std::cout << "HOWDY:";
-  // for (const auto &ll : qtrlSeq) {
-  //   std::cout << ll << " ";
-  // }
+  std::cout << "HOWDY:";
+  for (const auto &ll : qtrlSeq) {
+    std::cout << ll << " ";
+  }
+  std::cout << "\n";
   // Create a qubit list from 0->(n-1)
   std::vector<int> qubits(buffer->size());
   std::iota(qubits.begin(), qubits.end(), 0);
   auto circuit = m_circuitCtor(qubits, qtrlSeq);
   std::vector<pybind11::object> circuit_collection { circuit };
-  return m_circuitColectionCtor(qubits, circuit);
+  return m_circuitColectionCtor(qubits, circuit_collection);
 }
 
 void AqtAccelerator::execute(

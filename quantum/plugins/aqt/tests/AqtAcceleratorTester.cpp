@@ -9,7 +9,7 @@ TEST(AqtAcceleratorTester, testBell) {
   auto accelerator = xacc::getAccelerator(
       "aqt",
       {{"var-yaml",
-        "/Users/7tn/dev/qtrl/examples/Config_Example/Variables.yaml"},
+        "/Users/7tn/dev/qtrl/tests/ref_config/Variables.yaml"},
        {"pulse-yaml",
         "/Users/7tn/dev/qtrl/tests/ref_config/Pulses.yaml"},
        {"adc-yaml", "/Users/7tn/dev/qtrl/examples/Config_Example/ADC.yaml"},
@@ -18,7 +18,8 @@ TEST(AqtAcceleratorTester, testBell) {
   auto program = xasmCompiler
                      ->compile(R"(__qpu__ void bell(qbit q) {
       H(q[0]);
-      CX(q[0], q[1]);
+      // CX(q[0], q[1]);
+      // H(q[1]);
       Measure(q[0]);
       Measure(q[1]);
     })",
