@@ -46,9 +46,17 @@ public:
                      std::shared_ptr<Instruction> inst) override{};
 
 private:
+  pybind11::object createQtrlCircuit(
+      std::shared_ptr<AcceleratorBuffer> buffer,
+      const std::shared_ptr<CompositeInstruction> compositeInstruction);
+
+private:
+  int m_shots;
   pybind11::object m_openQASM2qtrl;
   pybind11::object m_config;
   pybind11::object m_qpu;
+  pybind11::object m_circuitCtor;
+  pybind11::object m_circuitColectionCtor;
 };
 } // namespace quantum
 } // namespace xacc

@@ -110,22 +110,43 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
   auto qpu = pybind11::module::import("qtrl.qpu.qpu");
   // Create a QTRL QPU
   m_qpu = qpu.attr("QPU")(m_config);
+  // Import Circuit and CircuitCollection modules
+  m_circuitCtor = pybind11::module::import("qtrl.qpu.circuit").attr("Circuit");
+  m_circuitColectionCtor = pybind11::module::import("qtrl.qpu.circuit").attr("CircuitCollection");
+
+  m_shots = 1024;
+  if (params.keyExists<int>("shots")) {
+    m_shots = params.get<int>("shots");
+  }
 }
 
 std::vector<std::pair<int, int>> AqtAccelerator::getConnectivity() {
   return {};
 }
 
-void AqtAccelerator::execute(
+pybind11::object AqtAccelerator::createQtrlCircuit(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> compositeInstruction) {
   auto compiler = xacc::getCompiler("staq");
   auto circuit_src = compiler->translate(compositeInstruction);
   auto qtrlSeq = openQasm2QtrlSeq(m_openQASM2qtrl, circuit_src);
-  std::cout << "HOWDY:";
-  for (const auto &ll : qtrlSeq) {
-    std::cout << ll << " ";
-  }
+  // std::cout << "HOWDY:";
+  // for (const auto &ll : qtrlSeq) {
+  //   std::cout << ll << " ";
+  // }
+  // Create a qubit list from 0->(n-1)
+  std::vector<int> qubits(buffer->size());
+  std::iota(qubits.begin(), qubits.end(), 0);
+  auto circuit = m_circuitCtor(qubits, qtrlSeq);
+  std::vector<pybind11::object> circuit_collection { circuit };
+  return m_circuitColectionCtor(qubits, circuit);
+}
+
+void AqtAccelerator::execute(
+    std::shared_ptr<AcceleratorBuffer> buffer,
+    const std::shared_ptr<CompositeInstruction> compositeInstruction) {
+  auto circuit = createQtrlCircuit(buffer, compositeInstruction);
+  m_qpu.attr("run")(circuit, m_shots);
 }
 
 void AqtAccelerator::execute(
