@@ -25,6 +25,7 @@
 #include <Eigen/Eigenvalues>
 #include <memory>
 #include <sstream>
+#include <vector>
 #include "OperatorPool.hpp"
 
 using namespace xacc;
@@ -242,23 +243,33 @@ qEOM::measureOperator(const std::shared_ptr<Observable> obs,
 
   // observe
   auto kernels = obs->observe(xacc::as_shared_ptr(kernel));
-  double total = 0.0;
+
   // we loop over all measured circuits
   // and check if that term has been measured
   // if so, we just multiply the measurement by the coefficient
-  // if not, we measure as usual and store it
+  // We gather all new circuits into fsToExec and execute
   // Because these are all commutators, we don't need to worry about the I term
+  std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
+  std::vector<std::complex<double>> coefficients;
+  double total = 0.0;
   for (auto &f : kernels) {
     std::complex<double> coeff = f->getCoefficient();
     if (cachedMeasurements.find(f->name()) != cachedMeasurements.end()) {
       total += std::real(coeff * cachedMeasurements[f->name()]);
     } else {
-      auto tmpBuffer = xacc::qalloc(buffer->size());
-      accelerator->execute(tmpBuffer, f);
-      auto expval = tmpBuffer->getExpectationValueZ();
-      total += std::real(coeff * expval);
-      cachedMeasurements.emplace(f->name(), expval);
+      fsToExec.push_back(f);
+      coefficients.push_back(coeff);
     }
+  }
+
+  // for circuits that have not been executed previously
+  auto tmpBuffer = xacc::qalloc(buffer->size());
+  accelerator->execute(tmpBuffer, fsToExec);
+  auto buffers = tmpBuffer->getChildren();
+  for (int i = 0; i < fsToExec.size(); i++) {
+    auto expval = buffers[i]->getExpectationValueZ();
+    total += std::real(expval * coefficients[i]);
+    cachedMeasurements.emplace(fsToExec[i]->name(), expval);
   }
 
   return total;
