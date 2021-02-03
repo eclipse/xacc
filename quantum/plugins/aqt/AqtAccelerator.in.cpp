@@ -27,7 +27,7 @@ std::vector<std::string> openQasm2QtrlSeq(pybind11::object &transpiler,
                                           const std::string &openQasmSrc) {
   auto ll_seq = transpiler.attr("transpile_qasm")(openQasmSrc);
   pybind11::print(ll_seq);
-  return {};
+  return ll_seq.cast<std::vector<std::string>>();
 }
 } // namespace
 
@@ -47,10 +47,60 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
       pybind11::initialize_interpreter();
     } catch (...) {
     }
-    PythonInit = true;
-    // Requirement: openqasm_transpiler module is available
-    m_openQASM2qtrl = pybind11::module::import("openqasm_transpiler");
   }
+  PythonInit = true;
+  // Requirement: openqasm_transpiler module is available
+  m_openQASM2qtrl = pybind11::module::import("openqasm_transpiler");
+
+  // Configuration files (YAML):
+  // Currently, explicitly requires all YAML files to be loaded.
+  // i.e. no defaults yet.
+  std::string varFileName;
+  std::string pulseFileName;
+  std::string adcFileName;
+  std::string dacFileName;
+  if (params.stringExists("var-yaml")) {
+    varFileName = params.getString("var-yaml");
+  }
+  if (params.stringExists("pulse-yaml")) {
+    pulseFileName = params.getString("var-yaml");
+  }
+  if (params.stringExists("adc-yaml")) {
+    adcFileName = params.getString("var-yaml");
+  }
+  if (params.stringExists("dac-yaml")) {
+    dacFileName = params.getString("var-yaml");
+  }
+
+  if (varFileName.empty() || pulseFileName.empty() || adcFileName.empty() ||
+      dacFileName.empty()) {
+    xacc::error("Missing configuration files. Please provide Variables, "
+                "Pulses, ADC, and DAC configuration files.");
+  }
+
+  const std::vector<std::string> allFiles = {varFileName, pulseFileName,
+                                             adcFileName, dacFileName};
+  for (const auto &fileToCheck : allFiles) {
+    // Check if this is a file name
+    std::ifstream test(fileToCheck);
+    if (!test) {
+      xacc::error("Cannot open file: " + fileToCheck);
+    }
+  }
+
+  auto qtrlManagers = pybind11::module::import("qtrl.managers");
+  auto varManager = qtrlManagers.attr("VariableManager")(varFileName);
+  auto pulseManager =
+      qtrlManagers.attr("PulseManager")(pulseFileName, varManager);
+  auto adcManager = qtrlManagers.attr("ZurichADCManager")(adcFileName);
+  auto dacManager = qtrlManagers.attr("ZurichDACManager")(dacFileName);
+  auto kwargs =
+      pybind11::dict("variables"_a = varManager, "pulses"_a = pulseManager,
+                     "ADC"_a = adcManager, "DAC"_a = dacManager);
+  m_config = qtrlManagers.attr("MetaManager")(kwargs);
+  auto qpu = pybind11::module::import("qtrl.qpu");
+  // Create a QTRL QPU
+  m_qpu = qpu.attr("QPU")(m_config);
 }
 
 std::vector<std::pair<int, int>> AqtAccelerator::getConnectivity() {
@@ -62,8 +112,11 @@ void AqtAccelerator::execute(
     const std::shared_ptr<CompositeInstruction> compositeInstruction) {
   auto compiler = xacc::getCompiler("staq");
   auto circuit_src = compiler->translate(compositeInstruction);
-  std::cout << "HOWDY: \n" << circuit_src << "\n";
   auto qtrlSeq = openQasm2QtrlSeq(m_openQASM2qtrl, circuit_src);
+  std::cout << "HOWDY:";
+  for (const auto &ll : qtrlSeq) {
+    std::cout << ll << " ";
+  }
 }
 
 void AqtAccelerator::execute(

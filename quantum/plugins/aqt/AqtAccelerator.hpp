@@ -47,6 +47,8 @@ public:
 
 private:
   pybind11::object m_openQASM2qtrl;
+  pybind11::object m_config;
+  pybind11::object m_qpu;
 };
 } // namespace quantum
 } // namespace xacc
