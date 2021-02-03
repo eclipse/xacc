@@ -88,20 +88,26 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
     }
   }
 
+  // !!! IMPORTANT !!!: set `simulation` to true to bypass device discovery,
+  // i.e. using the **fake** ZI instrument.
+  // Disable this when running on real system.
+  auto qtrlSettings = pybind11::module::import("qtrl.settings").attr("Settings");
+  qtrlSettings.attr("simulation") = true;
+  
   auto qtrlManagers = pybind11::module::import("qtrl.managers");
   auto varManager = qtrlManagers.attr("VariableManager")(varFileName);
   auto pulseManager =
       qtrlManagers.attr("PulseManager")(pulseFileName, varManager);
   auto adcManager = pybind11::module::import("qtrl.managers.ZurichDAC_manager")
-                        .attr("ZurichDACManager")(adcFileName);
+                        .attr("ZurichDACManager")(adcFileName, varManager);
   auto dacManager = pybind11::module::import("qtrl.managers.ZurichADC_manager")
-                        .attr("ZurichADCManager")(dacFileName);
+                        .attr("ZurichADCManager")(dacFileName, varManager);
   auto kwargs =
       pybind11::dict("variables"_a = varManager, "pulses"_a = pulseManager,
                      "ADC"_a = adcManager, "DAC"_a = dacManager);
   m_config = qtrlManagers.attr("MetaManager")(kwargs);
   pybind11::print(m_config);
-  auto qpu = pybind11::module::import("qtrl.qpu");
+  auto qpu = pybind11::module::import("qtrl.qpu.qpu");
   // Create a QTRL QPU
   m_qpu = qpu.attr("QPU")(m_config);
 }
