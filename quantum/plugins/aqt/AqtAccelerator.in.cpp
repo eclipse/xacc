@@ -50,7 +50,7 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
   }
   PythonInit = true;
   // Requirement: openqasm_transpiler module is available
-  m_openQASM2qtrl = pybind11::module::import("openqasm_transpiler");
+  m_openQASM2qtrl = pybind11::module::import("qtrl.qpu.openqasm_transpiler");
 
   // Configuration files (YAML):
   // Currently, explicitly requires all YAML files to be loaded.
@@ -63,13 +63,13 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
     varFileName = params.getString("var-yaml");
   }
   if (params.stringExists("pulse-yaml")) {
-    pulseFileName = params.getString("var-yaml");
+    pulseFileName = params.getString("pulse-yaml");
   }
   if (params.stringExists("adc-yaml")) {
-    adcFileName = params.getString("var-yaml");
+    adcFileName = params.getString("adc-yaml");
   }
   if (params.stringExists("dac-yaml")) {
-    dacFileName = params.getString("var-yaml");
+    dacFileName = params.getString("dac-yaml");
   }
 
   if (varFileName.empty() || pulseFileName.empty() || adcFileName.empty() ||
@@ -92,12 +92,15 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
   auto varManager = qtrlManagers.attr("VariableManager")(varFileName);
   auto pulseManager =
       qtrlManagers.attr("PulseManager")(pulseFileName, varManager);
-  auto adcManager = qtrlManagers.attr("ZurichADCManager")(adcFileName);
-  auto dacManager = qtrlManagers.attr("ZurichDACManager")(dacFileName);
+  auto adcManager = pybind11::module::import("qtrl.managers.ZurichDAC_manager")
+                        .attr("ZurichDACManager")(adcFileName);
+  auto dacManager = pybind11::module::import("qtrl.managers.ZurichADC_manager")
+                        .attr("ZurichADCManager")(dacFileName);
   auto kwargs =
       pybind11::dict("variables"_a = varManager, "pulses"_a = pulseManager,
                      "ADC"_a = adcManager, "DAC"_a = dacManager);
   m_config = qtrlManagers.attr("MetaManager")(kwargs);
+  pybind11::print(m_config);
   auto qpu = pybind11::module::import("qtrl.qpu");
   // Create a QTRL QPU
   m_qpu = qpu.attr("QPU")(m_config);

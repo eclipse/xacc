@@ -6,7 +6,14 @@
 #include "xacc_observable.hpp"
 
 TEST(AqtAcceleratorTester, testBell) {
-  auto accelerator = xacc::getAccelerator("aqt");
+  auto accelerator = xacc::getAccelerator(
+      "aqt",
+      {{"var-yaml",
+        "/Users/7tn/dev/qtrl/examples/Config_Example/Variables.yaml"},
+       {"pulse-yaml",
+        "/Users/7tn/dev/qtrl/tests/ref_config/Pulses.yaml"},
+       {"adc-yaml", "/Users/7tn/dev/qtrl/examples/Config_Example/ADC.yaml"},
+       {"dac-yaml", "/Users/7tn/dev/qtrl/examples/Config_Example/DAC.yaml"}});
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto program = xasmCompiler
                      ->compile(R"(__qpu__ void bell(qbit q) {
