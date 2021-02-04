@@ -127,34 +127,53 @@ std::vector<std::pair<int, int>> AqtAccelerator::getConnectivity() {
 
 pybind11::object AqtAccelerator::createQtrlCircuit(
     std::shared_ptr<AcceleratorBuffer> buffer,
-    const std::shared_ptr<CompositeInstruction> compositeInstruction) {
+    const std::vector<std::shared_ptr<CompositeInstruction>>
+        &compositeInstructions) {
   auto compiler = xacc::getCompiler("staq");
-  auto circuit_src = compiler->translate(compositeInstruction);
-  auto qtrlSeq = openQasm2QtrlSeq(m_openQASM2qtrl, circuit_src);
-  std::cout << "HOWDY:";
-  for (const auto &ll : qtrlSeq) {
-    std::cout << ll << " ";
-  }
-  std::cout << "\n";
   // Create a qubit list from 0->(n-1)
   std::vector<int> qubits(buffer->size());
   std::iota(qubits.begin(), qubits.end(), 0);
-  auto circuit = m_circuitCtor(qubits, qtrlSeq);
-  std::vector<pybind11::object> circuit_collection { circuit };
+  std::vector<pybind11::object> circuit_collection;
+
+  for (const auto &compositeInstruction : compositeInstructions) {
+    auto circuit_src = compiler->translate(compositeInstruction);
+    auto qtrlSeq = openQasm2QtrlSeq(m_openQASM2qtrl, circuit_src);
+    std::cout << "HOWDY:";
+    for (const auto &ll : qtrlSeq) {
+      std::cout << ll << " ";
+    }
+    std::cout << "\n";
+
+    auto circuit = m_circuitCtor(qubits, qtrlSeq);
+    circuit_collection.emplace_back(circuit);
+  }
+
   return m_circuitColectionCtor(qubits, circuit_collection);
 }
 
 void AqtAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> compositeInstruction) {
-  auto circuit = createQtrlCircuit(buffer, compositeInstruction);
+  auto circuit = createQtrlCircuit(buffer, { compositeInstruction });
   m_qpu.attr("run")(circuit, m_shots);
+  // Result data that is appended to the circuit objs post-processing.
+  auto results = circuit.attr("results");
+  pybind11::print(results);
+  // Results is a list (for each Circuit in the CircuitCollection)
+  // of maps (dicts) from bitstring to count. 
+  // TODO: add data to buffer...
 }
 
 void AqtAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>>
-        compositeInstructions) {}
+        compositeInstructions) {
+  auto circuit = createQtrlCircuit(buffer, compositeInstructions);
+  m_qpu.attr("run")(circuit, m_shots);
+  // Result data that is appended to the circuit objs post-processing.
+  auto results = circuit.attr("results");
+  pybind11::print(results);
+}
 } // namespace quantum
 } // namespace xacc
 

@@ -46,9 +46,10 @@ public:
                      std::shared_ptr<Instruction> inst) override{};
 
 private:
-  pybind11::object createQtrlCircuit(
-      std::shared_ptr<AcceleratorBuffer> buffer,
-      const std::shared_ptr<CompositeInstruction> compositeInstruction);
+  pybind11::object
+  createQtrlCircuit(std::shared_ptr<AcceleratorBuffer> buffer,
+                    const std::vector<std::shared_ptr<CompositeInstruction>>
+                        &compositeInstructions);
 
 private:
   int m_shots;
