@@ -30,6 +30,7 @@
 #include "PauliOperator.hpp"
 #include "OperatorPool.hpp"
 #include "AlgorithmGradientStrategy.hpp"
+#include "AllGateVisitor.hpp"
 
 namespace py = pybind11;
 using namespace xacc;
@@ -118,6 +119,36 @@ public:
     PYBIND11_OVERLOAD(void, xacc::AlgorithmGradientStrategy, setFunctionValue, expValue);        
   }
 
+};
+
+#define QUICK_WRITE_VISIT_METHOD(GATE) void visit(GATE& gate) override { PYBIND11_OVERLOAD(void, AllGateVisitor, visit, gate); }
+class PyAllGateVisitor : public AllGateVisitor {
+  using AllGateVisitor::AllGateVisitor;
+  QUICK_WRITE_VISIT_METHOD(Hadamard)
+  QUICK_WRITE_VISIT_METHOD(CNOT)   
+  QUICK_WRITE_VISIT_METHOD(Rz)
+  QUICK_WRITE_VISIT_METHOD(Rx)
+  QUICK_WRITE_VISIT_METHOD(Ry)
+  QUICK_WRITE_VISIT_METHOD(X)
+  QUICK_WRITE_VISIT_METHOD(Y)
+  QUICK_WRITE_VISIT_METHOD(Z)
+  QUICK_WRITE_VISIT_METHOD(CPhase)
+  QUICK_WRITE_VISIT_METHOD(Swap)
+  QUICK_WRITE_VISIT_METHOD(iSwap)
+  QUICK_WRITE_VISIT_METHOD(fSim)
+  QUICK_WRITE_VISIT_METHOD(Measure)
+  QUICK_WRITE_VISIT_METHOD(Identity)
+  QUICK_WRITE_VISIT_METHOD(CZ)
+  QUICK_WRITE_VISIT_METHOD(CY)
+  QUICK_WRITE_VISIT_METHOD(CRZ)
+  QUICK_WRITE_VISIT_METHOD(CH)
+  QUICK_WRITE_VISIT_METHOD(S)
+  QUICK_WRITE_VISIT_METHOD(Sdg)  
+  QUICK_WRITE_VISIT_METHOD(T)
+  QUICK_WRITE_VISIT_METHOD(Tdg)
+  QUICK_WRITE_VISIT_METHOD(U)
+  QUICK_WRITE_VISIT_METHOD(U1)
+  QUICK_WRITE_VISIT_METHOD(XY)
 };
 
 void bind_quantum(py::module& m);

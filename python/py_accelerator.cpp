@@ -14,6 +14,7 @@
 #include "AcceleratorBuffer.hpp"
 #include "AcceleratorDecorator.hpp"
 #include "py_heterogeneous_map.hpp"
+#include "xacc_service.hpp"
 
 void bind_accelerator(py::module &m) {
   // Expose the Accelerator
@@ -190,4 +191,23 @@ void bind_accelerator(py::module &m) {
                xacc::AcceleratorBuffer::*)(const std::string, ExtraInfo)) &
                xacc::AcceleratorBuffer::getChildren,
            "");
+
+  // Expose xacc::NoiseModel
+  py::class_<xacc::NoiseModel, std::shared_ptr<xacc::NoiseModel>, PyNoiseModel>
+      noise_model(m, "NoiseModel", "");
+  noise_model.def(py::init<>())
+      .def("initialize", &xacc::NoiseModel::initialize, "")
+      .def("toJson", &xacc::NoiseModel::toJson, "");
+  m.def("getNoiseModel",
+        [](const std::string name, const PyHeterogeneousMap &options)
+            -> std::shared_ptr<xacc::NoiseModel> {
+          HeterogeneousMap m;
+          for (auto &item : options) {
+            PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+            mpark::visit(vis, item.second);
+          }
+          auto noise_model = xacc::getService<xacc::NoiseModel>(name);
+          noise_model->initialize(m);
+          return noise_model;
+        });
 }
