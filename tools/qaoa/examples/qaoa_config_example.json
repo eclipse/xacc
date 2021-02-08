@@ -1,9 +1,9 @@
 {
     "graph": "graph_input_example.txt",
-    "connection": "connection_example.txt",
+    "connection": "connectivity_example.txt",
     "outputfile": true,
     "xacc":{
-        "accelerator": "tnqvm",
+        "accelerator": "dm-sim",
         "optimizer": "nlopt",
         "verbose": true
     },
@@ -14,6 +14,6 @@
         "maximize": true
     },
     "qaoa-params":{
-        "p": 5
+        "p": 1
     }
 }

@@ -19,37 +19,39 @@
 #include "Circuit.hpp"
 #include <cassert>
 #include <iomanip>
+#include "PauliOperator.hpp"
 
 namespace xacc {
 namespace algorithm {
 Observable *QAOA::constructMaxCutHam(xacc::Graph *in_graph) const {
-  if (xacc::verbose) {
-    std::cout << "Graph:\n";
-    in_graph->write(std::cout);
-  }
-  std::stringstream pauliStr;
-  // Construct the MAX-CUT Hamiltonian based on graph edges
-  for (int i = 0; i < in_graph->order(); ++i) {
-    auto neighbors = in_graph->getNeighborList(i);
-    for (const auto &neighborId : neighbors) {
-      pauliStr << "1.0 Z" << i << "Z" << neighborId << " + ";
+    //   if (xacc::verbose) {
+    //     std::cout << "Graph:\n";
+    //     in_graph->write(std::cout);
+    //   }
+
+    // Construct the MAX-CUT Hamiltonian based on graph edges
+    xacc::quantum::PauliOperator H;
+    for (int i = 0; i < in_graph->order(); ++i) {
+        auto neighbors = in_graph->getNeighborList(i);
+        for (const auto &neighborId : neighbors) {
+            if (in_graph->getEdgeWeight(i,neighborId)){
+                auto weight = in_graph->getEdgeWeight(i,neighborId);
+                H += 0.5 * weight * (xacc::quantum::PauliOperator(1.) - xacc::quantum::PauliOperator({{i, "Z"}, {neighborId, "Z"}}));
+            } else {
+            H += 0.5 * (xacc::quantum::PauliOperator(1.) - xacc::quantum::PauliOperator({{i, "Z"}, {neighborId, "Z"}})); 
+            }
+        }
     }
-  }
 
-  std::string hamStr = pauliStr.str();
-  if (!hamStr.empty()) {
-    // Remove the trailing + sign
-    hamStr.resize(hamStr.size() - 3);
-  }
+    std::cout << "Hamiltonian: " << H.toString() << std::endl;
+    static auto graphHam = xacc::quantum::getObservable("pauli", H.toString());
 
-  xacc::info("Graph Hamiltonian: " + hamStr);
-  static auto graphHam = xacc::quantum::getObservable("pauli", hamStr);
-  // DEBUG: Print the graph Hamiltonian matrix
-  // auto els = graphHam->to_sparse_matrix();
-  // for (auto el : els) {
-  //     std::cout << el.row() << ", " << el.col() << ", " << el.coeff() << "\n";
-  // }
-  return graphHam.get();
+    // // DEBUG: Print the graph Hamiltonian matrix
+    // // auto els = graphHam->to_sparse_matrix();
+    // // for (auto el : els) {
+    // //     std::cout << el.row() << ", " << el.col() << ", " << el.coeff() << "\n";
+    // // }
+    return graphHam.get();
 }
 
 bool QAOA::initialize(const HeterogeneousMap &parameters) {
@@ -107,6 +109,12 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
     }
   }
 
+  // Check if a parameter initialization routine has been specified
+  // Current options: random (default), FOURIER, warm-starts
+  if (parameters.stringExists("initialization")) {
+      m_initializationMode = parameters.getString("initialization");
+  }
+
   // we need this for ADAPT-QAOA (Daniel)
   if (parameters.pointerLikeExists<CompositeInstruction>("ansatz")) {
     externalAnsatz =
@@ -149,6 +157,11 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
         {{"observable", xacc::as_shared_ptr(m_costHamObs)}});
   }
 
+  if (parameters.pointerLikeExists<Graph>("graph")){
+     m_graph = parameters.getPointerLike<Graph>("graph");
+     m_graph_flag = true;
+  }
+
   return initializeOk;
 }
 
@@ -158,7 +171,6 @@ const std::vector<std::string> QAOA::requiredParameters() const {
 
 void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   const int nbQubits = buffer->size();
-
   // we need this for ADAPT-QAOA (Daniel)
   std::shared_ptr<CompositeInstruction> kernel;
   if (externalAnsatz) {
@@ -166,11 +178,22 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   } else {
     kernel = std::dynamic_pointer_cast<CompositeInstruction>(
         xacc::getService<Instruction>("qaoa"));
-    kernel->expand({std::make_pair("nbQubits", nbQubits),
-                    std::make_pair("nbSteps", m_nbSteps),
-                    std::make_pair("cost-ham", m_costHamObs),
-                    std::make_pair("ref-ham", m_refHamObs),
-                    std::make_pair("parameter-scheme", m_parameterizedMode)});
+    if (m_graph_flag == true){        
+        kernel->expand({std::make_pair("nbQubits", nbQubits),
+            std::make_pair("nbSteps", m_nbSteps),
+            std::make_pair("cost-ham", m_costHamObs),
+            std::make_pair("ref-ham", m_refHamObs),
+            std::make_pair("parameter-scheme", m_parameterizedMode),
+            std::make_pair("initialization", m_initializationMode),
+            std::make_pair("graph", m_graph)});
+    } else {
+        kernel->expand({std::make_pair("nbQubits", nbQubits),
+            std::make_pair("nbSteps", m_nbSteps),
+            std::make_pair("cost-ham", m_costHamObs),
+            std::make_pair("ref-ham", m_refHamObs),
+            std::make_pair("parameter-scheme", m_parameterizedMode),
+            std::make_pair("initialization", m_initializationMode)});
+    }
   }
 
   // Observe the cost Hamiltonian:

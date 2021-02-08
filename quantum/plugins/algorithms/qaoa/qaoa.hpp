@@ -42,6 +42,9 @@ private:
     std::string m_parameterizedMode;
     bool m_maxcutProblem;
     bool m_maximize = false;
+    std::string m_initializationMode = "default";
+    xacc::Graph* m_graph;
+    bool m_graph_flag = false;
 };
 } // namespace algorithm
 } // namespace xacc

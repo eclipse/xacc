@@ -52,7 +52,7 @@ void qaoa_from_file::read_json() {
         configs = json::parse(config_str); 
     }
     m_graph_file = configs["graph"]; //.get<std::string>();
-    m_connect_file = configs["connection"]; //.get<std::string>();
+    // m_connect_file = configs["connection"]; //.get<std::string>();
     m_out_file = configs.count("outputfile") ? configs["outputfile"].get<bool>() : false;
     m_acc_name = configs.count("accelerator") ? configs["xacc"]["accelerator"].get<std::string>() : "qpp";
     m_opt_name = configs["xacc"].count("optimizer") ? configs["xacc"]["optimizer"].get<std::string>() : "nlopt";
