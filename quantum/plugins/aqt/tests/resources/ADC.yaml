@@ -1,0 +1,236 @@
+acquisition_settings:
+  blocking: true
+  keep_raw: false
+  n_batches: 1
+  n_elements: 50
+  n_reps: 500
+  n_triggers: 2
+  points: 1024
+  priority: 0
+hardware_settings:
+  clock_source: EXTERNAL_CLOCK_10MHz_REF
+  sample_rate: 1000000000.0
+  trigger_level: 160
+processing:
+  00_simple_readout:
+    00_heterodyne:
+      enable: true
+      kwargs:
+        freq_labels:
+        - 5
+        - 6
+        - 7
+        - 0
+        frequencies:
+        - Q5/res_mod_freq
+        - Q6/res_mod_freq
+        - Q7/res_mod_freq
+        - Q0/res_mod_freq
+        sample_rate: 1000000000.0
+      type: HeterodyneNoDemod
+    02_rotate_IQ:
+      enable: false
+      kwargs:
+        angles:
+        - 0.593999981880188
+        - 2.1429998874664307
+        - -3.0429999828338623
+        - -0.1860000044107437
+      type: IQRotation
+    055_GMM:
+      enable: true
+      kwargs:
+        covariances:
+        - - 1431.6
+          - 1819.1
+        - - 2691.1
+          - 4611.5
+        - - 776.0
+          - 1305.3
+        - - 1492.7
+          - 2057.0
+        means:
+        - - -74.4
+          - -43.0
+          - 214.0
+          - -43.6
+        - - -368.1
+          - -264.3
+          - 252.6
+          - -263.9
+        - - -36.7
+          - -238.9
+          - 208.5
+          - -238.6
+        - - 83.8
+          - -444.0
+          - -125.0
+          - -443.9
+        result_name: GMM
+      type: GMM
+    058_herald_select:
+      enable: true
+      kwargs:
+        axis: null
+        input_name: GMM
+        result_name: Herald_Classified
+        trigger: 0
+      type: AxisTriggerSelector
+    05_readout_select:
+      enable: true
+      kwargs:
+        axis: null
+        input_name: GMM
+        result_name: Classified
+        trigger: -1
+      type: AxisTriggerSelector
+    30_start_DAC:
+      enable: true
+      kwargs:
+        batch_end: qtrl._DAC.run(0)
+        batch_start: qtrl._DAC.run(1)
+        post: 'qtrl._ADC.measurement.update({''settings'': qtrl._cfg.config})'
+      type: Eval
+    enable: true
+  05_advanced_readout:
+    06_heralding:
+      enable: true
+      kwargs:
+        herald_classified_name: Herald_Classified
+        input_name: Classified
+        result_name: Classified
+      type: Heralding
+    06_heralding_heterodyne:
+      enable: true
+      kwargs:
+        elem_index: 2
+        herald_classified_name: Herald_Classified
+        input_name: Heterodyne
+        rep_index: 1
+        result_name: Heralded_Heterodyne
+      type: Heralding
+    07_average_ensemble:
+      enable: true
+      kwargs:
+        axis: 0
+        input_name: Classified
+        result_name: averaged
+      type: AverageAxis
+    08_readout_corr:
+      enable: true
+      kwargs:
+        corr_matrix: readout/corr_matrix
+        input_name: Classified
+        result_name: corrected
+      type: IndividualReadoutCorrection
+    09_correction_selection:
+      enable: true
+      kwargs:
+        axis: 1
+        input_name: corrected
+        result_name: corrected
+        trigger: null
+      type: AxisTriggerSelector
+    enable: true
+  10_fitting:
+    00_exp_fit:
+      enable: true
+      kwargs:
+        input_name: corrected
+        plot: false
+      type: FitExpAll
+    10_exp_sin_fit:
+      enable: true
+      kwargs:
+        input_name: corrected
+        plot: false
+      type: FitSinExpAll
+    20_cos_fit:
+      enable: true
+      kwargs:
+        input_name: corrected
+        plot: false
+      type: FitCosAll
+    enable: true
+  15_joint_readout:
+    01_56Binning:
+      enable: false
+      kwargs:
+        input_name: Classified
+        resonators:
+        - R5
+        - R6
+        result_name: '56'
+      type: CorrelatedBins
+    01_67Binning:
+      enable: false
+      kwargs:
+        input_name: Classified
+        resonators:
+        - R6
+        - R7
+        result_name: '67'
+      type: CorrelatedBins
+    01_70Binning:
+      enable: false
+      kwargs:
+        input_name: Classified
+        resonators:
+        - R7
+        - R0
+        result_name: '70'
+      type: CorrelatedBins
+    01_Binning:
+      enable: false
+      kwargs:
+        input_name: Classified
+        resonators:
+        - R5
+        - R6
+        - R7
+        - R0
+        result_name: 5670
+      type: CorrelatedBins
+    05_56_correction:
+      enable: false
+      kwargs:
+        corr_matrix: readout/corr_matrix
+        input_name: '56'
+        resonators:
+        - R5
+        - R6
+        result_name: 56_corrected
+      type: JointReadoutCorrection
+    05_67_correction:
+      enable: false
+      kwargs:
+        corr_matrix: readout/corr_matrix
+        input_name: '67'
+        resonators:
+        - R6
+        - R7
+        result_name: 67_corrected
+      type: JointReadoutCorrection
+    05_70_correction:
+      enable: false
+      kwargs:
+        corr_matrix: readout/corr_matrix
+        input_name: '70'
+        resonators:
+        - R7
+        - R0
+        result_name: 70_corrected
+      type: JointReadoutCorrection
+    05_All_correction:
+      enable: false
+      kwargs:
+        corr_matrix: readout/corr_matrix
+        input_name: 5670
+        resonators:
+        - R5
+        - R6
+        - R7
+        - R0
+        result_name: 5670_corrected
+      type: JointReadoutCorrection
+    enable: true

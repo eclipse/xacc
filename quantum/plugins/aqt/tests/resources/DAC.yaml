@@ -1,0 +1,37 @@
+Channel_00:
+  amplitude: 1.5
+  dc_offset: -0.021217937445971186
+Channel_01:
+  amplitude: 1.5
+  dc_offset: -0.06252238486706273
+Channel_02:
+  amplitude: 1.5
+  dc_offset: -0.13194629850841957
+Channel_03:
+  amplitude: 1.5
+  dc_offset: 0.12426324144131987
+Channel_04:
+  amplitude: 1.5
+  dc_offset: 0.061024094706453605
+Channel_05:
+  amplitude: 1.5
+  dc_offset: -0.004954809613278771
+Channel_06:
+  amplitude: 1.5
+  dc_offset: -0.09685142988532029
+Channel_07:
+  amplitude: 1.5
+  dc_offset: -0.32573732403703654
+Channel_08:
+  amplitude: 1.5
+  dc_offset: 0.0
+Channel_09:
+  amplitude: 1.5
+  dc_offset: 0.0
+Channel_10:
+  amplitude: 1.5
+  dc_offset: 0.01747448345269756
+Channel_11:
+  amplitude: 1.5
+  dc_offset: -0.19716230760785997
+clock_delay: 500000

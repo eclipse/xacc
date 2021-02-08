@@ -5,15 +5,16 @@
 #include "Algorithm.hpp"
 #include "xacc_observable.hpp"
 
+namespace {
+const std::string YAML_DIR = std::string(RESOURCE_DIR);
+}
+
 TEST(AqtAcceleratorTester, testBell) {
-  auto accelerator = xacc::getAccelerator(
-      "aqt",
-      {{"var-yaml",
-        "/Users/7tn/dev/qtrl/tests/ref_config/Variables.yaml"},
-       {"pulse-yaml",
-        "/Users/7tn/dev/qtrl/tests/ref_config/Pulses.yaml"},
-       {"adc-yaml", "/Users/7tn/dev/qtrl/examples/Config_Example/ADC.yaml"},
-       {"dac-yaml", "/Users/7tn/dev/qtrl/examples/Config_Example/DAC.yaml"}});
+  auto accelerator =
+      xacc::getAccelerator("aqt", {{"var-yaml", YAML_DIR + "/Variables.yaml"},
+                                   {"pulse-yaml", YAML_DIR + "/Pulses.yaml"},
+                                   {"adc-yaml", YAML_DIR + "/ADC.yaml"},
+                                   {"dac-yaml", YAML_DIR + "/DAC.yaml"}});
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto program = xasmCompiler
                      ->compile(R"(__qpu__ void bell(qbit q) {

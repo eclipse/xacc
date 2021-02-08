@@ -1,0 +1,138 @@
+Q0:
+  DRAG_alpha: 0.756399792238627
+  amp_180: 0.26821
+  amp_90: 0.13424
+  anharmonicity: -265000000.0
+  chan_I: 1
+  chan_Q: 0
+  freq: 5775710250.0
+  mod_freq: 275710250.0
+  mod_freq_ef: 10710250.0
+  pulse_shape: DRAG
+  rabi_amp: 0.1
+  res_freq: 6331500000.0
+  res_mod_freq: -188500000.0
+Q1:
+  DRAG_alpha: 1.4548099726966541
+  amp_180: 0.111
+  amp_90: 0.054735
+  anharmonicity: -260000000.0
+  chan_I: 5
+  chan_Q: 4
+  freq: 5519686666.666667
+  mod_freq: 19686666.666666985
+  mod_freq_ef: -240313333.33333302
+  pulse_shape: DRAG
+  rabi_amp: 0.05
+  res_freq: 6390870000.0
+  res_mod_freq: -129130000.0
+Q2:
+  DRAG_alpha: 1.4548099726966541
+  amp_180: 0.111
+  amp_90: 0.054735
+  anharmonicity: -260000000.0
+  chan_I: 6
+  chan_Q: 7
+  freq: 5519686666.666667
+  mod_freq: 19686666.666666985
+  mod_freq_ef: -240313333.33333302
+  pulse_shape: DRAG
+  rabi_amp: 0.05
+  res_freq: 6390870000.0
+  res_mod_freq: -129130000.0
+Q5:
+  DRAG_alpha: 2.0500855842856955
+  amp_180: 0.31169
+  amp_90: 0.156145
+  anharmonicity: -275000000.0
+  chan_I: 11
+  chan_Q: 10
+  crosstalk:
+    Q6:
+      amp: 0.0
+      phase: -2.018
+  freq: 5238226000.0
+  mod_freq: -261774000.0
+  mod_freq_ef: -536774000.0
+  pulse_shape: DRAG
+  rabi_amp: 0.1
+  res_freq: 6623180000.0
+  res_mod_freq: 103180000.0
+Q6:
+  DRAG_alpha: 0.9219351416026079
+  amp_180: 0.24743
+  amp_90: 0.12392
+  anharmonicity: -270000000.0
+  chan_I: 15
+  chan_Q: 14
+  cr_length: 1.25e-07
+  crosstalk:
+    Q5:
+      amp: 0.0
+      phase: 2.459402731394906
+  freq: 5413620939.0
+  mod_freq: -86379061.0
+  mod_freq_ef: -356379061.0
+  pulse_shape: DRAG
+  rabi_amp: 0.15
+  res_freq: 6678500000.0
+  res_mod_freq: 158500000.0
+Q7:
+  CR_M1_amp: 0.033098591549295696
+  DRAG_alpha: 1.3648822905136293
+  amp_180: 0.22651
+  amp_90: 0.11337
+  anharmonicity: -268000000.0
+  chan_I: 16
+  chan_Q: 17
+  cr_relative_phase: 3.141592653589793
+  freq: 5566580000.0
+  mod_freq: 66580000.0
+  mod_freq_ef: -201420000.0
+  pulse_shape: DRAG
+  rabi_amp: 0.06
+  res_freq: 6738200000.0
+  res_mod_freq: 218200000.0
+common:
+  ZZ:
+    56: 176000
+    67: 197000
+    70: 260700
+  pulse_length: 3.e-08
+  y_phase: 1.5707963267948966
+  trig_delay: 7E-9
+hardware:
+  qubit_LO: 5500000000.0
+  readout_LO: 6520000000.0
+readout:
+  R0_amp: 0.065
+  R1_amp: 0.0
+  R5_amp: 0.04
+  R6_amp: 0.06
+  R7_amp: 0.06
+  chan_I: 11
+  chan_Q: 10
+  corr_matrix:
+  - - 0.9888127029953085
+    - 0.025742812462408275
+    - 0.011187297004691447
+    - 0.9742571875375917
+  - - 0.9945202143205065
+    - 0.028129566488066245
+    - 0.005479785679493424
+    - 0.9718704335119338
+  - - 0.9908168197196714
+    - 0.03262445625906235
+    - 0.00918318028032866
+    - 0.9673755437409377
+  - - 0.744917715392062
+    - 0.18477734753146177
+    - 0.255082284607938
+    - 0.8152226524685382
+  heralding: true
+  length: 1.0248e-06
+  readout_qubits:
+  - 0
+  - 5
+  - 6
+  - 7

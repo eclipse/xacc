@@ -1,0 +1,971 @@
+Q0:
+  rabi:
+  - channel: Q0/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q0/rabi_amp
+          phase: 0.0
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q0/mod_freq
+    subchannel: 0
+  - channel: Q0/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q0/rabi_amp
+          phase: -1.5707963267948966
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q0/mod_freq
+    subchannel: 0
+  rabi_ef:
+  - channel: Q0/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q0/rabi_amp_ef
+          phase: 0.0
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q0/mod_freq_ef
+    subchannel: 0
+  - channel: Q0/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q0/rabi_amp_ef
+          phase: -1.5707963267948966
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q0/mod_freq_ef
+    subchannel: 0
+  180:
+  - channel: Q0/chan_I
+    envelope:
+      properties:
+        env_func: Q0/pulse_shape
+        kwargs:
+          alpha: Q0/DRAG_alpha
+          amplitude: Q0/amp_180
+          phase: 0.0
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q0/mod_freq
+    subchannel: 0
+  - channel: Q0/chan_Q
+    envelope:
+      properties:
+        env_func: Q0/pulse_shape
+        kwargs:
+          alpha: Q0/DRAG_alpha
+          amplitude: Q0/amp_180
+          phase: -1.5707963267948966
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q0/mod_freq
+    subchannel: 0
+  180_ef:
+  - channel: Q0/chan_I
+    envelope:
+      properties:
+        env_func: Q0/pulse_shape
+        kwargs:
+          alpha: Q0/DRAG_alpha_ef
+          amplitude: Q0/amp_180_ef
+          phase: 0.0
+        width: common/pulse_length_ef
+      type: PulseEnvelope
+    freq: Q0/mod_freq_ef
+    subchannel: 0
+  - channel: Q0/chan_Q
+    envelope:
+      properties:
+        env_func: Q0/pulse_shape
+        kwargs:
+          alpha: Q0/DRAG_alpha_ef
+          amplitude: Q0/amp_180_ef
+          phase: -1.5707963267948966
+        width: common/pulse_length_ef
+      type: PulseEnvelope
+    freq: Q0/mod_freq_ef
+    subchannel: 0
+  90:
+  - channel: Q0/chan_I
+    envelope:
+      properties:
+        env_func: Q0/pulse_shape
+        kwargs:
+          alpha: Q0/DRAG_alpha
+          amplitude: Q0/amp_90
+          phase: 0.0
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q0/mod_freq
+    subchannel: 0
+  - channel: Q0/chan_Q
+    envelope:
+      properties:
+        env_func: Q0/pulse_shape
+        kwargs:
+          alpha: Q0/DRAG_alpha
+          amplitude: Q0/amp_90
+          phase: -1.5707963267948966
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q0/mod_freq
+    subchannel: 0
+  90_ef:
+  - channel: Q0/chan_I
+    envelope:
+      properties:
+        env_func: Q0/pulse_shape
+        kwargs:
+          amplitude: Q0/amp_90_ef
+          phase: 0.0
+        width: common/pulse_length_ef
+      type: PulseEnvelope
+    freq: Q0/mod_freq_ef
+    subchannel: 0
+  - channel: Q0/chan_Q
+    envelope:
+      properties:
+        env_func: Q0/pulse_shape
+        kwargs:
+          amplitude: Q0/amp_90_ef
+          phase: -1.5707963267948966
+        width: common/pulse_length_ef
+      type: PulseEnvelope
+    freq: Q0/mod_freq_ef
+    subchannel: 0
+Q1:
+  rabi:
+  - channel: Q1/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q1/rabi_amp
+          phase: 0.0
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q1/mod_freq
+    subchannel: 0
+  - channel: Q1/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q1/rabi_amp
+          phase: -1.5707963267948966
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q1/mod_freq
+    subchannel: 0
+  180:
+  - channel: Q1/chan_I
+    envelope:
+      properties:
+        env_func: Q1/pulse_shape
+        kwargs:
+          alpha: Q1/DRAG_alpha
+          amplitude: Q1/amp_180
+          phase: 0.0
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q1/mod_freq
+    subchannel: 0
+  - channel: Q1/chan_Q
+    envelope:
+      properties:
+        env_func: Q1/pulse_shape
+        kwargs:
+          alpha: Q1/DRAG_alpha
+          amplitude: Q1/amp_180
+          phase: -1.5707963267948966
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q1/mod_freq
+    subchannel: 0
+  90:
+  - channel: Q1/chan_I
+    envelope:
+      properties:
+        env_func: Q1/pulse_shape
+        kwargs:
+          alpha: Q1/DRAG_alpha
+          amplitude: Q1/amp_90
+          phase: 0.0
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q1/mod_freq
+    subchannel: 0
+  - channel: Q1/chan_Q
+    envelope:
+      properties:
+        env_func: Q1/pulse_shape
+        kwargs:
+          alpha: Q1/DRAG_alpha
+          amplitude: Q1/amp_90
+          phase: -1.5707963267948966
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q1/mod_freq
+    subchannel: 0
+  Q6rabi:
+  - channel: Q1/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q6/rabi_amp
+          phase: 0.0
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q1/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q6/rabi_amp
+          phase: -1.5707963267948966
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+Q5:
+  rabi:
+  - channel: Q5/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q5/rabi_amp
+          phase: 0.0
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+  - channel: Q5/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q5/rabi_amp
+          phase: -1.5707963267948966
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+  180:
+  - channel: Q5/chan_I
+    envelope:
+      properties:
+        env_func: Q5/pulse_shape
+        kwargs:
+          alpha: Q5/DRAG_alpha
+          amplitude:
+          - Q5/amp_180
+          phase:
+          - 0.0
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+  - channel: Q5/chan_Q
+    envelope:
+      properties:
+        env_func: Q5/pulse_shape
+        kwargs:
+          alpha: Q5/DRAG_alpha
+          amplitude:
+          - Q5/amp_180
+          phase:
+          - -1.5707963267948966
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_I
+    envelope:
+      properties:
+        env_func: Q5/pulse_shape
+        kwargs:
+          alpha: Q5/DRAG_alpha
+          amplitude:
+          - Q5/amp_180
+          - Q5/crosstalk/Q6/amp
+          phase:
+          - 0.0
+          - Q5/crosstalk/Q6/phase
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_Q
+    envelope:
+      properties:
+        env_func: Q5/pulse_shape
+        kwargs:
+          alpha: Q5/DRAG_alpha
+          amplitude:
+          - Q5/amp_180
+          - Q5/crosstalk/Q6/amp
+          phase:
+          - -1.5707963267948966
+          - Q5/crosstalk/Q6/phase
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+  90:
+  - channel: Q5/chan_I
+    envelope:
+      properties:
+        env_func: Q5/pulse_shape
+        kwargs:
+          alpha: Q5/DRAG_alpha
+          amplitude: Q5/amp_90
+          phase: 0.0
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+  - channel: Q5/chan_Q
+    envelope:
+      properties:
+        env_func: Q5/pulse_shape
+        kwargs:
+          alpha: Q5/DRAG_alpha
+          amplitude: Q5/amp_90
+          phase: -1.5707963267948966
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_I
+    envelope:
+      properties:
+        env_func: Q5/pulse_shape
+        kwargs:
+          alpha: Q5/DRAG_alpha
+          amplitude:
+          - Q5/amp_90
+          - Q5/crosstalk/Q6/amp
+          phase:
+          - 0.0
+          - Q5/crosstalk/Q6/phase
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_Q
+    envelope:
+      properties:
+        env_func: Q5/pulse_shape
+        kwargs:
+          alpha: Q5/DRAG_alpha
+          amplitude:
+          - Q5/amp_90
+          - Q5/crosstalk/Q6/amp
+          phase:
+          - -1.5707963267948966
+          - Q5/crosstalk/Q6/phase
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+Q6:
+  rabi:
+  - channel: Q6/chan_I
+    envelope:
+      properties:
+        env_func: Q6/pulse_shape
+        kwargs:
+          alpha: 0
+          amplitude: Q6/rabi_amp
+          phase: 0.0
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_Q
+    envelope:
+      properties:
+        env_func: Q6/pulse_shape
+        kwargs:
+          alpha: 0
+          amplitude: Q6/rabi_amp
+          phase: -1.5707963267948966
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  180:
+  - channel: Q6/chan_I
+    envelope:
+      properties:
+        env_func: Q6/pulse_shape
+        kwargs:
+          alpha: Q6/DRAG_alpha
+          amplitude:
+          - Q6/amp_180
+          phase:
+          - 0.0
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_Q
+    envelope:
+      properties:
+        env_func: Q6/pulse_shape
+        kwargs:
+          alpha: Q6/DRAG_alpha
+          amplitude:
+          - Q6/amp_180
+          phase:
+          - -1.5707963267948966
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q5/chan_I
+    envelope:
+      properties:
+        env_func: Q6/pulse_shape
+        kwargs:
+          alpha: Q6/DRAG_alpha
+          amplitude:
+          - Q6/amp_180
+          - Q6/crosstalk/Q5/amp
+          phase:
+          - 0.0
+          - Q6/crosstalk/Q5/phase
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q5/chan_Q
+    envelope:
+      properties:
+        env_func: Q6/pulse_shape
+        kwargs:
+          alpha: Q6/DRAG_alpha
+          amplitude:
+          - Q6/amp_180
+          - 0.3068
+          phase:
+          - -1.5707963267948966
+          - 2.459402731394906
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  90:
+  - channel: Q6/chan_I
+    envelope:
+      properties:
+        env_func: Q6/pulse_shape
+        kwargs:
+          alpha: Q6/DRAG_alpha
+          amplitude: Q6/amp_90
+          phase: 0.0
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_Q
+    envelope:
+      properties:
+        env_func: Q6/pulse_shape
+        kwargs:
+          alpha: Q6/DRAG_alpha
+          amplitude: Q6/amp_90
+          phase: -1.5707963267948966
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q5/chan_I
+    envelope:
+      properties:
+        env_func: Q6/pulse_shape
+        kwargs:
+          alpha: Q6/DRAG_alpha
+          amplitude:
+          - Q6/amp_90
+          - Q6/crosstalk/Q5/amp
+          phase:
+          - 0.0
+          - Q6/crosstalk/Q5/phase
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q5/chan_Q
+    envelope:
+      properties:
+        env_func: Q6/pulse_shape
+        kwargs:
+          alpha: Q6/DRAG_alpha
+          amplitude:
+          - Q6/amp_90
+          - Q6/crosstalk/Q5/amp
+          phase:
+          - -1.5707963267948966
+          - Q6/crosstalk/Q5/phase
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  CR_M1:
+  - channel: Q6/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude:
+          - -0.451
+          phase:
+          - 0.0
+          - -0.31736102029754615
+          - 1.5707963267948966
+        width: Q6/cr_length
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude:
+          - -0.451
+          phase:
+          - -1.5707963267948966
+          - -0.31736102029754615
+          - 1.5707963267948966
+        width: Q6/cr_length
+      type: PulseEnvelope
+    freq: Q5/mod_freq
+    subchannel: 0
+Q7:
+  rabi:
+  - channel: Q7/chan_I
+    envelope:
+      properties:
+        env_func: square
+        kwargs:
+          amplitude: Q7/rabi_amp
+          phase: 0.0
+        width: 3.e-07
+      type: PulseEnvelope
+    freq: Q7/mod_freq
+    subchannel: 0
+  - channel: Q7/chan_Q
+    envelope:
+      properties:
+        env_func: square
+        kwargs:
+          amplitude: Q7/rabi_amp
+          phase: -1.5707963267948966
+        width: 3.e-07
+      type: PulseEnvelope
+    freq: Q7/mod_freq
+    subchannel: 0
+  rabi_ef:
+  - channel: Q7/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q7/rabi_amp_ef
+          phase: 0.0
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q7/mod_freq_ef
+    subchannel: 0
+  - channel: Q7/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: Q7/rabi_amp_ef
+          phase: -1.5707963267948966
+        width: 1.e-06
+      type: PulseEnvelope
+    freq: Q7/mod_freq_ef
+    subchannel: 0
+  180:
+  - channel: Q7/chan_I
+    envelope:
+      properties:
+        env_func: Q7/pulse_shape
+        kwargs:
+          alpha: Q7/DRAG_alpha
+          amplitude: Q7/amp_180
+          phase: 0.0
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q7/mod_freq
+    subchannel: 0
+  - channel: Q7/chan_Q
+    envelope:
+      properties:
+        env_func: Q7/pulse_shape
+        kwargs:
+          alpha: Q7/DRAG_alpha
+          amplitude: Q7/amp_180
+          phase: -1.5707963267948966
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q7/mod_freq
+    subchannel: 0
+  180_ef:
+  - channel: Q7/chan_I
+    envelope:
+      properties:
+        env_func: Q7/pulse_shape
+        kwargs:
+          alpha: Q7/DRAG_alpha_ef
+          amplitude: Q7/amp_180_ef
+          phase: 0.0
+        width: common/pulse_length_ef
+      type: PulseEnvelope
+    freq: Q7/mod_freq_ef
+    subchannel: 0
+  - channel: Q7/chan_Q
+    envelope:
+      properties:
+        env_func: Q7/pulse_shape
+        kwargs:
+          alpha: Q7/DRAG_alpha_ef
+          amplitude: Q7/amp_180_ef
+          phase: -1.5707963267948966
+        width: common/pulse_length_ef
+      type: PulseEnvelope
+    freq: Q7/mod_freq_ef
+    subchannel: 0
+  90:
+  - channel: Q7/chan_I
+    envelope:
+      properties:
+        env_func: Q7/pulse_shape
+        kwargs:
+          amplitude: Q7/amp_90
+          phase: 0.0
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q7/mod_freq
+    subchannel: 0
+  - channel: Q7/chan_Q
+    envelope:
+      properties:
+        env_func: Q7/pulse_shape
+        kwargs:
+          amplitude: Q7/amp_90
+          phase: -1.5707963267948966
+        width: common/pulse_length
+      type: PulseEnvelope
+    freq: Q7/mod_freq
+    subchannel: 0
+  90_ef:
+  - channel: Q7/chan_I
+    envelope:
+      properties:
+        env_func: Q7/pulse_shape
+        kwargs:
+          amplitude: Q7/amp_90_ef
+          phase: 0.0
+        width: common/pulse_length_ef
+      type: PulseEnvelope
+    freq: Q7/mod_freq_ef
+    subchannel: 0
+  - channel: Q7/chan_Q
+    envelope:
+      properties:
+        env_func: Q7/pulse_shape
+        kwargs:
+          amplitude: Q7/amp_90_ef
+          phase: -1.5707963267948966
+        width: common/pulse_length_ef
+      type: PulseEnvelope
+    freq: Q7/mod_freq_ef
+    subchannel: 0
+  CR_M1:
+  - channel: Q7/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude:
+          - Q7/CR_M1_amp
+          phase:
+          - 0.0
+        width: 2.5e-07
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q7/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude:
+          - Q7/CR_M1_amp
+          phase:
+          - -1.5707963267948966
+        width: 2.5e-07
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: 0.1
+          phase:
+          - Q7/cr_relative_phase
+        width: 2.5e-07
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: 0.1
+          phase:
+          - Q7/cr_relative_phase
+          - -1.5707963267948966
+        width: 2.5e-07
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  CNOT_M1:
+  - channel: Q7/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: 0.08339044
+          phase: 2.08265143
+        width: 3.e-07
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q7/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: 0.08339044
+          phase:
+          - 2.08265143
+          - -1.5707963267948966
+        width: 3.e-07
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_I
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: 0.13164521
+          phase: 0.20132676
+        width: 3.e-07
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: Q6/chan_Q
+    envelope:
+      properties:
+        env_func: cos_square
+        kwargs:
+          amplitude: 0.13164521
+          phase:
+          - 0.20132676
+          - -1.5707963267948966
+        width: 3.e-07
+      type: PulseEnvelope
+    freq: Q6/mod_freq
+    subchannel: 0
+  - channel: 0
+    envelope:
+      properties:
+        phase: 0.89159928
+        width: null
+      type: VirtualEnvelope
+    freq: Q7/mod_freq
+    subchannel: 0
+Readout:
+  R0:
+  - channel: readout/chan_I
+    envelope:
+      properties:
+        env_func: sin
+        kwargs:
+          amplitude: readout/R0_amp
+          frequency: Q0/res_mod_freq
+          phase: 0.7
+          sample_rate: 1000000000.0
+        width: readout/length
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
+  - channel: readout/chan_Q
+    envelope:
+      properties:
+        env_func: sin
+        kwargs:
+          amplitude: readout/R0_amp
+          frequency: Q0/res_mod_freq
+          phase:
+          - -1.67
+          - 0.7
+          sample_rate: 1000000000.0
+        width: readout/length
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
+  R1:
+  - channel: readout/chan_I
+    envelope:
+      properties:
+        env_func: sin
+        kwargs:
+          amplitude: readout/R1_amp
+          frequency: Q1/res_mod_freq
+          phase: 0.7
+          sample_rate: 1000000000.0
+        width: readout/length
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
+  - channel: readout/chan_Q
+    envelope:
+      properties:
+        env_func: sin
+        kwargs:
+          amplitude: readout/R1_amp
+          frequency: Q1/res_mod_freq
+          phase:
+          - -1.67
+          - 0.7
+          sample_rate: 1000000000.0
+        width: readout/length
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
+  R5:
+  - channel: readout/chan_I
+    envelope:
+      properties:
+        env_func: sin
+        kwargs:
+          amplitude: readout/R5_amp
+          frequency: Q5/res_mod_freq
+          phase: 0.7
+          sample_rate: 1000000000.0
+        width: readout/length
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
+  - channel: readout/chan_Q
+    envelope:
+      properties:
+        env_func: sin
+        kwargs:
+          amplitude: readout/R5_amp
+          frequency: Q5/res_mod_freq
+          phase:
+          - -1.5707963267948966
+          - 0.7
+          sample_rate: 1000000000.0
+        width: readout/length
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
+  R6:
+  - channel: readout/chan_I
+    envelope:
+      properties:
+        env_func: sin
+        kwargs:
+          amplitude: readout/R6_amp
+          frequency: Q6/res_mod_freq
+          phase:
+          - 0.7
+          sample_rate: 1000000000.0
+        width: readout/length
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
+  - channel: readout/chan_Q
+    envelope:
+      properties:
+        env_func: sin
+        kwargs:
+          amplitude: readout/R6_amp
+          frequency: Q6/res_mod_freq
+          phase:
+          - -1.5707963267948966
+          - 0.7
+          sample_rate: 1000000000.0
+        width: readout/length
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
+  R7:
+  - channel: readout/chan_I
+    envelope:
+      properties:
+        env_func: sin
+        kwargs:
+          amplitude: readout/R7_amp
+          frequency: Q7/res_mod_freq
+          phase:
+          - 0.0
+          - 0.7
+          sample_rate: 1000000000.0
+        width: readout/length
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
+  - channel: readout/chan_Q
+    envelope:
+      properties:
+        env_func: sin
+        kwargs:
+          amplitude: readout/R7_amp
+          frequency: Q7/res_mod_freq
+          phase:
+          - -1.5707963267948966
+          - 0.7
+          sample_rate: 1000000000.0
+        width: readout/length
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
+  Trigger:
+    channel: 8
+    envelope:
+      properties:
+        env_func: square
+        kwargs:
+          amplitude: 1.0
+        width: 2.e-09
+      type: PulseEnvelope
+    freq: 0.0
+    subchannel: 0
