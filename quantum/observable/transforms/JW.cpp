@@ -14,12 +14,27 @@
 #include <memory>
 #include "FermionOperator.hpp"
 #include "PauliOperator.hpp"
+#include "xacc_observable.hpp"
 
 namespace xacc {
 namespace quantum {
-
+template <typename T>
+bool ptr_is_a(std::shared_ptr<Observable> ptr) {
+  return std::dynamic_pointer_cast<T>(ptr) != nullptr;
+}
 std::shared_ptr<Observable>
-JW::transform(std::shared_ptr<Observable> observable) {
+JW::transform(std::shared_ptr<Observable> Hptr_input) {
+
+  // First we pre-process the observable to a FermionOperator
+  std::shared_ptr<Observable> observable;
+  auto obs_str = Hptr_input->toString();
+  if (ptr_is_a<FermionOperator>(Hptr_input)) {  
+    observable = Hptr_input;
+  } else if (obs_str.find("^") != std::string::npos) {
+    observable = xacc::quantum::getObservable("fermion", obs_str);
+  } else {
+    XACCLogger::instance()->error("[Jordan Wigner] Error, cannot cast incoming Observable ptr to something we can process.");
+  }
 
   auto fermionObservable =
       std::dynamic_pointer_cast<FermionOperator>(observable);
