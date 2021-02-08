@@ -47,6 +47,7 @@ void bind_ir(py::module &m) {
       .def("toString", &xacc::Instruction::toString, "")
       .def("isEnabled", &xacc::Instruction::isEnabled, "")
       .def("isComposite", &xacc::Instruction::isComposite, "")
+      .def("nRequiredBits", &xacc::Instruction::nRequiredBits, "")
       .def("bits", &xacc::Instruction::bits, "")
       .def("setBits", &xacc::Instruction::setBits, "")
       .def("getParameter", &xacc::Instruction::getParameter, "")
