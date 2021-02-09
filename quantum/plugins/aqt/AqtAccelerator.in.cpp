@@ -115,6 +115,22 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
   m_circuitCtor = pybind11::module::import("qtrl.qpu.circuit").attr("Circuit");
   m_circuitColectionCtor = pybind11::module::import("qtrl.qpu.circuit").attr("CircuitCollection");
 
+  // Warm up code: the QPU interface seems not add the readout
+  // resonator to the list of ZI channels, need to do a dummy sequence
+  // here to get them initialized....
+  {
+    auto add_readout =  pybind11::module::import("qtrl.sequence_utils.readout").attr("add_readout");
+    m_config.attr("add_readout") = add_readout;
+    auto qseq = pybind11::module::import("qtrl.sequencer");
+    // Create a two-element sequence
+    auto x90_seq = qseq.attr("Sequence")(2);
+    auto x90_pulse = m_config.attr("pulses")["Q0/X90"];
+    x90_seq.attr("append")(x90_pulse);
+    const std::vector<std::string> s_refs{"Start", "Start"};
+    m_config.attr("add_readout")(m_config, x90_seq);
+    m_config.attr("write_sequence")(x90_seq);
+  }
+
   m_shots = 1024;
   if (params.keyExists<int>("shots")) {
     m_shots = params.get<int>("shots");
