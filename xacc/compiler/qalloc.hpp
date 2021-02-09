@@ -48,6 +48,7 @@ public:
   qreg(const qreg &other);
   qubit operator[](const std::size_t i);
   AcceleratorBuffer *results();
+  std::shared_ptr<AcceleratorBuffer> results_shared();
   std::map<std::string, int> counts();
   double exp_val_z();
   void reset();

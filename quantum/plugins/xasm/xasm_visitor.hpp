@@ -99,15 +99,23 @@ public:
   }
 
   void visit(U &u) {
-    auto t = u.getParameter(0).toString();
-    auto p = u.getParameter(1).toString();
-    auto l = u.getParameter(2).toString();
+    // 𝑅𝑍(𝜙)𝑅𝑋(−𝜋/2)𝑅𝑍(𝜃)𝑅𝑋(𝜋/2)𝑅𝑍(𝜆)
+    auto t = u.getParameter(0).as<double>();
+    auto p = u.getParameter(1).as<double>();
+    auto l = u.getParameter(2).as<double>();
+    auto qbit = u.bits()[0];
+    Rz rzp(qbit, p);
+    Rx rxp2(qbit, -constants::pi / 2.);
 
-    Rz rz(u.bits()[0], t);
-    Ry ry(u.bits()[0], p);
-    Rz rz2(u.bits()[0], l);
+    Rz rz(qbit, t);
+
+    Rx rxp22(qbit, constants::pi/2.);
+
+    Rz rz2(qbit, l);
+    visit(rzp);
+    visit(rxp2);
     visit(rz);
-    visit(ry);
+    visit(rxp22);
     visit(rz2);
   }
 
