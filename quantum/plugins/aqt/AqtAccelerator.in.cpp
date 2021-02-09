@@ -113,7 +113,7 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
   m_qpu = qpu.attr("QPU")(m_config);
   // Import Circuit and CircuitCollection modules
   m_circuitCtor = pybind11::module::import("qtrl.qpu.circuit").attr("Circuit");
-  m_circuitColectionCtor = pybind11::module::import("qtrl.qpu.circuit").attr("CircuitCollection");
+  m_circuitCollectionCtor = pybind11::module::import("qtrl.qpu.circuit").attr("CircuitCollection");
 
   // Warm up code: the QPU interface seems not add the readout
   // resonator to the list of ZI channels, need to do a dummy sequence
@@ -127,7 +127,7 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
     auto x90_pulse = m_config.attr("pulses")["Q0/X90"];
     x90_seq.attr("append")(x90_pulse);
     const std::vector<std::string> s_refs{"Start", "Start"};
-    m_config.attr("add_readout")(m_config, x90_seq);
+    m_config.attr("add_readout")(m_config, x90_seq, s_refs, s_refs);
     m_config.attr("write_sequence")(x90_seq);
   }
 
@@ -164,7 +164,7 @@ pybind11::object AqtAccelerator::createQtrlCircuit(
     circuit_collection.emplace_back(circuit);
   }
 
-  return m_circuitColectionCtor(qubits, circuit_collection);
+  return m_circuitCollectionCtor(qubits, circuit_collection);
 }
 
 void AqtAccelerator::execute(
@@ -176,19 +176,51 @@ void AqtAccelerator::execute(
   auto results = circuit.attr("results");
   pybind11::print(results);
   // Results is a list (for each Circuit in the CircuitCollection)
-  // of maps (dicts) from bitstring to count. 
-  // TODO: add data to buffer...
+  // of maps (dicts) from bitstring to count.
+  auto result = results[0];
+  auto bitStringIter = pybind11::iter(result);
+  while (bitStringIter != pybind11::iterator::sentinel()) {
+    const std::string bitString = (*bitStringIter).cast<std::string>();
+    const int count = result[bitString.c_str()].cast<int>();
+    buffer->appendMeasurement(bitString, count);
+    ++bitStringIter;
+  }
 }
 
 void AqtAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>>
         compositeInstructions) {
+  std::vector<std::shared_ptr<AcceleratorBuffer>> childBuffers;
+  for (auto &f : compositeInstructions) {
+    childBuffers.emplace_back(
+        std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size()));
+  }
+
   auto circuit = createQtrlCircuit(buffer, compositeInstructions);
   m_qpu.attr("run")(circuit, m_shots);
   // Result data that is appended to the circuit objs post-processing.
   auto results = circuit.attr("results");
-  pybind11::print(results);
+  auto iter = pybind11::iter(results);
+  int childBufferIndex = 0;
+  while (iter != pybind11::iterator::sentinel()) {
+    auto childBuffer = childBuffers[childBufferIndex];
+    auto result = (*iter).cast<pybind11::object>();
+    auto bitStringIter = pybind11::iter(result);
+    while (bitStringIter != pybind11::iterator::sentinel()) {
+      const std::string bitString = (*bitStringIter).cast<std::string>();
+      const int count = result[bitString.c_str()].cast<int>();
+      childBuffer->appendMeasurement(bitString, count);
+      ++bitStringIter;
+    }
+
+    ++iter;
+    ++childBufferIndex;
+  }
+  assert(childBufferIndex == childBuffers.size());
+  for (auto &childBuffer : childBuffers) {
+    buffer->appendChild(childBuffer->name(), childBuffer);
+  }
 }
 } // namespace quantum
 } // namespace xacc

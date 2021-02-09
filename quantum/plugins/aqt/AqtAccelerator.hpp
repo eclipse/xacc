@@ -57,7 +57,7 @@ private:
   pybind11::object m_config;
   pybind11::object m_qpu;
   pybind11::object m_circuitCtor;
-  pybind11::object m_circuitColectionCtor;
+  pybind11::object m_circuitCollectionCtor;
 };
 } // namespace quantum
 } // namespace xacc
