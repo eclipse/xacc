@@ -19,16 +19,16 @@ TEST(AqtAcceleratorTester, testBell) {
   auto program = xasmCompiler
                      ->compile(R"(__qpu__ void bell(qbit q) {
       H(q[0]);
-      // CX(q[0], q[1]);
-      // H(q[1]);
       Measure(q[0]);
-      Measure(q[1]);
     })",
                                accelerator)
                      ->getComposites()[0];
 
-  auto buffer = xacc::qalloc(2);
+  auto buffer = xacc::qalloc(1);
   accelerator->execute(buffer, program);
+  buffer->print();
+  // The result will always be zero (default shots = 1024)
+  EXPECT_EQ(buffer->getMeasurementCounts()["0"], 1024);
 }
 
 int main(int argc, char **argv) {

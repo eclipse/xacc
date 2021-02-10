@@ -91,8 +91,64 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
   // !!! IMPORTANT !!!: set `simulation` to true to bypass device discovery,
   // i.e. using the **fake** ZI instrument.
   // Disable this when running on real system.
-  auto qtrlSettings = pybind11::module::import("qtrl.settings").attr("Settings");
-  qtrlSettings.attr("simulation") = true;
+  pybind11::exec(R"(
+import sys
+def setup_managers(which, force=False):
+    # Settings currently determine the class hierarchy, as the configuration
+    # in qtrl is hard-wired that way. Thus, for differently configured code (in
+    # particular, qubic), those classes need to be fully reloaded.
+    if 'qtrl.managers' in sys.modules:
+        import qtrl.settings
+        if force or qtrl.settings.Settings.setup != which:
+            import importlib
+            importlib.reload(sys.modules['qtrl.settings'])
+            qtrl.settings.Settings.setup = which
+            importlib.reload(sys.modules['qtrl.utils.config'])
+            for modname in ['manager_base', 'ADC_manager', 'DAC_manager',
+                    'data_manager', 'variable_manager', 'pulse_manager',
+                    'instrument_manager', 'qcode_manager',
+                    'meta_manager']:
+                try:
+                    importlib.reload(sys.modules['qtrl.managers.'+modname])
+                except KeyError:
+                    pass
+            if which == qtrl.settings.Settings.ZURICH:
+                for modname in ['instruments.zurich.ZurichMixin',
+                                'managers.ZurichADC_manager',
+                                'managers.ZurichDAC_manager']:
+                    try:
+                        importlib.reload(sys.modules['qtrl.'+modname])
+                    except KeyError:
+                        pass
+            elif which == qtrl.settings.Settings.BASIC or \
+                          qtrl.settings.Settings.OFFLINE:
+                for modname in ['managers.OfflineADC_manager',
+                                'managers.OfflineDAC_manager']:
+                    try:
+                        importlib.reload(sys.modules['qtrl.'+modname])
+                    except KeyError:
+                        pass
+
+            importlib.reload(sys.modules['qtrl.managers'])
+
+          # can't do a full reload of the sequencer module b/c it defines types that
+          # get re-exported as well as checked for by type in the module itself, so
+          # just replace the new settings
+            sys.modules['qtrl.sequencer.sequencer'].Settings = qtrl.settings.Settings
+    else:
+        import qtrl.settings
+        qtrl.settings.Settings.setup = which
+
+    import logging
+    logging.getLogger().setLevel(logging.DEBUG)
+
+    # tests are always run in offline mode
+    qtrl.settings.Settings.simulation = True
+setup_managers('zurich', force=True)
+    )", pybind11::globals());
+  
+  // auto qtrlSettings = pybind11::module::import("qtrl.settings").attr("Settings");
+  // qtrlSettings.attr("simulation") = true;
   
   auto qtrlManagers = pybind11::module::import("qtrl.managers");
   auto varManager = qtrlManagers.attr("VariableManager")(varFileName);
@@ -100,37 +156,38 @@ void AqtAccelerator::initialize(const HeterogeneousMap &params) {
       qtrlManagers.attr("PulseManager")(pulseFileName, varManager);
   // auto zi_mixin = pybind11::module::import("qtrl.instruments.zurich.ZurichMixin");
   auto dacManager = pybind11::module::import("qtrl.managers.ZurichDAC_manager")
-                        .attr("ZurichDACManager")(adcFileName, varManager);
+                        .attr("ZurichDACManager")(dacFileName, varManager);
   auto adcManager = pybind11::module::import("qtrl.managers.ZurichADC_manager")
-                        .attr("ZurichADCManager")(dacFileName, varManager);
+                        .attr("ZurichADCManager")(adcFileName, varManager);
   auto kwargs =
       pybind11::dict("variables"_a = varManager, "pulses"_a = pulseManager,
                      "ADC"_a = adcManager, "DAC"_a = dacManager);
   m_config = qtrlManagers.attr("MetaManager")(kwargs);
-  pybind11::print(m_config);
+  auto locals = pybind11::dict();
+  locals["cfg"] = m_config;
+  // pybind11::print(m_config);
+  // Warm up code: the QPU interface seems not add the readout
+  // resonator to the list of ZI channels, need to do a dummy sequence
+  // here to get them initialized....
+  pybind11::exec(R"(  
+import qtrl.sequencer as qseq
+x90_seq = qseq.Sequence(n_elements=2, name='minimal_X90')
+qubits = [5]
+e_ref = 'Start'
+for qubit in qubits:
+    s_ref, e_ref = x90_seq.append([cfg.pulses[f'Q{qubit}/X90']], element=0, end_delay=10e-9)
+
+cfg.add_readout(cfg, seq=x90_seq, herald_refs=['Start', 'Start'], readout_refs=['Start', e_ref])
+cfg.write_sequence(x90_seq)
+)", pybind11::globals(), locals);  
+  
+  
   auto qpu = pybind11::module::import("qtrl.qpu.qpu");
   // Create a QTRL QPU
   m_qpu = qpu.attr("QPU")(m_config);
   // Import Circuit and CircuitCollection modules
   m_circuitCtor = pybind11::module::import("qtrl.qpu.circuit").attr("Circuit");
   m_circuitCollectionCtor = pybind11::module::import("qtrl.qpu.circuit").attr("CircuitCollection");
-
-  // Warm up code: the QPU interface seems not add the readout
-  // resonator to the list of ZI channels, need to do a dummy sequence
-  // here to get them initialized....
-  {
-    auto add_readout =  pybind11::module::import("qtrl.sequence_utils.readout").attr("add_readout");
-    m_config.attr("add_readout") = add_readout;
-    auto qseq = pybind11::module::import("qtrl.sequencer");
-    // Create a two-element sequence
-    auto x90_seq = qseq.attr("Sequence")(2);
-    auto x90_pulse = m_config.attr("pulses")["Q0/X90"];
-    x90_seq.attr("append")(x90_pulse);
-    const std::vector<std::string> s_refs{"Start", "Start"};
-    m_config.attr("add_readout")(m_config, x90_seq, s_refs, s_refs);
-    m_config.attr("write_sequence")(x90_seq);
-  }
-
   m_shots = 1024;
   if (params.keyExists<int>("shots")) {
     m_shots = params.get<int>("shots");
@@ -173,11 +230,12 @@ void AqtAccelerator::execute(
   auto circuit = createQtrlCircuit(buffer, { compositeInstruction });
   m_qpu.attr("run")(circuit, m_shots);
   // Result data that is appended to the circuit objs post-processing.
-  auto results = circuit.attr("results");
-  pybind11::print(results);
+  pybind11::array results = circuit.attr("results");
+  // pybind11::print(results);
   // Results is a list (for each Circuit in the CircuitCollection)
   // of maps (dicts) from bitstring to count.
-  auto result = results[0];
+  auto result = *pybind11::iter(results);
+  // pybind11::print(result);
   auto bitStringIter = pybind11::iter(result);
   while (bitStringIter != pybind11::iterator::sentinel()) {
     const std::string bitString = (*bitStringIter).cast<std::string>();
