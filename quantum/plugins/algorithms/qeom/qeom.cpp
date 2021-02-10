@@ -13,6 +13,7 @@
 #include "qeom.hpp"
 
 #include "Observable.hpp"
+#include "Utils.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "xacc_plugin.hpp"
@@ -23,6 +24,8 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <memory>
+#include <sstream>
+#include <vector>
 #include "OperatorPool.hpp"
 
 using namespace xacc;
@@ -48,7 +51,8 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
   }
 
   if (!parameters.keyExists<std::vector<std::shared_ptr<Observable>>>(
-          "operators") && !parameters.keyExists<int>("n-electrons")) {
+          "operators") &&
+      !parameters.keyExists<int>("n-electrons")) {
     xacc::error("qEOM needs either excitation operators or the number of "
                 "electrons");
     return false;
@@ -70,15 +74,15 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
   if (parameters.keyExists<int>("n-electrons")) {
     auto nOrbitals = observable->nBits();
     auto nOccupied = parameters.get<int>("n-electrons");
-    auto nVirtual = nOrbitals - nOccupied;
-  
+
     std::shared_ptr<OperatorPool> pool;
     // check if the name for a pool was given
     // if not, default to singles and doubles
     if (parameters.stringExists("pool")) {
       pool = xacc::getService<OperatorPool>(parameters.getString("pool"));
     } else {
-      xacc::info("Using single and double excitation operators");
+      xacc::warning("No operator pool specified. Defaulting to single and "
+                    "double excitation operators");
       pool = xacc::getService<OperatorPool>("singles-doubles-pool");
     }
 
@@ -89,7 +93,7 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
   }
 
   if (observable->toString().find("^") != std::string::npos) {
-    
+
     if (std::dynamic_pointer_cast<FermionOperator>(observable)) {
       observable = jw->transform(observable);
     } else {
@@ -165,28 +169,27 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       // qEOM matrix elements
       auto M_MatOperator = doubleCommutator(bra, ket);
       if (!M_MatOperator->getSubTerms().empty()) {
-        M(i, j) = VQEWrapper(M_MatOperator);
+        M(i, j) = measureOperator(M_MatOperator, buffer);
         M(j, i) = M(i, j);
       }
 
-      auto Q_MatOperator = doubleCommutator(bra, ketConj);      
+      auto Q_MatOperator = doubleCommutator(bra, ketConj);
       if (!Q_MatOperator->getSubTerms().empty()) {
-        Q(i, j) = VQEWrapper(Q_MatOperator);
+        Q(i, j) = measureOperator(Q_MatOperator, buffer);
         Q(j, i) = Q(i, j);
       }
 
-      auto V_MatOperator = bra->commutator(ket);      
+      auto V_MatOperator = bra->commutator(ket);
       if (!V_MatOperator->getSubTerms().empty()) {
-        V(i, j) = VQEWrapper(V_MatOperator);
+        V(i, j) = measureOperator(V_MatOperator, buffer);
         V(j, i) = V(i, j);
       }
 
-      auto W_MatOperator = bra->commutator(ketConj);      
+      auto W_MatOperator = bra->commutator(ketConj);
       if (!W_MatOperator->getSubTerms().empty()) {
-        W(i, j) = VQEWrapper(W_MatOperator);
+        W(i, j) = measureOperator(W_MatOperator, buffer);
         W(j, i) = W(i, j);
       }
-
     }
   }
 
@@ -222,15 +225,54 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   std::sort(excitationEnergies.begin(), excitationEnergies.end());
   buffer->addExtraInfo("excitation-energies", excitationEnergies);
 
+  // Printing spectrum
+  std::stringstream ss;
+  ss << "QEOM spectrum = ";
+  for (int i = 0; i < excitationEnergies.size() - 1; i++) {
+    ss << excitationEnergies[i] << ", ";
+  }
+  ss << excitationEnergies.back();
+  xacc::info(ss.str());
+
   return;
 }
 
-double qEOM::VQEWrapper(const std::shared_ptr<Observable> obs) const {
-  auto vqe = xacc::getAlgorithm(
-      "vqe",
-      {{"observable", obs}, {"ansatz", kernel}, {"accelerator", accelerator}});
-  auto tmpBuffer = xacc::qalloc(observable->nBits());
-  return vqe->execute(tmpBuffer, {})[0];
+double
+qEOM::measureOperator(const std::shared_ptr<Observable> obs,
+                      const std::shared_ptr<AcceleratorBuffer> buffer) const {
+
+  // observe
+  auto kernels = obs->observe(xacc::as_shared_ptr(kernel));
+
+  // we loop over all measured circuits
+  // and check if that term has been measured
+  // if so, we just multiply the measurement by the coefficient
+  // We gather all new circuits into fsToExec and execute
+  // Because these are all commutators, we don't need to worry about the I term
+  std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
+  std::vector<std::complex<double>> coefficients;
+  double total = 0.0;
+  for (auto &f : kernels) {
+    std::complex<double> coeff = f->getCoefficient();
+    if (cachedMeasurements.find(f->name()) != cachedMeasurements.end()) {
+      total += std::real(coeff * cachedMeasurements[f->name()]);
+    } else {
+      fsToExec.push_back(f);
+      coefficients.push_back(coeff);
+    }
+  }
+
+  // for circuits that have not been executed previously
+  auto tmpBuffer = xacc::qalloc(buffer->size());
+  accelerator->execute(tmpBuffer, fsToExec);
+  auto buffers = tmpBuffer->getChildren();
+  for (int i = 0; i < fsToExec.size(); i++) {
+    auto expval = buffers[i]->getExpectationValueZ();
+    total += std::real(expval * coefficients[i]);
+    cachedMeasurements.emplace(fsToExec[i]->name(), expval);
+  }
+
+  return total;
 }
 
 } // namespace algorithm

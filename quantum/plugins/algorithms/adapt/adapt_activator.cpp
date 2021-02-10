@@ -17,6 +17,9 @@
 #include "operator_pools/MultiQubitQAOA.hpp"
 #include "operator_pools/CustomPool.hpp"
 #include "operator_pools/SinglesDoublesPool.hpp"
+#include "operator_pools/IonizationPotential.hpp"
+#include "operator_pools/ElectronAttachment.hpp"
+#include "operator_pools/SpinFlip.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -54,6 +57,15 @@ public:
 
     auto sd = std::make_shared<xacc::quantum::SinglesDoublesPool>();
     context.RegisterService<xacc::quantum::OperatorPool>(sd);   
+
+    auto ip = std::make_shared<xacc::quantum::IonizationPotential>();
+    context.RegisterService<xacc::quantum::OperatorPool>(ip);  
+
+    auto ea = std::make_shared<xacc::quantum::ElectronAttachment>();
+    context.RegisterService<xacc::quantum::OperatorPool>(ea); 
+
+    auto sf = std::make_shared<xacc::quantum::SpinFlip>();
+    context.RegisterService<xacc::quantum::OperatorPool>(sf); 
 
   }
 

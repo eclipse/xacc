@@ -48,3 +48,7 @@ target_link_libraries(qaoa_maxcut_qpp PRIVATE xacc xacc-quantum-gate)
 
 add_executable(qaoa_placement qaoa_placement.cpp)
 target_link_libraries(qaoa_placement PRIVATE xacc xacc-quantum-gate)
+
+add_executable(qeom_h2_sto-3g qeom_h2_sto-3g.cpp)
+target_include_directories(qeom_h2_sto-3g PUBLIC ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
+target_link_libraries(qeom_h2_sto-3g PRIVATE xacc xacc-quantum-gate)
