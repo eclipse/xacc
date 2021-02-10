@@ -59,7 +59,7 @@ const std::string
 PyXASMCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> program,
                           HeterogeneousMap &options) {
 
-  std::string qreg_name = "q";
+  std::string qreg_name = "__translate_qrg__";
   std::string tab_prepend = "";
   if (options.stringExists("qreg_name")) {
     qreg_name = options.getString("qreg_name");
