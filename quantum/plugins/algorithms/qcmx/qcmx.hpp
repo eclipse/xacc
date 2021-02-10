@@ -31,25 +31,31 @@ protected:
   CompositeInstruction *kernel;
   HeterogeneousMap _parameters;
 
-  // CMX order, also K in the paper 
-  int order;
-  // String to identify the CMX instance
-  std::string expansion;
-  // Currently implemented expansions
-  std::vector<std::string> expansions{"PDS", "Cioslowski", "Knowles"};
+  // CMX order, also K in the paper
+  int maxOrder;
+  // cache measurements
+  mutable std::unordered_map<std::string, double> cachedMeasurements;
+  // threshold below which we ignore measurement
+  double threshold = 0.0;
+  // x is the vector of parameters if the provided ansatz is parameterized
+  std::vector<double> x;
+  // spectrum is only for PDS
+  mutable std::vector<double> spectrum;
 
-  // Wrapper to compute <H^n> using VQE::execute()
-  double expValue(const std::shared_ptr<Observable> observable,
-                    const std::shared_ptr<AcceleratorBuffer> buffer) const;
+  double measureOperator(const std::shared_ptr<Observable> obs,
+                         const int bufferSize) const;
 
   // Compute energy from PDS CMX
-  double PDS(const std::vector<double> moments) const;
+  double PDS(const std::vector<double> &moments, const int order) const;
 
   // Compute energy from Cioslowski's original CMX
-  double Cioslowski(const std::vector<double> moments) const;
+  double Cioslowski(const std::vector<double> &moments, const int order) const;
 
   // Compute energy from Knowles' generalized Pade approximants CMX
-  double Knowles(const std::vector<double> moments) const;
+  double Knowles(const std::vector<double> &moments, const int order) const;
+
+  // Compute energy from Soldatov's approximate functional
+  double Soldatov(const std::vector<double> &moments) const;
 
 public:
   bool initialize(const HeterogeneousMap &parameters) override;

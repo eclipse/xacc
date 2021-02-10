@@ -18,7 +18,11 @@
 
 #include <Eigen/Dense>
 #include <complex>
+#include <iomanip>
 #include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -50,18 +54,13 @@ bool QCMX::initialize(const HeterogeneousMap &parameters) {
     return false;
   }
 
-  if (!parameters.stringExists("expansion-type")) {
-    xacc::error("Expansion type was false.");
-    return false;
-  }
-
   if (!parameters.pointerLikeExists<CompositeInstruction>("ansatz")) {
     xacc::error("Ansatz was false.");
     return false;
   }
 
   accelerator = parameters.getPointerLike<Accelerator>("accelerator");
-  order = parameters.get<int>("cmx-order");
+  maxOrder = parameters.get<int>("cmx-order");
   kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
 
   // check if Observable needs JW
@@ -75,63 +74,130 @@ bool QCMX::initialize(const HeterogeneousMap &parameters) {
         parameters.getPointerLike<Observable>("observable")));
   }
 
-  // Check if expansion type is valid
-  expansion = parameters.getString("expansion-type");
-  if (!xacc::container::contains(expansions, expansion)) {
-    xacc::error(expansion + " is not a valid expansion. Choose Cioslowski, "
-                            "Knowles, or PDS.");
+  if (parameters.keyExists<double>("threshold")) {
+    threshold = parameters.get<double>("threshold");
+    xacc::info("Ignoring measurements with coefficient below = " +
+               std::to_string(threshold));
+  }
+
+  // in case the ansatz is parameterized
+  if (parameters.keyExists<std::vector<double>>("parameters")) {
+    x = parameters.get<std::vector<double>>("parameters");
+    std::reverse(x.begin(), x.end());
   }
 
   return true;
 }
 
 const std::vector<std::string> QCMX::requiredParameters() const {
-  return {"observable", "accelerator", "cmx-order", "expansion-type", "ansatz"};
+  return {"observable", "accelerator", "cmx-order", "ansatz"};
 }
 
 void QCMX::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
-  // compute moments of the Hamiltonian: <H^n>
+  // the energies are stored in this map
+  std::map<std::string, double> energies;
+
   auto H = *std::dynamic_pointer_cast<PauliOperator>(observable);
   auto momentOperator = H;
   std::vector<double> moments;
-  for (int i = 0; i < 2 * order - 1; i++) {
-    auto momentExpValue =
-        expValue(std::make_shared<PauliOperator>(momentOperator), buffer);
+  // The energy computation itself is just classical post processing
+  // So we can compute the energy from all implemented expansions
+  // because the bottleneck is the quantum computation of the moments
+  for (int i = 0; i < 2 * maxOrder - 1; i++) {
+    auto momentExpValue = measureOperator(
+        std::make_shared<PauliOperator>(momentOperator), buffer->size());
     moments.push_back(momentExpValue);
+
+    double e;
+    if ((i != 0) && (i % 2 == 0)) {
+      e = Cioslowski(moments, i / 2 + 1);
+      energies.emplace("CMX(" + std::to_string(i / 2 + 1) + ")", e);
+      std::stringstream ss;
+      ss << std::setprecision(12) << "CMX(" << i / 2 + 1 << ") = " << e;
+      xacc::info(ss.str());
+      ss.str(std::string());
+
+      e = PDS(moments, i / 2 + 1);
+      energies.emplace("PDS(" + std::to_string(i / 2 + 1) + ")", e);
+      ss << std::setprecision(12) << "PDS(" << i / 2 + 1 << ") = " << e;
+      xacc::info(ss.str());
+      ss.str(std::string());
+
+      e = Knowles(moments, i / 2 + 1);
+      energies.emplace("Knowles(" + std::to_string(i / 2 + 1) + ")", e);
+      ss << std::setprecision(12) << "Knowles(" << i / 2 + 1 << ") = " << e;
+      xacc::info(ss.str());
+      ss.str(std::string());
+    }
+
+    if (i == 2) {
+      e = Soldatov(moments);
+      energies.emplace("Soldatov", e);
+      std::stringstream ss;
+      ss << std::setprecision(12) << "Soldatov = " << e;
+      xacc::info(ss.str());
+      ss.str(std::string());
+    }
+
     momentOperator *= H;
   }
 
-  // compute ground state energy with the chosen CMX
-  double energy;
-  if (expansion == "PDS") {
-    energy = PDS(moments);
-  } else if (expansion == "Cioslowski") {
-    energy = Cioslowski(moments);
-  } else if (expansion == "Knowles") {
-    energy = Knowles(moments);
-  }
-
   // add energy to the buffer
-  buffer->addExtraInfo("opt-val", energy);
+  buffer->addExtraInfo("energies", energies);
+  buffer->addExtraInfo("spectrum", spectrum);
   return;
 }
 
-// This is just a wrapper to compute <H^n> with VQE::execute(q, {})
-double QCMX::expValue(const std::shared_ptr<Observable> moment,
-                      const std::shared_ptr<AcceleratorBuffer> buffer) const {
+double QCMX::measureOperator(const std::shared_ptr<Observable> obs,
+                             const int bufferSize) const {
 
-  auto q = xacc::qalloc(buffer->size());
-  auto vqe = xacc::getAlgorithm("vqe", {{"observable", moment},
-                                        {"accelerator", accelerator},
-                                        {"ansatz", kernel}});
-  return vqe->execute(q, {})[0];
+  std::vector<std::shared_ptr<CompositeInstruction>> kernels;
+  if (x.empty()) {
+    kernels = obs->observe(xacc::as_shared_ptr(kernel));
+  } else {
+    auto evaled = kernel->operator()(x);
+    kernels = obs->observe(evaled);
+  }
+
+  // we loop over all measured circuits
+  // and check if that term has been measured
+  // if so, we just multiply the measurement by the coefficient
+  // We gather all new circuits into fsToExec and execute
+  // Because these are all commutators, we don't need to worry about the I term
+  // Also, terms with small coeffs can be ignored by setting threshold below
+  std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
+  std::vector<std::complex<double>> coefficients;
+  double total = 0.0;
+  for (auto &f : kernels) {
+    std::complex<double> coeff = f->getCoefficient();
+    if (cachedMeasurements.find(f->name()) != cachedMeasurements.end()) {
+      total += std::real(coeff * cachedMeasurements[f->name()]);
+    } else if (fabs(coeff) >= threshold) {
+      fsToExec.push_back(f);
+      coefficients.push_back(coeff);
+    }
+  }
+
+  // for circuits that have not been executed previously
+  auto tmpBuffer = xacc::qalloc(bufferSize);
+  accelerator->execute(tmpBuffer, fsToExec);
+  auto buffers = tmpBuffer->getChildren();
+  xacc::info("Number of terms to be measured = " +
+             std::to_string(fsToExec.size()));
+  for (int i = 0; i < fsToExec.size(); i++) {
+    auto expval = buffers[i]->getExpectationValueZ();
+    total += std::real(expval * coefficients[i]);
+    cachedMeasurements.emplace(fsToExec[i]->name(), expval);
+  }
+
+  return total;
 }
 
 // Compute energy from CMX
 // J. Phys. A: Math. Gen. 17, 625 (1984)
 // and Int. J. Mod. Phys. B 9, 2899 (1995)
-double QCMX::PDS(const std::vector<double> moments) const {
+double QCMX::PDS(const std::vector<double> &moments, const int order) const {
 
   Eigen::MatrixXd M(order, order);
   Eigen::VectorXd b(order);
@@ -170,7 +236,7 @@ double QCMX::PDS(const std::vector<double> moments) const {
   // get roots from eigenvalues
   // and return lowest energy eigenvalue
   Eigen::EigenSolver<Eigen::MatrixXd> es(companionMatrix);
-  std::vector<double> spectrum(order);
+  spectrum.resize(order);
   std::transform(es.eigenvalues().begin(), es.eigenvalues().end(),
                  spectrum.begin(),
                  [](std::complex<double> c) { return std::real(c); });
@@ -180,7 +246,8 @@ double QCMX::PDS(const std::vector<double> moments) const {
 }
 
 // Compute energy from CMX in Phys. Rev. Lett, 58, 83 (1987)
-double QCMX::Cioslowski(const std::vector<double> moments) const {
+double QCMX::Cioslowski(const std::vector<double> &moments,
+                        const int order) const {
 
   // compute connected moments
   // binomial coefficients (k choose i) given by:
@@ -193,40 +260,32 @@ double QCMX::Cioslowski(const std::vector<double> moments) const {
     }
   }
 
-  // recursion formula to compute S
-  // S(k, i + 1) = S(k, 1) * S(k + 2, i) - S(k + 1, i)^2
-  std::function<double(const int, const int, const std::vector<double>)> S;
-  S = [&S](const int k, const int i, const std::vector<double> I) {
-    if (i == 0) {
-
-      return 1.0;
-
-    } else if (i == 1) {
-
-      return I[k];
-
+  // recursion formula to compute the energy correction order-by-order
+  std::function<double(const int, const std::vector<double>)> S;
+  S = [=, &S](const int k, const std::vector<double> I) {
+    if (k == 1) {
+      return std::pow(I[0], 2) / I[1];
     } else {
-
-      return S(k, 1, I) * S(k + 2, i - 1, I) -
-             S(k + 1, i - 1, I) * S(k + 1, i - 1, I);
+      std::vector<double> Ip(2 * k - 2);
+      for (int i = 0; i < 2 * k - 2; i++) {
+        Ip[i] = I[i] * I[i + 2] - std::pow(I[i + 1], 2);
+      }
+      return S(k - 1, Ip) / I[1];
     }
   };
 
   // compute energy
   auto energy = I[0];
-  double previous = 1.0, current;
   for (int K = 1; K < order; K++) {
-    current =
-        std::pow(S(1, K, I), 2) / (std::pow(S(1, K - 1, I), 2) * S(2, K, I));
-    energy -= previous * current;
-    previous = current;
+    energy -= S(K, std::vector<double>(I.begin() + 1, I.end()));
   }
 
   return energy;
 }
 
 // Compute energy from CMX in Chem. Phys. Lett., 143, p.512 (1987)
-double QCMX::Knowles(const std::vector<double> moments) const {
+double QCMX::Knowles(const std::vector<double> &moments,
+                     const int order) const {
 
   // compute connected moments
   std::vector<double> I(moments);
@@ -264,6 +323,23 @@ double QCMX::Knowles(const std::vector<double> moments) const {
   // Add <H> and return
   auto energy = I[0] - b.transpose() * M.inverse() * b;
   return energy;
+}
+
+// This is an approximate functional, not an order-by-order expansion
+double QCMX::Soldatov(const std::vector<double> &moments) const {
+
+  // compute connected moments
+  // binomial coefficients (k choose i) given by:
+  // (k, i) = 1 / ((k + 1) * std::beta(k - i + 1, i + 1)
+  std::vector<double> I(moments);
+  for (int k = 1; k < moments.size(); k++) {
+    for (int i = 0; i < k; i++) {
+      I[k] -= 1 / ((k + 1) * std::beta(k - i + 1, i + 1)) * I[i] *
+              moments[k - i - 1];
+    }
+  }
+
+  return I[0] + I[2] / (2 * I[1]) - sqrt(std::pow(I[2] / (2 * I[1]), 2) + I[1]);
 }
 
 } // namespace algorithm
