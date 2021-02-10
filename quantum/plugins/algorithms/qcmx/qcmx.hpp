@@ -38,8 +38,9 @@ protected:
   // threshold below which we ignore measurement
   double threshold = 0.0;
   // x is the vector of parameters if the provided ansatz is parameterized
+  std::vector<double> x;
   // spectrum is only for PDS
-  mutable std::vector<double> x = {}, spectrum;
+  mutable std::vector<double> spectrum;
 
   double measureOperator(const std::shared_ptr<Observable> obs,
                          const int bufferSize) const;

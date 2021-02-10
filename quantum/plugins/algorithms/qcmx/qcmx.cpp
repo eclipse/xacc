@@ -80,6 +80,12 @@ bool QCMX::initialize(const HeterogeneousMap &parameters) {
                std::to_string(threshold));
   }
 
+  // in case the ansatz is parameterized
+  if (parameters.keyExists<std::vector<double>>("parameters")) {
+    x = parameters.get<std::vector<double>>("parameters");
+    std::reverse(x.begin(), x.end());
+  }
+
   return true;
 }
 
@@ -153,11 +159,13 @@ double QCMX::measureOperator(const std::shared_ptr<Observable> obs,
     auto evaled = kernel->operator()(x);
     kernels = obs->observe(evaled);
   }
+
   // we loop over all measured circuits
   // and check if that term has been measured
   // if so, we just multiply the measurement by the coefficient
   // We gather all new circuits into fsToExec and execute
   // Because these are all commutators, we don't need to worry about the I term
+  // Also, terms with small coeffs can be ignored by setting threshold below
   std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
   std::vector<std::complex<double>> coefficients;
   double total = 0.0;
@@ -175,7 +183,7 @@ double QCMX::measureOperator(const std::shared_ptr<Observable> obs,
   auto tmpBuffer = xacc::qalloc(bufferSize);
   accelerator->execute(tmpBuffer, fsToExec);
   auto buffers = tmpBuffer->getChildren();
-  xacc::info("Number of terms that need to be measured = " +
+  xacc::info("Number of terms to be measured = " +
              std::to_string(fsToExec.size()));
   for (int i = 0; i < fsToExec.size(); i++) {
     auto expval = buffers[i]->getExpectationValueZ();
@@ -252,33 +260,24 @@ double QCMX::Cioslowski(const std::vector<double> &moments,
     }
   }
 
-  // recursion formula to compute S
-  // S(k, i + 1) = S(k, 1) * S(k + 2, i) - S(k + 1, i)^2
-  std::function<double(const int, const int, const std::vector<double>)> S;
-  S = [&S](const int k, const int i, const std::vector<double> I) {
-    if (i == 0) {
-
-      return 1.0;
-
-    } else if (i == 1) {
-
-      return I[k];
-
+  // recursion formula to compute the energy correction order-by-order
+  std::function<double(const int, const std::vector<double>)> S;
+  S = [=, &S](const int k, const std::vector<double> I) {
+    if (k == 1) {
+      return std::pow(I[0], 2) / I[1];
     } else {
-
-      return S(k, 1, I) * S(k + 2, i - 1, I) -
-             S(k + 1, i - 1, I) * S(k + 1, i - 1, I);
+      std::vector<double> Ip(2 * k - 2);
+      for (int i = 0; i < 2 * k - 2; i++) {
+        Ip[i] = I[i] * I[i + 2] - std::pow(I[i + 1], 2);
+      }
+      return S(k - 1, Ip) / I[1];
     }
   };
 
   // compute energy
   auto energy = I[0];
-  double previous = 1.0, current;
   for (int K = 1; K < order; K++) {
-    current =
-        std::pow(S(1, K, I), 2) / (std::pow(S(1, K - 1, I), 2) * S(2, K, I));
-    energy -= previous * current;
-    previous = current;
+    energy -= S(K, std::vector<double>(I.begin() + 1, I.end()));
   }
 
   return energy;
