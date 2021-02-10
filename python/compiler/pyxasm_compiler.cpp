@@ -20,16 +20,18 @@
 #include "pyxasm_errorlistener.hpp"
 #include "pyxasm_listener.hpp"
 
+#include "InstructionIterator.hpp"
+#include "pyxasm_visitor.hpp"
+
 using namespace pyxasm;
 using namespace antlr4;
 
 namespace xacc {
 
-
 PyXASMCompiler::PyXASMCompiler() = default;
 
 std::shared_ptr<IR> PyXASMCompiler::compile(const std::string &src,
-                                           std::shared_ptr<Accelerator> acc) {
+                                            std::shared_ptr<Accelerator> acc) {
   ANTLRInputStream input(src);
   pyxasmLexer lexer(&input);
   CommonTokenStream tokens(&lexer);
@@ -50,12 +52,30 @@ std::shared_ptr<IR> PyXASMCompiler::compile(const std::string &src,
 }
 
 std::shared_ptr<IR> PyXASMCompiler::compile(const std::string &src) {
-  return compile(src,nullptr);
+  return compile(src, nullptr);
 }
 
 const std::string
-PyXASMCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function) {
-  xacc::error("translate has not been implemented yet");
-  return "";
+PyXASMCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> program,
+                          HeterogeneousMap &options) {
+
+  std::string qreg_name = "__translate_qrg__";
+  std::string tab_prepend = "";
+  if (options.stringExists("qreg_name")) {
+    qreg_name = options.getString("qreg_name");
+  }
+  if (options.stringExists("tab_prepend")) {
+    tab_prepend = options.getString("tab_prepend");
+  }
+
+  auto visitor = std::make_shared<quantum::PyXACCVisitor>(qreg_name, tab_prepend);
+  InstructionIterator it(program);
+  while (it.hasNext()) {
+    auto nextInst = it.next();
+    if (nextInst->isEnabled() && !nextInst->isComposite()) {
+      nextInst->accept(visitor);
+    }
+  }
+  return visitor->getPyXACCString();
 }
 } // namespace xacc

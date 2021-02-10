@@ -63,7 +63,24 @@ public:
 class ResultsDecoder {
 public:
   void decode(std::shared_ptr<AcceleratorBuffer> buffer, py::object results,
-              std::set<int> qbitIdxs, int shots);
+               int shots);
+};
+
+class QCSPlacement : public IRTransformation {
+protected:
+  std::string backend;
+  std::string isa;
+public:
+  QCSPlacement() {}
+  QCSPlacement(const std::string& _backend, const std::string& _isa) : backend(_backend), isa(_isa) {}
+  void apply(std::shared_ptr<CompositeInstruction> program,
+             const std::shared_ptr<Accelerator> acc,
+             const HeterogeneousMap &options = {}) override;
+  const IRTransformationType type() const override {
+    return IRTransformationType::Placement;
+  }
+  const std::string name() const override { return "qcs-quilc"; }
+  const std::string description() const override { return ""; }
 };
 
 class QCSAccelerator : virtual public Accelerator {
@@ -123,6 +140,7 @@ public:
   HeterogeneousMap getProperties() override { return HeterogeneousMap(); }
 
   const std::string getSignature() override { return "qcs:" + backend; }
+  const std::string defaultPlacementTransformation() override {return "qcs-quilc";}
 
   std::vector<std::pair<int, int>> getConnectivity() override {
     if (!latticeEdges.empty()) {

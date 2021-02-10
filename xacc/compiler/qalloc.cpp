@@ -14,9 +14,9 @@ std::ostream &operator<<(std::ostream &os, qreg &q) {
   return os;
 }
 void qreg::write_file(const std::string &file_name) {
-    std::ofstream os(file_name);
-    os << *this;
-    return;
+  std::ofstream os(file_name);
+  os << *this;
+  return;
 }
 
 std::string qreg::random_string(std::size_t length) {
@@ -55,7 +55,7 @@ bool cReg::operator[](std::size_t i) {
   // Throw if this qubit hasn't been measured.
   return (*buffer)[i];
 }
-
+std::shared_ptr<AcceleratorBuffer> qreg::results_shared() { return buffer; }
 AcceleratorBuffer *qreg::results() { return buffer.get(); }
 std::map<std::string, int> qreg::counts() {
   return buffer->getMeasurementCounts();

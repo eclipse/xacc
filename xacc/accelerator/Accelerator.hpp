@@ -83,7 +83,7 @@ public:
 
   // Return the name of an IRTransformation of type Placement that is
   // preferred for this Accelerator
-  virtual const std::string defaultPlacementTransformation() {return "default-placement";}
+  virtual const std::string defaultPlacementTransformation() {return "swap-shortest-path";}
 
   virtual BitOrder getBitOrder() {
       return BitOrder::MSB;

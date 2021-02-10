@@ -24,6 +24,74 @@
 namespace xacc {
 namespace quantum {
 
+
+void QCSPlacement::apply(std::shared_ptr<CompositeInstruction> program,
+                         const std::shared_ptr<Accelerator> acc,
+                         const HeterogeneousMap &options) {
+
+  // If we are here - this is a contributed service, not public - 
+  // then we already have python initialized, and the backend has been given 
+  // to us. 
+  auto visitor = std::make_shared<QuilVisitor>(true, true);
+  InstructionIterator it(program);
+  while (it.hasNext()) {
+    auto nextInst = it.next();
+    if (nextInst->isEnabled()) {
+      nextInst->accept(visitor);
+    } 
+  }
+  auto quilStr = visitor->getQuilString();
+  quilStr = "DECLARE ro BIT[" + std::to_string(program->nLogicalBits()) +
+            "]\n" + quilStr;
+
+  auto locals = py::dict();
+  locals["quil_str"] = quilStr;
+  locals["backend"] = backend;
+
+//    std::cout << "Original:\n" << quilStr << "\n";
+
+  auto py_src_get_native =
+      R"#(import json
+from pyquil import Program, get_qc
+
+# very simple, just get the compiler
+qc = get_qc(locals()['backend'])
+compiler = qc.compiler
+
+p = Program(locals()['quil_str'])
+np = compiler.quil_to_native_quil(p)
+#print('printing this,', np)
+result = str(np)
+)#";
+
+  try {
+    py::exec(py_src_get_native, py::globals(), locals);
+  } catch (std::exception &e) {
+    std::stringstream ss;
+    ss << "XACC QCS Exec Error:\n";
+    ss << e.what();
+    xacc::error(ss.str());
+  }
+
+//   py::print("AfterPlacement:\n", locals["result"]);
+  std::string tmp2 = "";
+  auto tmp = locals["result"].cast<std::string>();
+  for (auto line : xacc::split(tmp, '\n')) {
+    if (line.find("DECLARE") == std::string::npos) {
+      tmp2 += line + "\n";
+    }
+  }
+
+  auto compiler = xacc::getCompiler("quil");
+  auto new_program = compiler->compile("__qpu__ void foo(qreg q) {\n" + tmp2 + "}\n")
+                         ->getComposites()[0];
+    
+  program->clear();
+  program->addInstructions(new_program->getInstructions());
+    
+  return;
+}
+
 void QCSAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
@@ -56,15 +124,24 @@ void QCSAccelerator::initialize(const HeterogeneousMap &params) {
     use_rpcq_auth_config = params.get<bool>("use_rpcq_auth_config");
   }
 
+  if (params.stringExists("endpoint")) {
+    endpoint = params.getString("endpoint");
+  }
+
+  std::string isa_str = "";
   if (params.stringExists("backend")) {
     backend = params.getString("backend");
 
     auto response = this->get(forest_server_url, "/lattices/" + backend);
+
     auto lattice_json = json::parse(response);
     auto twoq = lattice_json["lattice"]["isa"]["2Q"].get<json::object_t>();
+
+    // Save the ISA for TargetDevice quil_to_native_quil
+    isa_str = lattice_json["lattice"]["isa"].dump();
+
     for (auto element : twoq) {
       if (element.second.find("dead") == element.second.end()) {
-        // std::cout << "adding " << element.first << "\n";
         auto bits = xacc::split(element.first, '-');
         latticeEdges.push_back(
             std::make_pair(std::stoi(bits[0]), std::stoi(bits[1])));
@@ -80,6 +157,10 @@ void QCSAccelerator::initialize(const HeterogeneousMap &params) {
   }
 
   _internal_init();
+
+  // This Accelerator requires a custom Placement strategy
+  auto placement = std::make_shared<QCSPlacement>(backend, isa_str);
+  xacc::contributeService("qcs-quilc", placement);
 
   updateConfiguration(params);
 }
@@ -129,23 +210,20 @@ void QCSAccelerator::execute(
 
   // Map IR to Native Quil string
   auto visitor = std::make_shared<QuilVisitor>(true);
-  std::set<int> qbitIdxs;
   InstructionIterator it(function);
   while (it.hasNext()) {
     auto nextInst = it.next();
-    if (nextInst->isEnabled()) {
-      nextInst->accept(visitor);
-      if (nextInst->name() == "Measure") {
-        qbitIdxs.insert(nextInst->bits()[0]);
-      }
+    if (!nextInst->isComposite() && nextInst->isEnabled()) {
+        nextInst->accept(visitor);
     }
   }
+    
   CountGatesOfTypeVisitor<Measure> count(function);
   int nMeasures = count.countGates();
   auto quilStr = visitor->getQuilString();
   quilStr =
       "DECLARE ro BIT[" + std::to_string(buffer->size()) + "]\n" + quilStr;
-  // std::cout << "\nQuil Program:\n" << quilStr << "\n";
+//   std::cout << "\nQuil Program:\n" << quilStr << "\n";
 
   json j;
   j["quil"] = quilStr;
@@ -208,15 +286,15 @@ for k, v in buffers.items():
   }
 
   auto results = locals["results"];
-  // py::print("C++ Results:\n",results);
+//   py::print("C++ Results:\n",results);
 
   // Decode the results, update AcceleratorBuffer
-  ResultsDecoder().decode(buffer, results, qbitIdxs, shots);
+  if (endpoint == backend) ResultsDecoder().decode(buffer, results, shots);
   return;
 }
 
 void ResultsDecoder::decode(std::shared_ptr<AcceleratorBuffer> buffer,
-                            py::object result, std::set<int> qbitIdxs,
+                            py::object result, 
                             int shots) {
 
   auto as_dict = result.cast<py::dict>();
@@ -224,13 +302,12 @@ void ResultsDecoder::decode(std::shared_ptr<AcceleratorBuffer> buffer,
   Eigen::MatrixXi bits = Eigen::MatrixXi::Zero(shots, as_dict.size() / 2);
   int counter = 0;
   for (auto kv : as_dict) {
-    //     py::print(kv.first);
-    //     py::print(kv.second);
     if (kv.first.cast<std::string>().find("unclassified") ==
         std::string::npos) {
+        // FIXME can I cast to std::vector<int> once? 
+      auto single_cast = kv.second.cast<py::list>();
       for (int k = 0; k < shots; k++) {
-        auto bit = kv.second.cast<py::list>()[k].cast<int>(); //.data[k]);
-        //       std::cout << bit << "\n";
+        auto bit = single_cast[k].cast<int>(); 
         bits(k, counter) = bit;
       }
       counter++;

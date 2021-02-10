@@ -62,7 +62,15 @@ class TestQCSRunner(unittest.TestCase):
             print('Failure in bell test - shutting down the server')
             requests.post("http://localhost:64574/shutdown")   
             time.sleep(2)    
-            
+
+    # def test_placement(self):
+    #     p = self.qpu.defaultPlacementTransformation()
+    #     placement = xacc.getIRTransformation(p)
+    #     placement.apply(self.bell, None)
+    #     print(self.bell.toString())
+
+
+
     @classmethod
     def tearDownClass(self):
         print('TearDownClass - shutting down the server')

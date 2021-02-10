@@ -39,12 +39,15 @@ void bind_ir(py::module &m) {
   py::class_<xacc::ContributableService>(m, "ContributableService", "")
       .def(py::init<std::shared_ptr<Instruction>>(), "");
 
+  py::class_<xacc::BaseInstructionVisitor, std::shared_ptr<xacc::BaseInstructionVisitor>>(m, "BaseInstructionVisitor");
+
   py::class_<xacc::Instruction, std::shared_ptr<xacc::Instruction>>(
       m, "Instruction", "")
       .def("nParameters", &xacc::Instruction::nParameters, "")
       .def("toString", &xacc::Instruction::toString, "")
       .def("isEnabled", &xacc::Instruction::isEnabled, "")
       .def("isComposite", &xacc::Instruction::isComposite, "")
+      .def("nRequiredBits", &xacc::Instruction::nRequiredBits, "")
       .def("bits", &xacc::Instruction::bits, "")
       .def("setBits", &xacc::Instruction::setBits, "")
       .def("getParameter", &xacc::Instruction::getParameter, "")
@@ -63,7 +66,14 @@ void bind_ir(py::module &m) {
       .def("setSamples", &xacc::Instruction::setSamples, "")
       .def("getSamples", &xacc::Instruction::getSamples, "")
       .def("duration", &xacc::Instruction::duration, "")
-      .def("start", &xacc::Instruction::start, "");
+      .def("start", &xacc::Instruction::start, "")
+      .def ("accept", [](xacc::Instruction& i, std::shared_ptr<xacc::BaseInstructionVisitor> visitor) {
+        i.accept(visitor);
+      })
+      .def ("accept", [](xacc::Instruction& i,xacc::BaseInstructionVisitor& visitor) {
+        i.accept(&visitor);
+      })
+      ;
 
   py::class_<xacc::CompositeInstruction,
              std::shared_ptr<xacc::CompositeInstruction>>(
@@ -227,6 +237,18 @@ void bind_ir(py::module &m) {
   py::class_<xacc::IRTransformation, std::shared_ptr<xacc::IRTransformation>,
              PyIRTransformation>(m, "IRTransformation", "")
       .def(py::init<>())
+      .def(
+          "apply",
+          [](IRTransformation &t, std::shared_ptr<CompositeInstruction> k,
+             const PyHeterogeneousMap &options = {}) {
+            HeterogeneousMap m;
+            for (auto &item : options) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            t.apply(k, nullptr, m);
+          },
+          py::arg("k"), py::arg("options") = PyHeterogeneousMap(), "")
       .def(
           "apply",
           [](IRTransformation &t, std::shared_ptr<CompositeInstruction> k,
