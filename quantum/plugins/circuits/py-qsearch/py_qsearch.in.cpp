@@ -60,7 +60,7 @@ PyQsearch::~PyQsearch() {
   if (libpython_handle) {
     int i = dlclose(libpython_handle);
     if (i != 0) {
-      std::cout << "error closing python lib in mitiq: " << i << "\n";
+      std::cout << "error closing python lib in qsearch: " << i << "\n";
       std::cout << dlerror() << "\n";
     }
   }
@@ -90,7 +90,7 @@ bool PyQsearch::expand(const xacc::HeterogeneousMap &parameters) {
   };
   auto n_qubits = nbQubits(unitary.rows());
   if (!isUnitary(unitary)) {
-    xacc::error("Input matrix is not a 4x4 unitary matrix");
+    xacc::error("Input matrix is not a unitary matrix");
     return false;
   }
   if (!initialized) {
