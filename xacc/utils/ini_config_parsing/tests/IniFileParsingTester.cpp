@@ -24,6 +24,14 @@ TEST(IniFileParsingTester, checkSimple) {
   EXPECT_EQ(config.get<int>("one"), 1);
   EXPECT_NEAR(config.get<double>("pi"), M_PI, 0.01);
   EXPECT_EQ(config.getString("name"), "XACC");
+  EXPECT_TRUE(config.get<bool>("true_val"));
+  EXPECT_FALSE(config.get<bool>("false_val"));
+}
+
+TEST(IniFileParsingTester, checkArrays) {
+  const std::string testFile = std::string(INI_SOURCE_DIR) + "/test1.ini";
+  auto parser = xacc::getService<ConfigFileParsingUtil>("ini");
+  auto config = parser->parse(testFile);
   const auto intArray = config.get<std::vector<int>>("array");
   EXPECT_EQ(intArray.size(), 3);
   for (int i = 0; i < intArray.size(); ++i) {
@@ -33,10 +41,16 @@ TEST(IniFileParsingTester, checkSimple) {
   const auto doubleArray = config.get<std::vector<double>>("array_double");
   EXPECT_EQ(doubleArray.size(), 3);
   for (int i = 0; i < doubleArray.size(); ++i) {
-    EXPECT_NEAR(doubleArray[i], 1.0*(i + 1), 1e-12);
+    EXPECT_NEAR(doubleArray[i], 1.0 * (i + 1), 1e-12);
   }
-  EXPECT_TRUE(config.get<bool>("true_val"));
-  EXPECT_FALSE(config.get<bool>("false_val"));
+
+  const auto connectivity =
+      config.get<std::vector<std::pair<int, int>>>("connectivity");
+  EXPECT_EQ(connectivity.size(), 3);
+  for (int i = 0; i < connectivity.size(); ++i) {
+    std::cout << connectivity[i].first << "-->" << connectivity[i].second
+              << "\n";
+  }
 }
 
 int main(int argc, char **argv) {

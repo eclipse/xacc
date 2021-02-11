@@ -95,6 +95,27 @@ private:
     return result;
   }
 
+  template <>
+  static std::vector<std::pair<int, int>>
+  to_array<std::pair<int, int>>(const std::string &s) {
+    std::string arrayStr = s;
+    arrayStr.erase(std::remove_if(arrayStr.begin(), arrayStr.end(), isspace), arrayStr.end());
+    std::vector<std::pair<int, int>> result;
+    arrayStr = arrayStr.substr(1, s.size() - 2);
+    std::stringstream ss(arrayStr);
+    std::string pairItem;
+    while (std::getline(ss, pairItem, ']')) {
+      pairItem += ']';
+      const std::vector<int> pairAsVec = to_array<int>(pairItem);
+      if (pairAsVec.size() == 2) {
+        result.emplace_back(std::make_pair(pairAsVec[0], pairAsVec[1]));
+      }
+      std::string temp;
+      std::getline(ss, pairItem, ',');
+    }
+    return result;
+  }
+
   using AddFieldFnType = std::function<bool(const std::string &,
                                             const boost::property_tree::ptree &,
                                             HeterogeneousMap &)>;
@@ -103,7 +124,8 @@ private:
       addPrimitiveFieldToMap<bool>, addPrimitiveFieldToMap<std::string>};
 
   static inline const std::vector<AddFieldFnType> CONTAINER_TYPE_CONVERTERS{
-      addArrayFieldToMap<int>, addArrayFieldToMap<double>};
+      addArrayFieldToMap<int>, addArrayFieldToMap<double>,
+      addArrayFieldToMap<std::pair<int, int>>};
 };
 } // namespace xacc
 REGISTER_PLUGIN(xacc::IniFileParsingUtil, xacc::ConfigFileParsingUtil)
