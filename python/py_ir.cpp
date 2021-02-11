@@ -13,6 +13,7 @@
 #include "py_ir.hpp"
 #include "CompositeInstruction.hpp"
 #include "IRTransformation.hpp"
+#include "IRVerifier.hpp"
 #include "heterogeneous.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
@@ -217,7 +218,6 @@ void bind_ir(py::module &m) {
           "")
       .def(
           "createIR", [](IRProvider &p) { return p.createIR(); }, "");
-
   // Expose the IR interface
   py::class_<xacc::IR, std::shared_ptr<xacc::IR>>(
       m, "IR",
@@ -263,4 +263,26 @@ void bind_ir(py::module &m) {
           },
           py::arg("k"), py::arg("acc"),
           py::arg("options") = PyHeterogeneousMap(), "");
+  py::class_<xacc::IRVerifier, std::shared_ptr<xacc::IRVerifier>>(
+      m, "IRVerifier", "")
+      .def(
+          "verify",
+          [](IRVerifier &v, std::shared_ptr<CompositeInstruction> o,
+             std::shared_ptr<CompositeInstruction> t,
+             const PyHeterogeneousMap &options = {}) {
+            HeterogeneousMap m;
+            for (auto &item : options) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            return v.verify(o, t, m);
+          },
+          py::arg("o"), py::arg("t"), py::arg("options") = PyHeterogeneousMap(),
+          "");
+  m.def(
+      "getVerifier",
+      [](const std::string name) {
+        return xacc::getService<xacc::IRVerifier>(name);
+      },
+      "");
 }

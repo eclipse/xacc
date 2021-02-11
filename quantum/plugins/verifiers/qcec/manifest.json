@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_verfier_qcec",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC qcec circuit equivalence checker",
+  "bundle.description" : "This bundle provides equivalence checking of transforms through qcec"
+}
