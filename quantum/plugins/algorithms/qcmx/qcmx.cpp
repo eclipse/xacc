@@ -173,7 +173,7 @@ double QCMX::measureOperator(const std::shared_ptr<Observable> obs,
     std::complex<double> coeff = f->getCoefficient();
     if (cachedMeasurements.find(f->name()) != cachedMeasurements.end()) {
       total += std::real(coeff * cachedMeasurements[f->name()]);
-    } else if (fabs(coeff) >= threshold) {
+    } else if (std::fabs(coeff) >= threshold) {
       fsToExec.push_back(f);
       coefficients.push_back(coeff);
     }
