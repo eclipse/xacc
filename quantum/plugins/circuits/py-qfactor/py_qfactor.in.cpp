@@ -183,8 +183,8 @@ final_distance = get_distance(ans, umat)
     py::buffer_info buffer = gateMat.request();
     const size_t nbRows = buffer.shape[0];
     const size_t nbCols = buffer.shape[1];
-    assert(nbRows = 4);
-    assert(nbCols = 4);
+    assert(nbRows == 4);
+    assert(nbCols == 4);
     std::complex<double> *buffer_ptr = (std::complex<double> *)buffer.ptr;
     std::vector<std::complex<double>> gateUnitaryFlatten;
     gateUnitaryFlatten.assign(buffer_ptr, buffer_ptr + nbRows * nbCols);
