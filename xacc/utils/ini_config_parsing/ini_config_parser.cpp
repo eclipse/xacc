@@ -16,6 +16,75 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/lexical_cast.hpp>
 
+namespace {
+template <typename T>
+bool addPrimitiveFieldToMap(const std::string &in_fieldPath,
+                            const boost::property_tree::ptree &in_ptree,
+                            xacc::HeterogeneousMap &io_mapToAdd) {
+  try {
+    T val = in_ptree.get<T>(in_fieldPath);
+    // std::cout << in_fieldPath << " --> " << val << "\n";
+    io_mapToAdd.insert(in_fieldPath, val);
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+
+bool isContainerField(const std::string &in_fieldName,
+                      const boost::property_tree::ptree &in_tree) {
+  const std::string fieldAsString = in_tree.get<std::string>(in_fieldName);
+  return !fieldAsString.empty() && fieldAsString.front() == '[' &&
+         fieldAsString.back() == ']';
+}
+
+template <typename T> std::vector<T> to_array(const std::string &s) {
+  std::vector<T> result;
+  std::string arrayStr = s.substr(1, s.size() - 2);
+  std::stringstream ss(arrayStr);
+  std::string item;
+  while (std::getline(ss, item, ',')) {
+    result.emplace_back(boost::lexical_cast<T>(item));
+  }
+  return result;
+}
+
+template <>
+std::vector<std::pair<int, int>>
+to_array<std::pair<int, int>>(const std::string &s) {
+  std::string arrayStr = s;
+  arrayStr.erase(std::remove_if(arrayStr.begin(), arrayStr.end(), isspace),
+                 arrayStr.end());
+  std::vector<std::pair<int, int>> result;
+  arrayStr = arrayStr.substr(1, s.size() - 2);
+  std::stringstream ss(arrayStr);
+  std::string pairItem;
+  while (std::getline(ss, pairItem, ']')) {
+    pairItem += ']';
+    const std::vector<int> pairAsVec = to_array<int>(pairItem);
+    if (pairAsVec.size() == 2) {
+      result.emplace_back(std::make_pair(pairAsVec[0], pairAsVec[1]));
+    }
+    std::string temp;
+    std::getline(ss, pairItem, ',');
+  }
+  return result;
+}
+
+template <typename T>
+bool addArrayFieldToMap(const std::string &in_fieldPath,
+                        const boost::property_tree::ptree &in_ptree,
+                        xacc::HeterogeneousMap &io_mapToAdd) {
+  try {
+    auto array = to_array<T>(in_ptree.get<std::string>(in_fieldPath));
+    io_mapToAdd.insert(in_fieldPath, array);
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+} // namespace
+
 namespace xacc {
 class IniFileParsingUtil : public ConfigFileParsingUtil {
 public:
@@ -49,73 +118,6 @@ public:
   }
 
 private:
-  template <typename T>
-  static bool
-  addPrimitiveFieldToMap(const std::string &in_fieldPath,
-                         const boost::property_tree::ptree &in_ptree,
-                         HeterogeneousMap &io_mapToAdd) {
-    try {
-      T val = in_ptree.get<T>(in_fieldPath);
-      std::cout << in_fieldPath << " --> " << val << "\n";
-      io_mapToAdd.insert(in_fieldPath, val);
-      return true;
-    } catch (...) {
-      return false;
-    }
-  }
-
-  template <typename T>
-  static bool addArrayFieldToMap(const std::string &in_fieldPath,
-                                 const boost::property_tree::ptree &in_ptree,
-                                 HeterogeneousMap &io_mapToAdd) {
-    try {
-      auto array = to_array<T>(in_ptree.get<std::string>(in_fieldPath));
-      io_mapToAdd.insert(in_fieldPath, array);
-      return true;
-    } catch (...) {
-      return false;
-    }
-  }
-
-  static bool isContainerField(const std::string &in_fieldName,
-                               const boost::property_tree::ptree &in_tree) {
-    const std::string fieldAsString = in_tree.get<std::string>(in_fieldName);
-    return !fieldAsString.empty() && fieldAsString.front() == '[' &&
-           fieldAsString.back() == ']';
-  }
-
-  template <typename T> static std::vector<T> to_array(const std::string &s) {
-    std::vector<T> result;
-    std::string arrayStr = s.substr(1, s.size() - 2);
-    std::stringstream ss(arrayStr);
-    std::string item;
-    while (std::getline(ss, item, ',')) {
-      result.emplace_back(boost::lexical_cast<T>(item));
-    }
-    return result;
-  }
-
-  template <>
-  static std::vector<std::pair<int, int>>
-  to_array<std::pair<int, int>>(const std::string &s) {
-    std::string arrayStr = s;
-    arrayStr.erase(std::remove_if(arrayStr.begin(), arrayStr.end(), isspace), arrayStr.end());
-    std::vector<std::pair<int, int>> result;
-    arrayStr = arrayStr.substr(1, s.size() - 2);
-    std::stringstream ss(arrayStr);
-    std::string pairItem;
-    while (std::getline(ss, pairItem, ']')) {
-      pairItem += ']';
-      const std::vector<int> pairAsVec = to_array<int>(pairItem);
-      if (pairAsVec.size() == 2) {
-        result.emplace_back(std::make_pair(pairAsVec[0], pairAsVec[1]));
-      }
-      std::string temp;
-      std::getline(ss, pairItem, ',');
-    }
-    return result;
-  }
-
   using AddFieldFnType = std::function<bool(const std::string &,
                                             const boost::property_tree::ptree &,
                                             HeterogeneousMap &)>;
