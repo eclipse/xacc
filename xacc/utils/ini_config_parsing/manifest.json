@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_ini_config_parsing",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC INI file parsing utility",
+  "bundle.description" : ""
+}
