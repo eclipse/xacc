@@ -12,7 +12,7 @@
  *******************************************************************************/
 #include "xacc.hpp"
 #include "AlgorithmGradientStrategy.hpp"
-
+#include "NoiseModel.hpp"
 #include <memory>
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -59,7 +59,7 @@ using PyHeterogeneousMapTypes =
                   std::vector<double>, std::vector<int>, std::complex<double>, std::vector<std::complex<double>>,
                   std::shared_ptr<CompositeInstruction>, std::vector<std::pair<int,int>>,
                   std::shared_ptr<Instruction>, std::shared_ptr<Accelerator>, std::shared_ptr<AlgorithmGradientStrategy>,
-                  std::shared_ptr<Observable>, std::shared_ptr<Optimizer>, Eigen::MatrixXcd, std::shared_ptr<Graph>>;
+                  std::shared_ptr<Observable>, std::shared_ptr<Optimizer>, Eigen::MatrixXcd, std::shared_ptr<Graph>, std::shared_ptr<NoiseModel>>;
 using PyHeterogeneousMap = std::map<std::string, PyHeterogeneousMapTypes>;
 
 // Visitor used to map PyHeterogeneousMap to HeterogeneousMap
@@ -83,7 +83,7 @@ class HeterogeneousMap2PyHeterogeneousMap
           std::shared_ptr<CompositeInstruction>, std::shared_ptr<Instruction>,
           std::shared_ptr<Accelerator>, std::shared_ptr<Observable>,
           std::shared_ptr<Optimizer>, std::shared_ptr<AlgorithmGradientStrategy>,
-          Eigen::MatrixXcd, std::shared_ptr<Graph>> {
+          Eigen::MatrixXcd, std::shared_ptr<Graph>, std::shared_ptr<NoiseModel>> {
 private:
   PyHeterogeneousMap &pymap;
 
