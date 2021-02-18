@@ -28,3 +28,6 @@ target_link_libraries(QObjectCompilerTester CppMicroServices)
 # i.e. the .ibm_config file is valid. 
 # add_xacc_test(IBMPulseRemote)
 # target_link_libraries(IBMPulseRemoteTester xacc-quantum-gate)
+
+add_xacc_test(MidCircuitMeasurement)
+target_link_libraries(MidCircuitMeasurementTester xacc-quantum-gate)
