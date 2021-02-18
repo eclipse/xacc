@@ -715,11 +715,21 @@ inline void to_json(json &j, const xacc::ibm::QObjectConfig &x) {
   j["memory_slots"] = x.get_memory_slots();
   j["memory"] = x.get_memory();
   j["parameter_binds"] = x.get_parameter_binds();
-  j["meas_lo_freq"] = x.get_meas_lo_freq();
-  j["schedule_los"] = x.get_schedule_los();
-  j["qubit_lo_freq"] = x.get_qubit_lo_freq();
-  j["qubit_lo_range"] = x.get_qubit_lo_range();
-  j["meas_lo_range"] = x.get_meas_lo_range();
+  if (!x.get_meas_lo_freq().empty()) {
+    j["meas_lo_freq"] = x.get_meas_lo_freq();
+  }
+  if (!x.get_schedule_los().empty()) {
+    j["schedule_los"] = x.get_schedule_los();
+  }
+  if (!x.get_qubit_lo_freq().empty()) {
+    j["qubit_lo_freq"] = x.get_qubit_lo_freq();
+  }
+  if (!x.get_qubit_lo_range().empty()) {
+    j["qubit_lo_range"] = x.get_qubit_lo_range();
+  }
+  if (!x.get_meas_lo_range().empty()) {
+    j["meas_lo_range"] = x.get_meas_lo_range();
+  }
   j["meas_return"] = x.get_meas_return();
   j["meas_level"] = x.get_meas_level();
   j["memory_slot_size"] = x.get_memory_slot_size();

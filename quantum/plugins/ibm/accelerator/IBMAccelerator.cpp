@@ -155,7 +155,7 @@ std::vector<xacc::ibm_pulse::Instruction> orderFrameChangeInsts(
 }
 
 bool hasMidCircuitMeasurement(
-    std::shared_ptr<CompositeInstruction> &in_circuit) {
+    const std::shared_ptr<CompositeInstruction> &in_circuit) {
   InstructionIterator it(in_circuit);
   bool measureEncountered = false;
   while (it.hasNext()) {
@@ -498,6 +498,11 @@ void IBMAccelerator::execute(
   // either pulse or qasm
   std::string qobj_type = mode;
   for (auto &c : circuits) {
+    if (hasMidCircuitMeasurement(c) && !multi_meas_enabled) {
+      xacc::error("Circuit '" + c->name() +
+                  "' has mid-circuit measurement instructions but the backend "
+                  "doesn't support multiple measurement");
+    }
     // If there is an analog instruction (pulse),
     // always use 'pulse' mode.
     if (c->isAnalog()) {
