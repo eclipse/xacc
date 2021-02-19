@@ -448,6 +448,33 @@ std::map<std::string, int> AcceleratorBuffer::getMeasurementCounts() {
   return bitStringToCounts;
 }
 
+std::map<std::string, int>
+AcceleratorBuffer::getMarginalCounts(const std::vector<int> &measIdxs,
+                                     BitOrder bitOrder) {
+  std::map<std::string, int> result;
+
+  const auto bitMask = [&](const std::string &bitString) {
+    std::string marginalBitString;
+    for (const auto &bit : measIdxs) {
+      if (bitOrder == BitOrder::MSB) {
+        marginalBitString.push_back(bitString[bitString.size() - bit - 1]);
+      } else {
+        marginalBitString.push_back(bitString[bit]);
+      }
+    }
+    return marginalBitString;
+  };
+  for (const auto &[bitString, count] : bitStringToCounts) {
+    auto marginalBitStr = bitMask(bitString);
+    if (result.find(marginalBitStr) != result.end()) {
+      result[marginalBitStr] += count;
+    } else {
+      result[marginalBitStr] = count;
+    }
+  }
+
+  return result;
+}
 /**
  * Print information about this AcceleratorBuffer to standard out.
  *

@@ -190,7 +190,14 @@ void bind_accelerator(py::module &m) {
            (std::vector<std::shared_ptr<AcceleratorBuffer>>(
                xacc::AcceleratorBuffer::*)(const std::string, ExtraInfo)) &
                xacc::AcceleratorBuffer::getChildren,
-           "");
+           "")
+      .def(
+          "getMarginalCounts",
+          [](AcceleratorBuffer &b, const std::vector<int> &idxs) {
+            return b.getMarginalCounts(idxs);
+          },
+          "Return the mapping of marginal measure bit strings to their "
+          "counts.");
 
   // Expose xacc::NoiseModel
   py::class_<xacc::NoiseModel, std::shared_ptr<xacc::NoiseModel>, PyNoiseModel>

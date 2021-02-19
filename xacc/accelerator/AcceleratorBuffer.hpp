@@ -189,6 +189,11 @@ public:
 
   virtual const std::vector<std::string> getMeasurements();
   virtual std::map<std::string, int> getMeasurementCounts();
+  // Get the marginal counts bitstring for a list of bit indices.
+  virtual std::map<std::string, int>
+  getMarginalCounts(const std::vector<int> &measIdxs,
+                    BitOrder bitOrder = BitOrder::MSB);
+
   virtual void clearMeasurements() {
     // measurements.clear();
     bitStringToCounts.clear();
