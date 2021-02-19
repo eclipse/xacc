@@ -61,6 +61,30 @@ TEST(ResetInstTester, checkResetSim) {
   EXPECT_NEAR(buffer->computeMeasurementProbability("1"), 1.0, 1e-9);
 }
 
+// Check that Aer can also handle the QObj that
+// has reset instructions.
+TEST(ResetInstTester, checkResetAerSim) {
+  auto acc = xacc::getAccelerator("aer");
+  auto src = R"#(__qpu__ void reset_run_aer(qbit q) {
+  H(q[0]);
+  Reset(q[0]);
+  Reset(q[0]);
+  X(q[0]);
+  Measure(q[0]);
+})#";
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(src);
+  auto hello = IR->getComposites()[0];
+  std::cout << "HELLO:\n" << hello->toString() << "\n";
+  xacc::set_verbose(true);
+  auto buffer = xacc::qalloc(1);
+  acc->execute(buffer, hello);
+  xacc::set_verbose(false);
+  buffer->print();
+  // Due to reset => back to 0 => become 1 after X...
+  EXPECT_NEAR(buffer->computeMeasurementProbability("1"), 1.0, 1e-9);
+}
+
 // TEST(ResetInstTester, checkQobjRun) {
 //   auto acc = xacc::getAccelerator("ibm:ibmq_manhattan");
 //   auto src = R"#(__qpu__ void reset_run(qbit q) {
