@@ -8,8 +8,7 @@ import xacc
 # Mid-circuit measurement is supportted by:
 # - Simulator: qpp, qsim, aer
 # - Selected IBM backends.
-qpu = xacc.getAccelerator('qpp', {"shots": 1024})
-# qpu = xacc.getAccelerator('aer', {"shots": 1024})
+qpu = xacc.getAccelerator('aer', {"shots": 1024})
 
 q = xacc.qalloc(3)
 
@@ -24,6 +23,7 @@ CX(q[1], q[0]);
 H(q[0]);
 // Mid-circuit measurement => Bell state
 Measure(q[0]);
+CX(q[2], q[1]);
 H(q[2]);
 X(q[0]);
 Measure(q[0]);
