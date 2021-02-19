@@ -193,12 +193,19 @@ void bind_accelerator(py::module &m) {
            "")
       .def(
           "getMarginalCounts",
+          // Default to MSB if not explicitly specified
           [](AcceleratorBuffer &b, const std::vector<int> &idxs) {
-            return b.getMarginalCounts(idxs);
+            return b.getMarginalCounts(idxs, AcceleratorBuffer::BitOrder::MSB);
           },
           "Return the mapping of marginal measure bit strings to their "
-          "counts.");
-
+          "counts.")
+      .def("getMarginalCounts", &xacc::AcceleratorBuffer::getMarginalCounts,
+           "Return the mapping of marginal measure bit strings to their "
+           "counts.");
+  py::enum_<xacc::AcceleratorBuffer::BitOrder>(m, "BitOrder")
+      .value("LSB", xacc::AcceleratorBuffer::BitOrder::LSB)
+      .value("MSB", xacc::AcceleratorBuffer::BitOrder::MSB)
+      .export_values();
   // Expose xacc::NoiseModel
   py::class_<xacc::NoiseModel, std::shared_ptr<xacc::NoiseModel>, PyNoiseModel>
       noise_model(m, "NoiseModel", "");
