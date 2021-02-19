@@ -310,6 +310,23 @@ namespace quantum {
         // Add the measurement data to the acceleration buffer (e.g. for conditional execution branching)
         m_buffer->measure(measure.bits()[0], randomSelectedResult);        
     }
+    
+    void QppVisitor::visit(Reset& in_resetGate) 
+    {
+        if (xacc::verbose)
+        {
+            std::cout << ">> Applying Reset @ q[" << in_resetGate.bits()[0] << "] \n";
+            std::cout << ">> State before reset: " << qpp::disp(m_stateVec, ", ") << "\n";
+        }
+
+        const auto qubitIdx = xaccIdxToQppIdx(in_resetGate.bits()[0]);
+        m_stateVec = qpp::reset(m_stateVec, { qubitIdx });
+        
+        if (xacc::verbose)
+        {
+            std::cout << ">> State after reset: " << qpp::disp(m_stateVec, ", ") << "\n";
+        }
+    }
 
     void QppVisitor::visit(IfStmt& ifStmt)
     {

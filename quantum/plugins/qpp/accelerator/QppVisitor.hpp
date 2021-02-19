@@ -52,7 +52,7 @@ public:
   void visit(IfStmt& ifStmt) override;
   void visit(iSwap& in_iSwapGate) override;
   void visit(fSim& in_fsimGate) override;
-  
+  void visit(Reset& in_resetGate) override;
   virtual std::shared_ptr<QppVisitor> clone() { return std::make_shared<QppVisitor>(); }
   const KetVectorType& getStateVec() const { return m_stateVec; }
   static double calcExpectationValueZ(const KetVectorType& in_stateVec, const std::vector<qpp::idx>& in_bits);
