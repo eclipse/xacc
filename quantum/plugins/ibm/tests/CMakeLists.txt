@@ -31,3 +31,5 @@ target_link_libraries(QObjectCompilerTester CppMicroServices)
 
 add_xacc_test(MidCircuitMeasurement)
 target_link_libraries(MidCircuitMeasurementTester xacc-quantum-gate)
+add_xacc_test(ResetInst)
+target_link_libraries(ResetInstTester xacc-quantum-gate)

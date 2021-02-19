@@ -358,6 +358,14 @@ public:
     // }
   }
 
+  void visit(Reset &reset) override {
+    xacc::ibm::Instruction inst;
+    inst.get_mutable_qubits().push_back(reset.bits()[0]);
+    inst.get_mutable_name() = "reset";
+    setConditional(inst);
+    instructions.push_back(inst);
+  }
+
   void visit(Rx &rx) override {
     xacc::ibm::Instruction inst;
     inst.get_mutable_qubits().push_back(rx.bits()[0]);

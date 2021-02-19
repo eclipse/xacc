@@ -514,6 +514,16 @@ public:
   DEFINE_VISITABLE()
 };
 
+class Reset : public Gate {
+public:
+  Reset() : Gate("Reset") {}
+  Reset(std::vector<std::size_t> qbit) : Gate("Reset", qbit) {}
+  Reset(std::size_t qbit) : Reset(std::vector<std::size_t>{qbit}) {}
+  const int nRequiredBits() const override { return 1; }
+  DEFINE_CLONE(Reset)
+  DEFINE_VISITABLE()
+};
+
 } // namespace quantum
 } // namespace xacc
 #endif
