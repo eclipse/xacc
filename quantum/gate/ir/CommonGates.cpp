@@ -32,6 +32,14 @@ const std::string IfStmt::toString() {
     }
     retStr << "}\n";
     return retStr.str();
+}
+void Measure::setBufferNames(
+    const std::vector<std::string> bufferNamesPerIdx) {
+  if (bufferNamesPerIdx.size() > nRequiredBits() + 1) {
+    xacc::error("Invalid number of buffer names for this instruction: " +
+                name() + ", " + std::to_string(bufferNamesPerIdx.size()));
   }
+  buffer_names = bufferNamesPerIdx;
+}
 } // namespace quantum
 } // namespace xacc
