@@ -15,6 +15,7 @@ xacc.qasm('''
 .circuit iterative_qpe
 .qbit q
 H(q[0]);
+X(q[1]);
 // Prepare the state:
 CPhase(q[0], q[1], -5*pi/8);
 CPhase(q[0], q[1], -5*pi/8);
@@ -69,7 +70,12 @@ Measure(q[0], c[3]);
 
 f = xacc.getCompiled('iterative_qpe')
 print(f.toString())
-qpu = xacc.getAccelerator('qpp', {'shots':1014})
+# qpu = xacc.getAccelerator('qpp', {'shots':1024})
+qpu = xacc.getAccelerator('aer', {'shots':1024})
+# With noise
+# Note: IBMQ doesn't support bfunc (conditional) instruction atm,
+# hence, we can only do simulation of the QObj.
+# qpu = xacc.getAccelerator('aer:ibmq_manhattan', {'shots':1024})
 q = xacc.qalloc(2)
 qpu.execute(q, f)
 print(q)

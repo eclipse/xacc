@@ -307,8 +307,19 @@ namespace quantum {
             std::cout << ">> State after measurement: " << qpp::disp(m_stateVec, ", ") << "\n";
         }
 
-        // Add the measurement data to the acceleration buffer (e.g. for conditional execution branching)
-        m_buffer->measure(measure.bits()[0], randomSelectedResult);        
+        if (measure.hasClassicalRegAssignment()) 
+        {
+          // Store the measurement to the corresponding classical buffer.
+          m_buffer->measure(measure.getBufferNames()[1],
+                            measure.getClassicalBitIndex(),
+                            randomSelectedResult);
+        } 
+        else 
+        {
+          // Add the measurement data to the acceleration buffer (e.g. for
+          // conditional execution branching)
+          m_buffer->measure(measure.bits()[0], randomSelectedResult);
+        }
     }
     
     void QppVisitor::visit(Reset& in_resetGate) 

@@ -4,8 +4,10 @@
 namespace xacc {
 namespace quantum {
 bool IfStmt::expand(const HeterogeneousMap &runtimeOptions) {
-  auto buffer = xacc::getBuffer(bufferName);
-  if ((*buffer)[bitIdx]) {
+  auto buffer = xacc::getClassicalRegHostBuffer(bufferName);
+  // Use the generic CReg deref.
+  // this will decay to qreg->operator[] if the bufferName is the buffer name.
+  if (buffer->getCregValue(bufferName, bitIdx)) {
     for (auto &i : instructions) {
       i->enable();
     }

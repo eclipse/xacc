@@ -324,6 +324,12 @@ public:
   }
 
   int64_t mapMemory(int64_t in_memoryId) {
+    // Don't need to generate new mapping;
+    // e.g. multiple if conditioned on the same measurement.
+    auto iter = memoryToRegister.find(in_memoryId);
+    if (iter != memoryToRegister.end()) {
+      return iter->second;
+    }
     memoryToRegister[in_memoryId] = registerId;
     registerId++;
     return memoryToRegister[in_memoryId];
