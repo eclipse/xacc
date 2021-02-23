@@ -64,11 +64,36 @@ void flattenComposite(std::shared_ptr<CompositeInstruction> io_composite)
   io_composite->clear();
   io_composite->addInstructions(flatten);
 }
+// Check if the composite uses a single qubit register,
+// the qubit line is determined by the qubit idx, 
+// hence we don't want to accidentally merge wrong gates.
+std::vector<std::string>
+getBufferList(const std::shared_ptr<CompositeInstruction> &program) {
+  std::set<std::string> allBuffers;
+  InstructionIterator it(program);
+  while (it.hasNext()) {
+    auto nextInst = it.next();
+    for (const auto &bufferName : nextInst->getBufferNames()) {
+      allBuffers.emplace(bufferName);
+    }
+  }
+
+  std::vector<std::string> result(allBuffers.begin(), allBuffers.end());
+  return result;
 }
+} // namespace
 namespace xacc {
 namespace quantum {
 void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction> program, const std::shared_ptr<Accelerator> accelerator, const HeterogeneousMap &options)
 {
+    const auto buffer_names = getBufferList(program);
+    if (buffer_names.size() > 1) 
+    {
+        // If there are multiple buffers, we cannot apply gate merging
+        // due to qubit Id ambiguity.
+        return;
+    }
+
     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
     flattenComposite(program);
     for (size_t instIdx = 0; instIdx < program->nInstructions(); ++instIdx)
@@ -120,6 +145,7 @@ void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction>
                     for (auto& newInst: zyz->getInstructions())
                     {
                         newInst->setBits({bitIdx});
+                        newInst->setBufferNames({ buffer_names[0] });
                         program->addInstruction(newInst->clone());
                     }
                 }
@@ -129,6 +155,7 @@ void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction>
                     for (auto& newInst: zyz->getInstructions())
                     {
                         newInst->setBits({bitIdx});
+                        newInst->setBufferNames({ buffer_names[0] });
                         program->insertInstruction(locationToInsert, newInst->clone());
                         locationToInsert++;
                     }
@@ -188,6 +215,13 @@ std::vector<size_t> MergeSingleQubitGatesOptimizer::findSingleQubitGateSequence(
 
 void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> program, const std::shared_ptr<Accelerator> accelerator, const HeterogeneousMap& options)
 {
+    const auto buffer_names = getBufferList(program);
+    if (buffer_names.size() > 1) 
+    {
+        // If there are multiple buffers, we cannot apply gate merging
+        // due to qubit Id ambiguity.
+        return;
+    }
     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
     flattenComposite(program);
     // No need to optimize block with less than 6 gates
@@ -295,6 +329,7 @@ void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> pr
                     for (auto& newInst: kak->getInstructions())
                     {
                         newInst->setBits(remapBits(newInst->bits()));
+                        newInst->setBufferNames(std::vector<std::string>(newInst->bits().size(), buffer_names[0]));
                         program->addInstruction(newInst->clone());
                     }
                 }
@@ -304,6 +339,7 @@ void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> pr
                     for (auto& newInst: kak->getInstructions())
                     {
                         newInst->setBits(remapBits(newInst->bits()));
+                        newInst->setBufferNames(std::vector<std::string>(newInst->bits().size(), buffer_names[0]));
                         program->insertInstruction(locationToInsert, newInst->clone());
                         locationToInsert++;
                     }
