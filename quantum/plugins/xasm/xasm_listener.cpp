@@ -409,7 +409,6 @@ void XASMListener::enterBufferList(xasmParser::BufferListContext *ctx) {
         auto bit = std::stoi(bit_idx_str);
         measure_cReg = std::make_pair(name, bit);
         currentBufferNames.push_back(name);
-        std::cout << "Measure: " << name << ":" << bit << "\n";
         return;
       }
       xacc::debug("[XasmCompiler] Found parameter in buffer list. " + name,debug_predicate);
