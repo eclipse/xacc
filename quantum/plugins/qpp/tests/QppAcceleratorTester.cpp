@@ -566,6 +566,73 @@ TEST(QppAcceleratorTester, testExecutionInfo)
     EXPECT_EQ(waveFn->size(), 4);
 }
 
+// Check the runtime resolve of multiple if statements
+// referring to a measurement result (pointed to by a creg)
+TEST(QppAcceleratorTester, checkMultipleIfStmts) 
+{
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void iqpe(qbit q) {
+H(q[0]);
+X(q[1]);
+// Prepare the state:
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+H(q[0]);
+// Measure and reset
+Measure(q[0], cReg[0]);
+Reset(q[0]);
+H(q[0]);
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+// Conditional rotation
+if(cReg[0]) {
+  Rz(q[0], -pi/2);
+}
+H(q[0]);
+Measure(q[0], cReg[1]);
+Reset(q[0]);
+H(q[0]);
+CPhase(q[0], q[1], -5*pi/8);
+CPhase(q[0], q[1], -5*pi/8);
+if(cReg[0]) {
+  Rz(q[0], -pi/4);
+}
+if(cReg[1]) {
+  Rz(q[0], -pi/2);
+}
+H(q[0]);
+Measure(q[0], cReg[2]);
+Reset(q[0]);
+H(q[0]);
+CPhase(q[0], q[1], -5*pi/8);
+if(cReg[0]) {
+  Rz(q[0], -pi/8);
+}
+if(cReg[1]) {
+  Rz(q[0], -pi/4);
+}
+if(cReg[2]) {
+  Rz(q[0], -pi/2);
+}
+H(q[0]);
+Measure(q[0], cReg[3]);
+})");
+  auto accelerator = xacc::getAccelerator("qpp", {{"shots", 1024}});
+  auto buffer = xacc::qalloc(2);
+  accelerator->execute(buffer, ir->getComposites()[0]);
+  buffer->print();
+  // Expect: 1101 (lsb) = 11 (decimal)
+  EXPECT_EQ(buffer->getMeasurementCounts()["1101"], 1024);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
 

@@ -14,6 +14,7 @@
 #define XACC_ACCELERATOR_ACCELERATORBUFFER_HPP_
 
 #include <string>
+#include <set>
 #include <sstream>
 #include <iostream>
 #include "Utils.hpp"
@@ -126,6 +127,7 @@ protected:
   std::map<int, int> bit2IndexMap;
 
   std::map<std::size_t, bool> single_measurements;
+  std::map<std::pair<std::string, std::size_t>, std::size_t> cReg_to_single_measurements;
 
 public:
   enum BitOrder {LSB, MSB};
@@ -189,6 +191,11 @@ public:
 
   virtual const std::vector<std::string> getMeasurements();
   virtual std::map<std::string, int> getMeasurementCounts();
+  // Get the marginal counts bitstring for a list of bit indices.
+  virtual std::map<std::string, int>
+  getMarginalCounts(const std::vector<int> &measIdxs,
+                    BitOrder bitOrder = BitOrder::MSB);
+
   virtual void clearMeasurements() {
     // measurements.clear();
     bitStringToCounts.clear();
@@ -209,7 +216,41 @@ public:
     }
   }
 
-  void reset_single_measurements() { single_measurements.clear(); }
+  void measure(const std::string &cRegName, std::size_t bit_idx, int bit) {
+    std::size_t absBitIdx = [&]() -> std::size_t {
+      auto iter =
+          cReg_to_single_measurements.find(std::make_pair(cRegName, bit_idx));
+      if (iter != cReg_to_single_measurements.end()) {
+        return iter->second;
+      } else {
+        if (single_measurements.empty()) {
+          cReg_to_single_measurements[std::make_pair(cRegName, bit_idx)] = 0;
+          return 0;
+        } else {
+          auto nextIdx = single_measurements.rbegin()->first + 1;
+          cReg_to_single_measurements[std::make_pair(cRegName, bit_idx)] =
+              nextIdx;
+          return nextIdx;
+        }
+      }
+    }();
+
+    measure(absBitIdx, bit);
+  }
+
+  std::vector<std::string> getClassicalRegs() const {
+    std::set<std::string> cRegNames;
+    for (const auto &[cReg, measBitIdx] : cReg_to_single_measurements) {
+      cRegNames.emplace(cReg.first);
+    }
+    std::vector<std::string> result(cRegNames.begin(), cRegNames.end());
+    return result;
+  }
+
+  void reset_single_measurements() {
+    single_measurements.clear();
+    cReg_to_single_measurements.clear();
+  }
 
   std::string
   single_measurements_to_bitstring(BitOrder bitOrder = BitOrder::MSB,
@@ -221,6 +262,7 @@ public:
   virtual void load(std::istream &stream);
 
   bool operator[](const std::size_t &i);
+  bool getCregValue(const std::string &cregName, const std::size_t &i);
 
   const ExtraInfo operator[](const std::string &key) {
     return getInformation(key);

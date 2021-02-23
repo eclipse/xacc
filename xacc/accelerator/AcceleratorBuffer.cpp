@@ -343,6 +343,21 @@ bool AcceleratorBuffer::operator[](const std::size_t &i) {
   return single_measurements[i];
 }
 
+bool AcceleratorBuffer::getCregValue(const std::string &cregName,
+                                     const std::size_t &i) {
+  if (cregName == bufferId) {
+    return operator[](i);
+  }
+  auto iter = cReg_to_single_measurements.find(std::make_pair(cregName, i));
+  if (iter != cReg_to_single_measurements.end()) {
+    return operator[](iter->second);
+  } else {
+    std::cout << "This creg bit " << cregName << "[" << i
+              << "] has not been assigned any value yet. Default = false.\n";
+    return false;
+  }
+}
+
 std::string
 AcceleratorBuffer::single_measurements_to_bitstring(BitOrder bitOrder,
                                                     bool shouldClear) {
@@ -448,6 +463,33 @@ std::map<std::string, int> AcceleratorBuffer::getMeasurementCounts() {
   return bitStringToCounts;
 }
 
+std::map<std::string, int>
+AcceleratorBuffer::getMarginalCounts(const std::vector<int> &measIdxs,
+                                     BitOrder bitOrder) {
+  std::map<std::string, int> result;
+
+  const auto bitMask = [&](const std::string &bitString) {
+    std::string marginalBitString;
+    for (const auto &bit : measIdxs) {
+      if (bitOrder == BitOrder::MSB) {
+        marginalBitString.push_back(bitString[bitString.size() - bit - 1]);
+      } else {
+        marginalBitString.push_back(bitString[bit]);
+      }
+    }
+    return marginalBitString;
+  };
+  for (const auto &[bitString, count] : bitStringToCounts) {
+    auto marginalBitStr = bitMask(bitString);
+    if (result.find(marginalBitStr) != result.end()) {
+      result[marginalBitStr] += count;
+    } else {
+      result[marginalBitStr] = count;
+    }
+  }
+
+  return result;
+}
 /**
  * Print information about this AcceleratorBuffer to standard out.
  *

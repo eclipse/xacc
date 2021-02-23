@@ -116,7 +116,10 @@ public:
   void visit(IntExpr &) override {}
   void visit(RealExpr &r) override {}
   void visit(VarExpr &v) override {}
-  void visit(ResetStmt &) override {}
+  void visit(ResetStmt &reset) override {
+    ss << "Reset(" << reset.arg().var() << "["
+       << reset.arg().offset().value() << "]);\n";
+  }
   void visit(IfStmt &) override {}
   void visit(BarrierGate &) override {}
   void visit(GateDecl &) override {}
@@ -177,7 +180,10 @@ public:
   void visit(IntExpr &) override {}
   void visit(RealExpr &r) override {}
   void visit(VarExpr &v) override {}
-  void visit(ResetStmt &) override {}
+  void visit(ResetStmt &reset) override {
+    m_runtimeInsts.emplace_back(
+        std::make_shared<xacc::quantum::Reset>(reset.arg().offset().value()));
+  }
   void visit(IfStmt &) override {}
   void visit(BarrierGate &) override {}
   void visit(GateDecl &) override {}

@@ -47,7 +47,8 @@ class AllGateVisitor : public BaseInstructionVisitor,
                        public InstructionVisitor<U>,
                        public InstructionVisitor<U1>,
                        public InstructionVisitor<IfStmt>,
-                       public InstructionVisitor<XY> {
+                       public InstructionVisitor<XY>,
+                       public InstructionVisitor<Reset> {
 public:
   void visit(Hadamard &h) override {}
   void visit(CNOT &h) override {}
@@ -105,6 +106,7 @@ public:
   void visit(T &t) override {}
   void visit(Tdg &tdg) override {}
   void visit(IfStmt &tdg) override {}
+  void visit(Reset &reset) override {}
 };
 } // namespace quantum
 } // namespace xacc

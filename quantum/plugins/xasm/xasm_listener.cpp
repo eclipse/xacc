@@ -393,6 +393,24 @@ void XASMListener::enterBufferList(xasmParser::BufferListContext *ctx) {
     // we assume it is a parameter
     if (!functionBufferNames.empty() &&
         !xacc::container::contains(functionBufferNames, name)) {
+
+      // Measure instructions which have explicit classical register indexing:
+      // e.g. Measure(q[0], cReg[2]);
+      if (currentInstructionName == "Measure") {
+        xacc::debug("[XasmCompiler] Found classical buffer bit in Measure gate expression.");
+
+        if (nBits > 2) {
+          xacc::error("[XasmCompiler] Illegal Measure  gate variable list. Max "
+                      "number of arguments = 2; Received " +
+                      std::to_string(nBits));
+        }
+        // TODO: support for loops...
+        auto bit_idx_str = ctx->bufferIndex(i)->idx->getText();
+        auto bit = std::stoi(bit_idx_str);
+        measure_cReg = std::make_pair(name, bit);
+        currentBufferNames.push_back(name);
+        return;
+      }
       xacc::debug("[XasmCompiler] Found parameter in buffer list. " + name,debug_predicate);
 
       // FIXME HANDLE things like x[i] or x[i+1]
@@ -436,6 +454,12 @@ void XASMListener::enterBufferList(xasmParser::BufferListContext *ctx) {
       auto bit_idx_str = ctx->bufferIndex(i)->idx->getText();
       std::size_t bit = std::stoi(bit_idx_str);
       currentBits.push_back(bit);
+      // By default, measure cReg data is uninitialized:
+      // i.e. assuming user is using the form Measure(q[0]);
+      // using an empty 
+      if (currentInstructionName == "Measure") {
+        measure_cReg = std::make_pair("", -1);
+      }
     } else {
       // this was a variable bit for a forstmt, add a -1
       currentBits.push_back(-1);
@@ -549,6 +573,11 @@ void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) {
     if_stmt->addInstruction(inst);
   } else {
     function->addInstruction(inst);
+  }
+
+  if (currentInstructionName == "Measure" && !measure_cReg.first.empty() &&
+      measure_cReg.second >= 0) {
+    inst->setParameter(0, measure_cReg.second);
   }
 
   // clear all current data

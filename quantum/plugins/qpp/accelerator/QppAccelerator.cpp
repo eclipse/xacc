@@ -144,18 +144,22 @@ namespace {
 
     // Helper to determine if shot count distribution can be simulated by 
     // sampling the final state vector.
-    // Requirements: measure at the very end and nothing after measure.
+    // Requirements: no reset and measure at the very end and nothing after measure.
     bool shotCountFromFinalStateVec(const std::shared_ptr<CompositeInstruction>& in_composite)
     {
         InstructionIterator it(in_composite);
         bool measureAtTheEnd = true;
         bool measureEncountered = false;
-
+        bool hasReset = false;
         while (it.hasNext())
         {
             auto nextInst = it.next();
             if (nextInst->isEnabled())
             {
+                if (nextInst->name() == "Reset") {
+                    hasReset = true;
+                }
+
                 if (isMeasureGate(nextInst))
                 {
                     // Flag that we have seen a Measure gate.
@@ -170,9 +174,9 @@ namespace {
             }
         }
 
-        // If Measure gates are at the very end,
+        // If Measure gates are at the very end and no reset,
         // this Composite can be simulated by random sampling from the state vec.
-        return measureAtTheEnd;
+        return !hasReset && measureAtTheEnd;
     }
 
     Eigen::MatrixXcd convertToEigenMat(const NoiseModelUtils::cMat& in_stdMat)
