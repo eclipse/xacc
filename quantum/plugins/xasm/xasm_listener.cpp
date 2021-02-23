@@ -576,7 +576,7 @@ void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) {
   }
 
   if (currentInstructionName == "Measure" && !measure_cReg.first.empty() &&
-      measure_cReg.second > 0) {
+      measure_cReg.second >= 0) {
     inst->setParameter(0, measure_cReg.second);
   }
 
