@@ -1,14 +1,21 @@
-# Demonstrating XACC ability to compile circuits witH
+# Demonstrating XACC ability to compile circuits with
 # mid-circuit Measurement, Reset, and conditional statements
-# on IBM backends tHat support tHese instructions.
+# on IBM backends that support tHese instructions.
 
-# Iterative Quantum PHase Estimation:
-# Only use 2 qubits to acHieve 4-bit accuracy (normally require 5 qubits)
-# THe oracle is a -5*pi/8 pHase rotation;
+# IMPORTANT NOTES: IBM hardware backends don't support conditional 
+# statements ('bfunc' instruction) at the moment.
+# Hence, this can only be executed on the simulator.
+# Ref: https://arxiv.org/pdf/2102.01682.pdf
+# The conditional statements executed in the paper seem 
+# not to be available to the public yet.
+
+# Iterative Quantum Phase Estimation:
+# Only use 2 qubits to achieve 4-bit accuracy (normally require 5 qubits)
+# The oracle is a -5*pi/8 pHase rotation;
 # expected to get 4 bits (iteratively) of 1011 = 11(decimal):
-# pHi_est = 11/16 (denom = 16 since we Have 4 bits) 
-# => pHi = 2pi * 11/16 = 11pi/8 = 2pi - 5pi/8 
-# i.e. we estimate tHe -5*pi/8 angle...
+# phi_est = 11/16 (denom = 16 since we have 4 bits) 
+# => phi = 2pi * 11/16 = 11pi/8 = 2pi - 5pi/8 
+# i.e. we estimate the -5*pi/8 angle...
 import xacc
 xacc.qasm('''
 .compiler xasm
