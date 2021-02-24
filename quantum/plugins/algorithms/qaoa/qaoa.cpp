@@ -10,16 +10,19 @@
  * Contributors:
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
+
 #include "qaoa.hpp"
-#include "AlgorithmGradientStrategy.hpp"
-#include "CompositeInstruction.hpp"
+
 #include "xacc.hpp"
-#include "xacc_service.hpp"
-#include "xacc_observable.hpp"
 #include "Circuit.hpp"
+#include "xacc_service.hpp"
+#include "PauliOperator.hpp"
+#include "xacc_observable.hpp"
+#include "CompositeInstruction.hpp"
+#include "AlgorithmGradientStrategy.hpp"
+
 #include <cassert>
 #include <iomanip>
-#include "PauliOperator.hpp"
 
 namespace xacc {
 namespace algorithm {

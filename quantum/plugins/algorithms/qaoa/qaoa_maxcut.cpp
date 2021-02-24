@@ -1,19 +1,32 @@
+/*******************************************************************************
+ * Copyright (c) 2019 UT-Battelle, LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompanies this
+ * distribution. The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
+ *
+ * Contributors:
+ *   A.M. Santana - initial API and implementation
+ *******************************************************************************/
+
 #include "qaoa_maxcut.hpp"
-#include "AlgorithmGradientStrategy.hpp"
-#include "CompositeInstruction.hpp"
+
 #include "xacc.hpp"
-#include "xacc_service.hpp"
-#include "xacc_observable.hpp"
-// #include "xacc_plugin.hpp"
 #include "Circuit.hpp"
+#include "xacc_service.hpp"
+#include "PauliOperator.hpp"
+#include "xacc_observable.hpp"
+#include "CompositeInstruction.hpp"
+#include "AlgorithmGradientStrategy.hpp"
+
 #include <cassert>
 #include <iomanip>
-#include "PauliOperator.hpp"
 #include <random>
 
 
 // WARM-START FUNCTIONS:
-
 auto random_vector(const double l_range, const double r_range, const std::size_t size) {
     // Generate a random initial parameter set 
     // WARNING: This function multiplies each output in the range
@@ -140,13 +153,14 @@ std::pair<std::vector<double>, std::vector<double>> rotatesolution(std::pair<std
     }
     std::pair<std::vector<double>, std::vector<double>> rotated_solution = std::make_pair(newPositions, newValues);
     return rotated_solution;
-}
+} 
+// end warm_start functions
 
 namespace xacc {
 namespace algorithm {
-
+    // Construct the MAX-CUT Hamiltonian as an XACC observable
+    // based on input graphs edges
     Observable *maxcut_qaoa::constructMaxCutHam(xacc::Graph *in_graph) const {
-        // Construct the MAX-CUT Hamiltonian based on graph edges
         xacc::quantum::PauliOperator H;
         for (int i = 0; i < in_graph->order(); ++i) {
             auto neighbors = in_graph->getNeighborList(i);
@@ -165,7 +179,7 @@ namespace algorithm {
     }
 
     // Take a graph as an input and output a series of Rx/Rz instructions on 
-    // each qubit for Warm-Starts
+    // each qubit for Warm-Start procedure (https://arxiv.org/abs/2010.14021)
     auto warm_start(xacc::Graph* m_graph) {
         auto provider = getIRProvider("quantum");
         auto initial_state = provider->createComposite("initial_state");
@@ -288,7 +302,11 @@ namespace algorithm {
         m.insert("observable", m_costHamObs);
         m.insert("steps", m_nbSteps);
         m.insert("parameter-scheme", "Standard");
-
+        
+        // If: warm-start selected, call the warm start function
+        // and use as initial-state.
+        // Else if: custom initial-state given, pass that to the
+        // algorithm call.
         if (m_initializationMode == "warm-start") {
             m.insert("initial-state", warm_start(m_graph));
         } else if (m_initial_state){

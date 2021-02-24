@@ -13,9 +13,9 @@
 #pragma once
 
 #include "Algorithm.hpp"
-#include "AlgorithmGradientStrategy.hpp"
-#include "CompositeInstruction.hpp"
 #include "IRProvider.hpp"
+#include "CompositeInstruction.hpp"
+#include "AlgorithmGradientStrategy.hpp"
 
 namespace xacc {
 namespace algorithm {
@@ -40,7 +40,6 @@ private:
     int m_nbSteps;
     std::string m_parameterizedMode;
     bool m_maximize = false;
-
     CompositeInstruction* m_initial_state;
 };
 } // namespace algorithm

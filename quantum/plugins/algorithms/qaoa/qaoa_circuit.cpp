@@ -11,22 +11,14 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "qaoa_circuit.hpp"
-#include "PauliOperator.hpp"
+
 #include "xacc.hpp"
+#include "PauliOperator.hpp"
+
 #include <random>
 #include <math.h>
-#include <stdlib.h>
-
 #include <limits>
-
-
-
-// float discreteSine() {
-//     std::cout << "Pass!\n";
-// }
-// float discreteCosine() {
-//     std::cout << "Pass!\n";
-// }
+#include <stdlib.h>
 
 namespace {
   // Null if not an Observable-like type 
@@ -90,7 +82,7 @@ bool QAOA::expand(const xacc::HeterogeneousMap& runtimeOptions)
   m_nbQubits = runtimeOptions.get<int>("nbQubits");
   m_nbSteps = runtimeOptions.get<int>("nbSteps");
 
-  // PARSING THE INITIAL STATE RIGHT HERE
+  // Retrieve initial set of gate instructions if provided:
   if (runtimeOptions.pointerLikeExists<CompositeInstruction>("initial-state"))
   {
      m_initial_state = runtimeOptions.getPointerLike<CompositeInstruction>("initial-state");
@@ -182,8 +174,7 @@ void QAOA::parseObservables(Observable* costHam, Observable* refHam)
 
 std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(bool extendedMode) const
 {   
-  // If initial state not provided, apply Hadamards to each qubit
-  // as the initial state of system
+  // If initial state not provided, apply Hadamards to each qubit as default
   auto provider = getIRProvider("quantum");
   auto qaoaKernel = provider->createComposite("qaoaKernel");
   if (m_initial_state) {
