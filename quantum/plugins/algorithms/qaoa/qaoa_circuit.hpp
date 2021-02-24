@@ -40,10 +40,7 @@ private:
     size_t m_nbSteps;
     std::vector<std::string> m_refHam;
     std::vector<std::string> m_costHam;
-    std::string m_initializationMode = "default";
-    xacc::Graph* m_graph;
-    bool m_graph_flag = "false";
-    // parameters.getPointerLike<Graph>("graph")
+    CompositeInstruction* m_initial_state;
 };
 } // namespace circuits
 } // namespace xacc

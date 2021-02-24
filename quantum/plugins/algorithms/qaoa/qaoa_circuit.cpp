@@ -13,6 +13,12 @@
 #include "qaoa_circuit.hpp"
 #include "PauliOperator.hpp"
 #include "xacc.hpp"
+#include <random>
+#include <math.h>
+#include <stdlib.h>
+
+#include <limits>
+
 
 
 // float discreteSine() {
@@ -83,18 +89,18 @@ bool QAOA::expand(const xacc::HeterogeneousMap& runtimeOptions)
 
   m_nbQubits = runtimeOptions.get<int>("nbQubits");
   m_nbSteps = runtimeOptions.get<int>("nbSteps");
-  m_initializationMode = runtimeOptions.get<std::string>("initialization");
+
+  // PARSING THE INITIAL STATE RIGHT HERE
+  if (runtimeOptions.pointerLikeExists<CompositeInstruction>("initial-state"))
+  {
+     m_initial_state = runtimeOptions.getPointerLike<CompositeInstruction>("initial-state");
+  }
   
   auto costHam = runtimeOptions.getPointerLike<xacc::Observable>("cost-ham");
   xacc::Observable* refHam = nullptr;
   if (runtimeOptions.pointerLikeExists<xacc::Observable>("ref-ham")) 
   {
     refHam = runtimeOptions.getPointerLike<xacc::Observable>("ref-ham");
-  }
-  if (runtimeOptions.pointerLikeExists<Graph>("graph")) 
-  {
-    m_graph = runtimeOptions.getPointerLike<Graph>("graph");
-    m_graph_flag = true;
   }
 
   parseObservables(costHam, refHam);
@@ -174,32 +180,18 @@ void QAOA::parseObservables(Observable* costHam, Observable* refHam)
   }
 }
 
-// void QAOA::getSDPSolution2D(xacc::HeterogeneousMap& graph)
-// {
-//     int n_nodes = graph->order();
-//     float W = 0;
-    
-//     // needs to return the best positions
-// }
-
 std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(bool extendedMode) const
 {   
-  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-  auto qaoaKernel = gateRegistry->createComposite("qaoaKernel");
-
-  if (m_initializationMode == "warm-start"){
-    if (m_graph_flag == false){
-        std::cout << "WARNING: A graph input is needed to use warm-start method." << std::endl;
-    }
-  } 
-  else {
-    // else: Hadamard layer
-    for (size_t i = 0; i < m_nbQubits; ++i)
-    {
-        qaoaKernel->addInstruction(gateRegistry->createInstruction("H", { i }));
-    }
+  // If initial state not provided, append Hadamards to each qubit and use that 
+  // as the initial state of system
+  auto qaoaKernel = xacc::as_shared_ptr(m_initial_state);
+  //   std::shared_ptr<xacc::CompositeInstruction> qaoaKernel = *m_initial_state;
+  if (qaoaKernel->nInstructions() == 0){
+    for (size_t i = 0; i < m_nbQubits; ++i){ 
+      qaoaKernel->addInstruction(getIRProvider("quantum")->createInstruction("H", { i }));
+    }  
   }
-
+    
   // Trotter layers (parameterized): mixing b/w cost and drive (reference) Hamiltonian
   int betaParamCounter = 0;
   int gammaParamCounter = 0;
@@ -231,8 +223,7 @@ std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(bool ex
           qaoaKernel->addInstructions(expCirc->getInstructions());
         }
       }
-      
-
+    
       // Beta params:
       // If no drive/reference Hamiltonian is given,
       // then assume the default X0 + X1 + ...
@@ -306,8 +297,6 @@ void QAOA::applyRuntimeArguments()
   int betaCounter = 0;
 
 
-  // TODO: Can insert the parameterization of betas and gammas here
-  // if (m_initializationMode = "FOURIER") {}
   // Combine gammas and betas into one vector to resolve/evaluate the circuit. 
   for (int i = 0; i < m_nbSteps; ++i)
   {
