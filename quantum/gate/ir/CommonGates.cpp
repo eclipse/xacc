@@ -4,8 +4,10 @@
 namespace xacc {
 namespace quantum {
 bool IfStmt::expand(const HeterogeneousMap &runtimeOptions) {
-  auto buffer = xacc::getBuffer(bufferName);
-  if ((*buffer)[bitIdx]) {
+  auto buffer = xacc::getClassicalRegHostBuffer(bufferName);
+  // Use the generic CReg deref.
+  // this will decay to qreg->operator[] if the bufferName is the buffer name.
+  if (buffer->getCregValue(bufferName, bitIdx)) {
     for (auto &i : instructions) {
       i->enable();
     }
@@ -32,6 +34,14 @@ const std::string IfStmt::toString() {
     }
     retStr << "}\n";
     return retStr.str();
+}
+void Measure::setBufferNames(
+    const std::vector<std::string> bufferNamesPerIdx) {
+  if (bufferNamesPerIdx.size() > nRequiredBits() + 1) {
+    xacc::error("Invalid number of buffer names for this instruction: " +
+                name() + ", " + std::to_string(bufferNamesPerIdx.size()));
   }
+  buffer_names = bufferNamesPerIdx;
+}
 } // namespace quantum
 } // namespace xacc

@@ -24,6 +24,8 @@
 
 #include "Algorithm.hpp"
 #include "xacc.hpp"
+#include <unordered_map>
+#include <vector>
 
 namespace xacc {
 namespace algorithm {
@@ -34,8 +36,9 @@ protected:
   Accelerator *accelerator;
   HeterogeneousMap parameters;
   std::vector<std::shared_ptr<Observable>> operators;
+  mutable std::unordered_map<std::string, double> cachedMeasurements;
 
-  double VQEWrapper(const std::shared_ptr<Observable> obs) const;
+  double measureOperator(const std::shared_ptr<Observable> obs, const std::shared_ptr<AcceleratorBuffer> buffer) const;
 
 public:
   bool initialize(const HeterogeneousMap &parameters) override;

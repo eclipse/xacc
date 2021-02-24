@@ -206,6 +206,22 @@ std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string &name) {
 bool hasBuffer(const std::string &name) {
   return allocated_buffers.count(name);
 }
+std::shared_ptr<AcceleratorBuffer>
+getClassicalRegHostBuffer(const std::string &cRegName) {
+  if (hasBuffer(cRegName)) {
+    return getBuffer(cRegName);
+  }
+
+  for (auto &[bufferName, allocated_buffer] : allocated_buffers) {
+    if (xacc::container::contains(allocated_buffer->getClassicalRegs(),
+                                  cRegName)) {
+      return allocated_buffer;
+    }
+  }
+
+  error("Invalid classical register name: " + cRegName);
+  return nullptr;
+}
 
 void addCommandLineOption(const std::string &optionName,
                           const std::string &optionDescription) {

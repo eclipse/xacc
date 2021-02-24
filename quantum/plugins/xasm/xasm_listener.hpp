@@ -45,7 +45,7 @@ protected:
   std::vector<std::string> currentBufferNames;
   std::vector<InstructionParameter> currentParameters;
   std::map<int, std::string> currentBitIdxExpressions;
-
+  std::pair<std::string, int> measure_cReg;
   std::map<std::string, int> new_var_to_vector_idx;
 
   std::string currentCompositeName;

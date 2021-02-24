@@ -2,7 +2,9 @@
 #include "Instruction.hpp"
 #include "Utils.hpp"
 #include "heterogeneous.hpp"
+#include "config_file_parser.hpp"
 #include "xacc.hpp"
+#include "xacc_service.hpp"
 #include "InstructionIterator.hpp"
 #include <CompositeInstruction.hpp>
 #include <stdlib.h>
@@ -55,18 +57,35 @@ auto process_qpu_backend_str = [](const std::string &qpu_backend_str)
       auto tmp = split(key_value, ':');
       auto key = tmp[0];
       auto value = tmp[1];
-
-      // check if int first, then double,
-      // finally just throw it in as a string
-      try {
-        auto i = std::stoi(value);
-        options.insert(key, i);
-      } catch (std::exception &e) {
+      if (key == "qcor_qpu_config") {
+        // If the config is provided in a file:
+        // We could check for file extension here to
+        // determine a parsing plugin.
+        // Currently, we only support a simple key-value format (INI like).
+        // e.g.
+        // String like config:
+        // name=XACC
+        // Boolean configs
+        // true_val=true
+        // false_val=false
+        // Array/vector configs
+        // array=[1,2,3]
+        // array_double=[1.0,2.0,3.0]
+        auto parser = xacc::getService<ConfigFileParsingUtil>("ini");
+        options = parser->parse(value);
+      } else {
+        // check if int first, then double,
+        // finally just throw it in as a string
         try {
-          auto d = std::stod(value);
-          options.insert(key, d);
+          auto i = std::stoi(value);
+          options.insert(key, i);
         } catch (std::exception &e) {
-          options.insert(key, value);
+          try {
+            auto d = std::stod(value);
+            options.insert(key, d);
+          } catch (std::exception &e) {
+            options.insert(key, value);
+          }
         }
       }
     }

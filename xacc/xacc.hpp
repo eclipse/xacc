@@ -130,6 +130,8 @@ void storeBuffer(const std::string name,
                  std::shared_ptr<AcceleratorBuffer> buffer);
 std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string &name);
 bool hasBuffer(const std::string &name);
+std::shared_ptr<AcceleratorBuffer>
+getClassicalRegHostBuffer(const std::string &cRegName);
 
 void setAccelerator(const std::string &acceleratorName);
 std::shared_ptr<Accelerator>

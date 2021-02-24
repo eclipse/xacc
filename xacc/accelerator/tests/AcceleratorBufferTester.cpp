@@ -219,6 +219,63 @@ TEST(AcceleratorBufferTester, checkEmptyParametersBug) {
 
   b.print();
 }
+
+TEST(AcceleratorBufferTester, checkMarginalCount) {
+  {
+    const std::string buffer_str = R"({
+    "AcceleratorBuffer": {
+        "name": "qreg_0x7fde3f773710",
+        "size": 2,
+        "Information": {},
+        "Measurements": {
+            "00": 499,
+            "11": 525
+        }
+    }
+    }
+  )";
+
+    AcceleratorBuffer buffer;
+    std::istringstream s(buffer_str);
+    buffer.load(s);
+    buffer.print();
+    auto marginal_count_q0 = buffer.getMarginalCounts({0});
+    auto marginal_count_q1 = buffer.getMarginalCounts({1});
+    EXPECT_EQ(marginal_count_q0["0"], marginal_count_q1["0"]);
+    EXPECT_EQ(marginal_count_q0["1"], marginal_count_q1["1"]);
+    EXPECT_EQ(marginal_count_q0["0"] + marginal_count_q0["1"], 1024);
+    EXPECT_EQ(marginal_count_q1["0"] + marginal_count_q1["1"], 1024);
+  }
+
+  {
+    const std::string buffer_str = R"({
+    "AcceleratorBuffer": {
+        "name": "qreg_0x7fde3f773710",
+        "size": 3,
+        "Information": {},
+        "Measurements": {
+            "001": 499,
+            "111": 525
+        }
+    }
+    }
+  )";
+
+    AcceleratorBuffer buffer;
+    std::istringstream s(buffer_str);
+    buffer.load(s);
+    buffer.print();
+    auto marginal_count_q0 = buffer.getMarginalCounts({0});
+    auto marginal_count_q1q2 = buffer.getMarginalCounts({1, 2});
+    EXPECT_EQ(marginal_count_q0.size(), 1);
+    EXPECT_EQ(marginal_count_q0["1"], 1024);
+    EXPECT_EQ(marginal_count_q1q2.size(), 2);
+
+    EXPECT_EQ(marginal_count_q1q2["00"], 499);
+    EXPECT_EQ(marginal_count_q1q2["11"], 525);
+  }
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
