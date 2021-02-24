@@ -182,14 +182,18 @@ void QAOA::parseObservables(Observable* costHam, Observable* refHam)
 
 std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(bool extendedMode) const
 {   
-  // If initial state not provided, append Hadamards to each qubit and use that 
+  // If initial state not provided, apply Hadamards to each qubit
   // as the initial state of system
-  auto qaoaKernel = xacc::as_shared_ptr(m_initial_state);
-  //   std::shared_ptr<xacc::CompositeInstruction> qaoaKernel = *m_initial_state;
-  if (qaoaKernel->nInstructions() == 0){
-    for (size_t i = 0; i < m_nbQubits; ++i){ 
-      qaoaKernel->addInstruction(getIRProvider("quantum")->createInstruction("H", { i }));
-    }  
+  auto provider = getIRProvider("quantum");
+  auto qaoaKernel = provider->createComposite("qaoaKernel");
+  if (m_initial_state) {
+     for (auto inst : m_initial_state->getInstructions()) {
+        qaoaKernel->addInstruction(inst);
+     }
+  } else {
+     for (size_t i = 0; i < m_nbQubits; i++) {
+        qaoaKernel->addInstruction(provider->createInstruction("H", { i }));
+     }
   }
     
   // Trotter layers (parameterized): mixing b/w cost and drive (reference) Hamiltonian

@@ -19,7 +19,7 @@ public:
     DEFINE_ALGORITHM_CLONE(maxcut_qaoa)
 private:
     Observable* constructMaxCutHam(xacc::Graph* in_graph) const;
-    void warm_start(xacc::Graph* m_graph) const;
+    CompositeInstruction* warm_start(xacc::Graph* m_graph, CompositeInstruction* m_initial_state) const;
 private:
     Observable* m_costHamObs;
     Observable* m_refHamObs;
@@ -32,6 +32,7 @@ private:
     std::string m_parameterizedMode;
     std::string m_initializationMode = "default";
     xacc::Graph* m_graph;
+    bool m_maximize = false;
     CompositeInstruction* m_initial_state;
 };
 } // namespace algorithm

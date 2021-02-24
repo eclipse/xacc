@@ -8,6 +8,7 @@
 #include <cassert>
 #include <iomanip>
 #include "PauliOperator.hpp"
+#include <random>
 
 
 // WARM-START FUNCTIONS:
@@ -166,20 +167,20 @@ namespace algorithm {
 
     // Take a graph as an input and output a series of Rx/Rz instructions on 
     // each qubit for Warm-Starts
-    void warm_start(xacc::Graph* m_graph) const {
+    // void warm_start(xacc::Graph* m_graph) const {
+    CompositeInstruction* warm_start(xacc::Graph *m_graph, CompositeInstruction *m_initial_state) {
         auto solution1 = getSDPSolution(m_graph);
         int rand = std::rand();
         auto rotated = rotatesolution(solution1, rand);
-        std::cout << "Line 334: Make sure we are assigning x and z rotations correctly.\n";
         std::vector<double> x_rotations = std::get<1>(rotated);
         std::vector<double> z_rotations = std::get<0>(rotated);
-
-        for (int i = 0; i < m_graph->order(); ++i) {
+        for (long unsigned int i = 0; i < m_graph->order(); ++i) {
             auto xrot = x_rotations[i];
             auto zrot = z_rotations[i] + (M_PI / 2);
             m_initial_state->addInstruction(getIRProvider("quantum")->createInstruction("Rx", { i }, {xrot}));
             m_initial_state->addInstruction(getIRProvider("quantum")->createInstruction("Rz", { i }, {zrot}));
         }
+        return m_initial_state;
     }
     
     bool maxcut_qaoa::initialize(const HeterogeneousMap &parameters) {
@@ -211,7 +212,7 @@ namespace algorithm {
             graphInput = true;
             m_graph = parameters.getPointerLike<Graph>("graph");
         } else {
-            std::cout << "'observable' or 'graph' is required.\n";
+            std::cout << "graph' is required.\n";
             initializeOk = false;
         } 
         
@@ -269,30 +270,15 @@ namespace algorithm {
         m.insert("parameter-scheme", "Standard");
 
         if (m_initializationMode == "warm-start") {
-            // Will append the warm start gates to m_intial_state
-            warm_start(m_graph);
-            m.insert("initial-state", m_initial_state);
+            m.insert("initial-state", warm_start(m_graph, m_initial_state));
         } else if (m_initial_state->nInstructions() != 0){
-             m.insert("initial-state", m_initial_state);
+            m.insert("initial-state", m_initial_state);
         }
         
-        // Do for all:
-        // m.insert("acc")
-        // getAlgo(m)
-        
-        // } else {
-        //     // If no initialization mode selected, just create and pass a hadamard 
-        //     // layer here as the initial-state
-        //     for (size_t i = 0; i < m_costHamObs.nBits(); ++i)
-        //     {  
-        //       m_initial_state->addInstruction(getIRProvider("quantum")->createInstruction("H", { i }));
-        //     }
-        // }
-
         // Initialize QAOA
         auto qaoa = xacc::getAlgorithm("QAOA", m);
         // Allocate some qubits and execute
-        auto buffer = xacc::qalloc(m_costHamObs.nBits());
+        // buffer = xacc::qalloc(m_costHamObs->nBits());
         qaoa->execute(buffer);
     }
 

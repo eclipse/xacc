@@ -48,11 +48,10 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
 
   // (4) Cost Hamiltonian to construct the max-cut cost Hamiltonian from.
   if (!parameters.pointerLikeExists<Observable>("observable")) {
-    if (parameters.pointerLikeExists<Graph>("graph")) {
-        std::cout << "'graph' not a valid input for 'QAOA' algorithm. If performing maxcut QAOA, please use the 'maxcut_qaoa' algorithm.\n";
+        std::cout << "'observable' is required.\n";
         initializeOk = false;
     }
-  }
+
   // Default is Extended ParameterizedMode (less steps, more params)
   m_parameterizedMode = "Extended";
   if (parameters.stringExists("parameter-scheme")) {
@@ -137,7 +136,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       m.insert("nbSteps", m_nbSteps);
       m.insert("ref-ham", m_refHamObs);
       m.insert("parameter-scheme", m_parameterizedMode);
-      if (m_initial_state->nInstructions()!=0){
+      if (m_initial_state){
           m.insert("initial-state", m_initial_state);
       }
       kernel->expand(m);
@@ -289,13 +288,17 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   } else if (m_single_exec_kernel) {
     kernel = m_single_exec_kernel;
   } else {
+    HeterogeneousMap m;
     kernel = std::dynamic_pointer_cast<CompositeInstruction>(
-        xacc::getService<Instruction>("qaoa"));
-    kernel->expand({std::make_pair("nbQubits", nbQubits),
-                    std::make_pair("nbSteps", m_nbSteps),
-                    std::make_pair("cost-ham", m_costHamObs),
-                    std::make_pair("ref-ham", m_refHamObs),
-                    std::make_pair("parameter-scheme", m_parameterizedMode)});
+          xacc::getService<Instruction>("qaoa"));
+    m.insert("nbQubits", nbQubits);
+    m.insert("nbSteps", m_nbSteps);
+    m.insert("ref-ham", m_refHamObs);
+    m.insert("parameter-scheme", m_parameterizedMode);
+    if (m_initial_state){
+        m.insert("initial-state", m_initial_state);
+    }
+    kernel->expand(m);
     // save this kernel for future calls to execute
     m_single_exec_kernel = kernel;
   }
