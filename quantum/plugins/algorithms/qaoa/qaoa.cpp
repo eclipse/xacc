@@ -135,6 +135,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       m.insert("nbQubits", nbQubits);
       m.insert("nbSteps", m_nbSteps);
       m.insert("ref-ham", m_refHamObs);
+      m.insert("cost-ham", m_costHamObs);
       m.insert("parameter-scheme", m_parameterizedMode);
       if (m_initial_state){
           m.insert("initial-state", m_initial_state);
@@ -294,6 +295,7 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     m.insert("nbQubits", nbQubits);
     m.insert("nbSteps", m_nbSteps);
     m.insert("ref-ham", m_refHamObs);
+    m.insert("cost-ham", m_costHamObs);
     m.insert("parameter-scheme", m_parameterizedMode);
     if (m_initial_state){
         m.insert("initial-state", m_initial_state);

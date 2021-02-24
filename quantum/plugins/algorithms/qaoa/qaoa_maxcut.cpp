@@ -4,6 +4,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "xacc_observable.hpp"
+// #include "xacc_plugin.hpp"
 #include "Circuit.hpp"
 #include <cassert>
 #include <iomanip>
@@ -67,7 +68,7 @@ std::tuple<double,double,double> polartocart(double phi, double theta)
 
 std::pair<double,double> carttopolar(double x, double y, double z)
 {
-    std::cout << "Check Line 129 if args. are correct\n";
+    // std::cout << "Check Line 129 if args. are correct\n";
     double phi = std::atan2(y,x);
     double theta = std::acos(z / std::sqrt(x*x+y*y+z*z));
     return std::make_pair(phi,theta);
@@ -112,7 +113,6 @@ std::pair<std::vector<double>, std::vector<double>> rotatesolution(std::pair<std
     auto phi = std::get<0>(angles);
     auto theta = std::get<1>(angles);
     theta *= -1.;
-
     std::vector<double> newPositions, newValues;
     std::tuple<double,double,double> xyz;
     std::pair<double,double> polar;
@@ -133,7 +133,6 @@ std::pair<std::vector<double>, std::vector<double>> rotatesolution(std::pair<std
         newValues.push_back(std::get<1>(polar));
         i += 1;
     }
-
     phi = 2 * M_PI * std::rand();
     for (int i=0; i < newPositions.size(); ++i)
     {
@@ -160,27 +159,29 @@ namespace algorithm {
                 }
             }
         }
-        std::cout << "Hamiltonian: " << H.toString() << std::endl;
+        // std::cout << "Hamiltonian: " << H.toString() << std::endl;
         static auto graphHam = xacc::quantum::getObservable("pauli", H.toString());
         return graphHam.get();
     }
 
     // Take a graph as an input and output a series of Rx/Rz instructions on 
     // each qubit for Warm-Starts
-    // void warm_start(xacc::Graph* m_graph) const {
-    CompositeInstruction* warm_start(xacc::Graph *m_graph, CompositeInstruction *m_initial_state) {
+    auto warm_start(xacc::Graph* m_graph) {
+        auto provider = getIRProvider("quantum");
+        auto initial_state = provider->createComposite("initial_state");
         auto solution1 = getSDPSolution(m_graph);
-        int rand = std::rand();
+        int sol_size = std::get<0>(solution1).size() + std::get<1>(solution1).size();
+        int rand = std::rand() % sol_size;
         auto rotated = rotatesolution(solution1, rand);
         std::vector<double> x_rotations = std::get<1>(rotated);
         std::vector<double> z_rotations = std::get<0>(rotated);
-        for (long unsigned int i = 0; i < m_graph->order(); ++i) {
+        for (int i = 0; i < m_graph->order(); ++i) {
             auto xrot = x_rotations[i];
             auto zrot = z_rotations[i] + (M_PI / 2);
-            m_initial_state->addInstruction(getIRProvider("quantum")->createInstruction("Rx", { i }, {xrot}));
-            m_initial_state->addInstruction(getIRProvider("quantum")->createInstruction("Rz", { i }, {zrot}));
+            initial_state->addInstruction(provider->createInstruction("Rx", { i }, {xrot}));
+            initial_state->addInstruction(provider->createInstruction("Rz", { i }, {zrot}));
         }
-        return m_initial_state;
+        return initial_state;
     }
     
     bool maxcut_qaoa::initialize(const HeterogeneousMap &parameters) {
@@ -270,16 +271,35 @@ namespace algorithm {
         m.insert("parameter-scheme", "Standard");
 
         if (m_initializationMode == "warm-start") {
-            m.insert("initial-state", warm_start(m_graph, m_initial_state));
-        } else if (m_initial_state->nInstructions() != 0){
+            m.insert("initial-state", warm_start(m_graph));
+        } else if (m_initial_state){
             m.insert("initial-state", m_initial_state);
         }
-        
         // Initialize QAOA
         auto qaoa = xacc::getAlgorithm("QAOA", m);
         // Allocate some qubits and execute
-        // buffer = xacc::qalloc(m_costHamObs->nBits());
         qaoa->execute(buffer);
+    }
+
+    std::vector<double> maxcut_qaoa::execute(const std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<double> &x) {
+        HeterogeneousMap m; 
+        m.insert("accelerator", m_qpu);
+        m.insert("optimizer", m_optimizer);
+        m.insert("observable", m_costHamObs);
+        m.insert("steps", m_nbSteps);
+        m.insert("parameter-scheme", "Standard");
+
+        if (m_initializationMode == "warm-start") {
+            m.insert("initial-state", warm_start(m_graph));
+        } else if (m_initial_state){
+            m.insert("initial-state", m_initial_state);
+        }
+
+        // Initialize QAOA
+        auto qaoa = xacc::getAlgorithm("QAOA", m);
+        // Allocate some qubits and execute
+        auto energy = qaoa->execute(buffer, x);
+        return energy;
     }
 
 } // namespace quantum
