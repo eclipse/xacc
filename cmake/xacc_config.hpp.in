@@ -7,6 +7,5 @@
 #define ROERROR_TEST_FILE_DIR "${CMAKE_SOURCE_DIR}/quantum/plugins/decorators/tests/files"
 #define GATEIR_TEST_FILE_DIR "${CMAKE_SOURCE_DIR}/quantum/gate/ir/tests/files"
 #define XACC_IS_APPLE ${XACC_IS_APPLE}
-#define XACC_QAOA_DIR "${CMAKE_SOURCE_DIR}/tools/qaoa"
 
 #endif
