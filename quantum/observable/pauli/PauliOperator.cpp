@@ -844,7 +844,8 @@ double PauliOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
 
   // Follow the logic in observe() to interpret the data:
   if (postProcessTask == Observable::PostProcessingTask::EXP_VAL_CALC) {
-    std::complex<double> energy = getIdentitySubTerm()->coefficient();
+    std::complex<double> energy =
+        getIdentitySubTerm() ? getIdentitySubTerm()->coefficient() : 0.0;
     for (auto &inst : terms) {
       Term spinInst = inst.second;
       if (!spinInst.isIdentity()) {
@@ -858,6 +859,14 @@ double PauliOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
 
         auto childBuff = iter->second;
         auto expval = childBuff->getExpectationValueZ();
+
+        // Adding some meta-data to the child buffer as well:
+        {
+          childBuff->addExtraInfo("coefficient", spinInst.coeff().real());
+          childBuff->addExtraInfo("kernel", inst.first);
+          childBuff->addExtraInfo("exp-val-z", expval);
+        }
+        // Accumulate the energy:
         energy += expval * spinInst.coeff();
       }
     }
@@ -876,12 +885,20 @@ double PauliOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
         }
 
         auto childBuff = iter->second;
+        // Adding variance meta-data to the child buffer as well.
         if (!childBuff->getMeasurementCounts().empty()) {
           auto expval = childBuff->getExpectationValueZ();
           auto paulvar = 1.0 - expval * expval;
           childBuff->addExtraInfo("pauli-variance", paulvar);
           variance +=
               (spinInst.coeff().real() * spinInst.coeff().real() * paulvar);
+
+          int n_shots = 0;
+          for (auto [k, v] : childBuff->getMeasurementCounts()) {
+            n_shots += v;
+          }
+          childBuff->addExtraInfo("energy-standard-deviation",
+                                  std::sqrt(variance / n_shots));
         }
       }
     }
