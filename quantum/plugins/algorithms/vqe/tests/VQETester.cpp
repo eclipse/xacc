@@ -79,6 +79,101 @@ TEST(VQETester, checkSimple) {
   //   }
 }
 
+TEST(VQETester, checkChildBuffers) {
+  std::shared_ptr<Observable> H_N_2 =
+      std::make_shared<xacc::quantum::PauliOperator>();
+  H_N_2->fromString("5.907 - 2.1433 X0X1 "
+                    "- 2.1433 Y0Y1"
+                    "+ .21829 Z0 - 6.125 Z1");
+
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz
+        .parameters theta
+        .qbit q
+        X(q[0]);
+        Ry(q[1], theta);
+        CNOT(q[1],q[0]);
+    )");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz");
+
+  {
+    // No shots.
+    // Get the VQE Algorithm and initialize it
+    auto accelerator =
+        xacc::getAccelerator("qpp", {std::make_pair("vqe-mode", true)});
+    auto vqe = xacc::getAlgorithm("vqe");
+    auto optimizer = xacc::getOptimizer("nlopt");
+    vqe->initialize({{"ansatz", ansatz},
+                     {"observable", H_N_2},
+                     {"accelerator", accelerator},
+                     {"optimizer", optimizer}});
+
+    // Allocate some qubits and execute
+    auto buffer = xacc::qalloc(2);
+    vqe->execute(buffer);
+    const auto energies = (*buffer)["params-energy"].as<std::vector<double>>();
+    const auto nIters = energies.size();
+    EXPECT_EQ(buffer->nChildren(), nIters * H_N_2->getSubTerms().size());
+    for (auto &childBuff : buffer->getChildren()) {
+      EXPECT_TRUE(childBuff->hasExtraInfoKey("coefficient"));
+      EXPECT_TRUE(childBuff->hasExtraInfoKey("kernel"));
+      EXPECT_TRUE(childBuff->hasExtraInfoKey("exp-val-z"));
+      EXPECT_TRUE(childBuff->hasExtraInfoKey("parameters"));
+    }
+
+    // Check single execution of VQE:
+    const std::vector<double> opt_params =
+        (*buffer)["opt-params"].as<std::vector<double>>();
+    EXPECT_EQ(opt_params.size(), 1);
+    auto new_buffer = xacc::qalloc(2);
+    vqe->execute(new_buffer, opt_params);
+    new_buffer->print();
+    EXPECT_EQ(new_buffer->nChildren(), H_N_2->getSubTerms().size());
+    double energy = 0.0;
+    // Re-compute optimal value from buffer data
+    // to make sure we populate the extra information correctly.
+    for (auto &childBuff : new_buffer->getChildren()) {
+      const double coeff = (*childBuff)["coefficient"].as<double>();
+      const double expVal = (*childBuff)["exp-val-z"].as<double>();
+      energy += (coeff * expVal);
+      const std::vector<double> paramsInfo =
+          (*childBuff)["parameters"].as<std::vector<double>>();
+      EXPECT_EQ(paramsInfo.size(), 1);
+      EXPECT_NEAR(paramsInfo[0], opt_params[0], 1e-12);
+    }
+    EXPECT_NEAR(energy, (*buffer)["opt-val"].as<double>(), 1e-6);
+  }
+  {
+    // With shots, check variance.
+    // Get the VQE Algorithm and initialize it
+    auto accelerator = xacc::getAccelerator("aer", {{"shots", 8192}});
+    auto vqe = xacc::getAlgorithm("vqe");
+    auto optimizer = xacc::getOptimizer("nlopt", {{"ftol", 1e-2}});
+    vqe->initialize({{"ansatz", ansatz},
+                     {"observable", H_N_2},
+                     {"accelerator", accelerator},
+                     {"optimizer", optimizer}});
+
+    // Allocate some qubits and execute
+    auto buffer = xacc::qalloc(2);
+    vqe->execute(buffer);
+    const auto energies = (*buffer)["params-energy"].as<std::vector<double>>();
+    const auto nIters = energies.size();
+    EXPECT_EQ(buffer->nChildren(), nIters * H_N_2->getSubTerms().size());
+    for (auto &childBuff : buffer->getChildren()) {
+      EXPECT_TRUE(childBuff->hasExtraInfoKey("coefficient"));
+      EXPECT_TRUE(childBuff->hasExtraInfoKey("kernel"));
+      EXPECT_TRUE(childBuff->hasExtraInfoKey("exp-val-z"));
+      EXPECT_TRUE(childBuff->hasExtraInfoKey("parameters"));
+      if (childBuff->name() != "I") {
+        // has pauli-variance info.
+        EXPECT_TRUE(childBuff->hasExtraInfoKey("pauli-variance"));
+      }
+    }
+  }
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);
