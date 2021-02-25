@@ -828,7 +828,18 @@ double PauliOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
   std::unordered_map<std::string, std::shared_ptr<AcceleratorBuffer>>
       termToChildBuffer;
   for (auto &childBuff : buffer->getChildren()) {
-    termToChildBuffer.emplace(childBuff->name(), childBuff);
+    auto termName = childBuff->name();
+    if (termName.rfind("evaled_", 0) == 0) {
+      // Composite name starts with "evaled_"
+      // This is to cover both case: observe() then eval() or eval() then
+      // observe(). Technically, the eval() then observe() sequence is more
+      // efficient and the Composite name will be the term id assigned by
+      // observe(). However, we also try to cover the case where the eval() is
+      // called on the observed kernels, hence the name has the "evaled_"
+      // prefix. Remove the "evaled_" prefix to get the term name for matching.
+      termName.erase(0, 7);
+    }
+    termToChildBuffer.emplace(termName, childBuff);
   }
 
   // Follow the logic in observe() to interpret the data:
@@ -854,8 +865,27 @@ double PauliOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
   }
 
   if (postProcessTask == Observable::PostProcessingTask::VARIANCE_CALC) {
-    // TODO: ...
-    return 0.0;
+    double variance = 0.0;
+    for (auto &inst : terms) {
+      Term spinInst = inst.second;
+      if (!spinInst.isIdentity()) {
+        const auto &bufferName = inst.first;
+        auto iter = termToChildBuffer.find(bufferName);
+        if (iter == termToChildBuffer.end()) {
+          xacc::error("Cannot find the child buffer for term: " + inst.first);
+        }
+
+        auto childBuff = iter->second;
+        if (!childBuff->getMeasurementCounts().empty()) {
+          auto expval = childBuff->getExpectationValueZ();
+          auto paulvar = 1.0 - expval * expval;
+          childBuff->addExtraInfo("pauli-variance", paulvar);
+          variance +=
+              (spinInst.coeff().real() * spinInst.coeff().real() * paulvar);
+        }
+      }
+    }
+    return variance;
   }
 
   xacc::error("Unknown post-processing task: " + postProcessTask);
