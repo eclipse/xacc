@@ -811,6 +811,56 @@ void PauliOperator::normalize() {
   return;
 }
 
+double PauliOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
+                                  const std::string &postProcessTask,
+                                  const HeterogeneousMap &extra_data) {
+  if (buffer->nChildren() < getNonIdentitySubTerms().size()) {
+    xacc::error(
+        "The buffer doesn't contain enough sub-buffers as expected. Expect: " +
+        std::to_string(getNonIdentitySubTerms().size()) +
+        "; Received: " + std::to_string(buffer->nChildren()));
+    return 0.0;
+  }
+
+  // Construct the map for fast look-up:
+  // We use a strong term look-up by name, i.e. don't rely on the
+  // ordering of child buffers.
+  std::unordered_map<std::string, std::shared_ptr<AcceleratorBuffer>>
+      termToChildBuffer;
+  for (auto &childBuff : buffer->getChildren()) {
+    termToChildBuffer.emplace(childBuff->name(), childBuff);
+  }
+
+  // Follow the logic in observe() to interpret the data:
+  if (postProcessTask == Observable::PostProcessingTask::EXP_VAL_CALC) {
+    std::complex<double> energy = getIdentitySubTerm()->coefficient();
+    for (auto &inst : terms) {
+      Term spinInst = inst.second;
+      if (!spinInst.isIdentity()) {
+        // The buffer name is the term name -> Composite name -> child buffer
+        // name.
+        const auto &bufferName = inst.first;
+        auto iter = termToChildBuffer.find(bufferName);
+        if (iter == termToChildBuffer.end()) {
+          xacc::error("Cannot find the child buffer for term: " + inst.first);
+        }
+
+        auto childBuff = iter->second;
+        auto expval = childBuff->getExpectationValueZ();
+        energy += expval * spinInst.coeff();
+      }
+    }
+    return energy.real();
+  }
+
+  if (postProcessTask == Observable::PostProcessingTask::VARIANCE_CALC) {
+    // TODO: ...
+    return 0.0;
+  }
+
+  xacc::error("Unknown post-processing task: " + postProcessTask);
+  return 0.0;
+}
 } // namespace quantum
 } // namespace xacc
 

@@ -132,6 +132,11 @@ TEST(HeterogeneousMapTester, checkVQE) {
     const std::string name() const override { return "test"; }
     const std::string description() const override { return ""; }
     void fromOptions(const HeterogeneousMap &options) override {}
+    virtual double postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
+                       const std::string &postProcessTask,
+                       const HeterogeneousMap &extra_data) override {
+      return 0.0;
+    }
   };
 
   std::shared_ptr<Observable> observable = std::make_shared<TestObservable>();
