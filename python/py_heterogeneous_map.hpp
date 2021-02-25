@@ -83,7 +83,7 @@ class HeterogeneousMap2PyHeterogeneousMap
           std::shared_ptr<CompositeInstruction>, std::shared_ptr<Instruction>,
           std::shared_ptr<Accelerator>, std::shared_ptr<Observable>,
           std::shared_ptr<Optimizer>, std::shared_ptr<AlgorithmGradientStrategy>,
-          Eigen::MatrixXcd, std::shared_ptr<Graph>, std::shared_ptr<NoiseModel>> {
+          Eigen::MatrixXcd, std::shared_ptr<Graph>, std::shared_ptr<NoiseModel>> { 
 private:
   PyHeterogeneousMap &pymap;
 
