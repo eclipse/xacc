@@ -10,9 +10,10 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
+#include "py_graph.hpp"
+
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include "py_graph.hpp"
 #include "py_heterogeneous_map.hpp"
 
 void bind_graph(py::module &m) {
@@ -79,6 +80,6 @@ void bind_graph(py::module &m) {
         [](const std::string &name) -> std::shared_ptr<xacc::Graph> {
           auto graph = xacc::getService<xacc::Graph>(name);
           return graph;
-        });
+        })
 // m.def("convert")
 }

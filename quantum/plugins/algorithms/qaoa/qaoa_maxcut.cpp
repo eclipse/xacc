@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 UT-Battelle, LLC.
+ * Copyright (c) 2021 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -81,7 +81,6 @@ std::tuple<double,double,double> polartocart(double phi, double theta)
 
 std::pair<double,double> carttopolar(double x, double y, double z)
 {
-    // std::cout << "Check Line 129 if args. are correct\n";
     double phi = std::atan2(y,x);
     double theta = std::acos(z / std::sqrt(x*x+y*y+z*z));
     return std::make_pair(phi,theta);
@@ -99,8 +98,6 @@ std::pair<std::vector<double>, std::vector<double>> getSDPSolution(xacc::Graph* 
     // Setting best value to -inf.
     const int bestValue = std::numeric_limits<int>::min();
     for (int j=0; j < trials; ++j){
-        // Random vector fn automatically multiplies
-        // vector by 2*pi
         positions = random_vector(0, 1, n_nodes);
         while (values.size() <= 100) {
             for (int i=0; i < n_nodes; ++i){
@@ -296,6 +293,7 @@ namespace algorithm {
     }
 
     std::vector<double> maxcut_qaoa::execute(const std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<double> &x) {
+        // Build up heterogeneous map of algorithm options to pass off to "QAOA" algorithm
         HeterogeneousMap m; 
         m.insert("accelerator", m_qpu);
         m.insert("optimizer", m_optimizer);
@@ -307,6 +305,7 @@ namespace algorithm {
         // and use as initial-state.
         // Else if: custom initial-state given, pass that to the
         // algorithm call.
+        // Else: "QAOA" algorithm defaults to Hadamards on each qubit.
         if (m_initializationMode == "warm-start") {
             m.insert("initial-state", warm_start(m_graph));
         } else if (m_initial_state){
