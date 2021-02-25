@@ -1,2 +1,0 @@
-add_xacc_test(DmsimCpuAccelerator)
-target_link_libraries(DmsimCpuAcceleratorTester xacc xacc-quantum-gate)

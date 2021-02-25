@@ -128,7 +128,6 @@ find_package(LAPACK)
 
 add_subdirectory(xacc)
 add_subdirectory(quantum)
-add_subdirectory(tools)
 
 find_package(Python COMPONENTS Interpreter Development)
 if(Python_FOUND)
