@@ -169,6 +169,10 @@ TEST(VQETester, checkChildBuffers) {
       if (childBuff->name() != "I") {
         // has pauli-variance info.
         EXPECT_TRUE(childBuff->hasExtraInfoKey("pauli-variance"));
+        const double pauliVar = (*childBuff)["pauli-variance"].as<double>();
+        const double expVal = (*childBuff)["exp-val-z"].as<double>();
+        // Check buffer data mapping.
+        EXPECT_NEAR(pauliVar, 1.0 - expVal * expVal, 1e-6);
       }
     }
   }
