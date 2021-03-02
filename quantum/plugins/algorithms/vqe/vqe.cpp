@@ -165,13 +165,6 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           buffer->addExtraInfo(k, v);
         }
 
-        // Compute the Energy. We can do this manually,
-        // or we may have a case where a accelerator decorator
-        // posts the energy automatically at a given key
-        // on the buffer extra info.
-        double energy = identityCoeff;
-        double variance = 0.0;
-
         // Create buffer child for the Identity term
         auto idBuffer = xacc::qalloc(buffer->size());
         idBuffer->addExtraInfo("coefficient", identityCoeff);
@@ -183,54 +176,60 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           idBuffer->addExtraInfo("ro-fixed-exp-val-z", 1.0);
         buffer->appendChild("I", idBuffer);
 
-        bool got_aggregate = false;
-        std::string aggregate_key = "__internal__decorator_aggregate_vqe__";
-        if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
-                xacc::as_shared_ptr(accelerator)) &&
-            buffer->hasExtraInfoKey(aggregate_key)) {
-          // This is a decorator that has an aggregate value
-          auto aggregate_value = (*buffer)[aggregate_key].as<double>();
-          energy += aggregate_value;
-          for (auto &b : buffers) {
-            b->addExtraInfo("parameters", initial_params);
-            buffer->appendChild(b->name(), b);
-          }
-          got_aggregate = true;
+        // Add information about the variational parameters to the child
+        // buffers.
+        // Other energy (observable-related) information will be populated by
+        // the Observable::postProcess().
+        for (auto &childBuffer : buffers) {
+          childBuffer->addExtraInfo("parameters", x);
         }
 
-        if (gradientStrategy) { // gradient-based optimization
-
-          for (int i = 0; i < nInstructionsEnergy; i++) { // compute energy
-            auto expval = buffers[i]->getExpectationValueZ();
-            if (!got_aggregate) {
-              energy += expval * coefficients[i];
-              if (!buffers[i]->getMeasurementCounts().empty()) {
-                auto paulvar = 1. - expval * expval;
-                buffers[i]->addExtraInfo("pauli-variance", paulvar);
-                variance += coefficients[i] * coefficients[i] * paulvar;
-              }
-            }
-            buffers[i]->addExtraInfo("coefficient", coefficients[i]);
-            buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
-            buffers[i]->addExtraInfo("exp-val-z", expval);
-            buffers[i]->addExtraInfo("parameters", x);
-            if (!buffers[i]->getMeasurementCounts().empty()) {
-              int n_shots = 0;
-              for (auto [k, v] : buffers[i]->getMeasurementCounts()) {
-                n_shots += v;
-              }
-
-              buffers[i]->addExtraInfo("energy-standard-deviation",
-                                       std::sqrt(variance / n_shots));
-            }
-            buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+        // Special key to indicate that the buffer was processed by a
+        // HPC virtualization decorator.
+        const std::string aggregate_key =
+            "__internal__decorator_aggregate_vqe__";
+        const double energy = [&]() {
+          // Compute the Energy. We can do this manually,
+          // or we may have a case where a accelerator decorator
+          // posts the energy automatically at a given key
+          // on the buffer extra info.
+          if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
+                  xacc::as_shared_ptr(accelerator)) &&
+              buffer->hasExtraInfoKey(aggregate_key)) {
+            // Handles VQE that was executed on a virtualized Accelerator,
+            // i.e. the energy has been aggregated by the Decorator.
+            double resultEnergy = identityCoeff;
+            // This is a decorator that has an aggregate value
+            auto aggregate_value = (*buffer)[aggregate_key].as<double>();
+            resultEnergy += aggregate_value;
+            return resultEnergy;
+          } else {
+            // Normal VQE: post-proces the result with the Observable.
+            // This will also populate meta-data to the child-buffer of
+            // the main buffer.
+            return observable->postProcess(tmpBuffer);
           }
+        }();
 
-          std::stringstream ss;
-          ss << std::setprecision(12) << "Current Energy: " << energy;
-          xacc::info(ss.str());
-          ss.str(std::string());
+        // Compute the variance as well as populate any variance-related
+        // information to the child buffers
+        const double variance = [&]() {
+          if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
+                  xacc::as_shared_ptr(accelerator)) &&
+              buffer->hasExtraInfoKey(aggregate_key)) {
+            // HPC decorator doesn't support variance...
+            return 0.0;
 
+          } else {
+            // This will also populate information about variance to each child
+            // buffer.
+            return observable->postProcess(
+                tmpBuffer, Observable::PostProcessingTask::VARIANCE_CALC);
+          }
+        }();
+
+        if (gradientStrategy) {
+          // gradient-based optimization
           // If gradientStrategy is numerical, pass the energy
           // We subtract the identityCoeff from the energy
           // instead of passing the energy because the gradients
@@ -243,38 +242,15 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           gradientStrategy->compute(
               dx, std::vector<std::shared_ptr<AcceleratorBuffer>>(
                       buffers.begin() + nInstructionsEnergy, buffers.end()));
-
-        } else if (!got_aggregate) {
-          for (int i = 0; i < fsToExec.size(); i++) {
-            auto expval = buffers[i]->getExpectationValueZ();
-            energy += expval * coefficients[i];
-            if (!buffers[i]->getMeasurementCounts().empty()) {
-              auto paulvar = 1. - expval * expval;
-              buffers[i]->addExtraInfo("pauli-variance", paulvar);
-              variance += coefficients[i] * coefficients[i] * paulvar;
-            }
-          }
-
-          for (int i = 0; i < fsToExec.size(); i++) {
-            buffers[i]->addExtraInfo("coefficient", coefficients[i]);
-            buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
-            buffers[i]->addExtraInfo("exp-val-z",
-                                     buffers[i]->getExpectationValueZ());
-            buffers[i]->addExtraInfo("parameters", x);
-
-            if (!buffers[i]->getMeasurementCounts().empty()) {
-              int n_shots = 0;
-              for (auto [k, v] : buffers[i]->getMeasurementCounts()) {
-                n_shots += v;
-              }
-
-              buffers[i]->addExtraInfo("energy-standard-deviation",
-                                       std::sqrt(variance / n_shots));
-            }
-            buffer->appendChild(fsToExec[i]->name(), buffers[i]);
-          }
         }
 
+        // Append the child buffers from the temp. buffer
+        // to the main buffer.
+        // These child buffers have extra-information populate in the above
+        // post-process steps.
+        for (auto &b : buffers) {
+          buffer->appendChild(b->name(), b);
+        }
         std::stringstream ss;
         ss << "E(" << (!x.empty() ? std::to_string(x[0]) : "");
         for (int i = 1; i < x.size(); i++)
@@ -331,17 +307,13 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   auto tmpBuffer = xacc::qalloc(buffer->size());
   accelerator->execute(tmpBuffer, fsToExec);
   auto buffers = tmpBuffer->getChildren();
+  for (auto &b : buffers) {
+    b->addExtraInfo("parameters", x);
+  }
   auto tmp_buffer_extra_info = tmpBuffer->getInformation();
   for (auto &[k, v] : tmp_buffer_extra_info) {
     buffer->addExtraInfo(k, v);
   }
-
-  // Compute the Energy. We can do this manually,
-  // or we may have a case where a accelerator decorator
-  // posts the energy automatically at a given key
-  // on the buffer extra info.
-  double energy = identityCoeff;
-  double variance = 0.0;
 
   // Create buffer child for the Identity term
   auto idBuffer = xacc::qalloc(buffer->size());
@@ -353,51 +325,54 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   if (accelerator->name() == "ro-error")
     idBuffer->addExtraInfo("ro-fixed-exp-val-z", 1.0);
   buffer->appendChild("I", idBuffer);
-
-  std::string aggregate_key = "__internal__decorator_aggregate_vqe__";
-  if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
-          xacc::as_shared_ptr(accelerator)) &&
-      buffer->hasExtraInfoKey(aggregate_key)) {
-    // This is a decorator that has an aggregate value
-    auto aggregate_value = (*buffer)[aggregate_key].as<double>();
-    energy += aggregate_value;
-    for (auto &b : buffers) {
-      b->addExtraInfo("parameters", initial_params);
-      buffer->appendChild(b->name(), b);
+  const std::string aggregate_key = "__internal__decorator_aggregate_vqe__";
+  const double energy = [&]() {
+    // Compute the Energy. We can do this manually,
+    // or we may have a case where a accelerator decorator
+    // posts the energy automatically at a given key
+    // on the buffer extra info.
+    if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
+            xacc::as_shared_ptr(accelerator)) &&
+        buffer->hasExtraInfoKey(aggregate_key)) {
+      // Handles VQE that was executed on a virtualized Accelerator,
+      // i.e. the energy has been aggregated by the Decorator.
+      double resultEnergy = identityCoeff;
+      // This is a decorator that has an aggregate value
+      auto aggregate_value = (*buffer)[aggregate_key].as<double>();
+      resultEnergy += aggregate_value;
+      return resultEnergy;
+    } else {
+      // Normal VQE: post-proces the result with the Observable.
+      // This will also populate meta-data to the child-buffer of
+      // the main buffer.
+      return observable->postProcess(tmpBuffer);
     }
+  }();
+
+  // Compute the variance as well as populate any variance-related information
+  // to the child buffers
+  const double variance = [&]() {
+    if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
+            xacc::as_shared_ptr(accelerator)) &&
+        buffer->hasExtraInfoKey(aggregate_key)) {
+      // HPC decorator doesn't support variance...
+      return 0.0;
+
+    } else {
+      // This will also populate information about variance to each child
+      // buffer.
+      return observable->postProcess(
+          tmpBuffer, Observable::PostProcessingTask::VARIANCE_CALC);
+    }
+  }();
+  // Append the child buffers from the temp. buffer
+  // to the main buffer.
+  // These child buffers have extra-information populate in the above
+  // post-process steps.
+  for (auto &b : buffers) {
+    buffer->appendChild(b->name(), b);
   }
-
-  else {
-    for (int i = 0; i < fsToExec.size(); i++) { // compute energy
-      auto expval = buffers[i]->getExpectationValueZ();
-      energy += expval * coefficients[i];
-      if (!buffers[i]->getMeasurementCounts().empty()) {
-        auto paulvar = 1. - expval * expval;
-        buffers[i]->addExtraInfo("pauli-variance", paulvar);
-        variance += coefficients[i] * coefficients[i] * paulvar;
-      }
-    }
-
-    for (int i = 0; i < fsToExec.size(); i++) {
-      buffers[i]->addExtraInfo("coefficient", coefficients[i]);
-      buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
-      buffers[i]->addExtraInfo("exp-val-z", buffers[i]->getExpectationValueZ());
-      buffers[i]->addExtraInfo("parameters", x);
-      if (!buffers[i]->getMeasurementCounts().empty()) {
-        int n_shots = 0;
-        for (auto [k, v] : buffers[i]->getMeasurementCounts()) {
-          n_shots += v;
-        }
-
-        buffers[i]->addExtraInfo("energy-standard-deviation",
-                                 std::sqrt(variance / n_shots));
-      }
-      buffer->appendChild(fsToExec[i]->name(), buffers[i]);
-    }
-  }
-
   std::stringstream ss;
-
   ss << "E(" << (!x.empty() ? std::to_string(x[0]) : "");
   for (int i = 1; i < x.size(); i++)
     ss << "," << x[i];

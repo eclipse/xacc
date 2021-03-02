@@ -56,6 +56,12 @@ public:
       PYBIND11_OVERLOAD_PURE(void, xacc::Observable, fromOptions, options);
   }
 
+  double postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
+                     const std::string &postProcessTask,
+                     const HeterogeneousMap &extra_data) override {
+    PYBIND11_OVERLOAD_PURE(double, xacc::Observable, postProcess, buffer,
+                           postProcessTask, extra_data);
+  }
 };
 
 void bind_observable(py::module& m);
