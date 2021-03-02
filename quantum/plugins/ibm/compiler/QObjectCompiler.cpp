@@ -156,5 +156,73 @@ QObjectCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function)
   nlohmann::to_json(j, root);
   return j.dump();
 }
+
+const std::string
+QObjectCompiler::translate(std::shared_ptr<CompositeInstruction> function,
+                           HeterogeneousMap &options) {
+  bool shouldSkipIdGates = true;
+  if (options.keyExists<bool>("skip-id-gates")) {
+    shouldSkipIdGates = options.get<bool>("skip-id-gates");
+  }
+
+  xacc::ibm::QObject qobj;
+  qobj.set_qobj_id("xacc-qobj-id");
+  qobj.set_schema_version("1.1.0");
+  qobj.set_type("QASM");
+  qobj.set_header(QObjectHeader());
+  std::vector<xacc::ibm::Experiment> experiments;
+
+  auto uniqueBits = function->uniqueBits();
+  // The number of qubits required for an experiment is the number of *physical*
+  // qubits, i.e. the max index of qubit used in the circuit.
+  auto nbRequiredBits = function->nPhysicalBits();
+  auto visitor = std::make_shared<QObjectExperimentVisitor>(
+      function->name(), nbRequiredBits, QObjectExperimentVisitor::GateSet::U_CX,
+      // Include/skip Id gates depending on users' options
+      shouldSkipIdGates);
+
+  InstructionIterator it(function);
+  int memSlots = 0;
+  while (it.hasNext()) {
+    auto nextInst = it.next();
+    if (nextInst->isEnabled()) {
+      nextInst->accept(visitor);
+    }
+  }
+
+  // After calling getExperiment, maxMemorySlots should be
+  // maxClassicalBit + 1
+  auto experiment = visitor->getExperiment();
+  experiments.push_back(experiment);
+  int maxMemSlots = visitor->maxMemorySlots;
+
+  // Create the QObj Config
+  xacc::ibm::QObjectConfig config;
+  config.set_shots(1024);
+  config.set_memory(false);
+  config.set_meas_level(2);
+  config.set_memory_slots(maxMemSlots);
+  config.set_meas_return("avg");
+  config.set_memory_slot_size(100);
+  config.set_n_qubits(50);
+
+  // Add the experiments and config
+  qobj.set_experiments(experiments);
+  qobj.set_config(config);
+
+  // Set the Backend
+  xacc::ibm::Backend bkend;
+  bkend.set_name("ibmq_qasm_simulator");
+
+  // Create the Root node of the QObject
+  xacc::ibm::QObjectRoot root;
+  root.set_backend(bkend);
+  root.set_q_object(qobj);
+
+  // Create the JSON String to send
+  nlohmann::json j;
+  nlohmann::to_json(j, root);
+  return j.dump();
+}
 } // namespace quantum
 } // namespace xacc

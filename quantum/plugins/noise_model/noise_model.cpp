@@ -233,10 +233,11 @@ public:
       // For mapping purposes:
       // U2 == Hadamard gate
       // U3 == X gate
-      xacc::quantum::Hadamard gateU2({qIdx});
-      xacc::quantum::X gateU3({qIdx});
+      xacc::quantum::Hadamard gateU2(qIdx);
+      xacc::quantum::X gateU3(qIdx);
+      xacc::quantum::Identity gateId(qIdx);
       const std::unordered_map<std::string, xacc::quantum::Gate *> gateMap{
-          {"u2", &gateU2}, {"u3", &gateU3}};
+          {"u2", &gateU2}, {"u3", &gateU3}, {"id", &gateId}};
 
       for (const auto &[gateName, gate] : gateMap) {
         const auto errorChannels = getNoiseChannels(*gate);
@@ -336,7 +337,7 @@ public:
   }
 
   virtual std::vector<NoiseChannelKraus>
-  getNoiseChannels(xacc::quantum::Gate &gate) const {
+  getNoiseChannels(xacc::quantum::Gate &gate) const override {
     std::string gateKey = gate.name() + "_" + std::to_string(gate.bits()[0]);
     if (gate.bits().size() > 1) {
       for (int i = 1; i < gate.bits().size(); ++i) {

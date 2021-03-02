@@ -48,9 +48,14 @@ public:
   // XACC Composite is decomposed into this gate set when generating the QObject.
   enum class GateSet { U_CX, RZ_SX_CX };
   GateSet gateSet;
+  // Do we want to include Identity gate in the generated QObj?
+  // By default, we skip all Id gates.
+  bool skipIdGate;
   QObjectExperimentVisitor(const std::string expName, const int nQubits,
-                           GateSet nativeGateSet = GateSet::U_CX)
-      : experimentName(expName), nTotalQubits(nQubits), gateSet(nativeGateSet) {
+                           GateSet nativeGateSet = GateSet::U_CX,
+                           bool ignoreIdGate = true)
+      : experimentName(expName), nTotalQubits(nQubits), gateSet(nativeGateSet),
+        skipIdGate(ignoreIdGate) {
     int counter = 0;
     for (int b = 0; b < nQubits; b++) {
       qubit2MemorySlot.insert({b, counter});
@@ -221,10 +226,14 @@ public:
   }
 
   void visit(Identity &i) override {
-    // std::stringstream js;
-    // native += "id q[" + std::to_string(i.bits()[0]) + "];\n";
-    // js << "{\"name\":\"id\",\"params\": [],\"qubits\":[" <<
-    // i.bits()[0]<<"]},"; operationsJsonStr += js.str();
+    // Only add "id" instruction if requested.
+    if (!skipIdGate) {
+      xacc::ibm::Instruction inst;
+      inst.get_mutable_qubits().push_back(i.bits()[0]);
+      inst.get_mutable_name() = "id";
+      setConditional(inst);
+      instructions.push_back(inst);
+    }
   }
 
   void visit(CRZ &crz) override {
