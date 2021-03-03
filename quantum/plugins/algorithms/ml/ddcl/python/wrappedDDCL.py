@@ -25,7 +25,7 @@ class WrappedDDCLF(xacc.DecoratorFunction):
     def unbind_optimizers(self, field, service, svc_ref):
         if svc_ref.get_property('vqe_optimizer'):
             optimizer = svc_ref.get_property('vqe_optimizer')
-            del vqe_optimizers[optimizer]
+            del self.vqe_optimizers[optimizer]
 
     def __call__(self, *args, **kwargs):
         super().__call__(*args, **kwargs)
