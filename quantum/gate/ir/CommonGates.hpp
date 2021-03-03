@@ -378,7 +378,7 @@ public:
   DEFINE_VISITABLE()
 };
 
-class CZ : public virtual Gate {
+class CZ : public Gate {
 public:
   CZ() : Gate("CZ") {}
   CZ(std::vector<std::size_t> qbits) : Gate("CZ", qbits) {}
@@ -391,7 +391,7 @@ public:
   DEFINE_VISITABLE()
 };
 
-class CPhase : public virtual Gate {
+class CPhase : public Gate {
 public:
   CPhase()
       : Gate("CPhase",
@@ -409,7 +409,7 @@ public:
   DEFINE_VISITABLE()
 };
 
-class XY : public virtual Gate {
+class XY : public Gate {
 public:
   XY()
       : Gate("XY",
@@ -507,7 +507,7 @@ public:
   DEFINE_VISITABLE()
 };
 
-class CRZ : public virtual Gate {
+class CRZ : public Gate {
 public:
   CRZ()
       : Gate("CRZ",
