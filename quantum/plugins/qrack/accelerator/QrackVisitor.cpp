@@ -29,10 +29,10 @@ namespace quantum {
         Qrack::QInterfaceEngine qIType1, qIType2, qIType3;
         if (use_qunit) {
             qIType1 = use_opencl_multi ? Qrack::QINTERFACE_QUNIT_MULTI : Qrack::QINTERFACE_QUNIT;
-            qIType2 = use_stabilizer ? Qrack::QINTERFACE_STABILIZER_HYBRID : Qrack::QINTERFACE_OPTIMAL_SCHROEDINGER;
+            qIType2 = use_stabilizer ? Qrack::QINTERFACE_STABILIZER_HYBRID : (use_opencl ? Qrack::QINTERFACE_OPTIMAL_SCHROEDINGER : Qrack::QINTERFACE_CPU);
             qIType3 = use_opencl ? (use_stabilizer ? Qrack::QINTERFACE_OPTIMAL_SCHROEDINGER : Qrack::QINTERFACE_OPTIMAL_SINGLE_PAGE ) : Qrack::QINTERFACE_CPU;
         } else {
-            qIType1 = use_stabilizer ? Qrack::QINTERFACE_STABILIZER_HYBRID : Qrack::QINTERFACE_OPTIMAL_SCHROEDINGER;
+            qIType1 = use_stabilizer ? Qrack::QINTERFACE_STABILIZER_HYBRID : (use_opencl ? Qrack::QINTERFACE_OPTIMAL_SCHROEDINGER : Qrack::QINTERFACE_CPU);
             qIType2 = use_opencl ? (use_stabilizer ? Qrack::QINTERFACE_OPTIMAL_SCHROEDINGER : Qrack::QINTERFACE_OPTIMAL_SINGLE_PAGE) : Qrack::QINTERFACE_CPU;
             qIType3 = Qrack::QINTERFACE_OPTIMAL_SINGLE_PAGE;
         }
