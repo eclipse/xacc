@@ -172,7 +172,7 @@ namespace algorithm {
         }
         // std::cout << "Hamiltonian: " << H.toString() << std::endl;
         static auto graphHam = xacc::quantum::getObservable("pauli", H.toString());
-        return graphHam.get();
+        return graphHam.get(); // return shared_ptr
     }
 
     // Take a graph as an input and output a series of Rx/Rz instructions on 
