@@ -287,8 +287,11 @@ void AerAccelerator::execute(
         measured_bits.push_back(next->bits()[0]);
       }
     }
-    auto qobj_str = xacc_to_qobj->translate(tmp);
+    // In "density_matrix" simulation mode, always include Id gates
+    // if they are explicitly added to the Composite.
+    auto qobj_str = xacc_to_qobj->translate(tmp, {{"skip-id-gates", false}});
     nlohmann::json j = nlohmann::json::parse(qobj_str)["qObject"];
+    xacc::info("Qobj:\n" + j.dump());
     j["config"]["noise_model"] = noise_model;
     j["config"]["method"] = "density_matrix";
     auto snapshotInst = nlohmann::json::object();
@@ -725,8 +728,8 @@ std::string IbmqNoiseModel::toJson() const {
     // For mapping purposes:
     // U2 == Hadamard gate
     // U3 == X gate
-    Hadamard gateU2({qIdx});
-    X gateU3({qIdx});
+    Hadamard gateU2(qIdx);
+    X gateU3(qIdx);
     const std::unordered_map<std::string, xacc::quantum::Gate *> gateMap{
         {"u2", &gateU2}, {"u3", &gateU3}};
 

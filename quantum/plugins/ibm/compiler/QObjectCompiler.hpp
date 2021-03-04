@@ -28,7 +28,8 @@ public:
   std::shared_ptr<xacc::IR> compile(const std::string &src) override;
 
   const std::string translate(std::shared_ptr<CompositeInstruction> function) override;
-
+  const std::string translate(std::shared_ptr<CompositeInstruction> function,
+                              HeterogeneousMap &options) override;
   const std::string name() const override { return "qobj"; }
   const std::string description() const override {
     return "The QObject Compiler compiles an IBM QObject (represented as a "

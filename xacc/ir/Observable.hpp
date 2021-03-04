@@ -16,7 +16,9 @@
 #include "Utils.hpp"
 
 namespace xacc {
-class SparseTriplet : std::tuple<std::uint64_t, std::uint64_t, std::complex<double>> {
+class AcceleratorBuffer;
+class SparseTriplet
+    : std::tuple<std::uint64_t, std::uint64_t, std::complex<double>> {
 public:
   SparseTriplet(std::uint64_t r, std::uint64_t c, std::complex<double> coeff) {
     std::get<0>(*this) = r;
@@ -64,7 +66,17 @@ public:
   }
 
   virtual void normalize() { return; }
-  
+  // Some pre-defined tasks (Observable sub-classes can have custom tasks)
+  struct PostProcessingTask {
+    static inline const std::string EXP_VAL_CALC = "exp-val";
+    static inline const std::string VARIANCE_CALC = "variance";
+  };
+  // Post process the execution data (stored on the AcceleratorBuffer)
+  virtual double
+  postProcess(
+      std::shared_ptr<AcceleratorBuffer> buffer,
+      const std::string &postProcessTask = PostProcessingTask::EXP_VAL_CALC,
+      const HeterogeneousMap &extra_data = {}) = 0;
 };
 
 template Observable *

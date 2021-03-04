@@ -290,7 +290,14 @@ void FermionOperator::normalize() {
   return;
 }
 
-}  // namespace quantum
+double FermionOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
+                                    const std::string &postProcessTask,
+                                    const HeterogeneousMap &extra_data) {
+  auto transform = xacc::getService<ObservableTransform>("jw");
+  return transform->transform(xacc::as_shared_ptr(this))->postProcess(buffer, postProcessTask, extra_data);
+}
+
+} // namespace quantum
 }  // namespace xacc
 
 bool operator==(const xacc::quantum::FermionOperator &lhs,

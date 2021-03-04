@@ -64,6 +64,14 @@ void bind_accelerator(py::module &m) {
                   py::object functor = _circ.attr("out");
                   auto composite = mapper(functor, "quilc");
                   programs.push_back(composite);
+                } else {
+                  // Assume this is a py::list of XACC Composite.
+                  // Note: This overload seems to be prioritized over the
+                  // std::vector<std::shared_ptr<CompositeInstruction>>
+                  // overload.
+                  std::shared_ptr<CompositeInstruction> composite =
+                      _circ.cast<std::shared_ptr<CompositeInstruction>>();
+                  programs.push_back(composite);
                 }
               }
 

@@ -279,9 +279,7 @@ class qpu(object):
 
 class PyServiceRegistry(object):
     def __init__(self):
-        self.framework = pelix.framework.create_framework((
-            "pelix.ipopo.core",
-            "pelix.shell.console"))
+        self.framework = pelix.framework.create_framework(["pelix.ipopo.core"])
         self.framework.start()
         self.context = self.framework.get_bundle_context()
         self.registry = {}
@@ -500,6 +498,11 @@ loaded_from_cpp_dont_finalize = False
 
 def _finalize():
     if not loaded_from_cpp_dont_finalize:
+        # Stop the Pelix framework:
+        # cleaning up all Python threads that it has started.
+        serviceRegistry.framework.stop()  
+        # Wait for the framework to stop
+        serviceRegistry.framework.wait_for_stop()
         Finalize()
 
 atexit.register(_finalize)
