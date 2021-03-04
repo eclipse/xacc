@@ -37,8 +37,9 @@ private:
     bool m_use_opencl = true;
     bool m_use_qunit = true;
     bool m_use_opencl_multi = false;
+    bool m_use_stabilizer = true;
     int m_device_id = -1;
-    bool m_do_normalize = true;
-    double m_zero_threshold = min_norm;
+    bool m_do_normalize = false;
+    double m_zero_threshold = REAL1_EPSILON;
 };
 }}

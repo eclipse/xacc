@@ -15,19 +15,27 @@
 #include "QrackVisitor.hpp"
 #include "xacc.hpp"
 
-#define MAKE_ENGINE(num_qubits, perm) Qrack::CreateQuantumInterface(qIType1, qIType2, num_qubits, perm, nullptr, Qrack::CMPLX_DEFAULT_ARG, doNormalize, false, false, device_id, true, zero_threshold)
+#define MAKE_ENGINE(num_qubits, perm) Qrack::CreateQuantumInterface(qIType1, qIType2, qIType3, num_qubits, perm, nullptr, Qrack::CMPLX_DEFAULT_ARG, doNormalize, false, false, device_id, true, zero_threshold)
 
 namespace xacc {
 namespace quantum {
-    void QrackVisitor::initialize(std::shared_ptr<AcceleratorBuffer> buffer, int shots, bool use_opencl, bool use_qunit, bool use_opencl_multi, int device_id, bool doNormalize, double zero_threshold)
+    void QrackVisitor::initialize(std::shared_ptr<AcceleratorBuffer> buffer, int shots, bool use_opencl, bool use_qunit, bool use_opencl_multi, bool use_stabilizer, int device_id, bool doNormalize, double zero_threshold)
     {
         m_buffer = std::move(buffer);
         m_measureBits.clear();
         m_shots = shots;
         m_shotsMode = shots > 1;
 
-        Qrack::QInterfaceEngine qIType2 = use_opencl ? Qrack::QINTERFACE_OPTIMAL : Qrack::QINTERFACE_CPU;
-        Qrack::QInterfaceEngine qIType1 = use_qunit ? (use_opencl_multi ? Qrack::QINTERFACE_QUNIT_MULTI : Qrack::QINTERFACE_QUNIT) : qIType2;
+        Qrack::QInterfaceEngine qIType1, qIType2, qIType3;
+        if (use_qunit) {
+            qIType1 = use_opencl_multi ? Qrack::QINTERFACE_QUNIT_MULTI : Qrack::QINTERFACE_QUNIT;
+            qIType2 = use_stabilizer ? Qrack::QINTERFACE_STABILIZER_HYBRID : (use_opencl ? Qrack::QINTERFACE_OPTIMAL_SCHROEDINGER : Qrack::QINTERFACE_CPU);
+            qIType3 = use_opencl ? (use_stabilizer ? Qrack::QINTERFACE_OPTIMAL_SCHROEDINGER : Qrack::QINTERFACE_OPTIMAL_SINGLE_PAGE ) : Qrack::QINTERFACE_CPU;
+        } else {
+            qIType1 = use_stabilizer ? Qrack::QINTERFACE_STABILIZER_HYBRID : (use_opencl ? Qrack::QINTERFACE_OPTIMAL_SCHROEDINGER : Qrack::QINTERFACE_CPU);
+            qIType2 = use_opencl ? (use_stabilizer ? Qrack::QINTERFACE_OPTIMAL_SCHROEDINGER : Qrack::QINTERFACE_OPTIMAL_SINGLE_PAGE) : Qrack::QINTERFACE_CPU;
+            qIType3 = Qrack::QINTERFACE_OPTIMAL_SINGLE_PAGE;
+        }
 
         m_qReg = MAKE_ENGINE(m_buffer->size(), 0);
     }
