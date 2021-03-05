@@ -372,8 +372,22 @@ namespace quantum {
     {
         if (!m_visitor->isInitialized()) {
             m_visitor->initialize(buffer);
+            m_currentBuffer = std::make_pair(buffer.get(), buffer->size());
         }
-        
+
+        if (buffer.get() == m_currentBuffer.first &&
+            buffer->size() != m_currentBuffer.second) {
+            if (buffer->size() > m_currentBuffer.second) {
+                const auto nbQubitsToAlloc = buffer->size() - m_currentBuffer.second;
+                // std::cout << "Allocate " << nbQubitsToAlloc << " qubits.\n";
+                m_visitor->allocateQubits(nbQubitsToAlloc);
+                m_currentBuffer.second = buffer->size();
+            }
+            else {
+                xacc::error("Qubits deallocation is not supported.");
+            }
+        }
+
         if (inst->isComposite() || inst->isAnalog())
         {
             xacc::error("Only gates are allowed.");
