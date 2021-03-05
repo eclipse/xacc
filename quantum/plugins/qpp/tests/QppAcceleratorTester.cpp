@@ -633,6 +633,34 @@ Measure(q[0], cReg[3]);
   EXPECT_EQ(buffer->getMeasurementCounts()["1101"], 1024);
 }
 
+TEST(QppAcceleratorTester, testFtqcApply)
+{
+    auto provider = xacc::getIRProvider("quantum");
+    const int nbShots = 1024;
+    int nb00 = 0;
+    int nb11 = 0;
+    for (int i = 0; i < nbShots; ++i) {
+      auto accelerator = xacc::getAccelerator("qpp");
+      auto buffer = xacc::qalloc(1);
+      auto hGate = provider->createInstruction("H", 0);
+      accelerator->apply(buffer, hGate);
+      buffer->setSize(2);
+      auto cxGate = provider->createInstruction("CX", {0, 1});
+      accelerator->apply(buffer, cxGate);
+      accelerator->apply(buffer, provider->createInstruction("Measure", 0));
+      accelerator->apply(buffer, provider->createInstruction("Measure", 1));
+      const auto bitString = buffer->single_measurements_to_bitstring();
+      EXPECT_TRUE(bitString == "00" || bitString == "11");
+      if (bitString == "00") {
+        nb00++;
+      } else {
+        nb11++;
+      }
+    }
+    // Make sure we have both values.
+    EXPECT_TRUE(nb00 > 100 && nb11 > 100);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
 

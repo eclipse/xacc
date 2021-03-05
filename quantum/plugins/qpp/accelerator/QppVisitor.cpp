@@ -424,7 +424,7 @@ namespace quantum {
         }
         const std::vector<qpp::idx> initialState(in_nbQubits, 0);
         auto new_stateVec = qpp::mket(initialState);
-        m_stateVec = qpp::kron(m_stateVec, new_stateVec);
+        m_stateVec = qpp::kron(new_stateVec, m_stateVec);
         const std::vector<qpp::idx> new_dims(in_nbQubits, 2);
         m_dims.insert(m_dims.end(), new_dims.begin(), new_dims.end());
         if (xacc::verbose)
