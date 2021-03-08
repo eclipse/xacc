@@ -413,4 +413,23 @@ namespace quantum {
         m_stateVec = cachedStateVec;
         return result;
     }
+
+    void QppVisitor::allocateQubits(size_t in_nbQubits) 
+    {
+        assert(in_nbQubits > 0);
+        if (xacc::verbose)
+        {
+            std::cout << ">> Allocate : " << in_nbQubits << " qubits.\n";
+            std::cout << ">> State before allocate: " << qpp::disp(m_stateVec, ", ") << "\n";
+        }
+        const std::vector<qpp::idx> initialState(in_nbQubits, 0);
+        auto new_stateVec = qpp::mket(initialState);
+        m_stateVec = qpp::kron(new_stateVec, m_stateVec);
+        const std::vector<qpp::idx> new_dims(in_nbQubits, 2);
+        m_dims.insert(m_dims.end(), new_dims.begin(), new_dims.end());
+        if (xacc::verbose)
+        {
+            std::cout << ">> State after allocate: " << qpp::disp(m_stateVec, ", ") << "\n";
+        }
+    }
 }}

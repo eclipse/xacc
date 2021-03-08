@@ -48,6 +48,7 @@ public:
     bool m_vqeMode;
     std::vector<std::pair<int,int>> m_connectivity;
     xacc::HeterogeneousMap m_executionInfo;
+    std::pair<AcceleratorBuffer*, size_t> m_currentBuffer;
 };
 
 class DefaultNoiseModelUtils : public NoiseModelUtils 

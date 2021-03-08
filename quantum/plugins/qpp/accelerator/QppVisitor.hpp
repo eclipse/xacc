@@ -53,15 +53,17 @@ public:
   void visit(iSwap& in_iSwapGate) override;
   void visit(fSim& in_fsimGate) override;
   void visit(Reset& in_resetGate) override;
-  virtual std::shared_ptr<QppVisitor> clone() { return std::make_shared<QppVisitor>(); }
+  virtual std::shared_ptr<QppVisitor> clone() override { return std::make_shared<QppVisitor>(); }
   const KetVectorType& getStateVec() const { return m_stateVec; }
   static double calcExpectationValueZ(const KetVectorType& in_stateVec, const std::vector<qpp::idx>& in_bits);
   double getExpectationValueZ(std::shared_ptr<CompositeInstruction> in_composite);
 
-  // Gate-by-gate API
+  // Gate-by-gate API (FTQC)
   void applyGate(Gate& in_gate);
   bool measure(size_t in_bit);
   bool isInitialized() const { return m_initialized; }
+  // Allocate more qubits (zero state)
+  void allocateQubits(size_t in_nbQubits);
 private:
   qpp::idx xaccIdxToQppIdx(size_t in_idx) const;
 private:
