@@ -52,6 +52,11 @@ const std::vector<std::size_t> Gate::bits() { return qbits; }
 
 void Gate::mapBits(std::vector<std::size_t> bitMap) {
   for (int i = 0; i < qbits.size(); i++) {
+    if (qbits[i] >= bitMap.size()) {
+      xacc::error("Invalid bit mapping for instruction: " + name() +
+                  ", bit operand = " + std::to_string(qbits[i]) +
+                  ", bit map size = " + std::to_string(bitMap.size()));
+    }
     qbits[i] = bitMap[qbits[i]];
   }
 }
