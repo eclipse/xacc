@@ -128,7 +128,7 @@ public:
   // Return the name of an IRTransformation of type Placement that is
   // preferred for this Accelerator
   const std::string defaultPlacementTransformation() override {
-    return "default-placement";
+    return "swap-shortest-path";
   }
 
   const std::string name() const override { return "ibm"; }
