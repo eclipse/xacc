@@ -221,9 +221,11 @@ TEST(AutodiffTester, checkQaoaMaxCutGradient) {
   }
 
   auto optimizer =
-      xacc::getOptimizer("mlpack", {{"initial-parameters", initialParams}});
+      xacc::getOptimizer("nlopt", {{"algorithm", "l-bfgs"},
+                                   {"maximize", true},
+                                   {"initial-parameters", initialParams}});
   EXPECT_TRUE(optimizer->isGradientBased());
-  auto qaoa = xacc::getAlgorithm("QAOA");
+  auto qaoa = xacc::getAlgorithm("maxcut-qaoa");
   auto graph = xacc::getService<xacc::Graph>("boost-digraph");
 
   // Triangle graph
@@ -286,7 +288,8 @@ exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
       currentParams[paramId] =
           currentParams[paramId] - stepSize * grad[paramId];
     }
-    autodiff->getGradientExecutions(kernel_evaluator(currentParams), currentParams);
+    autodiff->getGradientExecutions(kernel_evaluator(currentParams),
+                                    currentParams);
     autodiff->compute(grad, {});
     EXPECT_EQ(grad.size(), 2);
     autodiff->derivative(kernel_evaluator(currentParams), {}, &energy);
