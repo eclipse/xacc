@@ -10,9 +10,11 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "xacc.hpp"
-#include "xacc_service.hpp"
 #include "py_graph.hpp"
+
+#include "xacc.hpp"
+#include "pybind11/stl.h"
+#include "xacc_service.hpp"
 #include "py_heterogeneous_map.hpp"
 
 void bind_graph(py::module &m) {
