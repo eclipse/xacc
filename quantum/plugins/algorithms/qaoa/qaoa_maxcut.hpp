@@ -31,9 +31,9 @@ public:
     const std::string description() const override { return ""; }
     DEFINE_ALGORITHM_CLONE(maxcut_qaoa)
 private:
-    Observable* constructMaxCutHam(xacc::Graph* in_graph) const;
+    std::shared_ptr<Observable> constructMaxCutHam(xacc::Graph* in_graph) const;
 private:
-    Observable* m_costHamObs;
+    std::shared_ptr<Observable> m_costHamObs;
     Observable* m_refHamObs;
     Accelerator* m_qpu;
     Optimizer* m_optimizer;

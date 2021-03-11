@@ -157,7 +157,7 @@ namespace xacc {
 namespace algorithm {
     // Construct the MAX-CUT Hamiltonian as an XACC observable
     // based on input graphs edges
-    Observable *maxcut_qaoa::constructMaxCutHam(xacc::Graph *in_graph) const {
+    std::shared_ptr<Observable> maxcut_qaoa::constructMaxCutHam(xacc::Graph *in_graph) const {
         xacc::quantum::PauliOperator H;
         for (int i = 0; i < in_graph->order(); ++i) {
             auto neighbors = in_graph->getNeighborList(i);
@@ -170,9 +170,7 @@ namespace algorithm {
                 }
             }
         }
-        // std::cout << "Hamiltonian: " << H.toString() << std::endl;
-        static auto graphHam = xacc::quantum::getObservable("pauli", H.toString());
-        return graphHam.get(); // return shared_ptr
+        return xacc::quantum::getObservable("pauli", H.toString());
     }
 
     // Take a graph as an input and output a series of Rx/Rz instructions on 
@@ -186,7 +184,7 @@ namespace algorithm {
         auto rotated = rotatesolution(solution1, rand);
         std::vector<double> x_rotations = std::get<1>(rotated);
         std::vector<double> z_rotations = std::get<0>(rotated);
-        for (int i = 0; i < m_graph->order(); ++i) {
+        for (size_t i = 0; i < m_graph->order(); ++i) {
             auto xrot = x_rotations[i];
             auto zrot = z_rotations[i] + (M_PI / 2);
             initial_state->addInstruction(provider->createInstruction("Rx", { i }, {xrot}));
@@ -235,10 +233,7 @@ namespace algorithm {
         }
 
         if (initializeOk) {
-            m_costHamObs =
-                graphInput
-                    ? constructMaxCutHam(parameters.getPointerLike<Graph>("graph"))
-                    : parameters.getPointerLike<Observable>("observable");
+            m_costHamObs = constructMaxCutHam(parameters.getPointerLike<Graph>("graph"));
             m_qpu = parameters.getPointerLike<Accelerator>("accelerator");
             m_optimizer = parameters.getPointerLike<Optimizer>("optimizer");
             // Optional ref-hamiltonian
@@ -263,7 +258,7 @@ namespace algorithm {
             // No gradient strategy was provided, just use autodiff.
             gradientStrategy = xacc::getService<AlgorithmGradientStrategy>("autodiff");
             gradientStrategy->initialize(
-                {{"observable", xacc::as_shared_ptr(m_costHamObs)}});
+                {{"observable", m_costHamObs}});
         }
 
         return initializeOk;

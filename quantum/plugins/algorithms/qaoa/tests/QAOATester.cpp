@@ -159,7 +159,7 @@ TEST(QAOATester, checkWarmStarts) {
   auto buffer = xacc::qalloc(3);
   int size = buffer->size();
   auto optimizer = xacc::getOptimizer("nlopt", {{"maximize",true},{"initial-parameters", random_vector(-2., 2., 2)}});
-  auto qaoa = xacc::getService<Algorithm>("maxcut_qaoa");
+  auto qaoa = xacc::getService<Algorithm>("maxcut-qaoa");
   auto graph = xacc::getService<xacc::Graph>("boost-digraph");
 
   // Triangle graph
@@ -185,14 +185,14 @@ TEST(QAOATester, checkWarmStarts) {
 }
 
 // Testing if a weighted graph can be constructed and passed
-// to the maxcut_qaoa algorithm with the correct result returned.
+// to the maxcut-qaoa algorithm with the correct result returned.
 TEST(QAOATester, checkWeightedQAOA) {
   auto acc = xacc::getAccelerator("qpp");
   auto buffer = xacc::qalloc(3);
   //   xacc::set_verbose(true);
   int size = buffer->size();
   auto optimizer = xacc::getOptimizer("nlopt", {{"maximize", true}, {"initial-parameters", random_vector(-2., 2., 2)}});
-  auto qaoa = xacc::getService<Algorithm>("maxcut_qaoa");
+  auto qaoa = xacc::getService<Algorithm>("maxcut-qaoa");
   auto graph = xacc::getService<xacc::Graph>("boost-digraph");
 
   // Triangle graph
@@ -219,7 +219,7 @@ TEST(QAOATester, checkMaxCut) {
   auto buffer = xacc::qalloc(3);
   //   xacc::set_verbose(true);
   auto optimizer = xacc::getOptimizer("nlopt", {{"maximize", true}, {"initial-parameters", random_vector(-2., 2., 2)}});
-  auto qaoa = xacc::getService<Algorithm>("maxcut_qaoa");
+  auto qaoa = xacc::getService<Algorithm>("maxcut-qaoa");
   auto graph = xacc::getService<xacc::Graph>("boost-digraph");
 
   // Triangle graph

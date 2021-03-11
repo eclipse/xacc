@@ -82,43 +82,4 @@ void bind_graph(py::module &m) {
           auto graph = xacc::getService<xacc::Graph>(name);
           return graph;
         });
-  // Convert graph from networkx graph type to XACC
-  m.def("convertGraph", 
-        [] (py::object object) -> std::shared_ptr<xacc::Graph> {
-          // Throw err if missing attrs
-          if (!py::hasattr(object, "nodes")) {
-              xacc::error("\n 'nodes' attribute needed to convert networkx to xacc graph\n");
-          }
-          if (!py::hasattr(object, "edges")) {
-              xacc::error("\n 'edges' attribute needed to convert networkx to xacc graph\n");
-          }
-          auto nodes = object.attr("nodes");
-          auto edges = object.attr("edges").cast<std::tuple<int,int>();
-          // Instantiate xacc graph
-          auto const xacc_graph = xacc::getService<xacc::Graph>("boost-digraph");
-          // Add nodes
-          for (auto node : nodes.cast<py::array>()) {
-              HeterogeneousMap m;
-              m.insert("name", node.cast<py::str>());
-              xacc_graph->addVertex(m);
-          }
-          // Add edges
-          int i = 0;
-          std::cout << "edges: " << edges << std::endl;
-          std::cout << "edge: " << edges(0) << std::endl;
-          for (auto edge : edges){
-            std::cout << "edge: " << edge << std::endl;
-            std::cout << "edge 0: " << edge(0) << std::endl;
-            std::cout << "edge 1: " << edge(1) << std::endl;
-            // if (weight doesn't exist){
-                // set weight = 1.0
-                // append to xacc_graph
-            // } else {
-                // xacc_graph->addEdge(edge(0), edge(1), edge(2));
-            // }   
-            xacc_graph->addEdge(0, i, 1.);
-            i+=1;
-          }
-          return xacc_graph;
-    });
 }
