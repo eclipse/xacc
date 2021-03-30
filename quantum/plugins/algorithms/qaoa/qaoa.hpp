@@ -9,6 +9,7 @@
  *
  * Contributors:
  *   Thien Nguyen - initial API and implementation
+ *   Milos Prokop - variable assignment mode
  *******************************************************************************/
 #pragma once
 
@@ -22,12 +23,13 @@ namespace algorithm {
 class QAOA : public Algorithm 
 {
 public:
-    bool initialize(const HeterogeneousMap& parameters) override;
+    virtual bool initialize(const HeterogeneousMap& parameters) override;
     const std::vector<std::string> requiredParameters() const override;
     void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
     std::vector<double> execute(const std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<double> &parameters) override;
     const std::string name() const override { return "QAOA"; }
     const std::string description() const override { return ""; }
+
     DEFINE_ALGORITHM_CLONE(QAOA)
 private:
     Observable* m_costHamObs;
@@ -37,10 +39,16 @@ private:
     std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
     std::shared_ptr<CompositeInstruction> externalAnsatz;
     std::shared_ptr<CompositeInstruction> m_single_exec_kernel;
+
+    double evaluate_assignment(xacc::Observable* const observable, std::string measurement) const;
     int m_nbSteps;
+    int nbSamples = 1024;
     std::string m_parameterizedMode;
     bool m_maximize = false;
+    bool m_varAssignmentMode = false;
+    bool m_simplifiedSimulationMode = false;
     CompositeInstruction* m_initial_state;
+
 };
 } // namespace algorithm
 } // namespace xacc
