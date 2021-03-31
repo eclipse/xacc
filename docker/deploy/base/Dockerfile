@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND noninteractive
 ARG GITHUB_TOKEN
-ARG NODE_VERSION=10.15.3
+ARG NODE_VERSION=10.16.0
 ENV NODE_VERSION $NODE_VERSION
 ENV YARN_VERSION 1.13.0
 
@@ -105,16 +105,16 @@ RUN apt-get update && \
 # and also the GDB debugger, cmake from the Ubuntu repos
 
     && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main" > /etc/apt/sources.list.d/llvm.list && \
+    echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main" > /etc/apt/sources.list.d/llvm.list && \
     apt-get update && \
     apt-get install --no-install-recommends -y \
-                       clang-tools-11 \
-                       clangd-11 \
-                       clang-tidy-11 \
+                       clang-tools-12 \
+                       clangd-12 \
+                       clang-tidy-12 \
                        gdb && \
-    ln -s /usr/bin/clangd-11 /usr/bin/clangd && \
-    ln -s /usr/bin/clang-tidy-11 /usr/bin/clang-tidy && \
-    rm -rf /var/lib/apt/lists/* \
+    ln -s /usr/bin/clangd-12 /usr/bin/clangd && \
+    ln -s /usr/bin/clang-tidy-12 /usr/bin/clang-tidy && \
+    rm -rf /var/lib/apt/lists/* 
 
 
     #&& cd /home/dev && git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
@@ -123,9 +123,6 @@ RUN apt-get update && \
     #&& cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
     #&& cmake .. -DXACC_DIR=~/.xacc && make -j18 install \
 
-    && git clone https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build \
-    && cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4 \
-    && make -j8 install && cd ../.. && rm -rf psi4 
 
 # Theia application
 
