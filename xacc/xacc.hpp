@@ -148,6 +148,7 @@ getAcceleratorDecorator(const std::string &decorator,
 bool hasAccelerator(const std::string &name);
 
 void setCompiler(const std::string &compilerName);
+std::shared_ptr<Compiler> getCompiler(const std::string &name, const xacc::HeterogeneousMap&& options);
 std::shared_ptr<Compiler> getCompiler(const std::string &name);
 std::shared_ptr<Compiler> getCompiler();
 bool hasCompiler(const std::string &name);
