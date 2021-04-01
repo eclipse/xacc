@@ -21,7 +21,7 @@
 #include "xacc_observable.hpp"
 
 using namespace xacc;
-/*
+
 TEST(QAOATester, checkSimple) {
   auto acc = xacc::getAccelerator("qpp");
   auto buffer = xacc::qalloc(2);
@@ -243,7 +243,7 @@ TEST(QAOATester, checkMaxCut) {
   std::cout << "Opt-val: " << (*buffer)["opt-val"].as<double>() << "\n";
   // EXPECT_NEAR((*buffer)["opt-val"].as<double>(), 2.0, 1e-3);
 }
-*/
+
 TEST(QAOATester, check_evaluate_assignment) {
 
 	//
