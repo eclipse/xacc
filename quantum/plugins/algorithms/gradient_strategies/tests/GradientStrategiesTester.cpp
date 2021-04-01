@@ -64,8 +64,8 @@ TEST(GradientStrategiesTester, checkCentralDifference) {
   ansatz2->addInstruction(provider2->createInstruction(
       "Ry", std::vector<std::size_t>{0}, {InstructionParameter("x0")}));
 
-  auto centralDifference = xacc::getService<AlgorithmGradientStrategy>(
-      "central");
+  auto centralDifference =
+      xacc::getService<AlgorithmGradientStrategy>("central");
   centralDifference->initialize({std::make_pair("observable", observable2)});
   auto gradientInstructions =
       centralDifference->getGradientExecutions(ansatz2, {0.0});
@@ -90,8 +90,8 @@ TEST(GradientStrategiesTester, checkForwardDifference) {
   ansatz3->addInstruction(provider3->createInstruction(
       "Ry", std::vector<std::size_t>{0}, {InstructionParameter("x0")}));
 
-  auto forwardDifference = xacc::getService<AlgorithmGradientStrategy>(
-      "forward");
+  auto forwardDifference =
+      xacc::getService<AlgorithmGradientStrategy>("forward");
   forwardDifference->initialize({std::make_pair("observable", observable3)});
   auto gradientInstructions =
       forwardDifference->getGradientExecutions(ansatz3, {0.0});
@@ -116,8 +116,8 @@ TEST(GradientStrategiesTester, checkBackwardDifference) {
   ansatz4->addInstruction(provider4->createInstruction(
       "Ry", std::vector<std::size_t>{0}, {InstructionParameter("x0")}));
 
-  auto backwardDifference = xacc::getService<AlgorithmGradientStrategy>(
-      "backward");
+  auto backwardDifference =
+      xacc::getService<AlgorithmGradientStrategy>("backward");
   backwardDifference->initialize({std::make_pair("observable", observable4)});
   auto gradientInstructions =
       backwardDifference->getGradientExecutions(ansatz4, {0.0});
@@ -129,18 +129,18 @@ TEST(GradientStrategiesTester, checkBackwardDifference) {
 }
 
 TEST(GradientStrategiesTester, checkDeuteronVQE) {
-    // Use Qpp accelerator
-    auto accelerator = xacc::getAccelerator("qpp");
-    EXPECT_EQ(accelerator->name(), "qpp");
+  // Use Qpp accelerator
+  auto accelerator = xacc::getAccelerator("qpp");
+  EXPECT_EQ(accelerator->name(), "qpp");
 
-    // Create the N=2 deuteron Hamiltonian
-    auto H_N_2 = xacc::quantum::getObservable(
-        "pauli", std::string("5.907 - 2.1433 X0X1 "
-                            "- 2.1433 Y0Y1"
-                            "+ .21829 Z0 - 6.125 Z1"));
+  // Create the N=2 deuteron Hamiltonian
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
 
-    auto optimizer = xacc::getOptimizer("nlopt", {{"nlopt-optimizer", "l-bfgs"}});
-    xacc::qasm(R"(
+  auto optimizer = xacc::getOptimizer("nlopt", {{"nlopt-optimizer", "l-bfgs"}});
+  xacc::qasm(R"(
         .compiler xasm
         .circuit deuteron_ansatz
         .parameters theta
@@ -149,25 +149,55 @@ TEST(GradientStrategiesTester, checkDeuteronVQE) {
         Ry(q[1], theta);
         CNOT(q[1],q[0]);
     )");
-    auto ansatz = xacc::getCompiled("deuteron_ansatz");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz");
 
-    
-    // Get the VQE Algorithm and initialize it
-    auto vqe = xacc::getAlgorithm("vqe");
-    vqe->initialize({{"ansatz", ansatz},
-                    {"observable", H_N_2},
-                    {"accelerator", accelerator},
-                    {"optimizer", optimizer},
-                    {"gradient_strategy", "parameter-shift"}});
+  // Get the VQE Algorithm and initialize it
+  auto vqe = xacc::getAlgorithm("vqe");
+  vqe->initialize({{"ansatz", ansatz},
+                   {"observable", H_N_2},
+                   {"accelerator", accelerator},
+                   {"optimizer", optimizer},
+                   {"gradient_strategy", "parameter-shift"}});
 
-    // Allocate some qubits and execute
-    auto buffer = xacc::qalloc(2);
-    xacc::set_verbose(true);
-    vqe->execute(buffer);
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(2);
+  xacc::set_verbose(true);
+  vqe->execute(buffer);
 
-    // Expected result: -1.74886
-    EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-4);
+  // Expected result: -1.74886
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-4);
+}
 
+TEST(GradientStrategiesTester, checkYanPSproblem) {
+
+  int nLayer = 7;
+  double param = 2.0 / nLayer, shiftScalar = 1.0 / 8.0;
+  auto H = xacc::quantum::getObservable("pauli", std::string("Z0"));
+  auto acc = xacc::getAccelerator("qpp");
+
+  std::vector<double> init = {param};
+  auto opt = xacc::getOptimizer(
+      "nlopt", {{"algorithm", "l-bfgs"}, {"initial-parameters", init}});
+
+  auto provider = xacc::getService<xacc::IRProvider>("quantum");
+  auto ansatz = provider->createComposite("initial-state");
+
+  ansatz->addVariable("x0");
+  for (int i = 0; i < nLayer; i++) {
+    ansatz->addInstruction(provider->createInstruction("Rx", {0}, {"x0"}));
+  }
+
+  auto objFxn = xacc::getService<xacc::Algorithm>("vqe");
+  objFxn->initialize({{"accelerator", acc},
+                      {"observable", H},
+                      {"ansatz", ansatz},
+                      {"optimizer", opt},
+                      {"shift-scalar", shiftScalar},
+                      {"gradient_strategy", "parameter-shift"}});
+  auto q = xacc::qalloc(1);
+  objFxn->execute(q);
+
+  EXPECT_NEAR((*q)["opt-val"].as<double>(), -1.0, 1e-4);
 }
 
 int main(int argc, char **argv) {
