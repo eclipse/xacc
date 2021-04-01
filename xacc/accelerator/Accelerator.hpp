@@ -68,6 +68,8 @@ public:
   virtual void updateConfiguration(const HeterogeneousMap &&config) {
     updateConfiguration(config);
   }
+  virtual void updateShotsNumber(int shots) {nbShots = shots;}
+
   virtual const std::vector<std::string> configurationKeys() = 0;
 
   virtual HeterogeneousMap getProperties() { return HeterogeneousMap(); }
@@ -134,6 +136,10 @@ public:
   }
 
   virtual ~Accelerator() {}
+
+protected:
+  int nbShots = -1;
+
 };
 
 template Accelerator* HeterogeneousMap::getPointerLike<Accelerator>(const std::string key) const;

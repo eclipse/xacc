@@ -9,6 +9,7 @@
  *
  * Contributors:
  *   Thien Nguyen - initial API and implementation
+ *   Milos Prokop - variable assignment mode
  *******************************************************************************/
 
 #include "qaoa.hpp"
@@ -59,6 +60,20 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
   m_parameterizedMode = "Extended";
   if (parameters.stringExists("parameter-scheme")) {
     m_parameterizedMode = parameters.getString("parameter-scheme");
+  }
+
+  // Determine the optimal variable assignment of the QUBO problem
+  // If false, only optimal value is returned
+  m_varAssignmentMode = false;
+  if (parameters.keyExists<bool>("calc-var-assignment")) {
+	  m_varAssignmentMode = parameters.get<bool>("calc-var-assignment");
+  }
+
+  // Number of samples generated to find the optimal problem solution
+  if(m_varAssignmentMode){
+	nbSamples = 1024;
+	if(parameters.keyExists<int>("nbSamples"))
+		nbSamples = parameters.get<int>("nbSamples");
   }
 
   if (initializeOk) {
@@ -124,6 +139,53 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
 const std::vector<std::string> QAOA::requiredParameters() const {
   return {"accelerator", "optimizer", "observable"};
 }
+
+//evaluate the energy of measurement
+double QAOA::evaluate_assignment(xacc::Observable* const observable, std::string measurement) const{
+
+	double result =	observable->getIdentitySubTerm()->coefficient().real();
+	for(auto &term: observable->getNonIdentitySubTerms()){
+
+		//get the real part, imag expected to be 0
+		double coeff = term->coefficient().real();
+
+		//parse to get hamiltonian terms
+		std::string term_str = term->toString();
+		std::vector<int> qubit_indices;
+
+		char z_coeff[6]; // Number of ciphers in qubit index are expected to fit here.
+		int z_index = 0;
+
+		int term_i = 0;
+
+		for(size_t i = term_str.length()-1; i > 0; --i){
+			char c = term_str[i];
+			if(isdigit(c))
+				z_coeff[5-z_index++] = c;
+			else if(c == 'Z'){
+				int val = 0;
+				for(; z_index>0; --z_index){
+					val += pow(10, z_index-1) * (z_coeff[5-z_index+1] - '0');
+				}
+				qubit_indices.push_back(val);
+				z_index = 0;
+			}
+			else if(c == ' '){
+				if(++term_i == 2)
+					break;
+			}
+			else{
+				break;
+			}
+		}
+		int multiplier = 1;
+		for(auto &qubit_index: qubit_indices)
+			multiplier *= (measurement[qubit_index] == '0') ? 1 : -1;
+		result += multiplier * coeff;
+	}
+	return result;
+}
+
 
 void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   const int nbQubits = buffer->size();
@@ -278,8 +340,80 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   // Reports the final cost:
   double finalCost = result.first;
   if (m_maximize) finalCost *= -1.0;
-  buffer->addExtraInfo("opt-val", ExtraInfo(finalCost));
-  buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
+
+  if(m_varAssignmentMode){
+
+ 	  typedef std::pair<int, double> meas_freq_eval;
+ 	  typedef std::pair<std::string, meas_freq_eval> measurement;
+
+ 	  auto provider = xacc::getIRProvider("quantum");
+ 	  auto evaled = kernel->operator()(result.second);
+ 	  m_qpu->updateShotsNumber(nbSamples);
+
+ 	  //comment below and uncomment commented to use multiple measurement gates
+ 	  for(size_t i=0; i < nbQubits; ++i){
+ 	  	evaled->addInstructions({provider->createInstruction("Measure", i)});
+ 	  }
+
+ 	  //std::vector<size_t> indices;
+ 	  //for(size_t i=0; i < nbQubits; ++i){
+ 	  //   indices.push_back(i);
+ 	  //}
+ 	  //auto meas = provider->createInstruction("Measure", indices);
+ 	  //evaled->addInstructions({meas});
+
+ 	  m_qpu->execute(buffer, evaled);
+ 	  std::vector<measurement> measurements;
+
+ 	  for(std::pair<std::string, int> meas : buffer->getMeasurementCounts()){
+
+ 		  bool found = false;
+ 		  for(auto &instance : measurements)
+ 			  if(instance.first == meas.first){
+ 				  found = true;
+ 				  break;
+ 			  }
+
+ 		  if(!found){
+ 			  measurements.push_back(measurement(meas.first, // bit string
+ 					  	  	  	  	  meas_freq_eval(meas.second, //number of occurences
+ 					  	  	  	  			  evaluate_assignment(m_costHamObs, meas.first))));
+ 		  }
+ 	  }
+
+ 	 //sort by number of occurences
+ 	  if(m_maximize){
+ 		  std::sort(measurements.begin(), measurements.end(),
+ 			  [](const std::pair<std::string, std::pair<int, double>>& a, const std::pair<std::string, std::pair<int,int>>& b) {
+ 				  return a.second.second > b.second.second;
+ 	      });
+ 	  } else {
+ 		  std::sort(measurements.begin(), measurements.end(),
+ 			  [](const std::pair<std::string, std::pair<int, double>>& a, const std::pair<std::string, std::pair<int,int>>& b) {
+ 		  	  	  return a.second.second < b.second.second;
+ 		  });
+ 	  }
+
+ 	  double optimal_value = measurements[0].second.second;
+ 	  std::string opt_config = measurements[0].first;
+
+ 	  int i = 0;
+ 	  int hits;
+ 	  while(i < measurements.size() && abs(measurements[i++].second.second - optimal_value)<10e-1){
+ 		  hits += measurements[i-1].second.first;
+ 	  }
+
+ 	  double hit_rate = hits / double(nbSamples);
+
+ 	  buffer->addExtraInfo("opt-val", ExtraInfo(optimal_value));
+ 	  buffer->addExtraInfo("opt-config", opt_config);
+ 	  buffer->addExtraInfo("hit_rate: ", ExtraInfo(hit_rate));
+ 	  buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
+
+   }else{
+ 	  buffer->addExtraInfo("opt-val", ExtraInfo(finalCost));
+ 	  buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
+   }
 }
 
 std::vector<double>

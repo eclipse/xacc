@@ -9,6 +9,7 @@
  *
  * Contributors:
  *   Thien Nguyen - initial API and implementation
+ *   Milos Prokop - test evaluate_assignment
  *******************************************************************************/
 #include <random>
 #include <gtest/gtest.h>
@@ -20,7 +21,7 @@
 #include "xacc_observable.hpp"
 
 using namespace xacc;
-
+/*
 TEST(QAOATester, checkSimple) {
   auto acc = xacc::getAccelerator("qpp");
   auto buffer = xacc::qalloc(2);
@@ -241,6 +242,88 @@ TEST(QAOATester, checkMaxCut) {
   qaoa->execute(buffer);
   std::cout << "Opt-val: " << (*buffer)["opt-val"].as<double>() << "\n";
   // EXPECT_NEAR((*buffer)["opt-val"].as<double>(), 2.0, 1e-3);
+}
+*/
+TEST(QAOATester, check_evaluate_assignment) {
+
+	//
+	// Tests the QAOA::evaluate_assignment function. The parameters of QAOA are deliberately very UNperformant such that the resulting state will not be far from initial state
+	// and hence after many shots we expect to get all possible assignments.
+	//
+
+	const int num_qubits = 3;
+	const int num_terms = 7;
+	std::string hamiltonian[num_terms][3] = {{ "-5",   "",   ""},
+											 {  "2", "Z0",   ""},
+											 {  "3", "Z1",   ""},
+											 { "-1", "Z2",   ""},
+											 { "-4", "Z0", "Z1"},
+											 {  "7", "Z1", "Z2"},
+											 {"0.4", "Z0", "Z2"}
+								   	   	    };
+
+	std::string hamiltonian_str = hamiltonian[0][0] + " ";
+	for(size_t i = 1; i < num_terms; ++i){
+
+		hamiltonian_str += "+ ";
+
+		for(size_t i2 = 0; i2 < 3; i2++)
+			hamiltonian_str += hamiltonian[i][i2] + " ";
+
+	}
+
+	auto acc = xacc::getAccelerator("qpp", {std::make_pair("shots", 50)});
+	auto buffer = xacc::qalloc(num_qubits);
+	auto observable = xacc::quantum::getObservable("pauli", hamiltonian_str);
+
+	const int nbParams = observable -> getNonIdentitySubTerms().size() + observable->nBits();;
+	std::vector<double> initialParams;
+
+	// Init random parameters
+	for (int i = 0; i < nbParams; ++i)
+	{
+	  initialParams.emplace_back(0);
+	}
+
+	auto optimizer = xacc::getOptimizer("nlopt",
+	  xacc::HeterogeneousMap {
+		 std::make_pair("initial-parameters", initialParams),
+		 std::make_pair("maximize", false),
+		 std::make_pair("nlopt-maxeval", 1) });
+
+		auto qaoa = xacc::getService<xacc::Algorithm>("QAOA");
+		qaoa->initialize({
+		   std::make_pair("accelerator", acc),
+		   std::make_pair("optimizer", optimizer),
+		   std::make_pair("observable", observable),
+		   std::make_pair("steps", 1),
+		   std::make_pair("calc-var-assignment", true),
+		   std::make_pair("nbSamples", 1)
+		});
+
+		qaoa->execute(buffer);
+		std::string meas = (*buffer)["opt-config"].as<std::string>();
+
+		//calculate the expected result
+		double expected_result = 0.;
+		for(size_t i = 0; i < num_terms; ++i){
+
+			auto term = hamiltonian[i];
+
+			if(term[1] == ""){ //identity term
+				expected_result += std::stod(term[0]);
+			}else if(term[2] == ""){ //single-Z term
+				int qbit = std::stoi(term[1].substr(1));
+				expected_result += (meas[qbit] == '1' ? -1 : 1) * std::stod(term[0]);
+			}else{ //double-Z term
+				int qbit1 = std::stoi(term[1].substr(1));
+				int qbit2 = std::stoi(term[2].substr(1));
+
+				expected_result += (meas[qbit1] == '1' ? -1 : 1) * (meas[qbit2] == '1' ? -1 : 1) * std::stod(term[0]);
+			}
+		}
+
+		EXPECT_NEAR((*buffer)["opt-val"].as<double>(), expected_result, 1e-1);
 }
 
 int main(int argc, char **argv) {

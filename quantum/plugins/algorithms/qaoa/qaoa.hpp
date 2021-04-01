@@ -38,9 +38,14 @@ private:
     std::shared_ptr<CompositeInstruction> externalAnsatz;
     std::shared_ptr<CompositeInstruction> m_single_exec_kernel;
     int m_nbSteps;
+    int nbSamples = 1024;
     std::string m_parameterizedMode;
     bool m_maximize = false;
+    bool m_varAssignmentMode = false;
+    bool m_simplifiedSimulationMode = false;
     CompositeInstruction* m_initial_state;
+
+    double evaluate_assignment(xacc::Observable* const observable, std::string measurement) const;
 };
 } // namespace algorithm
 } // namespace xacc
