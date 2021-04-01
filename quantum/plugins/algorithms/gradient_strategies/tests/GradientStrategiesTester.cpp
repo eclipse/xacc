@@ -196,6 +196,8 @@ TEST(GradientStrategiesTester, checkYanPSproblem) {
                       {"gradient_strategy", "parameter-shift"}});
   auto q = xacc::qalloc(1);
   objFxn->execute(q);
+
+  EXPECT_NEAR((*q)["opt-val"].as<double>(), -1.0, 1e-4);
 }
 
 int main(int argc, char **argv) {
