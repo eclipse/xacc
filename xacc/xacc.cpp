@@ -419,6 +419,13 @@ bool hasAccelerator(const std::string &name) {
          xacc::hasContributedService<Accelerator>(name);
 }
 
+std::shared_ptr<Compiler> getCompiler(const std::string &name,
+                                      const xacc::HeterogeneousMap &&options) {
+  auto compiler = getCompiler(name);
+  compiler->setExtraOptions(options);
+  return compiler;
+}
+
 std::shared_ptr<Compiler> getCompiler(const std::string &name) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
