@@ -564,9 +564,8 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
     }
   }
 
-  std::unordered_map<int, std::pair<int, int>> qubitToBoundary;
-
   for (int i = 1; i < graphView->order() - 1; /* increment in loop*/) {
+    std::unordered_map<int, std::pair<int, int>> qubitToBoundary;
     const auto node = graphView->getVertexProperties(i);
     // Starting at a CNOT gate as anchor point
     if (node.getString("name") == "CNOT") {
@@ -663,6 +662,9 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
         std::vector<int> qubits;
         for (const auto& kv: qubitToBoundary) {
           qubits.emplace_back(kv.first);
+          std::stringstream ss;
+          ss << "Q" << kv.first << ": " << kv.second.first << " --> " << kv.second.second;
+          xacc::info(ss.str());
         }
 
         for (int idx = 1; idx < graphView->order() - 1; ++idx) {
@@ -701,6 +703,13 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
         }
         // If the subcircuit has less than 2 Rz gates, then nothing we can optimize here.
         if (countRz >= 2) {
+          std::stringstream ss;
+          ss << "Found sub-circuit:\n";
+          for (const auto &inst : subCircuit) {
+            ss << inst->toString() << "\n";
+          }
+          xacc::info(ss.str());
+
           PhasePolynomialRep phasePolynomialRep(qubitToNodeIds.size(), subCircuit);
           if (phasePolynomialRep.hasMergableGates()) {
             for (const auto& gate: subCircuit) {
