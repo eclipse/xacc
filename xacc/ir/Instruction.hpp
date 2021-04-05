@@ -100,8 +100,19 @@ const std::string INTERNAL_ARGUMENT_VALUE_KEY = "__xacc_internal_value_key";
 class Instruction : public BaseInstructionVisitable,
                     public Identifiable,
                     public Cloneable<Instruction> {
+protected:
+  HeterogeneousMap metadata;
 
 public:
+  // Instructions can carry domain-specific metadata as a 
+  // key-value dictionary of information. Here we provide 
+  // a method for attaching metadata
+  virtual void attachMetadata(HeterogeneousMap&& m) {
+    metadata = m;
+  }
+  // Retrieve this intruction's metadata. 
+  virtual HeterogeneousMap getMetadata() {return metadata;}
+
   virtual void applyRuntimeArguments() = 0;
   virtual void addArgument(std::shared_ptr<CompositeArgument> arg,
                            const int idx_of_inst_param) = 0;

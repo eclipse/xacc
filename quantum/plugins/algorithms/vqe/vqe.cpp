@@ -65,8 +65,7 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
       optimizer->isGradientBased()) {
     gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(
         parameters.getString("gradient_strategy"));
-    gradientStrategy->initialize(
-        {std::make_pair("observable", xacc::as_shared_ptr(observable))});
+    gradientStrategy->initialize(parameters);
   }
 
   if ((parameters.stringExists("gradient_strategy") ||
@@ -81,7 +80,7 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
       gradientStrategy == nullptr) {
     // No gradient strategy was provided, just use autodiff.
     gradientStrategy = xacc::getService<AlgorithmGradientStrategy>("autodiff");
-    gradientStrategy->initialize({{"observable", observable}});
+    gradientStrategy->initialize(parameters);
   }
   return true;
 }

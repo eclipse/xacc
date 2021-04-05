@@ -41,7 +41,9 @@ void bind_observable(py::module &m) {
       .def("fromString",
            (void (xacc::Observable::*)(const std::string)) &
                xacc::Observable::fromString,
-           "");
+           "")
+      .def("postProcess", &xacc::Observable::postProcess,
+           "Post-process the execution results.");
 
   m.def("getObservable",
         [](const std::string &type,

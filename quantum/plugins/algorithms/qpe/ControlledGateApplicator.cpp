@@ -16,41 +16,69 @@
 namespace xacc {
 namespace circuits {
 
-bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
-  if (!runtimeOptions.keyExists<int>("control-idx")) {
-    xacc::error("'control-idx' is required.");
-    return false;
-  }
-
-  const auto ctrlIdx = runtimeOptions.get<int>("control-idx");
-
-  if (!runtimeOptions.pointerLikeExists<CompositeInstruction>("U")) {
-    xacc::error("'U' composite is required.");
-    return false;
-  }
-
-  auto uComposite = std::shared_ptr<CompositeInstruction>(
-      runtimeOptions.getPointerLike<CompositeInstruction>("U"),
-      xacc::empty_delete<CompositeInstruction>());
-  auto ctrlU = applyControl(uComposite, ctrlIdx);
-
-  std::string buffer_name = "";
-  if (runtimeOptions.stringExists("control-buffer")) {
-    buffer_name = runtimeOptions.getString("control-buffer");
-  }
-
-  for (int instId = 0; instId < ctrlU->nInstructions(); ++instId) {
-    auto inst = ctrlU->getInstruction(instId)->clone();
-    if (!buffer_name.empty()) {
-      std::vector<std::string> bnames;
-      for (auto &bit : inst->bits()) {
-        bnames.push_back(buffer_name);
-      }
-      inst->setBufferNames(bnames);
+bool ControlledU::expand(const xacc::HeterogeneousMap& runtimeOptions) 
+{
+    // Single control or multiple-controls (as vector of int)
+    if (!runtimeOptions.keyExists<int>("control-idx") &&
+      !runtimeOptions.keyExists<std::vector<int>>("control-idx")) 
+    {
+        xacc::error("'control-idx' is required.");
+        return false;
     }
-    addInstruction(inst);
-  }
-  return true;
+
+    const std::vector<int> ctrlIdxs = [&runtimeOptions]() -> std::vector<int> {
+        if (runtimeOptions.keyExists<int>("control-idx")) 
+        {
+            return {runtimeOptions.get<int>("control-idx")};
+        }
+        else 
+        {
+            return runtimeOptions.get<std::vector<int>>("control-idx");
+        }
+    }();
+    
+    if (!runtimeOptions.pointerLikeExists<CompositeInstruction>("U")) 
+    {
+        xacc::error("'U' composite is required.");
+        return false;
+    }
+    
+    // Check duplicate
+    const std::set<int> s(ctrlIdxs.begin(), ctrlIdxs.end());
+    if (s.size() != ctrlIdxs.size())
+    {
+        xacc::error("Control bits must be unique.");
+    }
+    
+    // Original U
+    auto uComposite = std::shared_ptr<CompositeInstruction>(
+        runtimeOptions.getPointerLike<CompositeInstruction>("U"), 
+        xacc::empty_delete<CompositeInstruction>());
+
+    auto ctrlU = uComposite;
+    // Recursive application of control bits:
+    for (const auto &ctrlIdx : ctrlIdxs) {
+      ctrlU = applyControl(ctrlU, ctrlIdx);
+    }
+
+    std::string buffer_name = "";
+    if (runtimeOptions.stringExists("control-buffer")) {
+        buffer_name = runtimeOptions.getString("control-buffer");
+    }
+
+    for (int instId = 0; instId < ctrlU->nInstructions(); ++instId)
+    {
+        auto inst = ctrlU->getInstruction(instId)->clone();
+        if (!buffer_name.empty()) {
+            std::vector<std::string> bnames;
+            for (auto& bit : inst->bits()) {
+                bnames.push_back(buffer_name);
+            }
+            inst->setBufferNames(bnames);
+        }
+        addInstruction(inst);
+    }
+    return true;
 }
 
 std::shared_ptr<xacc::CompositeInstruction> ControlledU::applyControl(
