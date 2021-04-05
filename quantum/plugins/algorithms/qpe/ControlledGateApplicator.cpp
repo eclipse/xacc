@@ -18,13 +18,24 @@ namespace circuits {
 
 bool ControlledU::expand(const xacc::HeterogeneousMap& runtimeOptions) 
 {
-    if (!runtimeOptions.keyExists<int>("control-idx")) 
+    // Single control or multiple-controls (as vector of int)
+    if (!runtimeOptions.keyExists<int>("control-idx") &&
+      !runtimeOptions.keyExists<std::vector<int>>("control-idx")) 
     {
         xacc::error("'control-idx' is required.");
         return false;
     }
 
-    const auto ctrlIdx = runtimeOptions.get<int>("control-idx");
+    const std::vector<int> ctrlIdxs = [&runtimeOptions]() -> std::vector<int> {
+        if (runtimeOptions.keyExists<int>("control-idx")) 
+        {
+            return {runtimeOptions.get<int>("control-idx")};
+        }
+        else 
+        {
+            return runtimeOptions.get<std::vector<int>>("control-idx");
+        }
+    }();
     
     if (!runtimeOptions.pointerLikeExists<CompositeInstruction>("U")) 
     {
@@ -32,10 +43,23 @@ bool ControlledU::expand(const xacc::HeterogeneousMap& runtimeOptions)
         return false;
     }
     
+    // Check duplicate
+    const std::set<int> s(ctrlIdxs.begin(), ctrlIdxs.end());
+    if (s.size() != ctrlIdxs.size())
+    {
+        xacc::error("Control bits must be unique.");
+    }
+    
+    // Original U
     auto uComposite = std::shared_ptr<CompositeInstruction>(
         runtimeOptions.getPointerLike<CompositeInstruction>("U"), 
         xacc::empty_delete<CompositeInstruction>());
-    auto ctrlU = applyControl(uComposite, ctrlIdx);
+
+    auto ctrlU = uComposite;
+    // Recursive application of control bits:
+    for (const auto &ctrlIdx : ctrlIdxs) {
+      ctrlU = applyControl(ctrlU, ctrlIdx);
+    }
 
     std::string buffer_name = "";
     if (runtimeOptions.stringExists("control-buffer")) {
