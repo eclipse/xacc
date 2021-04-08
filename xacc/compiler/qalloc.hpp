@@ -61,6 +61,16 @@ public:
     std::size_t start;
     std::size_t end;
     std::size_t step = 1;
+    Range(std::vector<std::size_t> &s) {
+      assert(
+          s.size() > 1 &&
+          "qreg::Range error - you must provide {start, end, optional step=1}");
+      start = s[0];
+      end = s[1];
+      if (s.size() > 2) {
+        step = s[2];
+      }
+    }
     Range(std::initializer_list<std::size_t> &&s) {
       assert(
           s.size() > 1 &&
@@ -79,8 +89,9 @@ public:
   qreg(const qreg &other);
   qreg(std::vector<qubit> &qubits);
   qubit operator[](const std::size_t i);
+  qreg extract_range(const std::size_t& start, const std::size_t& end);
   qreg extract_range(const Range &&range);
-  qreg extract_qubits(const std::initializer_list<std::size_t>&& qbits);
+  qreg extract_qubits(const std::initializer_list<std::size_t> &&qbits);
   AcceleratorBuffer *results();
   std::shared_ptr<AcceleratorBuffer> results_shared();
   std::map<std::string, int> counts();

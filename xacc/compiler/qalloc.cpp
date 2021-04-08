@@ -58,6 +58,10 @@ qreg::qreg(std::vector<qubit> &qubits) {
   internal_qubits = qubits;
 }
 
+qreg qreg::extract_range(const std::size_t& start, const std::size_t& end) {
+  return extract_range({start,end});
+}
+
 qreg qreg::extract_range(const Range &&range) {
   assert(range.end <= size() && "qreg::extract_range - you have set Range::end > qreg::size()");
   std::vector<qubit> new_qubits;
