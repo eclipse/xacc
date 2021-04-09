@@ -92,6 +92,10 @@ public:
   qreg extract_range(const std::size_t& start, const std::size_t& end);
   qreg extract_range(const Range &&range);
   qreg extract_qubits(const std::initializer_list<std::size_t> &&qbits);
+  qreg head(const std::size_t n_qubits);
+  qubit head();
+  qubit tail();
+  qreg tail(const std::size_t n_qubits);
   AcceleratorBuffer *results();
   std::shared_ptr<AcceleratorBuffer> results_shared();
   std::map<std::string, int> counts();
