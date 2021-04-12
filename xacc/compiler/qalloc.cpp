@@ -71,7 +71,7 @@ qubit qreg::head() { return internal_qubits[0]; }
 qubit qreg::tail() { return internal_qubits[size() - 1]; }
 
 qreg qreg::tail(const std::size_t n_qubits) {
-  return extract_range({size() - n_qubits - 1, internal_qubits.size()});
+  return extract_range({size() - n_qubits, internal_qubits.size()});
 }
 
 qreg qreg::extract_range(const Range &&range) {
