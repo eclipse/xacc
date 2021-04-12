@@ -13,7 +13,7 @@
 set (LIBRARY_NAME xacc-circuit-optimizers)
 
 file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC simple/*.cpp OptimizersActivator.cpp pulse/*.cpp gate_merge/*.cpp)
+file (GLOB SRC simple/*.cpp OptimizersActivator.cpp pulse/*.cpp gate_merge/*.cpp qsearch/*.cpp)
 
 # Set up dependencies to resources to track changes
 usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
@@ -39,7 +39,7 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
 
-target_include_directories(${LIBRARY_NAME} PUBLIC simple pulse gate_merge ${CMAKE_SOURCE_DIR}/tpls/eigen ${CMAKE_SOURCE_DIR}/tpls/exprtk)
+target_include_directories(${LIBRARY_NAME} PUBLIC simple pulse gate_merge qsearch ${CMAKE_SOURCE_DIR}/tpls/eigen ${CMAKE_SOURCE_DIR}/tpls/exprtk)
 target_link_libraries(${LIBRARY_NAME} xacc xacc-quantum-gate)
 
 if(APPLE)
@@ -57,5 +57,6 @@ if(XACC_BUILD_TESTS)
   add_subdirectory(simple/tests)
   add_subdirectory(pulse/tests)
   add_subdirectory(gate_merge/tests)
+  add_subdirectory(qsearch/tests)
 endif()
 
