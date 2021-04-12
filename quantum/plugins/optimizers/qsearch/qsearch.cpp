@@ -313,3 +313,5 @@ MatrixXcd KernelToUnitaryVisitor::twoQubitGateExpand(MatrixXcd &in_gateMat,
 
 } // namespace quantum
 } // namespace xacc
+
+REGISTER_PLUGIN(xacc::quantum::QsearchOptimizer, xacc::IRTransformation)

@@ -1,0 +1,6 @@
+{
+    "bundle.symbolic_name" : "xacc_qsearch_optimizer",
+    "bundle.activator" : true,
+    "bundle.name" : "XACC Qsearch Circuit Optimizers",
+    "bundle.description" : "This bundle provides ...."
+  }
