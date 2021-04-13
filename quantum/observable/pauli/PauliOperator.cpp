@@ -161,6 +161,21 @@ PauliOperator::PauliOperator(std::map<int, std::string> operators,
                 std::forward_as_tuple(coeff, operators));
 }
 
+PauliOperator::PauliOperator(std::map<int, std::pair<std::string, std::complex<double>>> operators){
+
+	std::map<int, std::string> buffer;
+
+	for(auto &op : operators){
+
+		buffer.clear();
+		buffer.emplace(op.first, op.second.first);
+
+		terms.emplace(std::piecewise_construct,
+				std::forward_as_tuple(Term::id(buffer)),
+				std::forward_as_tuple(op.second.second, buffer));
+	}
+}
+
 PauliOperator::PauliOperator(std::map<int, std::string> operators, double coeff)
     : PauliOperator(operators, std::complex<double>(coeff, 0)) {}
 

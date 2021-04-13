@@ -241,6 +241,7 @@ public:
   PauliOperator(std::map<int, std::string> operators, std::string var);
   PauliOperator(std::map<int, std::string> operators,
                 std::complex<double> coeff);
+  PauliOperator(std::map<int, std::pair<std::string, std::complex<double>>>);
   PauliOperator(std::map<int, std::string> operators, double coeff);
   PauliOperator(std::map<int, std::string> operators,
                 std::complex<double> coeff, std::string var);
