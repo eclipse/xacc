@@ -677,6 +677,147 @@ TEST(CircuitOptimizerTester, checkRotationMergingUsingPhasePolynomials) {
     }
 }
 
+TEST(CircuitOptimizerTester, checkCCCX) {
+  auto compiler = xacc::getService<xacc::Compiler>("staq");
+  auto program = compiler
+                     ->compile(
+                         R"#(
+OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[4];
+creg c[4];
+rz(pi/2) q[3];
+ry(pi/4) q[3];
+cx q[0],q[3];
+ry(-pi/4) q[3];
+cx q[0],q[3];
+rz(pi/2) q[0];
+ry(pi/4) q[0];
+rz(-pi/2) q[3];
+rz(pi/2) q[3];
+ry(pi/8) q[3];
+cx q[1],q[3];
+ry(-pi/8) q[3];
+cx q[1],q[3];
+cx q[1],q[0];
+ry(-pi/4) q[0];
+cx q[1],q[0];
+rz(-pi/2) q[0];
+rz(pi/2) q[0];
+ry(pi/4) q[0];
+rz(pi/2) q[1];
+ry(pi/2) q[1];
+rz(-pi/2) q[3];
+rz(pi/2) q[3];
+ry(pi/8) q[3];
+cx q[2],q[3];
+ry(-pi/8) q[3];
+cx q[2],q[3];
+cx q[2],q[0];
+ry(-pi/4) q[0];
+cx q[2],q[0];
+rz(-pi/2) q[0];
+rz(pi/2) q[0];
+cx q[2],q[1];
+ry(-pi/2) q[1];
+cx q[2],q[1];
+rz(-pi/2) q[1];
+rz(-pi/2) q[3];
+rz(pi/2) q[3];
+cx q[1],q[3];
+ry(pi/8) q[3];
+cx q[1],q[3];
+cx q[1],q[0];
+ry(pi/4) q[0];
+cx q[1],q[0];
+ry(-pi/4) q[0];
+rz(-pi/2) q[0];
+ry(-pi/8) q[3];
+rz(-pi/2) q[3];
+rz(pi/2) q[3];
+cx q[0],q[3];
+ry(pi/4) q[3];
+cx q[0],q[3];
+rz(pi/2) q[0];
+ry(pi/4) q[0];
+cx q[1],q[0];
+ry(-pi/4) q[0];
+cx q[1],q[0];
+rz(-pi/2) q[0];
+rz(pi/2) q[0];
+rz(pi/2) q[1];
+cx q[2],q[1];
+ry(pi/2) q[1];
+cx q[2],q[1];
+ry(-pi/2) q[1];
+rz(-pi/2) q[1];
+cx q[2],q[0];
+ry(pi/4) q[0];
+cx q[2],q[0];
+ry(-pi/4) q[0];
+rz(-pi/2) q[0];
+rz(pi/2) q[0];
+cx q[1],q[0];
+ry(pi/4) q[0];
+cx q[1],q[0];
+ry(-pi/4) q[0];
+rz(-pi/2) q[0];
+ry(-pi/4) q[3];
+rz(-pi/2) q[3];
+measure q[0] -> c[0];
+measure q[1] -> c[1];
+measure q[2] -> c[2];
+measure q[3] -> c[3];
+)#")
+                     ->getComposites()[0];
+  std::cout << "HOWDY CIRCUIT:\n" << program->toString() << "\n";
+
+  // Evaluate all possible inputs.
+  const auto getTruthTable = [](auto program) {
+    std::vector<std::string> results;
+    // 4 bits: run all test cases
+    for (int dec_val = 0; dec_val < (1 << 4); ++dec_val) {
+      auto provider = xacc::getService<IRProvider>("quantum");
+      auto test_program =
+          provider->createComposite("test" + std::to_string(dec_val));
+
+      for (size_t bitIdx = 0; bitIdx < 4; ++bitIdx) {
+        if ((dec_val & (1 << bitIdx)) == (1 << bitIdx)) {
+          test_program->addInstruction(
+              provider->createInstruction("X", bitIdx));
+        }
+      }
+
+      test_program->addInstructions(program->getInstructions());
+
+      auto accelerator = xacc::getAccelerator("qpp", {{"shots", 1024}});
+      auto buffer = xacc::qalloc(4);
+      accelerator->execute(buffer, test_program);
+      std::cout << "Test case: " << dec_val << "\n";
+      buffer->print();
+      EXPECT_EQ(buffer->getMeasurements().size(), 1);
+      results.emplace_back(buffer->getMeasurements()[0]);
+    }
+    return results;
+  };
+
+  const auto truthTableBefore = getTruthTable(program);
+  EXPECT_EQ(truthTableBefore.size(), 16);
+
+  // Apply optimization
+  auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
+  const auto nBefore = program->nInstructions();
+  optimizer->apply(program, nullptr);
+  const auto nAfter = program->nInstructions();
+  // Reduce instructions
+  EXPECT_TRUE(nAfter < nBefore);
+  std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
+
+  const auto truthTableAfter = getTruthTable(program);
+  EXPECT_EQ(truthTableAfter.size(), 16);
+  EXPECT_EQ(truthTableBefore, truthTableAfter);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);

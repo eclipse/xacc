@@ -20,6 +20,9 @@ class Psi4Observable(xacc.Observable):
     def observe(self, program):
         return self.observable.observe(program)
 
+    def postProcess(self, buffer, post_process_task, extra_data):
+        return self.observable.postProcess(buffer, post_process_task, extra_data)
+        
     def nBits(self):
         return self.observable.nBits()
 

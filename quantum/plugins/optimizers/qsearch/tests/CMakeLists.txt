@@ -1,0 +1,2 @@
+add_xacc_test(QsearchOptimizer)
+target_link_libraries(QsearchOptimizerTester xacc-quantum-gate xacc)

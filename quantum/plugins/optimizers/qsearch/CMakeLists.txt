@@ -10,10 +10,10 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-set (LIBRARY_NAME xacc-circuit-optimizers)
+set (LIBRARY_NAME xacc-qsearch-optimizer)
 
 file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC simple/*.cpp OptimizersActivator.cpp pulse/*.cpp gate_merge/*.cpp)
+file (GLOB SRC *.cpp)
 
 # Set up dependencies to resources to track changes
 usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
@@ -22,7 +22,7 @@ usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-set(_bundle_name xacc_circuit_optimizers)
+set(_bundle_name xacc_qsearch_optimizer)
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES
   # This is required for every bundle
@@ -39,7 +39,7 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
 
-target_include_directories(${LIBRARY_NAME} PUBLIC simple pulse gate_merge ${CMAKE_SOURCE_DIR}/tpls/eigen ${CMAKE_SOURCE_DIR}/tpls/exprtk)
+target_include_directories(${LIBRARY_NAME} PUBLIC . ${CMAKE_SOURCE_DIR}/tpls/eigen)
 target_link_libraries(${LIBRARY_NAME} xacc xacc-quantum-gate)
 
 if(APPLE)
@@ -54,9 +54,6 @@ install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
 # Gather tests
 if(XACC_BUILD_TESTS)
-  add_subdirectory(simple/tests)
-  add_subdirectory(pulse/tests)
-  add_subdirectory(gate_merge/tests)
+  #add_subdirectory(tests)
 endif()
 
-add_subdirectory(qsearch)

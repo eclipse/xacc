@@ -33,7 +33,9 @@
 // If this is a GNU compiler
 #if defined(__GNUC__) || defined(__GNUG__)
 // We need to fix for < 7.5, < 8.4, and < 9.2
-#if (( __GNUC__ == 7 && __GNUC_MINOR__ < 5 ) || ( __GNUC__ == 8 && __GNUC_MINOR__ < 4 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 2 ))
+#if ((__GNUC__ == 7 && __GNUC_MINOR__ < 5) ||                                  \
+     (__GNUC__ == 8 && __GNUC_MINOR__ < 4) ||                                  \
+     (__GNUC__ == 9 && __GNUC_MINOR__ < 2))
 #define APPLY_RTTI_ANY_CAST_FIX
 #define STD_ANY_ALIGNED_STORAGE_SIZE 1
 #endif
@@ -55,7 +57,8 @@
 namespace __internal {
 union Storage {
   void *_M_ptr;
-  std::aligned_storage<STD_ANY_ALIGNED_STORAGE_SIZE*sizeof(_M_ptr), alignof(void *)>::type _M_buffer;
+  std::aligned_storage<STD_ANY_ALIGNED_STORAGE_SIZE * sizeof(_M_ptr),
+                       alignof(void *)>::type _M_buffer;
 };
 typedef void (*funcPtr)(void);
 
@@ -123,7 +126,7 @@ public:
   template <typename... TYPES,
             typename = std::enable_if_t<!is_heterogeneous_map<
                 std::remove_cv_t<std::remove_reference_t<TYPES>>...>::value>>
-  HeterogeneousMap(TYPES &&... list) {
+  HeterogeneousMap(TYPES &&...list) {
     loop_pairs(list...);
   }
 
@@ -192,6 +195,15 @@ public:
       print_backtrace();
     }
     return "";
+  }
+
+  template <typename T>
+  const T get_or_default(const std::string &key, const T _default) const {
+    if (keyExists<T>(key)) {
+      return get<T>(key);
+    } else {
+      return _default;
+    }
   }
 
   template <typename T> bool pointerLikeExists(const std::string key) const {

@@ -13,6 +13,7 @@
 #pragma once
 
 #include "Algorithm.hpp"
+#include "IRTransformation.hpp"
 
 namespace xacc {
 namespace algorithm {
@@ -23,7 +24,7 @@ public:
 
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
   std::vector<double> execute(const std::shared_ptr<AcceleratorBuffer> buffer,
-               const std::vector<double> &parameters) override;
+                              const std::vector<double> &parameters) override;
   double calculate(const std::string &calculation_task,
                    const std::shared_ptr<AcceleratorBuffer> buffer,
                    const HeterogeneousMap &extra_data = {}) override;
@@ -40,18 +41,25 @@ protected:
                            const std::vector<std::shared_ptr<AcceleratorBuffer>>
                                &in_resultBuffers) const;
 
-  // Calculate the current energy value and approximate A operator observable at the current Trotter step.
-  // Params:
-  // in_kernel: the kernel to evolve the system to this time step
-  // in_hmTerm: the H term to be approximate by the A term 
-  // i.e. emulate the imaginary time evolution of that H term.
-  // Returns energy value (double), the norm (as a double) and the A operator (Pauli observable)
-  std::tuple<double, double, std::shared_ptr<Observable>> calcQiteEvolve(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm, bool energyOnly = false) const;
+  // Calculate the current energy value and approximate A operator observable at
+  // the current Trotter step. Params: in_kernel: the kernel to evolve the
+  // system to this time step in_hmTerm: the H term to be approximate by the A
+  // term i.e. emulate the imaginary time evolution of that H term. Returns
+  // energy value (double), the norm (as a double) and the A operator (Pauli
+  // observable)
+  std::tuple<double, double, std::shared_ptr<Observable>>
+  calcQiteEvolve(const std::shared_ptr<AcceleratorBuffer> &in_buffer,
+                 std::shared_ptr<CompositeInstruction> in_kernel,
+                 std::shared_ptr<Observable> in_hmTerm,
+                 bool energyOnly = false) const;
   // Internal helper function:
   std::pair<double, std::shared_ptr<Observable>>
-  internalCalcAOps(const std::vector<std::string> &pauliOps, const std::vector<double> &sigmaExpectation, std::shared_ptr<Observable> in_hmTerm) const;
+  internalCalcAOps(const std::vector<std::string> &pauliOps,
+                   const std::vector<double> &sigmaExpectation,
+                   std::shared_ptr<Observable> in_hmTerm) const;
 
 protected:
+  std::vector<std::shared_ptr<xacc::IRTransformation>> custom_optimizers;
   // Number of Trotter steps
   int m_nbSteps;
   // dBeta, i.e. step size
@@ -61,9 +69,9 @@ protected:
   // Hamiltonian Observable, i.e. H = Sum(h_i)
   std::shared_ptr<Observable> m_observable;
   // Ansatz circuit (apply before Trotter steps)
-  CompositeInstruction* m_ansatz;
+  CompositeInstruction *m_ansatz;
   // List of A operators for each time step
-  // which approximates the imaginary-time step 
+  // which approximates the imaginary-time step
   // of the Hamiltonian observable
   // i.e. exp(-iAt) -> exp(-Ht)
   mutable std::vector<std::shared_ptr<Observable>> m_approxOps;
@@ -75,9 +83,10 @@ protected:
   // For accelerator-based simulation, the Ansatz is used to
   // prepare the initial state.
   int m_initialState;
+  xacc::HeterogeneousMap input_parameters;
 };
 
-// QLanczos Algorithm: extends QITE and 
+// QLanczos Algorithm: extends QITE and
 // typically provides better energy convergence.
 class QLanczos : public QITE {
 public:
@@ -87,7 +96,8 @@ public:
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
   DEFINE_ALGORITHM_CLONE(QLanczos)
 private:
-  double calcQlanczosEnergy(const std::vector<double>& normVec) const;
+  double calcQlanczosEnergy(const std::vector<double> &normVec) const;
+
 private:
   // Regularize parameters:
   double m_sLim;

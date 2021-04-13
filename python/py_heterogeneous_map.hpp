@@ -57,7 +57,7 @@ template <> struct visit_helper<mpark::variant> {
 using PyHeterogeneousMapTypes =
     xacc::Variant<bool, int, double, std::string, std::vector<std::string>,
                   std::vector<std::complex<double>>, std::vector<double>, std::vector<int>, std::complex<double>, 
-                  std::shared_ptr<CompositeInstruction>, std::vector<std::pair<int,int>>,
+                  std::shared_ptr<CompositeInstruction>, std::vector<std::pair<int,int>>, std::shared_ptr<IRTransformation>,
                   std::shared_ptr<Instruction>, std::shared_ptr<Accelerator>, std::shared_ptr<AlgorithmGradientStrategy>,
                   std::shared_ptr<Observable>, std::shared_ptr<Optimizer>, Eigen::MatrixXcd, std::shared_ptr<Graph>, std::shared_ptr<NoiseModel>>;
 using PyHeterogeneousMap = std::map<std::string, PyHeterogeneousMapTypes>;

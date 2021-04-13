@@ -100,6 +100,17 @@ bool PyQsearch::expand(const xacc::HeterogeneousMap &parameters) {
   auto locals = py::dict();
   locals["unitary"] = unitary;
 
+  locals["verbosity"] = parameters.get_or_default<int>("verbosity", 0);
+  locals["write_to_stdout"] = parameters.get_or_default<bool>("write_to_stdout", false);
+  locals["reoptimize_size"] = parameters.get_or_default<int>("reoptimize_size", 7);
+  locals["has_compiler"] = false;
+  if (parameters.stringExists("compiler_class")) {
+    locals["compiler_class"] = parameters.getString("compiler_class");
+    locals["has_compiler"] = true;
+  }
+  if (parameters.keyExists<int>("min_depth")) {
+    locals["min_depth"] = parameters.get<int>("min_depth");
+  }
   // Lets get a unique hash for the unitary
   // This will create a unique instance in
   // the project compilation database
@@ -117,17 +128,73 @@ bool PyQsearch::expand(const xacc::HeterogeneousMap &parameters) {
       std::string(std::getenv("HOME")) + std::string("/.xacc_qsearch_db");
   locals["internal_project_path"] = internal_project_path;
 
+
+// def qsearch_synthesize(utry):
+// """
+// Synthesis function with this tool.
+
+// Args:
+//     utry (np.ndarray): The unitary to synthesize.
+
+// Returns
+//     qasm (str): The synthesized QASM output.
+
+// Raises:
+//     TypeError: If utry is not a valid unitary.
+
+//     ValueError: If the utry has invalid dimensions.
+// """
+// # Pass options into qsearch, being maximally quiet,
+// # and set the target to utry
+// opts = options.Options()
+// opts.target = utry
+// opts.verbosity = 0
+// opts.write_to_stdout = False
+// opts.reoptimize_size = 7
+// #opts.solver = multistart_solvers.MultiStart_Solver(24)
+// #opts.gateset = qsearch.gatesets.QubitCNOTAdjacencyList(topology)
+
+// # use the LEAP compiler, which scales better than normal qsearch
+// compiler = leap_compiler.LeapCompiler()
+// output = compiler.compile(opts)
+
+// # LEAP requires some post-processing
+// pp = post_processing.LEAPReoptimizing_PostProcessor()
+// output = pp.post_process_circuit(output, opts)
+// output = assemblers.ASSEMBLER_IBMOPENQASM.assemble(output)
+// return output
+
+// # create the project
+// with qsearch.Project("leapex") as project:
+//     # Add 4 qubit qft
+//     project.add_compilation("qft4", unitaries.qft(16))
+//     # set a miniumum search depth (to reduce frequent chopping that gets nowhere)
+//     project["min_depth"] = 4
+//     # configure qsearch to use the leap compiler
+    // project["compiler_class"] = leap_compiler.LeapCompiler
+//     project["verbosity"] = 2
+//     project.run()
+//     project.post_process(post_processing.LEAPReoptimizing_PostProcessor(), solver=multistart_solvers.MultiStart_Solver(8), parallelizer=parallelizers.ProcessPoolParallelizer, reoptimize_size=7)
+
   // Setup the python src.
   auto py_src =
-      R"#(import qsearch
+      R"#(import qsearch, numpy as np
 from qsearch.assemblers import ASSEMBLER_IBMOPENQASM
-import numpy as np
+from qsearch import leap_compiler, parallelizers, post_processing
 umat = locals()['unitary']
 oqasm_src = ''
 compile_name = locals()['compile-name']
 with qsearch.Project(locals()['internal_project_path']) as project:
     project.add_compilation(compile_name, umat)
+    project["verbosity"] = locals()["verbosity"]
+    project["write_to_stdout"] = locals()["write_to_stdout"]
+    if locals()['has_compiler']:
+        if locals()['compiler_class'] == 'LeapCompiler':
+            project["compiler_class"] = leap_compiler.LeapCompiler
     project.run()
+    if locals()['has_compiler']:
+        if locals()['compiler_class'] == 'LeapCompiler':
+            project.post_process(post_processing.LEAPReoptimizing_PostProcessor(), reoptimize_size=locals()['reoptimize_size'])
     oqasm_src = ASSEMBLER_IBMOPENQASM.assemble(project._compilations[compile_name])
   )#";
 
