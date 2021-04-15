@@ -12,82 +12,111 @@
  *******************************************************************************/
 #include "ControlledGateApplicator.hpp"
 #include "xacc_service.hpp"
+#include "qalloc.hpp"
 
 namespace xacc {
 namespace circuits {
 
-bool ControlledU::expand(const xacc::HeterogeneousMap& runtimeOptions) 
-{
-    // Single control or multiple-controls (as vector of int)
-    if (!runtimeOptions.keyExists<int>("control-idx") &&
-      !runtimeOptions.keyExists<std::vector<int>>("control-idx")) 
-    {
-        xacc::error("'control-idx' is required.");
-        return false;
+bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
+  // Single control or multiple-controls (as vector of int or qubits)
+  if (!runtimeOptions.keyExists<int>("control-idx") &&
+      !runtimeOptions.keyExists<std::vector<int>>("control-idx") &&
+      !runtimeOptions.keyExists<xacc::internal_compiler::qubit>(
+          "control-idx") &&
+      !runtimeOptions.keyExists<std::vector<xacc::internal_compiler::qubit>>(
+          "control-idx")) {
+    xacc::error("'control-idx' is required.");
+    return false;
+  }
+
+  if (!runtimeOptions.pointerLikeExists<CompositeInstruction>("U")) {
+    xacc::error("'U' composite is required.");
+    return false;
+  }
+
+  // Original U
+  auto uComposite = std::shared_ptr<CompositeInstruction>(
+      runtimeOptions.getPointerLike<CompositeInstruction>("U"),
+      xacc::empty_delete<CompositeInstruction>());
+
+  const std::vector<std::pair<std::string, size_t>> ctrlIdxs =
+      [&runtimeOptions,
+       uComposite]() -> std::vector<std::pair<std::string, size_t>> {
+    // Strongly-typed qubit input
+    if (runtimeOptions.keyExists<xacc::internal_compiler::qubit>(
+            "control-idx")) {
+      auto qubit =
+          runtimeOptions.get<xacc::internal_compiler::qubit>("control-idx");
+      return {std::make_pair(qubit.first, qubit.second)};
     }
 
-    const std::vector<int> ctrlIdxs = [&runtimeOptions]() -> std::vector<int> {
-        if (runtimeOptions.keyExists<int>("control-idx")) 
-        {
-            return {runtimeOptions.get<int>("control-idx")};
-        }
-        else 
-        {
-            return runtimeOptions.get<std::vector<int>>("control-idx");
-        }
+    if (runtimeOptions.keyExists<std::vector<xacc::internal_compiler::qubit>>(
+            "control-idx")) {
+      auto qubits =
+          runtimeOptions.get<std::vector<xacc::internal_compiler::qubit>>(
+              "control-idx");
+      std::vector<std::pair<std::string, size_t>> result;
+      for (const auto &qubit : qubits) {
+        result.emplace_back(std::make_pair(qubit.first, qubit.second));
+      }
+      return result;
+    }
+
+    // Try to find the control buffer name:
+    const std::string buffer_name = [&]() -> std::string {
+      if (runtimeOptions.stringExists("control-buffer")) {
+        return runtimeOptions.getString("control-buffer");
+      }
+
+      // Use the buffer name of the input Composite:
+      if (!uComposite->getBufferNames().empty()) {
+        return uComposite->getBufferName(0);
+      }
+      // No information, just use a generic name
+      return "q";
     }();
-    
-    if (!runtimeOptions.pointerLikeExists<CompositeInstruction>("U")) 
-    {
-        xacc::error("'U' composite is required.");
-        return false;
-    }
-    
-    // Check duplicate
-    const std::set<int> s(ctrlIdxs.begin(), ctrlIdxs.end());
-    if (s.size() != ctrlIdxs.size())
-    {
-        xacc::error("Control bits must be unique.");
-    }
-    
-    // Original U
-    auto uComposite = std::shared_ptr<CompositeInstruction>(
-        runtimeOptions.getPointerLike<CompositeInstruction>("U"), 
-        xacc::empty_delete<CompositeInstruction>());
 
-    auto ctrlU = uComposite;
-    // Recursive application of control bits:
-    for (const auto &ctrlIdx : ctrlIdxs) {
-      ctrlU = applyControl(ctrlU, ctrlIdx);
+    if (runtimeOptions.keyExists<int>("control-idx")) {
+      return {std::make_pair(
+          buffer_name,
+          static_cast<size_t>(runtimeOptions.get<int>("control-idx")))};
+    } else {
+      std::vector<std::pair<std::string, size_t>> result;
+      for (const auto &qId :
+           runtimeOptions.get<std::vector<int>>("control-idx")) {
+        result.emplace_back(buffer_name, static_cast<size_t>(qId));
+      }
+      return result;
     }
+  }();
+  // Check duplicate
+  const std::set<std::pair<std::string, size_t>> s(ctrlIdxs.begin(),
+                                                   ctrlIdxs.end());
+  if (s.size() != ctrlIdxs.size()) {
+    xacc::error("Control bits must be unique.");
+  }
+  auto ctrlU = uComposite;
+  // Recursive application of control bits:
+  for (const auto &ctrlIdx : ctrlIdxs) {
+    ctrlU = applyControl(ctrlU, ctrlIdx);
+  }
 
-    std::string buffer_name = "";
-    if (runtimeOptions.stringExists("control-buffer")) {
-        buffer_name = runtimeOptions.getString("control-buffer");
-    }
-
-    for (int instId = 0; instId < ctrlU->nInstructions(); ++instId)
-    {
-        auto inst = ctrlU->getInstruction(instId)->clone();
-        if (!buffer_name.empty()) {
-            std::vector<std::string> bnames;
-            for (auto& bit : inst->bits()) {
-                bnames.push_back(buffer_name);
-            }
-            inst->setBufferNames(bnames);
-        }
-        addInstruction(inst);
-    }
-    return true;
+  for (int instId = 0; instId < ctrlU->nInstructions(); ++instId) {
+    auto inst = ctrlU->getInstruction(instId)->clone();
+    addInstruction(inst);
+  }
+  return true;
 }
 
 std::shared_ptr<xacc::CompositeInstruction> ControlledU::applyControl(
     const std::shared_ptr<xacc::CompositeInstruction> &in_program,
-    int in_ctrlIdx) {
+    const std::pair<std::string, size_t> &in_ctrlIdx) {
   std::string qcor_compute_section_key = "__qcor__compute__segment__";
   m_gateProvider = xacc::getService<xacc::IRProvider>("quantum");
   m_composite = m_gateProvider->createComposite(
-      "CTRL_" + in_program->name() + "_" + std::to_string(in_ctrlIdx));
+      "CTRL_" + in_program->name() + "_" + in_ctrlIdx.first +
+      std::to_string(in_ctrlIdx.second));
+  // Set the current control qubit before visiting...
   m_ctrlIdx = in_ctrlIdx;
   InstructionIterator it(in_program);
   while (it.hasNext()) {
@@ -109,10 +138,11 @@ std::shared_ptr<xacc::CompositeInstruction> ControlledU::applyControl(
 }
 
 void ControlledU::visit(Hadamard &h) {
-  if (h.bits()[0] == m_ctrlIdx) {
+  if (h.bits()[0] == m_ctrlIdx.second &&
+      h.getBufferName(0) == m_ctrlIdx.first) {
     xacc::error("Control bit must be different from target qubit(s).");
   } else {
-    const auto targetIdx = h.bits()[0];
+    const auto targetIdx = std::make_pair(h.getBufferName(0), h.bits()[0]);
     // CH
     m_composite->addInstruction(
         m_gateProvider->createInstruction("CH", {m_ctrlIdx, targetIdx}));
@@ -120,10 +150,11 @@ void ControlledU::visit(Hadamard &h) {
 }
 
 void ControlledU::visit(X &x) {
-  if (x.bits()[0] == m_ctrlIdx) {
+  if (x.bits()[0] == m_ctrlIdx.second &&
+      x.getBufferName(0) == m_ctrlIdx.first) {
     xacc::error("Control bit must be different from target qubit(s).");
   } else {
-    const auto targetIdx = x.bits()[0];
+    const auto targetIdx = std::make_pair(x.getBufferName(0), x.bits()[0]);
     // CNOT
     m_composite->addInstruction(
         m_gateProvider->createInstruction("CX", {m_ctrlIdx, targetIdx}));
@@ -131,10 +162,11 @@ void ControlledU::visit(X &x) {
 }
 
 void ControlledU::visit(Y &y) {
-  if (y.bits()[0] == m_ctrlIdx) {
+  if (y.bits()[0] == m_ctrlIdx.second &&
+      y.getBufferName(0) == m_ctrlIdx.first) {
     xacc::error("Control bit must be different from target qubit(s).");
   } else {
-    const auto targetIdx = y.bits()[0];
+    const auto targetIdx = std::make_pair(y.getBufferName(0), y.bits()[0]);
     // CY
     m_composite->addInstruction(
         m_gateProvider->createInstruction("CY", {m_ctrlIdx, targetIdx}));
@@ -142,10 +174,11 @@ void ControlledU::visit(Y &y) {
 }
 
 void ControlledU::visit(Z &z) {
-  if (z.bits()[0] == m_ctrlIdx) {
+  if (z.bits()[0] == m_ctrlIdx.second &&
+      z.getBufferName(0) == m_ctrlIdx.first) {
     xacc::error("Control bit must be different from target qubit(s).");
   } else {
-    const auto targetIdx = z.bits()[0];
+    const auto targetIdx = std::make_pair(z.getBufferName(0), z.bits()[0]);
     // CZ
     m_composite->addInstruction(
         m_gateProvider->createInstruction("CZ", {m_ctrlIdx, targetIdx}));
@@ -155,10 +188,10 @@ void ControlledU::visit(Z &z) {
 void ControlledU::visit(CNOT &cnot) {
   // CCNOT gate:
   // We now have two control bits
-  const auto ctrlIdx1 = cnot.bits()[0];
+  const auto ctrlIdx1 = std::make_pair(cnot.getBufferName(0), cnot.bits()[0]);
   const auto ctrlIdx2 = m_ctrlIdx;
   // Target qubit
-  const auto targetIdx = cnot.bits()[1];
+  const auto targetIdx = std::make_pair(cnot.getBufferName(1), cnot.bits()[1]);
 
   // gate ccx a,b,c (see qelib1.inc)
   // Maps qubit indices:
@@ -196,34 +229,40 @@ void ControlledU::visit(CNOT &cnot) {
 }
 
 void ControlledU::visit(Rx &rx) {
-  if (rx.bits()[0] == m_ctrlIdx) {
+  if (rx.bits()[0] == m_ctrlIdx.second &&
+      rx.getBufferName(0) == m_ctrlIdx.first) {
     xacc::error("Control bit must be different from target qubit(s).");
   } else {
-    const auto targetIdx = rx.bits()[0];
+    const auto targetIdx = std::make_pair(rx.getBufferName(0), rx.bits()[0]);
+    ;
     const auto angle = InstructionParameterToDouble(rx.getParameter(0));
     // Rx(angle) = u3(angle,-pi/2,pi/2)
-    auto rxAsU3 = U(targetIdx, angle, -M_PI_2, M_PI_2);
+    auto rxAsU3 = U(targetIdx.second, angle, -M_PI_2, M_PI_2);
+    rxAsU3.setBufferNames({targetIdx.first});
     visit(rxAsU3);
   }
 }
 
 void ControlledU::visit(Ry &ry) {
-  if (ry.bits()[0] == m_ctrlIdx) {
+  if (ry.bits()[0] == m_ctrlIdx.second &&
+      ry.getBufferName(0) == m_ctrlIdx.first) {
     xacc::error("Control bit must be different from target qubit(s).");
   } else {
-    const auto targetIdx = ry.bits()[0];
+    const auto targetIdx = std::make_pair(ry.getBufferName(0), ry.bits()[0]);
     const auto angle = InstructionParameterToDouble(ry.getParameter(0));
     //  Ry(theta)  ==  u3(theta,0,0)
-    auto ryAsU3 = U(targetIdx, angle, 0.0, 0.0);
+    auto ryAsU3 = U(targetIdx.second, angle, 0.0, 0.0);
+    ryAsU3.setBufferNames({targetIdx.first});
     visit(ryAsU3);
   }
 }
 
 void ControlledU::visit(Rz &rz) {
-  if (rz.bits()[0] == m_ctrlIdx) {
+  if (rz.bits()[0] == m_ctrlIdx.second &&
+      rz.getBufferName(0) == m_ctrlIdx.first) {
     xacc::error("Control bit must be different from target qubit(s).");
   } else {
-    const auto targetIdx = rz.bits()[0];
+    const auto targetIdx = std::make_pair(rz.getBufferName(0), rz.bits()[0]);
     const auto angle = InstructionParameterToDouble(rz.getParameter(0));
     // CRz
     m_composite->addInstruction(m_gateProvider->createInstruction(
@@ -233,28 +272,28 @@ void ControlledU::visit(Rz &rz) {
 
 void ControlledU::visit(S &s) {
   // Ctrl-S = CPhase(pi/2)
-  const auto targetIdx = s.bits()[0];
+  const auto targetIdx = std::make_pair(s.getBufferName(0), s.bits()[0]);
   m_composite->addInstruction(m_gateProvider->createInstruction(
       "CPhase", {m_ctrlIdx, targetIdx}, {M_PI_2}));
 }
 
 void ControlledU::visit(Sdg &sdg) {
   // Ctrl-Sdg = CPhase(-pi/2)
-  const auto targetIdx = sdg.bits()[0];
+  const auto targetIdx = std::make_pair(sdg.getBufferName(0), sdg.bits()[0]);
   m_composite->addInstruction(m_gateProvider->createInstruction(
       "CPhase", {m_ctrlIdx, targetIdx}, {-M_PI_2}));
 }
 
 void ControlledU::visit(T &t) {
   // Ctrl-T = CPhase(pi/4)
-  const auto targetIdx = t.bits()[0];
+  const auto targetIdx = std::make_pair(t.getBufferName(0), t.bits()[0]);
   m_composite->addInstruction(m_gateProvider->createInstruction(
       "CPhase", {m_ctrlIdx, targetIdx}, {M_PI_4}));
 }
 
 void ControlledU::visit(Tdg &tdg) {
   // Ctrl-Tdg = CPhase(-pi/4)
-  const auto targetIdx = tdg.bits()[0];
+  const auto targetIdx = std::make_pair(tdg.getBufferName(0), tdg.bits()[0]);
   m_composite->addInstruction(m_gateProvider->createInstruction(
       "CPhase", {m_ctrlIdx, targetIdx}, {-M_PI_4}));
 }
@@ -263,7 +302,15 @@ void ControlledU::visit(Swap &s) {
   // Fredkin gate: controlled-swap
   // Decompose Swap gate into CNOT gates;
   // then re-visit those CNOT gates (becoming CCNOT).
-  CNOT c1(s.bits()), c2(s.bits()[1], s.bits()[0]), c3(s.bits());
+  CNOT c1(s.bits());
+  c1.setBufferNames({s.getBufferName(0), s.getBufferName(1)});
+
+  CNOT c2(s.bits()[1], s.bits()[0]);
+  c2.setBufferNames({s.getBufferName(1), s.getBufferName(0)});
+  
+  CNOT c3(s.bits());
+  c3.setBufferNames({s.getBufferName(0), s.getBufferName(1)});
+
   visit(c1);
   visit(c2);
   visit(c3);
@@ -278,7 +325,7 @@ void ControlledU::visit(U &u) {
   //   cx c, t;
   //   u3(theta / 2, phi, 0) t;
   // }
-  const auto targetIdx = u.bits()[0];
+  const auto targetIdx = std::make_pair(u.getBufferName(0), u.bits()[0]);
   const double theta = InstructionParameterToDouble(u.getParameter(0));
   const double phi = InstructionParameterToDouble(u.getParameter(1));
   const double lambda = InstructionParameterToDouble(u.getParameter(2));
@@ -296,7 +343,7 @@ void ControlledU::visit(U &u) {
 
 void ControlledU::visit(U1 &u1) {
   // cU1 == CPhase
-  const auto targetIdx = u1.bits()[0];
+  const auto targetIdx = std::make_pair(u1.getBufferName(0), u1.bits()[0]);
   auto angle = u1.getParameter(0);
   m_composite->addInstruction(m_gateProvider->createInstruction(
       "CPhase", {m_ctrlIdx, targetIdx}, {angle}));
@@ -305,8 +352,14 @@ void ControlledU::visit(U1 &u1) {
 void ControlledU::visit(CY &cy) {
   // controlled-Y = Sdg(target) - CX - S(target)
   CNOT c1(cy.bits());
+  c1.setBufferNames({cy.getBufferName(0), cy.getBufferName(1)});
+
   Sdg sdg(cy.bits()[1]);
+  sdg.setBufferNames({cy.getBufferName(1)});
+
   S s(cy.bits()[1]);
+  s.setBufferNames({cy.getBufferName(1)});
+
   // Revisit these gates: CNOT->CCNOT; S -> CPhase
   visit(sdg);
   visit(c1);
@@ -316,8 +369,13 @@ void ControlledU::visit(CY &cy) {
 void ControlledU::visit(CZ &cz) {
   // CZ = H(target) - CX - H(target)
   CNOT c1(cz.bits());
+  c1.setBufferNames({cz.getBufferName(0), cz.getBufferName(1)});
+
   Hadamard h1(cz.bits()[1]);
+  h1.setBufferNames({cz.getBufferName(1)});
+
   Hadamard h2(cz.bits()[1]);
+  h2.setBufferNames({cz.getBufferName(1)});
 
   // Revisit these gates: CNOT->CCNOT; H -> CH
   visit(h1);
@@ -329,9 +387,17 @@ void ControlledU::visit(CRZ &crz) {
   const auto theta = InstructionParameterToDouble(crz.getParameter(0));
   // Decompose
   Rz rz1(crz.bits()[1], theta / 2);
+  rz1.setBufferNames({crz.getBufferName(1)});
+
   CNOT c1(crz.bits());
+  c1.setBufferNames({crz.getBufferName(0), crz.getBufferName(1)});
+
   Rz rz2(crz.bits()[1], -theta / 2);
+  rz2.setBufferNames({crz.getBufferName(1)});
+
   CNOT c2(crz.bits());
+  c2.setBufferNames({crz.getBufferName(0), crz.getBufferName(1)});
+
   // Revisit:
   visit(rz1);
   visit(c1);
@@ -342,8 +408,14 @@ void ControlledU::visit(CRZ &crz) {
 void ControlledU::visit(CH &ch) {
   // controlled-H = Ry(pi/4, target) - CX - Ry(-pi/4, target)
   CNOT c1(ch.bits());
+  c1.setBufferNames({ch.getBufferName(0), ch.getBufferName(1)});
+
   Ry ry1(ch.bits()[1], M_PI_4);
+  ry1.setBufferNames({ch.getBufferName(1)});
+
   Ry ry2(ch.bits()[1], -M_PI_4);
+  ry2.setBufferNames({ch.getBufferName(1)});
+
   visit(ry1);
   visit(c1);
   visit(ry2);
@@ -359,10 +431,12 @@ void ControlledU::visit(CPhase &cphase) {
   // cx(ctrl2, target)
   // cu1(t/2, ctrl1, target)
 
-  const auto ctrlIdx1 = cphase.bits()[0];
+  const auto ctrlIdx1 =
+      std::make_pair(cphase.getBufferName(0), cphase.bits()[0]);
   const auto ctrlIdx2 = m_ctrlIdx;
   // Target qubit
-  const auto targetIdx = cphase.bits()[1];
+  const auto targetIdx =
+      std::make_pair(cphase.getBufferName(1), cphase.bits()[1]);
   // Angle
   const auto angle = InstructionParameterToDouble(cphase.getParameter(0));
   m_composite->addInstruction(m_gateProvider->createInstruction(
