@@ -12,7 +12,6 @@
  *******************************************************************************/
 #include "ControlledGateApplicator.hpp"
 #include "xacc_service.hpp"
-#include "qalloc.hpp"
 
 namespace xacc {
 namespace circuits {
@@ -21,9 +20,9 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Single control or multiple-controls (as vector of int or qubits)
   if (!runtimeOptions.keyExists<int>("control-idx") &&
       !runtimeOptions.keyExists<std::vector<int>>("control-idx") &&
-      !runtimeOptions.keyExists<xacc::internal_compiler::qubit>(
+      !runtimeOptions.keyExists<std::pair<std::string, size_t>>(
           "control-idx") &&
-      !runtimeOptions.keyExists<std::vector<xacc::internal_compiler::qubit>>(
+      !runtimeOptions.keyExists<std::vector<std::pair<std::string, size_t>>>(
           "control-idx")) {
     xacc::error("'control-idx' is required.");
     return false;
@@ -42,24 +41,20 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   const std::vector<std::pair<std::string, size_t>> ctrlIdxs =
       [&runtimeOptions,
        uComposite]() -> std::vector<std::pair<std::string, size_t>> {
-    // Strongly-typed qubit input
-    if (runtimeOptions.keyExists<xacc::internal_compiler::qubit>(
+    // Qubit input (as string + int pairs)
+    if (runtimeOptions.keyExists<std::pair<std::string, size_t>>(
             "control-idx")) {
       auto qubit =
-          runtimeOptions.get<xacc::internal_compiler::qubit>("control-idx");
-      return {std::make_pair(qubit.first, qubit.second)};
+          runtimeOptions.get<std::pair<std::string, size_t>>("control-idx");
+      return {qubit};
     }
 
-    if (runtimeOptions.keyExists<std::vector<xacc::internal_compiler::qubit>>(
+    if (runtimeOptions.keyExists<std::vector<std::pair<std::string, size_t>>>(
             "control-idx")) {
       auto qubits =
-          runtimeOptions.get<std::vector<xacc::internal_compiler::qubit>>(
+          runtimeOptions.get<std::vector<std::pair<std::string, size_t>>>(
               "control-idx");
-      std::vector<std::pair<std::string, size_t>> result;
-      for (const auto &qubit : qubits) {
-        result.emplace_back(std::make_pair(qubit.first, qubit.second));
-      }
-      return result;
+      return qubits;
     }
 
     // Try to find the control buffer name:

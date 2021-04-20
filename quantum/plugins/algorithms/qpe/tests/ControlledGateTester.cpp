@@ -184,7 +184,8 @@ TEST(ControlledGateTester, checkMultipleControlQregs)
     auto ctrlReg2 = ::qalloc(1);
     auto ctrl2 = ctrlReg2[0];
     ctrl2.first = "control2";
-    const std::vector<xacc::internal_compiler::qubit> ctrl_qubits{ctrl1, ctrl2};
+    const std::vector<std::pair<std::string, size_t>> ctrl_qubits{
+        {ctrl1.first, ctrl1.second}, {ctrl2.first, ctrl2.second}};
 
     ccx->expand({{"U", comp}, {"control-idx", ctrl_qubits}});
     auto new_circ_str = ccx->toString();
