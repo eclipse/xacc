@@ -326,7 +326,9 @@ public:
     const auto mulPos = in_varStr.find("*");
     if (mulPos != std::string::npos) {
       const double coeff = std::stod(in_varStr.substr(0, mulPos));
-      return std::make_pair(coeff, in_varStr.substr(mulPos + 1));
+      auto tmp = in_varStr.substr(mulPos+1);
+      xacc::trim(tmp);
+      return std::make_pair(coeff, tmp);
     }
     return std::make_pair(1.0, in_varStr);
   }

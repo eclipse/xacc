@@ -73,6 +73,10 @@ void Circuit::throwIfInvalidInstructionParameter(InstPtr instruction) {
 
 std::shared_ptr<CompositeInstruction>
 Circuit::operator()(const std::vector<double> &params) {
+  if (!parsingUtil) {
+    parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
+  }
+
   if (params.size() != variables.size()) {
     xacc::XACCLogger::instance()->error("Invalid Circuit evaluation: number "
                                         "of parameters don't match. " +
