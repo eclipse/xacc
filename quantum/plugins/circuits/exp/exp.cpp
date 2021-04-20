@@ -16,6 +16,7 @@
 #include "Instruction.hpp"
 #include "ObservableTransform.hpp"
 #include "PauliOperator.hpp"
+#include "CommonGates.hpp"
 
 #include "Utils.hpp"
 #include "xacc.hpp"
@@ -63,14 +64,16 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
   }
 
   double pi = xacc::constants::pi;
-  auto gateRegistry = xacc::getService<IRProvider>("quantum");
   addVariable(paramLetter);
-  std::string xasm_src = "";
 
+  std::vector<xacc::InstPtr> exp_insts;
+
+  // auto q_name = q.name();
   for (auto inst : terms) {
-
-    Term spinInst = inst.second;
-
+    auto spinInst = inst.second;
+    if (spinInst.isIdentity()) {
+      continue;
+    }
     // Get the individual pauli terms
     auto termsMap = std::get<2>(spinInst);
 
@@ -80,33 +83,28 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
         terms.push_back({kv.first, kv.second});
       }
     }
-
-    // this is required when the operator has scalar terms
-    if(terms.size() == 0){
-      continue;
-    }
-
     // The largest qubit index is on the last term
     int largestQbitIdx = terms[terms.size() - 1].first;
 
     std::vector<std::size_t> qidxs;
-    std::stringstream basis_front, basis_back;
+    std::vector<xacc::InstPtr> basis_front, basis_back;
 
     for (auto &term : terms) {
-
       auto qid = term.first;
       auto pop = term.second;
 
       qidxs.push_back(qid);
 
       if (pop == "X") {
-
-        basis_front << "H(q[" << qid << "]);\n";
-        basis_back << "H(q[" << qid << "]);\n";
+        basis_front.emplace_back(
+            std::make_shared<xacc::quantum::Hadamard>(qid));
+        basis_back.emplace_back(std::make_shared<xacc::quantum::Hadamard>(qid));
 
       } else if (pop == "Y") {
-        basis_front << "Rx(q[" << qid << "], " << 1.57079362679 << ");\n";
-        basis_back << "Rx(q[" << qid << "], " << -1.57079362679 << ");\n";
+        basis_front.emplace_back(
+            std::make_shared<xacc::quantum::Rx>(qid, 1.57079362679));
+        basis_back.emplace_back(
+            std::make_shared<xacc::quantum::Rx>(qid, -1.57079362679));
       }
     }
 
@@ -121,26 +119,27 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
     }
 
     // std::cout << "HOWDY: \n" << cnot_pairs << "\n";
-    std::stringstream cnot_front, cnot_back;
+    std::vector<xacc::InstPtr> cnot_front, cnot_back;
     for (int i = 0; i < qidxs.size() - 1; i++) {
       Eigen::VectorXi pairs = cnot_pairs.col(i);
       auto c = pairs(0);
       auto t = pairs(1);
-      cnot_front << "CNOT(q[" << c << "], q[" << t << "]);\n";
+      cnot_front.emplace_back(std::make_shared<xacc::quantum::CNOT>(c, t));
     }
 
     for (int i = qidxs.size() - 2; i >= 0; i--) {
       Eigen::VectorXi pairs = cnot_pairs.col(i);
       auto c = pairs(0);
       auto t = pairs(1);
-      cnot_back << "CNOT(q[" << c << "], q[" << t << "]);\n";
+      cnot_back.emplace_back(std::make_shared<xacc::quantum::CNOT>(c, t));
     }
+    exp_insts.insert(exp_insts.end(),
+                     std::make_move_iterator(basis_front.begin()),
+                     std::make_move_iterator(basis_front.end()));
+    exp_insts.insert(exp_insts.end(),
+                     std::make_move_iterator(cnot_front.begin()),
+                     std::make_move_iterator(cnot_front.end()));
 
-    xasm_src = xasm_src + "\n" + basis_front.str() + cnot_front.str();
-
-    // Since the coefficient here is either purely imaginary
-    // or purely real, I did away with the no-i boolean and
-    // added this if here. 
     double coeff;
     if (std::real(spinInst.coeff()) != 0.0) {
       coeff = std::real(spinInst.coeff());
@@ -148,27 +147,19 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
       coeff = std::imag(spinInst.coeff());
     }
 
-    xasm_src = xasm_src + "Rz(q[" + std::to_string(qidxs[qidxs.size() - 1]) +
-                "], " + std::to_string(2.*coeff) + " * " +
-                paramLetter + ");\n";
+    std::string p = std::to_string(2.0 * coeff) + " * " + paramLetter;
+    exp_insts.emplace_back(
+        std::make_shared<xacc::quantum::Rz>(qidxs[qidxs.size() - 1], p));
 
-    xasm_src = xasm_src + cnot_back.str() + basis_back.str();
+    exp_insts.insert(exp_insts.end(),
+                     std::make_move_iterator(cnot_back.begin()),
+                     std::make_move_iterator(cnot_back.end()));
+    exp_insts.insert(exp_insts.end(),
+                     std::make_move_iterator(basis_back.begin()),
+                     std::make_move_iterator(basis_back.end()));
   }
 
-  int name_counter = 1;
-  std::string name = "exp_tmp";
-  while (xacc::hasCompiled(name)) {
-    name += std::to_string(name_counter);
-  }
-
-  xasm_src = "__qpu__ void " + name + "(qbit q, double " + paramLetter +
-             ") {\n" + xasm_src + "}";
-
-  auto xasm = xacc::getCompiler("xasm");
-  auto tmp = xasm->compile(xasm_src)->getComposites()[0];
-
-  for (auto inst : tmp->getInstructions())
-    addInstruction(inst);
+  addInstructions(std::move(exp_insts), false);
 
   return true;
 }
@@ -185,7 +176,7 @@ void Exp::applyRuntimeArguments() {
     x_val = arguments[0]->runtimeValue.get<std::vector<double>>(
         INTERNAL_ARGUMENT_VALUE_KEY)[vector_mapping[variable_name]];
     variable_name =
-        arguments[0]->name +std::to_string(vector_mapping[variable_name]);
+        arguments[0]->name + std::to_string(vector_mapping[variable_name]);
     addVariable(variable_name);
   } else {
     x_val = arguments[0]->runtimeValue.get<double>(INTERNAL_ARGUMENT_VALUE_KEY);
@@ -289,8 +280,8 @@ void Exp::applyRuntimeArguments() {
       name += std::to_string(name_counter);
     }
 
-    xasm_src = "__qpu__ void " + name + "(qbit q, double " +
-               variable_name + ") {\n" + xasm_src + "}";
+    xasm_src = "__qpu__ void " + name + "(qbit q, double " + variable_name +
+               ") {\n" + xasm_src + "}";
 
     // std::cout << xasm_src << "\n";
     auto xasm = xacc::getCompiler("xasm");

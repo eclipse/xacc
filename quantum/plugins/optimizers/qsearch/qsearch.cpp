@@ -42,9 +42,10 @@ void QsearchOptimizer::apply(std::shared_ptr<CompositeInstruction> program,
 
   if (circ_synth->nInstructions() < program->nInstructions()) {
     std::stringstream ss;
-    ss << "Qsearch Optimizer found a more efficient circuit, program now has "
-       << circ_synth->nInstructions() << " instructions instead of "
-       << program->nInstructions() << "\n";
+    ss << "qsearch optimized circuit from " << program->nInstructions() << " to " << circ_synth->nInstructions() << " gates.";
+    // Optimizer found a more efficient circuit, program now has "
+    //    << circ_synth->nInstructions() << " instructions instead of "
+    //    << program->nInstructions();
     xacc::info(ss.str());
 
     program->clear();

@@ -44,7 +44,7 @@ TEST(QAOATester, checkSimple) {
   // In QAOA, we don't have any physical constraints, hence,
   // it can find a solution that gives a lower cost function value.
   std::cout << "Opt-val = " << (*buffer)["opt-val"].as<double>() << "\n";
-  EXPECT_LT((*buffer)["opt-val"].as<double>(), -1.74);
+  EXPECT_LT((*buffer)["opt-val"].as<double>(), -1.54);
 }
 
 TEST(QAOATester, checkStandardParamterizedScheme) {

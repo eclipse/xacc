@@ -85,6 +85,8 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
       // If pulse mode, must contribute pulse cmd-def.
       ibm->contributeInstructions();
     }
+    // Set connectivity based on the backend:
+    connectivity = ibm->getConnectivity();
   } else if (params.stringExists("noise-model")) {
     std::string noise_model_str = params.getString("noise-model");
     // Check if this is a file name
