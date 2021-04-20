@@ -41,22 +41,6 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   const std::vector<std::pair<std::string, size_t>> ctrlIdxs =
       [&runtimeOptions,
        uComposite]() -> std::vector<std::pair<std::string, size_t>> {
-    // Qubit input (as string + int pairs)
-    if (runtimeOptions.keyExists<std::pair<std::string, size_t>>(
-            "control-idx")) {
-      auto qubit =
-          runtimeOptions.get<std::pair<std::string, size_t>>("control-idx");
-      return {qubit};
-    }
-
-    if (runtimeOptions.keyExists<std::vector<std::pair<std::string, size_t>>>(
-            "control-idx")) {
-      auto qubits =
-          runtimeOptions.get<std::vector<std::pair<std::string, size_t>>>(
-              "control-idx");
-      return qubits;
-    }
-
     // Try to find the control buffer name:
     const std::string buffer_name = [&]() -> std::string {
       if (runtimeOptions.stringExists("control-buffer")) {
@@ -75,7 +59,7 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
       return {std::make_pair(
           buffer_name,
           static_cast<size_t>(runtimeOptions.get<int>("control-idx")))};
-    } else {
+    } else if (runtimeOptions.keyExists<std::vector<int>>("control-idx")) {
       std::vector<std::pair<std::string, size_t>> result;
       for (const auto &qId :
            runtimeOptions.get<std::vector<int>>("control-idx")) {
@@ -83,7 +67,28 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
       }
       return result;
     }
+
+    // Qubit input (as string + int pairs)
+    if (runtimeOptions.keyExists<std::pair<std::string, size_t>>(
+            "control-idx")) {
+      auto qubit =
+          runtimeOptions.get<std::pair<std::string, size_t>>("control-idx");
+      return {qubit};
+    }
+
+    if (runtimeOptions.keyExists<std::vector<std::pair<std::string, size_t>>>(
+            "control-idx")) {
+      auto qubits =
+          runtimeOptions.get<std::vector<std::pair<std::string, size_t>>>(
+              "control-idx");
+      return qubits;
+    }
+    return {};
   }();
+
+  if (ctrlIdxs.empty()) {
+    xacc::error("Failed to retrieve control bits.");
+  }
   // Check duplicate
   const std::set<std::pair<std::string, size_t>> s(ctrlIdxs.begin(),
                                                    ctrlIdxs.end());
