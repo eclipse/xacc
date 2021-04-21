@@ -32,6 +32,47 @@ public:
                         std::vector<InstructionParameter>{},
                     const HeterogeneousMap &analog_options = {}) = 0;
 
+  std::shared_ptr<Instruction>
+  createInstruction(const std::string name,
+                    // initializer_list overload to disambiguate
+                    // empty "{}" argument.
+                    std::initializer_list<std::size_t> bits,
+                    std::vector<InstructionParameter> parameters =
+                        std::vector<InstructionParameter>{},
+                    const HeterogeneousMap &analog_options = {}) {
+    return createInstruction(name, std::vector<std::size_t>(bits), parameters,
+                             analog_options);
+  }
+
+  // Overloads for instruction creation with explicit qubit name binding.
+  // i.e. automatically set the buffer names after creation.
+  virtual std::shared_ptr<Instruction>
+  createInstruction(const std::string name,
+                    const std::pair<std::string, std::size_t> &bit) {
+    auto inst = createInstruction(name, bit.second);
+    inst->setBufferNames({bit.first});
+    return inst;
+  }
+
+  virtual std::shared_ptr<Instruction> createInstruction(
+      const std::string name,
+      const std::vector<std::pair<std::string, std::size_t>> &bits,
+      std::vector<InstructionParameter> parameters =
+          std::vector<InstructionParameter>{},
+      const HeterogeneousMap &analog_options = {}) {
+    std::vector<std::string> buffer_names;
+    std::vector<std::size_t> idxs;
+
+    for (const auto &qb : bits) {
+      buffer_names.emplace_back(qb.first);
+      idxs.emplace_back(qb.second);
+    }
+
+    auto inst = createInstruction(name, idxs, parameters, analog_options);
+    inst->setBufferNames(buffer_names);
+    return inst;
+  }
+
   virtual std::shared_ptr<CompositeInstruction>
   createComposite(const std::string name,
                   std::vector<std::string> variables = {},
