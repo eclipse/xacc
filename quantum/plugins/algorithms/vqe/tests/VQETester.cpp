@@ -74,6 +74,8 @@ TEST(VQETester, checkSimple) {
               vqe->execute(
                   buffer, (*buffer)["opt-params"].as<std::vector<double>>())[0],
               1e-4);
+
+              buffer->print();
   // std::cout << "EVALED: " << vqe->execute(buffer,
   // (*buffer)["opt-params"].as<std::vector<double>>()) << "\n";
   //   }

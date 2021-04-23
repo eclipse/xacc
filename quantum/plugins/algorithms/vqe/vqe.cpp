@@ -134,6 +134,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
             coefficients.push_back(std::real(coeff));
           } else {
             identityCoeff += std::real(coeff);
+            coefficients.push_back(std::real(coeff));
           }
         }
 
@@ -158,6 +159,11 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         auto tmpBuffer = xacc::qalloc(buffer->size());
         accelerator->execute(tmpBuffer, fsToExec);
         auto buffers = tmpBuffer->getChildren();
+
+        // Tag any gradient buffers;
+        for (int i = nInstructionsEnergy; i < buffers.size(); i++) {
+          buffers[i]->addExtraInfo("is-gradient-calc", true);
+        }
 
         auto tmp_buffer_extra_info = tmpBuffer->getInformation();
         for (auto &[k, v] : tmp_buffer_extra_info) {
@@ -263,6 +269,26 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       kernel->nVariables());
 
   auto result = optimizer->optimize(f);
+
+  // Get the children at the opt-params
+  auto children_at_final_parameters =
+      buffer->getChildren("parameters", result.second);
+  std::vector<double> opt_exp_vals, children_coeffs;
+  std::vector<std::string> children_names;
+  for (auto &child : children_at_final_parameters) {
+    if (!child->hasExtraInfoKey("is-gradient-calc")) {
+      opt_exp_vals.push_back(child->getInformation("exp-val-z").as<double>());
+
+      // will not have
+      children_coeffs.push_back(
+          child->getInformation("coefficient").as<double>());
+      children_names.push_back(child->name());
+    }
+  }
+
+  buffer->addExtraInfo("opt-exp-vals", opt_exp_vals);
+  buffer->addExtraInfo("coefficients", children_coeffs);
+  buffer->addExtraInfo("kernel-names", children_names);
 
   buffer->addExtraInfo("opt-val", ExtraInfo(result.first));
   buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
