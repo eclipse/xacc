@@ -72,6 +72,7 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 include(format)
+include(cxxFlags)
 include(ExternalProject)
 
 if(NOT WIN32)
