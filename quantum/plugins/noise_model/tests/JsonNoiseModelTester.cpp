@@ -31,6 +31,9 @@ const std::string depol_json_2q =
 
 const std::string depol_json_id =
     R"({"gate_noise": [{"gate_name": "I", "register_location": ["0"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.05773502691896258, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.05773502691896258], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.05773502691896258, 0.0]]]]}]}], "bit_order": "MSB"})";
+
+const std::string depol_json_id_multi_qubits =
+    R"({"gate_noise": [{"gate_name": "I", "register_location": ["0"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [-0.05773502691896258, 0.0], [-0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [-0.0, 0.0], [-0.05773502691896258, 0.0]]]]}], "noise_qubits": ["0", "1"]}], "bit_order": "MSB"})";
 } // namespace
 
 TEST(JsonNoiseModelTester, checkSimple) {
@@ -405,6 +408,37 @@ TEST(JsonNoiseModelTester, checkIdNoise) {
       }
       std::cout << "\n";
     }
+  }
+}
+
+TEST(JsonNoiseModelTester, checkIdNoiseMultiQubits) {
+  xacc::set_verbose(true);
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void testRzz2(qbit q) {
+        X(q[0]);
+        X(q[1]);
+        I(q[0]);
+      })");
+  auto program = ir->getComposites()[0];
+  std::cout << "HOWDY: \n" << program->toString() << "\n";
+  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+  noiseModel->initialize({{"noise-model", depol_json_id_multi_qubits}});
+  const std::string ibmNoiseJson = noiseModel->toJson();
+  std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"noise-model", ibmNoiseJson}, {"sim-type", "density_matrix"}});
+  auto buffer = xacc::qalloc(2);
+  accelerator->execute(buffer, program);
+  buffer->print();
+  auto densityMatrix =
+      (*buffer)["density_matrix"].as<std::vector<std::pair<double, double>>>();
+  for (int row = 0; row < 4; ++row) {
+    for (int col = 0; col < 4; ++col) {
+      const int idx = row * 4 + col;
+      std::cout << "(" << densityMatrix[idx].first << ", "
+                << densityMatrix[idx].second << ") ";
+    }
+    std::cout << "\n";
   }
 }
 
