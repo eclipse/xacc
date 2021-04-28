@@ -247,6 +247,12 @@ public:
           element["operations"] = std::vector<std::string>{gateName};
           element["gate_qubits"] =
               std::vector<std::vector<std::size_t>>{{qIdx}};
+          if (errorChannel.noise_qubits.size() > 1) {
+            // Multi-qubit noise channels on a single-qubit gate.
+            element["noise_qubits"] = std::vector<std::vector<std::size_t>>{
+                errorChannel.noise_qubits};
+          }
+
           std::vector<nlohmann::json> krausOps;
           std::vector<cMatPair> kraus_list;
           for (const auto &error : errorChannel.mats) {
@@ -255,7 +261,9 @@ public:
           nlohmann::json instruction;
           instruction["name"] = "kraus";
           instruction["params"] = kraus_list;
-          instruction["qubits"] = std::vector<int> {0};
+          std::vector<int> inst_qubits(errorChannel.noise_qubits.size());
+          std::iota(inst_qubits.begin(), inst_qubits.end(), 0);
+          instruction["qubits"] = inst_qubits;
           krausOps.emplace_back(instruction);
           element["instructions"] =
               std::vector<std::vector<nlohmann::json>>{krausOps};

@@ -430,14 +430,19 @@ TEST(JsonNoiseModelTester, checkIdNoiseMultiQubits) {
   buffer->print();
   auto densityMatrix =
       (*buffer)["density_matrix"].as<std::vector<std::pair<double, double>>>();
+  double norm = 0.0;
   for (int row = 0; row < 4; ++row) {
     for (int col = 0; col < 4; ++col) {
       const int idx = row * 4 + col;
+      if (row == col) {
+        norm += densityMatrix[idx].first;
+      }
       std::cout << "(" << densityMatrix[idx].first << ", "
                 << densityMatrix[idx].second << ") ";
     }
     std::cout << "\n";
   }
+  EXPECT_NEAR(norm, 1.0, 1e-6);
 }
 
 int main(int argc, char **argv) {
