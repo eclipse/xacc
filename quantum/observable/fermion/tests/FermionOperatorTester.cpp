@@ -58,10 +58,12 @@ TEST(FermionOperatorTester, checkAnotherBug) {
 }
 
 TEST(FermionOperatorTester, checkBug) {
-  auto str = R"((-0.479678,-0) 1^ 1 + (0.708024,0) + (0.0454063,0) 0^ 3^ 2 1)";
-  FermionOperator op(str);
+  // Two equivalent permutations of the result:
+  auto str1 = R"((-0.479678,-0) 1^ 1 + (0.708024,0) + (0.0454063,0) 0^ 3^ 2 1)";
+  auto str2 = R"((0.0454063,0) 0^ 3^ 2 1 + (0.708024,0) + (-0.479678,-0) 1^ 1)";
+  FermionOperator op(str1);
   std::cout << op.toString() << "\n";
-  EXPECT_EQ(op.toString(), str);
+  EXPECT_TRUE(op.toString() == str1 || op.toString() == str2);
 }
 
 TEST(FermionOperatorTester,checkSimple) {
