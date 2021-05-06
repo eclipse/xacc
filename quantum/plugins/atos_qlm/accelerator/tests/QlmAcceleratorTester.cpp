@@ -329,38 +329,18 @@ TEST(QlmAcceleratorTester, testMpsOptions) {
         CX(q[16], q[17]);
         CX(q[17], q[18]);
         CX(q[18], q[19]);
-        CX(q[19], q[20]);
-        CX(q[20], q[21]);
-        CX(q[21], q[22]);
-        CX(q[22], q[23]);
-        CX(q[23], q[24]);
-        CX(q[24], q[25]);
-        CX(q[25], q[26]);
-        CX(q[26], q[27]);
-        CX(q[27], q[28]);
-        CX(q[28], q[29]);
-        CX(q[29], q[30]);
-        CX(q[30], q[31]);
-        CX(q[31], q[32]);
-        CX(q[32], q[33]);
-        CX(q[33], q[34]);
-        CX(q[34], q[35]);
-        CX(q[35], q[36]);
-        CX(q[36], q[37]);
-        CX(q[37], q[38]);
-        CX(q[38], q[39]);
         // Measure two random qubits
         // should only get entangled bitstrings:
         // i.e. 00 or 11
         Measure(q[2]);
-        Measure(q[37]);
+        Measure(q[17]);
     })",
                                nullptr)
                      ->getComposites()[0];
 
   auto accelerator =
       xacc::getAccelerator("atos-qlm", {{"sim-type", "MPS"}, {"max-bond", 512},  {"shots", 1024}});
-  auto buffer = xacc::qalloc(40);
+  auto buffer = xacc::qalloc(20);
   accelerator->execute(buffer, program);
   EXPECT_EQ(buffer->getMeasurementCounts().size(), 2);
   buffer->print();

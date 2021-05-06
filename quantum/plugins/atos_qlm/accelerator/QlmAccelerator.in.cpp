@@ -363,7 +363,7 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
       // Local access
       return false;
     } catch (std::exception &e) {
-      std::cout << "Unable to import QAT. Try remote access (QLMaaS).\n";
+      // std::cout << "Unable to import QAT. Try remote access (QLMaaS).\n";
       try {
         pybind11::module::import("qat.qlmaas");
         std::cout << "Remote access via qlmaas.\n";
