@@ -383,7 +383,7 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     const std::string qlmaasConfig(std::string(::getenv("HOME")) +
                                    "/.qlmaas/config.ini");
 
-    // XACC config file: 
+    // XACC config file:
     const std::string xaccQlmaasConfig(std::string(::getenv("HOME")) +
                                        "/.qlm_config");
     if (xacc::fileExists(qlmaasConfig)) {
@@ -394,54 +394,82 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
       m_qlmaasConnection =
           pybind11::module::import("qat.qlmaas").attr("QLMaaSConnection")();
       std::cout << "Successfully establish a connection to the QLM machine.\n";
-    } else if (xacc::fileExists(xaccQlmaasConfig)){
-      std::ifstream stream(xaccQlmaasConfig);
-      std::string contents((std::istreambuf_iterator<char>(stream)),
-                           std::istreambuf_iterator<char>());
-      const auto parseConnectionConfig =
-          [](const std::string &config_file_content)
-          -> std::tuple<std::string, std::string, std::string> {
-        std::string hostName = QLM_HOST_NAME;
-        std::string userName;
-        std::string password;
-        std::vector<std::string> lines;
-        lines = xacc::split(config_file_content, '\n');
-        for (auto l : lines) {
-          if (l.find("host") != std::string::npos) {
-            std::vector<std::string> split = xacc::split(l, ':');
-            auto key = split[1];
-            xacc::trim(key);
-            hostName = key;
-          } else if (l.find("username") != std::string::npos) {
-            std::vector<std::string> split;
-            split = xacc::split(l, ':');
-            auto _userName = split[1];
-            xacc::trim(_userName);
-            userName = _userName;
-          } else if (l.find("password") != std::string::npos) {
-            std::vector<std::string> split;
-            split = xacc::split(l, ':');
-            auto _password = split[1];
-            xacc::trim(_password);
-            password = _password;
+    } else {
+      std::string username, password, hostname;
+      if (xacc::fileExists(xaccQlmaasConfig)) {
+        std::ifstream stream(xaccQlmaasConfig);
+        std::string contents((std::istreambuf_iterator<char>(stream)),
+                             std::istreambuf_iterator<char>());
+        std::tie(username, password,
+                 hostname) = [](const std::string &config_file_content) {
+          std::string hostName = QLM_HOST_NAME;
+          std::string userName;
+          std::string password;
+          std::vector<std::string> lines;
+          lines = xacc::split(config_file_content, '\n');
+          for (auto l : lines) {
+            if (l.find("host") != std::string::npos) {
+              std::vector<std::string> split = xacc::split(l, ':');
+              auto key = split[1];
+              xacc::trim(key);
+              hostName = key;
+            } else if (l.find("username") != std::string::npos) {
+              std::vector<std::string> split;
+              split = xacc::split(l, ':');
+              auto _userName = split[1];
+              xacc::trim(_userName);
+              userName = _userName;
+            } else if (l.find("password") != std::string::npos) {
+              std::vector<std::string> split;
+              split = xacc::split(l, ':');
+              auto _password = split[1];
+              xacc::trim(_password);
+              password = _password;
+            }
           }
+
+          return std::make_tuple(userName, password, hostName);
+        }(contents);
+      } else {
+        // Try parse from HetMap
+        hostname = QLM_HOST_NAME;
+        if (params.stringExists("hostname")) {
+          hostname = params.getString("hostname");
         }
+        if (params.stringExists("username")) {
+          username = params.getString("username");
+        }
+        if (params.stringExists("password")) {
+          password = params.getString("password");
+        }
+      }
 
-        return std::make_tuple(userName, password, hostName);
-      };
+      if (hostname.empty() || username.empty() || password.empty()) {
+        xacc::error(
+            "'username' or 'password' were not provided. Please set them in "
+            "$HOME/.qlm_config file or provided in the configurations.");
+      }
 
-      auto [username, password, hostname] = parseConnectionConfig(contents);
-      ::setenv("QLM_USER", username.c_str(), 1);
-      ::setenv("QLM_PASSWD", password.c_str(), 1);
-      auto kwargs = pybind11::dict("check_host"_a = false);
-      m_qlmaasConnection = pybind11::module::import("qat.qlmaas")
-                               .attr("QLMaaSConnection")(hostname, kwargs);
-      ::unsetenv("QLM_USER");
-      ::unsetenv("QLM_PASSWD");
-      std::cout << "Successfully establish a connection to the QLM machine.\n";
+      m_qlmaasConnection = [&]() -> pybind11::object {
+        auto locals = pybind11::dict();
+        locals["hostname"] = hostname;
+        locals["username"] = username;
+        locals["password"] = password;
+        auto py_src =
+            R"#(
+from qat.qlmaas import QLMaaSConnection
+import os
+os.environ["QLM_USER"] = locals()['username']
+os.environ["QLM_PASSWD"] = locals()['password']
+qlmaas_connection = QLMaaSConnection(hostname=locals()['hostname'], check_host=False)
+  )#";
+        pybind11::exec(py_src, pybind11::globals(), locals);
+        std::cout
+            << "Successfully establish a connection to the QLM machine.\n";
+        return locals["qlmaas_connection"];
+      }();
     }
   }
-
   m_shots = -1;
   if (params.keyExists<int>("shots")) {
     m_shots = params.get<int>("shots");
@@ -478,8 +506,9 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
         const auto errorChannels = m_noiseModel->getNoiseChannels(*gate);
         if (!errorChannels.empty()) {
           // std::cout << "Gate " << gate->toString() << "\n";
-          gates_noise[pybind11::int_(qId)] = pybind11::cpp_function(
-              [errorChannels, QuantumChannelKraus](double theta, pybind11::kwargs kwarg) {
+          gates_noise[pybind11::int_(qId)] =
+              pybind11::cpp_function([errorChannels, QuantumChannelKraus](
+                                         double theta, pybind11::kwargs kwarg) {
                 // std::cout << "Getting noise channel info\n";
                 std::vector<pybind11::array_t<std::complex<double>>> kraus_mats;
                 for (const auto &channel : errorChannels) {
@@ -609,7 +638,8 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     auto hw_model = hardwareModel(gates_spec, all_gates_noise);
     // Noisy simulator:
     auto noisyQProc = pybind11::module::import("qat.qpus").attr("NoisyQProc");
-    // Note: we use deterministic-vectorized to be able to compute the exp-val from OBS-job.
+    // Note: we use deterministic-vectorized to be able to compute the
+    // exp-val from OBS-job.
     m_qlmQpuServer = noisyQProc(hw_model, "deterministic-vectorized");
   } else if (params.stringExists("backend")) {
     m_noiseModel = xacc::getService<NoiseModel>("IBM");
@@ -618,8 +648,8 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     auto hardwareModel = qlmHardwareMod.attr("HardwareModel");
     auto gatesSpecification = qlmHardwareMod.attr("DefaultGatesSpecification");
     // List of gate to initialize the QLM noise model:
-    // Note: other gates (dagger and control) are expresses in terms of these
-    // gates.
+    // Note: other gates (dagger and control) are expresses in terms of
+    // these gates.
     const std::vector<std::string> GATE_SET{"X",  "Y", "Z", "Rx", "Ry",
                                             "Rz", "H", "S", "T",  "U"};
     const std::unordered_map<std::string, double> QLM_GATE_ERRORS = [&]() {
@@ -693,9 +723,8 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
       // Default MPS settings:
       // lnnize=True, no_merge=False, threshold=None, n_trunc=None
       // Supported users-options (that we exposed to XACC):
-      // mps-threshold: specify threshold below which Schmidt coefficients are
-      // truncated.
-      // max-bond: specify maximum number of non-zero Schmidt
+      // mps-threshold: specify threshold below which Schmidt coefficients
+      // are truncated. max-bond: specify maximum number of non-zero Schmidt
       // coefficients.
       std::optional<double> threshold;
       if (configs.keyExists<double>("mps-threshold")) {
