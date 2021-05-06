@@ -546,6 +546,40 @@ For the `exatn-pmps` simulator, there are additional options that users can set 
 
 If either `backend-json` or `backend` is provided, the `exatn-pmps` simulator will simulate the backend noise associated with each quantum gate.
 
+Atos QLM
+++++++++
+
+XACC provides an Accelerator interface to the Atos QLM simulator (plugin name: "atos-qlm") via the QLMaaS (QLM-as-a-service) API.
+Users need to have a remote account (QLMaaS) to use this functionality.
+
+Note: ORNL users should contact Travis Humble to request a QLMaaS account for the ORNL's QLM machine.
+
+Prerequisites: ``myqlm`` and ``qlmaas`` Python packages on your local machine.
+These packages can be installed via pip.
+
+Connection configuration set-up:
+
+- Method 1 (**recommended**): 
+create a file named `.qlm_config` at the `$HOME` directory with the following information. 
+Please note that the host address can be change to access other QLM machines if you have access to them.
+
+.. code::
+
+ host: quantumbull.ornl.gov
+ username: <your QLM user name>
+ password: <your QLM password>
+
+- Method 2: provide the "username" and "password" fields when retrieving the qlm Accelerator, e.g.
+
+.. code:: cpp
+
+  auto qlm = xacc::getAccelerator("atos-qlm", {{"username", "<your QLM user name>"}, {"password", "<your QLM password>"}});
+
+
+- Method 3: reusing your QLMaaS configuration if you have one.
+
+For example, you have created the configuration using the Python `qlmaas` package, which is saved to `$HOME/.qlmaas/config.ini`. In this case, you don't need to provide any additional information. It should just work.
+
 QuaC
 ++++
 The `QuaC <https://github.com/ORNL-QCI/QuaC/tree/xacc-integration>`_ accelerator is a pulse-level accelerator (simulation only) that can execute quantum circuits at both gate and pulse (analog) level.
