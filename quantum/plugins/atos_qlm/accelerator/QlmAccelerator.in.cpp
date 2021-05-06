@@ -757,10 +757,8 @@ qlmaas_connection = QLMaaSConnection(hostname=locals()['hostname'], check_host=F
         n_trunc = configs.get<int>("max-bond");
       }
 
-      auto kwargs =
-          pybind11::dict("lnnize"_a = true, "no_merge"_a = false,
-                         "threshold"_a = threshold, "n_trunc"_a = n_trunc);
-      return simClass(kwargs);
+      return simClass("lnnize"_a = true, "no_merge"_a = false,
+                      "threshold"_a = threshold, "n_trunc"_a = n_trunc);
     };
 
     const SimFactory createFeynmanSim = [](const HeterogeneousMap &configs,
@@ -779,7 +777,7 @@ qlmaas_connection = QLMaaSConnection(hostname=locals()['hostname'], check_host=F
         }
       }();
 
-      return simClass(nbThreads);
+      return simClass("threads"_a = nbThreads);
     };
 
     const SimFactory createBddSim = [](const HeterogeneousMap &configs,
@@ -798,7 +796,7 @@ qlmaas_connection = QLMaaSConnection(hostname=locals()['hostname'], check_host=F
         }
       }();
 
-      return simClass(nbThreads);
+      return simClass("threads"_a = nbThreads);
     };
 
     static const std::unordered_map<std::string, SimFactory> SIM_REGISTRY{
@@ -1056,13 +1054,14 @@ void QlmAccelerator::execute(
     const std::vector<std::shared_ptr<CompositeInstruction>>
         compositeInstructions) {
   std::vector<std::shared_ptr<AcceleratorBuffer>> childBuffers;
-  std::vector<pybind11::object> batch;
+  std::vector<pybind11::object> jobs;
   for (auto &f : compositeInstructions) {
     childBuffers.emplace_back(
         std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size()));
-    batch.emplace_back(constructQlmJob(buffer, f));
+    jobs.emplace_back(constructQlmJob(buffer, f));
   }
 
+  auto batch = pybind11::module::import("qat.core").attr("Batch")(jobs);
   // Submit the whole batch:
   auto batchResult = [&]() {
     if (!m_remoteAccess) {
@@ -1075,13 +1074,13 @@ void QlmAccelerator::execute(
     }
   }();
 
-  // pybind11::print(result);
+  // pybind11::print(batchResult);
   auto iter = pybind11::iter(batchResult);
   int childBufferIndex = 0;
   while (iter != pybind11::iterator::sentinel()) {
     auto result = (*iter).cast<pybind11::object>();
     persistResultToBuffer(childBuffers[childBufferIndex], result,
-                          batch[childBufferIndex]);
+                          jobs[childBufferIndex]);
     ++iter;
     ++childBufferIndex;
   }
