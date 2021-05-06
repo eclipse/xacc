@@ -25,6 +25,11 @@
 using namespace pybind11::literals;
 
 namespace {
+// Default variables:
+// By default, this accelerator targets ORNL's QLM installation.
+// It can be used w/ other QLM by provinf the host address explicitly.
+const std::string QLM_HOST_NAME = "quantumbull.ornl.gov";
+
 inline bool isMeasureGate(const xacc::InstPtr &in_instr) {
   return (in_instr->name() == "Measure");
 }
@@ -346,6 +351,97 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     }
     PythonInit = true;
   }
+
+  // Are we on the QLM machine?
+  // check if we can access the QAT python package.
+  // Otherwise, check the qlmaas package.
+  m_remoteAccess = []() {
+    try {
+      pybind11::module::import("qqat.qpus.LinAlg");
+      pybind11::module::import("qqat.qpus.Feynman");
+      pybind11::module::import("qqat.qpus.MPS");
+      // Local access
+      return false;
+    } catch (std::exception &e) {
+      std::cout << "Unable to import QAT. Try remote access (QLMaaS).\n";
+      try {
+        pybind11::module::import("qat.qlmaas");
+        std::cout << "Remote access via qlmaas.\n";
+        return true;
+      } catch (std::exception &e) {
+        xacc::error("QLMaaS package is not available. Please install qlmaas "
+                    "via pip to use QLM accelerator.");
+      }
+    }
+    return true;
+  }();
+
+  // Establish the connection
+  if (m_remoteAccess) {
+    // By default, a user may have a config file in $HOME/.qlmaas/config.ini
+    // e.g. they've used the Python API to connect to the QLM via qlmaas.
+    const std::string qlmaasConfig(std::string(::getenv("HOME")) +
+                                   "/.qlmaas/config.ini");
+
+    // XACC config file: 
+    const std::string xaccQlmaasConfig(std::string(::getenv("HOME")) +
+                                       "/.qlm_config");
+    if (xacc::fileExists(qlmaasConfig)) {
+      std::cout << "Using QLMaaS config file: " << qlmaasConfig << "\n";
+      // Note: this may require users to type the password
+      // or they have username and password saved in environment variables or
+      // QLM password file.
+      m_qlmaasConnection =
+          pybind11::module::import("qat.qlmaas").attr("QLMaaSConnection")();
+      std::cout << "Successfully establish a connection to the QLM machine.\n";
+    } else if (xacc::fileExists(xaccQlmaasConfig)){
+      std::ifstream stream(xaccQlmaasConfig);
+      std::string contents((std::istreambuf_iterator<char>(stream)),
+                           std::istreambuf_iterator<char>());
+      const auto parseConnectionConfig =
+          [](const std::string &config_file_content)
+          -> std::tuple<std::string, std::string, std::string> {
+        std::string hostName = QLM_HOST_NAME;
+        std::string userName;
+        std::string password;
+        std::vector<std::string> lines;
+        lines = xacc::split(config_file_content, '\n');
+        for (auto l : lines) {
+          if (l.find("host") != std::string::npos) {
+            std::vector<std::string> split = xacc::split(l, ':');
+            auto key = split[1];
+            xacc::trim(key);
+            hostName = key;
+          } else if (l.find("username") != std::string::npos) {
+            std::vector<std::string> split;
+            split = xacc::split(l, ':');
+            auto _userName = split[1];
+            xacc::trim(_userName);
+            userName = _userName;
+          } else if (l.find("password") != std::string::npos) {
+            std::vector<std::string> split;
+            split = xacc::split(l, ':');
+            auto _password = split[1];
+            xacc::trim(_password);
+            password = _password;
+          }
+        }
+
+        return std::make_tuple(userName, password, hostName);
+      };
+
+      auto [username, password, hostname] = parseConnectionConfig(contents);
+      ::setenv("QLM_USER", username.c_str(), 1);
+      ::setenv("QLM_PASSWD", password.c_str(), 1);
+      auto kwargs = pybind11::dict("check_host"_a = false);
+      m_qlmaasConnection = pybind11::module::import("qat.qlmaas")
+                               .attr("QLMaaSConnection")(hostname, kwargs);
+      ::unsetenv("QLM_USER");
+      ::unsetenv("QLM_PASSWD");
+      std::cout << "Successfully establish a connection to the QLM machine.\n";
+    }
+  }
+
   m_shots = -1;
   if (params.keyExists<int>("shots")) {
     m_shots = params.get<int>("shots");
