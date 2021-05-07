@@ -101,6 +101,8 @@ private:
   int m_shots;
   pybind11::object m_qlmQpuServer;
   std::shared_ptr<NoiseModel> m_noiseModel;
+  bool m_remoteAccess;
+  pybind11::object m_qlmaasConnection;
 };
 } // namespace quantum
 } // namespace xacc
