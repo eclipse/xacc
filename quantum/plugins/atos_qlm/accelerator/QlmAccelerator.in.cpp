@@ -27,7 +27,7 @@ using namespace pybind11::literals;
 namespace {
 // Default variables:
 // By default, this accelerator targets ORNL's QLM installation.
-// It can be used w/ other QLM by provinf the host address explicitly.
+// It can be used w/ other QLM by providing the host address explicitly.
 const std::string QLM_HOST_NAME = "quantumbull.ornl.gov";
 
 inline bool isMeasureGate(const xacc::InstPtr &in_instr) {
@@ -387,7 +387,7 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     const std::string xaccQlmaasConfig(std::string(::getenv("HOME")) +
                                        "/.qlm_config");
     if (xacc::fileExists(qlmaasConfig)) {
-      std::cout << "Using QLMaaS config file: " << qlmaasConfig << "\n";
+      xacc::info("Using QLMaaS config file: " + qlmaasConfig);
       // Note: this may require users to type the password
       // or they have username and password saved in environment variables or
       // QLM password file.
