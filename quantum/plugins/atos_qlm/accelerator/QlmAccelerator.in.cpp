@@ -357,9 +357,9 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
   // Otherwise, check the qlmaas package.
   m_remoteAccess = []() {
     try {
-      pybind11::module::import("qqat.qpus.LinAlg");
-      pybind11::module::import("qqat.qpus.Feynman");
-      pybind11::module::import("qqat.qpus.MPS");
+      pybind11::module::import("qat.qpus.LinAlg");
+      pybind11::module::import("qat.qpus.Feynman");
+      pybind11::module::import("qat.qpus.MPS");
       // Local access
       return false;
     } catch (std::exception &e) {
