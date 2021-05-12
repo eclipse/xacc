@@ -22,6 +22,11 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-copy")
   endif()
 endif()
+
+# Disable 'deprecated-copy' warnings if the compiler recognizes the flag.
+# especially for different versions of Clang/AppleClang, 
+# we don't want to set the flag on compilers that don't support it yet (errors)
+add_compile_flags_if_supported(-Wno-deprecated-copy)
 add_subdirectory(cppmicroservices)
 
 # Fix for bug #161

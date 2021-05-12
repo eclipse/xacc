@@ -25,6 +25,11 @@
 using namespace pybind11::literals;
 
 namespace {
+// Default variables:
+// By default, this accelerator targets ORNL's QLM installation.
+// It can be used w/ other QLM by providing the host address explicitly.
+const std::string QLM_HOST_NAME = "quantumbull.ornl.gov";
+
 inline bool isMeasureGate(const xacc::InstPtr &in_instr) {
   return (in_instr->name() == "Measure");
 }
@@ -346,6 +351,125 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     }
     PythonInit = true;
   }
+
+  // Are we on the QLM machine?
+  // check if we can access the QAT python package.
+  // Otherwise, check the qlmaas package.
+  m_remoteAccess = []() {
+    try {
+      pybind11::module::import("qat.qpus.LinAlg");
+      pybind11::module::import("qat.qpus.Feynman");
+      pybind11::module::import("qat.qpus.MPS");
+      // Local access
+      return false;
+    } catch (std::exception &e) {
+      // std::cout << "Unable to import QAT. Try remote access (QLMaaS).\n";
+      try {
+        pybind11::module::import("qat.qlmaas");
+        std::cout << "Remote access via qlmaas.\n";
+        return true;
+      } catch (std::exception &e) {
+        xacc::error("QLMaaS package is not available. Please install qlmaas "
+                    "via pip to use QLM accelerator.");
+      }
+    }
+    return true;
+  }();
+
+  // Establish the connection
+  if (m_remoteAccess) {
+    // By default, a user may have a config file in $HOME/.qlmaas/config.ini
+    // e.g. they've used the Python API to connect to the QLM via qlmaas.
+    const std::string qlmaasConfig(std::string(::getenv("HOME")) +
+                                   "/.qlmaas/config.ini");
+
+    // XACC config file:
+    const std::string xaccQlmaasConfig(std::string(::getenv("HOME")) +
+                                       "/.qlm_config");
+    if (xacc::fileExists(qlmaasConfig)) {
+      xacc::info("Using QLMaaS config file: " + qlmaasConfig);
+      // Note: this may require users to type the password
+      // or they have username and password saved in environment variables or
+      // QLM password file.
+      m_qlmaasConnection =
+          pybind11::module::import("qat.qlmaas").attr("QLMaaSConnection")();
+      std::cout << "Successfully establish a connection to the QLM machine.\n";
+    } else {
+      std::string username, password, hostname;
+      if (xacc::fileExists(xaccQlmaasConfig)) {
+        std::ifstream stream(xaccQlmaasConfig);
+        std::string contents((std::istreambuf_iterator<char>(stream)),
+                             std::istreambuf_iterator<char>());
+        std::tie(username, password,
+                 hostname) = [](const std::string &config_file_content) {
+          std::string hostName = QLM_HOST_NAME;
+          std::string userName;
+          std::string password;
+          std::vector<std::string> lines;
+          lines = xacc::split(config_file_content, '\n');
+          for (auto l : lines) {
+            if (l.find("host") != std::string::npos) {
+              std::vector<std::string> split = xacc::split(l, ':');
+              auto key = split[1];
+              xacc::trim(key);
+              hostName = key;
+            } else if (l.find("username") != std::string::npos) {
+              std::vector<std::string> split;
+              split = xacc::split(l, ':');
+              auto _userName = split[1];
+              xacc::trim(_userName);
+              userName = _userName;
+            } else if (l.find("password") != std::string::npos) {
+              std::vector<std::string> split;
+              split = xacc::split(l, ':');
+              auto _password = split[1];
+              xacc::trim(_password);
+              password = _password;
+            }
+          }
+
+          return std::make_tuple(userName, password, hostName);
+        }(contents);
+      } else {
+        // Try parse from HetMap
+        hostname = QLM_HOST_NAME;
+        if (params.stringExists("hostname")) {
+          hostname = params.getString("hostname");
+        }
+        if (params.stringExists("username")) {
+          username = params.getString("username");
+        }
+        if (params.stringExists("password")) {
+          password = params.getString("password");
+        }
+      }
+
+      if (hostname.empty() || username.empty() || password.empty()) {
+        xacc::error(
+            "'username' or 'password' were not provided. Please set them in "
+            "$HOME/.qlm_config file or provided in the configurations.");
+      }
+
+      m_qlmaasConnection = [&]() -> pybind11::object {
+        auto locals = pybind11::dict();
+        locals["hostname"] = hostname;
+        locals["username"] = username;
+        locals["password"] = password;
+        auto py_src =
+            R"#(
+from qat.qlmaas import QLMaaSConnection
+import os
+os.environ["QLM_USER"] = locals()['username']
+os.environ["QLM_PASSWD"] = locals()['password']
+qlmaas_connection = QLMaaSConnection(hostname=locals()['hostname'], check_host=False)
+  )#";
+        pybind11::exec(py_src, pybind11::globals(), locals);
+        std::cout
+            << "Successfully establish a connection to the QLM machine.\n";
+        return locals["qlmaas_connection"];
+      }();
+    }
+  }
   m_shots = -1;
   if (params.keyExists<int>("shots")) {
     m_shots = params.get<int>("shots");
@@ -356,232 +480,246 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
 
   // Handle noisy simulation:
   m_noiseModel.reset();
-  // First, check direct noise model input:
-  if (params.pointerLikeExists<xacc::NoiseModel>("noise-model")) {
-    m_noiseModel = xacc::as_shared_ptr(
-        params.getPointerLike<xacc::NoiseModel>("noise-model"));
-    // QAT gateset generator:
-    // Note: this predef only contains *static* gates,
-    // i.e. not include Rx, Ry, Rz
-    auto predef_generator =
-        pybind11::module::import("qat.core.circuit_builder.matrix_util")
-            .attr("get_predef_generator");
-    auto QuantumChannelKraus =
-        pybind11::module::import("qat.quops.quantum_channels")
-            .attr("QuantumChannelKraus");
-    const auto nbQubits = m_noiseModel->nQubits();
-    auto aqasmGates = predef_generator().attr("keys")();
-    auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-    pybind11::dict all_gates_noise;
-    // Hanle parametric (Rx, Ry, Rz) gates:
-    for (const auto &gateName : {"Rx", "Ry", "Rz"}) {
-      pybind11::dict gates_noise;
-      for (size_t qId = 0; qId < nbQubits; ++qId) {
-        auto inst = gateRegistry->createInstruction(gateName, qId);
-        auto gate = std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
-        const auto errorChannels = m_noiseModel->getNoiseChannels(*gate);
-        if (!errorChannels.empty()) {
-          // std::cout << "Gate " << gate->toString() << "\n";
-          gates_noise[pybind11::int_(qId)] = pybind11::cpp_function(
-              [errorChannels, QuantumChannelKraus](double theta, pybind11::kwargs kwarg) {
-                // std::cout << "Getting noise channel info\n";
-                std::vector<pybind11::array_t<std::complex<double>>> kraus_mats;
-                for (const auto &channel : errorChannels) {
-                  for (const auto &op : channel.mats) {
-                    kraus_mats.emplace_back(matToNumpy(op));
-                  }
-                }
-
-                auto krausChannel = QuantumChannelKraus(kraus_mats);
-                // pybind11::print(krausChannel);
-                return krausChannel;
-              });
-        }
-      }
-
-      if (gates_noise.size() > 0) {
-        std::string aqasmGateName = gateName;
-        std::transform(aqasmGateName.begin(), aqasmGateName.end(),
-                       aqasmGateName.begin(), ::toupper);
-        all_gates_noise[aqasmGateName.c_str()] = gates_noise;
-      }
-    }
-
-    // Static prefef gate:
-    for (const auto &aqasmGateName : aqasmGates) {
-      const auto gateName = aqasmGateName.cast<std::string>();
-      const auto [xaccEquiv, gateArity] = getXasmGate(gateName);
-      if (!xaccEquiv.empty()) {
+  // Noise construction can only be done locally (on the QLM) atm.
+  // The ability to construct noise model is not available on the client side.
+  if (!m_remoteAccess) {
+    // First, check direct noise model input:
+    if (params.pointerLikeExists<xacc::NoiseModel>("noise-model")) {
+      m_noiseModel = xacc::as_shared_ptr(
+          params.getPointerLike<xacc::NoiseModel>("noise-model"));
+      // QAT gateset generator:
+      // Note: this predef only contains *static* gates,
+      // i.e. not include Rx, Ry, Rz
+      auto predef_generator =
+          pybind11::module::import("qat.core.circuit_builder.matrix_util")
+              .attr("get_predef_generator");
+      auto QuantumChannelKraus =
+          pybind11::module::import("qat.quops.quantum_channels")
+              .attr("QuantumChannelKraus");
+      const auto nbQubits = m_noiseModel->nQubits();
+      auto aqasmGates = predef_generator().attr("keys")();
+      auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+      pybind11::dict all_gates_noise;
+      // Hanle parametric (Rx, Ry, Rz) gates:
+      for (const auto &gateName : {"Rx", "Ry", "Rz"}) {
         pybind11::dict gates_noise;
-        // One-qubit gate noise
-        if (gateArity == 1) {
-          for (size_t qId = 0; qId < nbQubits; ++qId) {
-            auto inst = gateRegistry->createInstruction(xaccEquiv, qId);
-            auto gate = std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
-            const auto errorChannels = m_noiseModel->getNoiseChannels(*gate);
-            if (!errorChannels.empty()) {
-              // std::cout << "Gate " << gate->toString() << "\n";
-              gates_noise[pybind11::int_(qId)] = pybind11::cpp_function(
-                  [errorChannels, QuantumChannelKraus](pybind11::kwargs kwarg) {
-                    // std::cout << "Getting noise channel info\n";
-                    std::vector<pybind11::array_t<std::complex<double>>>
-                        kraus_mats;
-                    for (const auto &channel : errorChannels) {
-                      for (const auto &op : channel.mats) {
-                        kraus_mats.emplace_back(matToNumpy(op));
-                      }
+        for (size_t qId = 0; qId < nbQubits; ++qId) {
+          auto inst = gateRegistry->createInstruction(gateName, qId);
+          auto gate = std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
+          const auto errorChannels = m_noiseModel->getNoiseChannels(*gate);
+          if (!errorChannels.empty()) {
+            // std::cout << "Gate " << gate->toString() << "\n";
+            gates_noise[pybind11::int_(qId)] = pybind11::cpp_function(
+                [errorChannels, QuantumChannelKraus](double theta,
+                                                     pybind11::kwargs kwarg) {
+                  // std::cout << "Getting noise channel info\n";
+                  std::vector<pybind11::array_t<std::complex<double>>>
+                      kraus_mats;
+                  for (const auto &channel : errorChannels) {
+                    for (const auto &op : channel.mats) {
+                      kraus_mats.emplace_back(matToNumpy(op));
                     }
+                  }
 
-                    auto krausChannel = QuantumChannelKraus(kraus_mats);
-                    // pybind11::print(krausChannel);
-                    return krausChannel;
-                  });
-            }
+                  auto krausChannel = QuantumChannelKraus(kraus_mats);
+                  // pybind11::print(krausChannel);
+                  return krausChannel;
+                });
           }
         }
 
-        // Two-qubit gate noise:
-        if (gateArity == 2) {
-          for (size_t qId1 = 0; qId1 < nbQubits; ++qId1) {
-            for (size_t qId2 = 0; qId2 < nbQubits; ++qId2) {
-              if (qId1 != qId2) {
-                auto inst =
-                    gateRegistry->createInstruction(xaccEquiv, {qId1, qId2});
-                auto gate =
-                    std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
-                const auto errorChannels =
-                    m_noiseModel->getNoiseChannels(*gate);
-                if (!errorChannels.empty()) {
-                  // std::cout << "Has noise: " << gate->toString() << "\n";
-                  // Bit order:
-                  std::vector<pybind11::array_t<std::complex<double>>>
-                      kraus_mats;
-                  if (errorChannels[0].bit_order == KrausMatBitOrder::LSB) {
-                    for (const auto &channel : errorChannels) {
-                      for (const auto &op : channel.mats) {
-                        kraus_mats.emplace_back(matToNumpy(op));
-                      }
-                    }
-                  } else {
-                    // Flip Kron product order
-                    const auto flipKronOrder =
-                        [](const std::vector<std::vector<std::complex<double>>>
-                               &in_mat) {
-                          assert(in_mat.size() == 4);
-                          auto result = in_mat;
-                          const std::vector<size_t> order{0, 2, 1, 3};
-                          for (size_t i = 0; i < 4; ++i) {
-                            for (size_t j = 0; j < 4; ++j) {
-                              result[order[i]][order[j]] = in_mat[i][j];
-                            }
-                          }
-                          return result;
-                        };
+        if (gates_noise.size() > 0) {
+          std::string aqasmGateName = gateName;
+          std::transform(aqasmGateName.begin(), aqasmGateName.end(),
+                         aqasmGateName.begin(), ::toupper);
+          all_gates_noise[aqasmGateName.c_str()] = gates_noise;
+        }
+      }
 
-                    for (const auto &channel : errorChannels) {
-                      for (const auto &op : channel.mats) {
-                        kraus_mats.emplace_back(matToNumpy(flipKronOrder(op)));
+      // Static prefef gate:
+      for (const auto &aqasmGateName : aqasmGates) {
+        const auto gateName = aqasmGateName.cast<std::string>();
+        const auto [xaccEquiv, gateArity] = getXasmGate(gateName);
+        if (!xaccEquiv.empty()) {
+          pybind11::dict gates_noise;
+          // One-qubit gate noise
+          if (gateArity == 1) {
+            for (size_t qId = 0; qId < nbQubits; ++qId) {
+              auto inst = gateRegistry->createInstruction(xaccEquiv, qId);
+              auto gate = std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
+              const auto errorChannels = m_noiseModel->getNoiseChannels(*gate);
+              if (!errorChannels.empty()) {
+                // std::cout << "Gate " << gate->toString() << "\n";
+                gates_noise[pybind11::int_(qId)] =
+                    pybind11::cpp_function([errorChannels, QuantumChannelKraus](
+                                               pybind11::kwargs kwarg) {
+                      // std::cout << "Getting noise channel info\n";
+                      std::vector<pybind11::array_t<std::complex<double>>>
+                          kraus_mats;
+                      for (const auto &channel : errorChannels) {
+                        for (const auto &op : channel.mats) {
+                          kraus_mats.emplace_back(matToNumpy(op));
+                        }
+                      }
+
+                      auto krausChannel = QuantumChannelKraus(kraus_mats);
+                      // pybind11::print(krausChannel);
+                      return krausChannel;
+                    });
+              }
+            }
+          }
+
+          // Two-qubit gate noise:
+          if (gateArity == 2) {
+            for (size_t qId1 = 0; qId1 < nbQubits; ++qId1) {
+              for (size_t qId2 = 0; qId2 < nbQubits; ++qId2) {
+                if (qId1 != qId2) {
+                  auto inst =
+                      gateRegistry->createInstruction(xaccEquiv, {qId1, qId2});
+                  auto gate =
+                      std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
+                  const auto errorChannels =
+                      m_noiseModel->getNoiseChannels(*gate);
+                  if (!errorChannels.empty()) {
+                    // std::cout << "Has noise: " << gate->toString() << "\n";
+                    // Bit order:
+                    std::vector<pybind11::array_t<std::complex<double>>>
+                        kraus_mats;
+                    if (errorChannels[0].bit_order == KrausMatBitOrder::LSB) {
+                      for (const auto &channel : errorChannels) {
+                        for (const auto &op : channel.mats) {
+                          kraus_mats.emplace_back(matToNumpy(op));
+                        }
+                      }
+                    } else {
+                      // Flip Kron product order
+                      const auto flipKronOrder =
+                          [](const std::vector<
+                              std::vector<std::complex<double>>> &in_mat) {
+                            assert(in_mat.size() == 4);
+                            auto result = in_mat;
+                            const std::vector<size_t> order{0, 2, 1, 3};
+                            for (size_t i = 0; i < 4; ++i) {
+                              for (size_t j = 0; j < 4; ++j) {
+                                result[order[i]][order[j]] = in_mat[i][j];
+                              }
+                            }
+                            return result;
+                          };
+
+                      for (const auto &channel : errorChannels) {
+                        for (const auto &op : channel.mats) {
+                          kraus_mats.emplace_back(
+                              matToNumpy(flipKronOrder(op)));
+                        }
                       }
                     }
-                  }
-                  if (kraus_mats.size() > 0) {
-                    // std::cout << "Kraus mats:\n";
-                    // pybind11::print(kraus_mats);
-                    auto krausChannel = QuantumChannelKraus(kraus_mats);
-                    all_gates_noise[gateName.c_str()] = pybind11::cpp_function(
-                        [krausChannel](pybind11::kwargs kwarg) {
-                          // pybind11::print(krausChannel);
-                          return krausChannel;
-                        });
+                    if (kraus_mats.size() > 0) {
+                      // std::cout << "Kraus mats:\n";
+                      // pybind11::print(kraus_mats);
+                      auto krausChannel = QuantumChannelKraus(kraus_mats);
+                      all_gates_noise[gateName.c_str()] =
+                          pybind11::cpp_function(
+                              [krausChannel](pybind11::kwargs kwarg) {
+                                // pybind11::print(krausChannel);
+                                return krausChannel;
+                              });
+                    }
                   }
                 }
               }
             }
           }
-        }
-        if (gates_noise.size() > 0) {
-          all_gates_noise[gateName.c_str()] = gates_noise;
+          if (gates_noise.size() > 0) {
+            all_gates_noise[gateName.c_str()] = gates_noise;
+          }
         }
       }
-    }
 
-    // pybind11::print(all_gates_noise);
-    auto qlmHardwareMod = pybind11::module::import("qat.hardware.default");
-    auto hardwareModel = qlmHardwareMod.attr("HardwareModel");
-    auto gatesSpecification = qlmHardwareMod.attr("DefaultGatesSpecification");
-    auto gates_spec = gatesSpecification();
-    auto hw_model = hardwareModel(gates_spec, all_gates_noise);
-    // Noisy simulator:
-    auto noisyQProc = pybind11::module::import("qat.qpus").attr("NoisyQProc");
-    // Note: we use deterministic-vectorized to be able to compute the exp-val from OBS-job.
-    m_qlmQpuServer = noisyQProc(hw_model, "deterministic-vectorized");
-  } else if (params.stringExists("backend")) {
-    m_noiseModel = xacc::getService<NoiseModel>("IBM");
-    m_noiseModel->initialize(params);
-    auto qlmHardwareMod = pybind11::module::import("qat.hardware.default");
-    auto hardwareModel = qlmHardwareMod.attr("HardwareModel");
-    auto gatesSpecification = qlmHardwareMod.attr("DefaultGatesSpecification");
-    // List of gate to initialize the QLM noise model:
-    // Note: other gates (dagger and control) are expresses in terms of these
-    // gates.
-    const std::vector<std::string> GATE_SET{"X",  "Y", "Z", "Rx", "Ry",
-                                            "Rz", "H", "S", "T",  "U"};
-    const std::unordered_map<std::string, double> QLM_GATE_ERRORS = [&]() {
-      auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-      std::unordered_map<std::string, double> result;
-      for (const auto &gateName : GATE_SET) {
-        auto gate = gateRegistry->createInstruction(gateName, 0);
-        auto aqasmGateName = gateName;
-        std::for_each(aqasmGateName.begin(), aqasmGateName.end(),
-                      [](char &c) { c = ::toupper(c); });
-        if (aqasmGateName == "U") {
-          aqasmGateName = "CustomGate";
+      // pybind11::print(all_gates_noise);
+      auto qlmHardwareMod = pybind11::module::import("qat.hardware.default");
+      auto hardwareModel = qlmHardwareMod.attr("HardwareModel");
+      auto gatesSpecification =
+          qlmHardwareMod.attr("DefaultGatesSpecification");
+      auto gates_spec = gatesSpecification();
+      auto hw_model = hardwareModel(gates_spec, all_gates_noise);
+      // Noisy simulator:
+      auto noisyQProc = pybind11::module::import("qat.qpus").attr("NoisyQProc");
+      // Note: we use deterministic-vectorized to be able to compute the
+      // exp-val from OBS-job.
+      m_qlmQpuServer = noisyQProc(hw_model, "deterministic-vectorized");
+    } else if (params.stringExists("backend")) {
+      m_noiseModel = xacc::getService<NoiseModel>("IBM");
+      m_noiseModel->initialize(params);
+      auto qlmHardwareMod = pybind11::module::import("qat.hardware.default");
+      auto hardwareModel = qlmHardwareMod.attr("HardwareModel");
+      auto gatesSpecification =
+          qlmHardwareMod.attr("DefaultGatesSpecification");
+      // List of gate to initialize the QLM noise model:
+      // Note: other gates (dagger and control) are expresses in terms of
+      // these gates.
+      const std::vector<std::string> GATE_SET{"X",  "Y", "Z", "Rx", "Ry",
+                                              "Rz", "H", "S", "T",  "U"};
+      const std::unordered_map<std::string, double> QLM_GATE_ERRORS = [&]() {
+        auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+        std::unordered_map<std::string, double> result;
+        for (const auto &gateName : GATE_SET) {
+          auto gate = gateRegistry->createInstruction(gateName, 0);
+          auto aqasmGateName = gateName;
+          std::for_each(aqasmGateName.begin(), aqasmGateName.end(),
+                        [](char &c) { c = ::toupper(c); });
+          if (aqasmGateName == "U") {
+            aqasmGateName = "CustomGate";
+          }
+          result[aqasmGateName] = m_noiseModel->gateErrorProb(
+              *std::dynamic_pointer_cast<xacc::quantum::Gate>(gate));
         }
-        result[aqasmGateName] = m_noiseModel->gateErrorProb(
-            *std::dynamic_pointer_cast<xacc::quantum::Gate>(gate));
-      }
-      // Add 2-qubit noise:
-      CNOT cx_gate(0, 1);
-      result["CNOT"] = m_noiseModel->gateErrorProb(cx_gate);
-      return result;
-    }();
+        // Add 2-qubit noise:
+        CNOT cx_gate(0, 1);
+        result["CNOT"] = m_noiseModel->gateErrorProb(cx_gate);
+        return result;
+      }();
 
-    pybind11::dict gates_noise;
-    for (const auto &iter : QLM_GATE_ERRORS) {
-      auto aqasmGate = iter.first;
-      auto errorRate = iter.second;
-      // std::cout << aqasmGate << ": " << errorRate << "\n";
-      if (aqasmGate == "RX" || aqasmGate == "RY" || aqasmGate == "RZ") {
-        gates_noise[aqasmGate.c_str()] = pybind11::cpp_function(
-            [errorRate, aqasmGate](double theta, pybind11::kwargs kwarg) {
-              auto make_depolarizing_channel =
-                  pybind11::module::import("qat.quops.quantum_channels")
-                      .attr("make_depolarizing_channel");
-              return make_depolarizing_channel(errorRate, 1);
-            });
-      } else {
-        gates_noise[aqasmGate.c_str()] = pybind11::cpp_function(
-            [errorRate, aqasmGate](pybind11::kwargs kwarg) {
-              auto make_depolarizing_channel =
-                  pybind11::module::import("qat.quops.quantum_channels")
-                      .attr("make_depolarizing_channel");
-              const int arity = (aqasmGate == "CNOT") ? 2 : 1;
-              return make_depolarizing_channel(errorRate, arity);
-            });
+      pybind11::dict gates_noise;
+      for (const auto &iter : QLM_GATE_ERRORS) {
+        auto aqasmGate = iter.first;
+        auto errorRate = iter.second;
+        // std::cout << aqasmGate << ": " << errorRate << "\n";
+        if (aqasmGate == "RX" || aqasmGate == "RY" || aqasmGate == "RZ") {
+          gates_noise[aqasmGate.c_str()] = pybind11::cpp_function(
+              [errorRate, aqasmGate](double theta, pybind11::kwargs kwarg) {
+                auto make_depolarizing_channel =
+                    pybind11::module::import("qat.quops.quantum_channels")
+                        .attr("make_depolarizing_channel");
+                return make_depolarizing_channel(errorRate, 1);
+              });
+        } else {
+          gates_noise[aqasmGate.c_str()] = pybind11::cpp_function(
+              [errorRate, aqasmGate](pybind11::kwargs kwarg) {
+                auto make_depolarizing_channel =
+                    pybind11::module::import("qat.quops.quantum_channels")
+                        .attr("make_depolarizing_channel");
+                const int arity = (aqasmGate == "CNOT") ? 2 : 1;
+                return make_depolarizing_channel(errorRate, arity);
+              });
+        }
+      }
+
+      auto gates_spec = gatesSpecification();
+      auto hw_model = hardwareModel(gates_spec, gates_noise);
+      // Noisy simulator:
+      auto noisyQProc = pybind11::module::import("qat.qpus").attr("NoisyQProc");
+      m_qlmQpuServer = noisyQProc(hw_model);
+      // For noisy sim, we must run QLM in shots mode:
+      constexpr int DEFAULT_NUM_SHOTS = 1024;
+      if (m_shots < 0) {
+        m_shots = DEFAULT_NUM_SHOTS;
       }
     }
+  }
 
-    auto gates_spec = gatesSpecification();
-    auto hw_model = hardwareModel(gates_spec, gates_noise);
-    // Noisy simulator:
-    auto noisyQProc = pybind11::module::import("qat.qpus").attr("NoisyQProc");
-    m_qlmQpuServer = noisyQProc(hw_model);
-    // For noisy sim, we must run QLM in shots mode:
-    constexpr int DEFAULT_NUM_SHOTS = 1024;
-    if (m_shots < 0) {
-      m_shots = DEFAULT_NUM_SHOTS;
-    }
-  } else {
+  if (!m_noiseModel) {
     // No noise:
     // There are 4 types of simulator:
     // (1) LinAlg
@@ -590,16 +728,24 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     // (4) BDD (Quantum Multi-valued Decision Diagrams)
     // Default is LinAlg, which is the most versatile (consistent perf. in
     // most cases) User can switch between them using the "sim-type" option:
-    using SimFactory =
-        std::function<pybind11::object(const HeterogeneousMap &)>;
-    const SimFactory createMpsSim = [](const HeterogeneousMap &configs) {
-      auto simClass = pybind11::module::import("qat.qpus").attr("MPS");
+    using SimFactory = std::function<pybind11::object(
+        const HeterogeneousMap &, bool, pybind11::object &)>;
+    const SimFactory createMpsSim = [](const HeterogeneousMap &configs,
+                                       bool isRemote,
+                                       pybind11::object &qlmaasConnection) {
+      auto simClass = [&]() -> pybind11::object {
+        if (!isRemote) {
+          return pybind11::module::import("qat.qpus").attr("MPS");
+        } else {
+          return qlmaasConnection.attr("get_qpu")("qat.qpus:MPS");
+        }
+      }();
+
       // Default MPS settings:
       // lnnize=True, no_merge=False, threshold=None, n_trunc=None
       // Supported users-options (that we exposed to XACC):
-      // mps-threshold: specify threshold below which Schmidt coefficients are
-      // truncated.
-      // max-bond: specify maximum number of non-zero Schmidt
+      // mps-threshold: specify threshold below which Schmidt coefficients
+      // are truncated. max-bond: specify maximum number of non-zero Schmidt
       // coefficients.
       std::optional<double> threshold;
       if (configs.keyExists<double>("mps-threshold")) {
@@ -611,37 +757,60 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
         n_trunc = configs.get<int>("max-bond");
       }
 
-      auto kwargs =
-          pybind11::dict("lnnize"_a = true, "no_merge"_a = false,
-                         "threshold"_a = threshold, "n_trunc"_a = n_trunc);
-      return simClass(kwargs);
+      return simClass("lnnize"_a = true, "no_merge"_a = false,
+                      "threshold"_a = threshold, "n_trunc"_a = n_trunc);
     };
 
-    const SimFactory createFeynmanSim = [](const HeterogeneousMap &configs) {
+    const SimFactory createFeynmanSim = [](const HeterogeneousMap &configs,
+                                           bool isRemote,
+                                           pybind11::object &qlmaasConnection) {
       // Support changing number of threads:
       int nbThreads = 1;
       if (configs.keyExists<int>("threads")) {
         nbThreads = configs.get<int>("threads");
       }
-      auto simClass = pybind11::module::import("qat.qpus").attr("Feynman");
-      return simClass(nbThreads);
+      auto simClass = [&]() -> pybind11::object {
+        if (!isRemote) {
+          return pybind11::module::import("qat.qpus").attr("Feynman");
+        } else {
+          return qlmaasConnection.attr("get_qpu")("qat.qpus:Feynman");
+        }
+      }();
+
+      return simClass("threads"_a = nbThreads);
     };
 
-    const SimFactory createBddSim = [](const HeterogeneousMap &configs) {
+    const SimFactory createBddSim = [](const HeterogeneousMap &configs,
+                                       bool isRemote,
+                                       pybind11::object &qlmaasConnection) {
       // Support changing number of threads:
       int nbThreads = 1;
       if (configs.keyExists<int>("threads")) {
         nbThreads = configs.get<int>("threads");
       }
-      auto simClass = pybind11::module::import("qat.qpus").attr("Bdd");
-      return simClass(nbThreads);
+      auto simClass = [&]() -> pybind11::object {
+        if (!isRemote) {
+          return pybind11::module::import("qat.qpus").attr("Bdd");
+        } else {
+          return qlmaasConnection.attr("get_qpu")("qat.qpus:Bdd");
+        }
+      }();
+
+      return simClass("threads"_a = nbThreads);
     };
 
     static const std::unordered_map<std::string, SimFactory> SIM_REGISTRY{
         // LinAlg doesn't have any extra runtime params
         {"LinAlg",
-         [](const HeterogeneousMap &configs) {
-           return pybind11::module::import("qat.qpus").attr("LinAlg")();
+         [](const HeterogeneousMap &configs, bool isRemote,
+            pybind11::object &qlmaasConnection) {
+           if (!isRemote) {
+             return pybind11::module::import("qat.qpus").attr("LinAlg")();
+           } else {
+             auto qpuClass =
+                 qlmaasConnection.attr("get_qpu")("qat.qpus:LinAlg");
+             return qpuClass();
+           }
          }},
         {"MPS", createMpsSim},
         {"Feynman", createFeynmanSim},
@@ -659,7 +828,7 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
       xacc::error("The requested sim-type of '" + simType + "' is invalid.");
     }
 
-    m_qlmQpuServer = (iter->second)(params);
+    m_qlmQpuServer = (iter->second)(params, m_remoteAccess, m_qlmaasConnection);
 
     // Important notes: Feynman and BDD don't support Observable mode,
     // hence, must use shots.
@@ -836,7 +1005,16 @@ void QlmAccelerator::execute(
     auto compute_density_matrix =
         pybind11::module::import("qat.noisy").attr("compute_density_matrix");
     auto qlmJob = constructQlmJob(buffer, compositeInstruction);
-    auto result = m_qlmQpuServer.attr("submit")(qlmJob);
+    auto result = [&]() {
+      if (!m_remoteAccess) {
+        return m_qlmQpuServer.attr("submit")(qlmJob);
+      } else {
+        auto asynchronous_result = m_qlmQpuServer.attr("submit")(qlmJob);
+        // wait
+        auto sync_result = asynchronous_result.attr("join")();
+        return sync_result;
+      }
+    }();
     persistResultToBuffer(buffer, result, qlmJob);
     auto circ = constructQlmCirc(buffer, compositeInstruction);
     pybind11::array_t<std::complex<double>> rho =
@@ -856,7 +1034,16 @@ void QlmAccelerator::execute(
   } else {
     auto qlmJob = constructQlmJob(buffer, compositeInstruction);
     // pybind11::print(qlmJob);
-    auto result = m_qlmQpuServer.attr("submit")(qlmJob);
+    auto result = [&]() {
+      if (!m_remoteAccess) {
+        return m_qlmQpuServer.attr("submit")(qlmJob);
+      } else {
+        auto asynchronous_result = m_qlmQpuServer.attr("submit")(qlmJob);
+        // wait
+        auto sync_result = asynchronous_result.attr("join")();
+        return sync_result;
+      }
+    }();
     // pybind11::print(result);
     persistResultToBuffer(buffer, result, qlmJob);
   }
@@ -867,22 +1054,33 @@ void QlmAccelerator::execute(
     const std::vector<std::shared_ptr<CompositeInstruction>>
         compositeInstructions) {
   std::vector<std::shared_ptr<AcceleratorBuffer>> childBuffers;
-  std::vector<pybind11::object> batch;
+  std::vector<pybind11::object> jobs;
   for (auto &f : compositeInstructions) {
     childBuffers.emplace_back(
         std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size()));
-    batch.emplace_back(constructQlmJob(buffer, f));
+    jobs.emplace_back(constructQlmJob(buffer, f));
   }
 
+  auto batch = pybind11::module::import("qat.core").attr("Batch")(jobs);
   // Submit the whole batch:
-  auto batchResult = m_qlmQpuServer.attr("submit")(batch);
-  // pybind11::print(result);
+  auto batchResult = [&]() {
+    if (!m_remoteAccess) {
+      return m_qlmQpuServer.attr("submit")(batch);
+    } else {
+      auto asynchronous_result = m_qlmQpuServer.attr("submit")(batch);
+      // wait
+      auto sync_result = asynchronous_result.attr("join")();
+      return sync_result;
+    }
+  }();
+
+  // pybind11::print(batchResult);
   auto iter = pybind11::iter(batchResult);
   int childBufferIndex = 0;
   while (iter != pybind11::iterator::sentinel()) {
     auto result = (*iter).cast<pybind11::object>();
     persistResultToBuffer(childBuffers[childBufferIndex], result,
-                          batch[childBufferIndex]);
+                          jobs[childBufferIndex]);
     ++iter;
     ++childBufferIndex;
   }

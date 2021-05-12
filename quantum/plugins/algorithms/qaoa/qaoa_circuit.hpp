@@ -40,7 +40,7 @@ private:
     size_t m_nbSteps;
     std::vector<std::string> m_refHam;
     std::vector<std::string> m_costHam;
-    CompositeInstruction* m_initial_state;
+    CompositeInstruction* m_initial_state = nullptr;
 };
 } // namespace circuits
 } // namespace xacc

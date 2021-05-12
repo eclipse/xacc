@@ -2,25 +2,26 @@
 #include <numeric>
 namespace {
     const std::complex<double> I(0.0, 1.0);
-    Eigen::MatrixXcd Xmat{ Eigen::MatrixXcd::Zero(2, 2) }; 
-    Eigen::MatrixXcd Ymat{ Eigen::MatrixXcd::Zero(2, 2) }; 
-    Eigen::MatrixXcd Zmat{ Eigen::MatrixXcd::Zero(2, 2) }; 
-    
-    void initStaticMat()
-    {
-        static bool wasInit = false;
-        if (!wasInit)
-        {
-            Xmat << 0, 1, 1, 0;
-            Ymat << 0, -I, I, 0;
-            Zmat << 1, 0, 0, -1;
-            wasInit = true;
-        }
-    }
+    Eigen::MatrixXcd Xmat = [] {
+      Eigen::MatrixXcd temp = Eigen::MatrixXcd::Zero(2, 2);
+      temp << 0, 1, 1, 0;
+      return temp;
+    }();
+
+    Eigen::MatrixXcd Ymat = [] {
+      Eigen::MatrixXcd temp = Eigen::MatrixXcd::Zero(2, 2);
+      temp << 0, -I, I, 0;
+      return temp;
+    }();
+
+    Eigen::MatrixXcd Zmat = [] {
+      Eigen::MatrixXcd temp = Eigen::MatrixXcd::Zero(2, 2);
+      temp << 1, 0, 0, -1;
+      return temp;
+    }();
    
     Eigen::MatrixXcd getRnMat(double theta, const std::vector<double>& in_n) 
     {
-        initStaticMat();
         Eigen::MatrixXcd result(2, 2);
         result = std::cos(theta / 2) * Eigen::MatrixXcd::Identity(2, 2) -
                  I * std::sin(theta / 2) * (in_n[0] * Xmat + in_n[1] * Ymat + in_n[2] * Zmat);
@@ -41,7 +42,6 @@ namespace xacc {
 namespace quantum {
 void GateFuser::initialize(const std::shared_ptr<xacc::CompositeInstruction>& in_program)
 {
-    initStaticMat();
     m_gates.clear();
     InstructionIterator it(in_program);
     while (it.hasNext())

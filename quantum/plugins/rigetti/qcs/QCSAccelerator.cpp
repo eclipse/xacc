@@ -223,8 +223,15 @@ void QCSAccelerator::execute(
   auto quilStr = visitor->getQuilString();
   quilStr =
       "DECLARE ro BIT[" + std::to_string(buffer->size()) + "]\n" + quilStr;
-//   std::cout << "\nQuil Program:\n" << quilStr << "\n";
+  
+//   std::cout << "\nBefore Quil Program:\n" << quilStr << "\n";
 
+  quilStr = std::regex_replace(quilStr, std::regex("1.5708"), "pi/2");
+  quilStr = std::regex_replace(quilStr, std::regex("3.14159"), "pi");
+
+//   std::cout << "\nAfter Quil Program:\n" << quilStr << "\n";
+
+    
   json j;
   j["quil"] = quilStr;
   j["num_shots"] = shots;

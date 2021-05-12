@@ -38,6 +38,7 @@ TEST(PulseTransformTester, checkSimple)
         auto fuser = xacc::getService<GateFuser>("default");
         fuser->initialize(program);
         auto result = fuser->calcFusedGate(1);
+        std::cout << "Result:\n" << result << "\n";
         EXPECT_NEAR(result(0,0).real(), 0.0, 1e-12);
         EXPECT_NEAR(result(0,1).real(), 1.0, 1e-12);
         EXPECT_NEAR(result(1,0).real(), 1.0, 1e-12);

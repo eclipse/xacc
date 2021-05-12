@@ -40,7 +40,7 @@ private:
     int m_nbSteps;
     std::string m_parameterizedMode;
     bool m_maximize = false;
-    CompositeInstruction* m_initial_state;
+    CompositeInstruction* m_initial_state = nullptr;
 };
 } // namespace algorithm
 } // namespace xacc
