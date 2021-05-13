@@ -56,6 +56,9 @@ const bool NLOptimizer::isGradientBased() const {
 }
 
 OptResult NLOptimizer::optimize(OptFunction &function) {
+#ifdef _XACC_MUTEX
+  std::lock_guard<std::mutex> lock(getMutex());
+#endif
 
   auto dim = function.dimensions();
   nlopt::algorithm algo = nlopt::algorithm::LN_COBYLA;
