@@ -28,6 +28,11 @@
 #include <sys/stat.h>
 #include <iosfwd>
 
+#undef _XACC_MUTEX
+#ifdef _XACC_MUTEX
+#include <mutex>
+#endif
+
 namespace xacc {
 
 namespace constants {
