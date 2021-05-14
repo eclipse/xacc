@@ -205,6 +205,87 @@ TEST(ControlledGateTester, checkMultipleControlQregs)
     EXPECT_EQ(ref_circuit_str, new_circ_str);
 }
 
+TEST(ControlledGateTester, checkControlSwap) 
+{
+    auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+    auto swap = std::make_shared<Swap>(0, 1);
+    std::shared_ptr<xacc::CompositeInstruction> comp =
+        gateRegistry->createComposite("__COMPOSITE__Swap");
+    comp->addInstruction(swap);
+    auto cswap = std::dynamic_pointer_cast<CompositeInstruction>(
+        xacc::getService<Instruction>("C-U"));
+    const std::vector<int> ctrl_idxs{2};
+    cswap->expand({{"U", comp}, {"control-idx", ctrl_idxs}});
+    std::cout << "HOWDY: \n" << cswap->toString() << "\n";
+    // 2 CNOT + CCNOT (15 gates)
+    EXPECT_EQ(cswap->nInstructions(), 15 + 2);
+    // Test truth table
+    auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", 1024)});
+    auto xGate0 = gateRegistry->createInstruction("X", { 0 });
+    auto xGate1 = gateRegistry->createInstruction("X", { 1 });
+    auto xGate2 = gateRegistry->createInstruction("X", { 2 });
+    auto measureGate0 = gateRegistry->createInstruction("Measure", { 0 });
+    auto measureGate1 = gateRegistry->createInstruction("Measure", { 1 });
+    auto measureGate2 = gateRegistry->createInstruction("Measure", { 2 });
+
+    const auto runTestCase = [&](bool in_bit0, bool in_bit1, bool in_bit2) {
+        static int counter = 0;
+        auto composite = gateRegistry->createComposite("__TEMP_COMPOSITE__" + std::to_string(counter));
+        counter++;
+        // State prep:
+        if (in_bit0)
+        {
+            composite->addInstruction(xGate0);
+        }
+        if (in_bit1)
+        {
+            composite->addInstruction(xGate1);
+        }
+        if (in_bit2)
+        {
+            composite->addInstruction(xGate2);
+        }
+
+        std::string inputBitString;
+        inputBitString.append(in_bit0 ? "1" : "0");
+        inputBitString.append(in_bit1 ? "1" : "0");
+        inputBitString.append(in_bit2 ? "1" : "0");
+
+        // Add cswap
+        composite->addInstructions(cswap->getInstructions());
+        // Mesurement:
+        composite->addInstructions({ measureGate0, measureGate1, measureGate2 });
+
+        auto buffer = xacc::qalloc(3);
+        acc->execute(buffer, composite);
+        std::cout << "Input bitstring: " << inputBitString << "\n";
+        buffer->print();
+        // CSWAP gate:
+        const auto expectedBitString = [&inputBitString]() -> std::string {
+            // If q2 is 1 and q0 and q1 are different ==> swap
+            // q0q1q2
+            if (inputBitString == "011")
+            {
+                return "101";
+            }
+            if (inputBitString == "101")
+            {
+                return "011";
+            }
+            // Otherwise, no changes
+            return inputBitString;
+        }();
+        // Check bit string
+        EXPECT_NEAR(buffer->computeMeasurementProbability(expectedBitString),  1.0,  0.1);
+    };  
+
+    // 3 bits: run all test cases (8)
+    for (int i = 0; i < (1 << 3); ++i)
+    {
+        runTestCase(i & 0x001, i & 0x002, i & 0x004);
+    }
+}
+
 int main(int argc, char **argv) 
 {
   xacc::Initialize(argc, argv);
