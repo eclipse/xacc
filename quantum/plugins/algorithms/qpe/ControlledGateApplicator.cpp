@@ -302,18 +302,19 @@ void ControlledU::visit(Swap &s) {
   // Fredkin gate: controlled-swap
   // Decompose Swap gate into CNOT gates;
   // then re-visit those CNOT gates (becoming CCNOT).
-  CNOT c1(s.bits());
-  c1.setBufferNames({s.getBufferName(0), s.getBufferName(1)});
+  // CX(0, 1) CX (1, 0) CX(0, 1) is a compute-action pattern,
+  // we only need to convert the middle CX to CCX:
+  const auto qubit1 = std::make_pair(s.getBufferName(0), s.bits()[0]);
+  const auto qubit2 = std::make_pair(s.getBufferName(1), s.bits()[1]);
+  m_composite->addInstruction(m_gateProvider->createInstruction("CX", {qubit1, qubit2}));
 
+  // Visit the middle CNOT ==> CCNOT
   CNOT c2(s.bits()[1], s.bits()[0]);
   c2.setBufferNames({s.getBufferName(1), s.getBufferName(0)});
-  
-  CNOT c3(s.bits());
-  c3.setBufferNames({s.getBufferName(0), s.getBufferName(1)});
-
-  visit(c1);
   visit(c2);
-  visit(c3);
+
+  // Add the uncompute CNOT
+  m_composite->addInstruction(m_gateProvider->createInstruction("CX", {qubit1, qubit2}));
 }
 
 void ControlledU::visit(U &u) {
