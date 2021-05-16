@@ -177,12 +177,11 @@ bool hasMidCircuitMeasurement(
 }
 
 void IBMAccelerator::processBackendCandidate(nlohmann::json& b) {
-  // First of all filter by count fo qubits  
-  std::string curr_backend = b["backend_name"].get<std::string>();
-  xacc::info(std::string("selectBackendByQueueSize for ") + curr_backend );
+  // Without this flag we wouldn't able to work at all - TODO ...  
   if(!b.count("multi_meas_enabled")) {
     return;
   }
+  // First of all filter by count fo qubits  
   if (requested_n_qubits > 0) {
     if( b.count("n_qubits") ) {
       int nqubits = b["n_qubits"].get<int>();
@@ -193,6 +192,7 @@ void IBMAccelerator::processBackendCandidate(nlohmann::json& b) {
       return;
     }
   }
+  std::string curr_backend = b["backend_name"].get<std::string>();
   std::string getStatusPath = "/api/Network/" + hub + "/Groups/" + group +
                               "/Projects/" + project + "/devices/" + curr_backend +
                               "/queue/status";
@@ -235,9 +235,7 @@ void IBMAccelerator::selectBackend(std::vector<std::string>& all_available_backe
   bool lowest_queue_backend = false;
   if( backend == "lowest-queue-count" ) {
     lowest_queue_backend = true;
-    xacc::info("Use flag lowest-queue-count.");
   }
-  xacc::info("Start backends loop.");
 
   for (auto &b : backends_root["backends"]) {
     if (!b.count("backend_name")) {
@@ -287,16 +285,13 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
         {"Content-Type", "application/json"},
         {"Connection", "keep-alive"},
         {"Content-Length", std::to_string(tokenParam.length())}};
-//    xacc::info(std::string("Response to Auth request.") + IBM_AUTH_URL.c_str() + IBM_LOGIN_PATH.c_str() + tokenParam.c_str() );
     auto response = post(IBM_AUTH_URL, IBM_LOGIN_PATH, tokenParam, headers);
-//    xacc::info(std::string(response.c_str()));
     auto response_json = json::parse(response);
 
     // set the temp API token
     currentApiToken = response_json["id"].get<std::string>();
 
     // Get all backend information
-//    xacc::info(std::string("Response to Backend request to") + IBM_API_URL + getBackendPath );
     response = get(IBM_API_URL, getBackendPath + currentApiToken);
     xacc::info(response.c_str());
     backends_root = json::parse("{\"backends\":" + response + "}");
