@@ -62,7 +62,7 @@ RUN curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
     && cp /var/lib/dpkg/status /var/lib/apt/dazzle-marks/lang-c.status \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* \
 
-    && python3 -m pip install --upgrade pip && python3 -m pip install pint pydantic matplotlib qiskit scipy numpy pyquil cmake virtualenv pipenv pylint rope flake8 mypy autopep8 pep8 pylama pydocstyle bandit notebook python-language-server[all]==0.25.0 \
+    && python3 -m pip install --upgrade pip && python3 -m pip install --no-cache-dir pint pydantic matplotlib qiskit scipy numpy pyquil cmake virtualenv pipenv pylint rope flake8 mypy autopep8 pep8 pylama pydocstyle bandit notebook python-language-server[all]==0.25.0 \
     && sudo rm -rf /tmp/* \
     && git clone https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build \
     && cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4 \
