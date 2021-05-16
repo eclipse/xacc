@@ -176,6 +176,86 @@ bool hasMidCircuitMeasurement(
   return false;
 }
 
+void IBMAccelerator::processBackendCandidate(nlohmann::json& b) {
+  // First of all filter by count fo qubits  
+  std::string curr_backend = b["backend_name"].get<std::string>();
+  xacc::info(std::string("selectBackendByQueueSize for ") + curr_backend );
+  if(!b.count("multi_meas_enabled")) {
+    return;
+  }
+  if (requested_n_qubits > 0) {
+    if( b.count("n_qubits") ) {
+      int nqubits = b["n_qubits"].get<int>();
+      if(nqubits < requested_n_qubits) {
+        return;
+      } 
+    } else {
+      return;
+    }
+  }
+  std::string getStatusPath = "/api/Network/" + hub + "/Groups/" + group +
+                              "/Projects/" + project + "/devices/" + curr_backend +
+                              "/queue/status";
+// Get current backend status
+  xacc::info(std::string("Response to Backend status request to") + IBM_API_URL + getStatusPath );
+  auto status_response = get(IBM_API_URL, getStatusPath, {},
+        {std::make_pair("version", "1"),
+          std::make_pair("access_token", currentApiToken)});
+  xacc::info(std::string("Backend status:") + status_response.c_str());  
+  auto status_response_json = json::parse(status_response);
+  auto queue_lenght = status_response_json["lengthQueue"].get<int>();
+  auto status = status_response_json["status"].get<std::string>();
+  auto state = status_response_json["state"].get<bool>();
+  auto message = status_response_json["message"].get<std::string>();
+
+  if( backend_queue_lenght < 0 || backend_queue_lenght > queue_lenght) {
+    backend_queue_lenght = queue_lenght;
+    auto old_backend = backend;
+    backend = curr_backend;
+    availableBackends.clear();
+    availableBackends.insert(std::make_pair(backend, b));
+    xacc::info(std::string("Selected Backend:") + status_response.c_str());  
+  }
+  //Backend status:{"state":true,"status":"active","message":"available","lengthQueue":2,"backend_version":"2.3.22"}
+
+
+  // Get current reservations
+//        std::string getReservationsPath = "/api/Network/" + hub + "/Groups/" + group +
+//                              "/Projects/" + project + "/devices/" + backend +
+//                              "/bookings/v2";
+
+//        auto backend_reservations_response = get(IBM_API_URL, getReservationsPath, {},
+//              {std::make_pair("version", "1"),
+//                std::make_pair("access_token", currentApiToken)});
+//        xacc::info(std::string("Backend reservations:") + backend_status_response.c_str());  
+        
+}
+
+void IBMAccelerator::selectBackend(std::vector<std::string>& all_available_backends) {
+  bool lowest_queue_backend = false;
+  if( backend == "lowest-queue-count" ) {
+    lowest_queue_backend = true;
+    xacc::info("Use flag lowest-queue-count.");
+  }
+  xacc::info("Start backends loop.");
+
+  for (auto &b : backends_root["backends"]) {
+    if (!b.count("backend_name")) {
+      continue;
+    }
+    // Simple case: select by backend_name
+    if( !lowest_queue_backend ) {
+      if(b["backend_name"].get<std::string>() == backend) {
+        availableBackends.insert(std::make_pair(backend, b));
+      }
+    } else {
+      // Select backend by job queue size and by parameters (optional)
+      processBackendCandidate(b);
+    }
+    all_available_backends.push_back(b["backend_name"].get<std::string>());
+  }
+}
+
 void IBMAccelerator::initialize(const HeterogeneousMap &params) {
   if (!initialized) {
     std::string apiKey = "";
@@ -200,9 +280,6 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
     IBM_CREDENTIALS_PATH =
         "/api/Network/" + hub + "/Groups/" + group + "/Projects/" + project;
     getBackendPath = IBM_CREDENTIALS_PATH + "/devices?access_token=";
-    getBackendPropertiesPath = "/api/Network/" + hub + "/Groups/" + group +
-                               "/Projects/" + project + "/devices/" + backend +
-                               "/properties";
 
     // Post apiKey to get temp api key
     tokenParam += apiKey + "\"}";
@@ -210,18 +287,29 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
         {"Content-Type", "application/json"},
         {"Connection", "keep-alive"},
         {"Content-Length", std::to_string(tokenParam.length())}};
+//    xacc::info(std::string("Response to Auth request.") + IBM_AUTH_URL.c_str() + IBM_LOGIN_PATH.c_str() + tokenParam.c_str() );
     auto response = post(IBM_AUTH_URL, IBM_LOGIN_PATH, tokenParam, headers);
+//    xacc::info(std::string(response.c_str()));
     auto response_json = json::parse(response);
 
     // set the temp API token
     currentApiToken = response_json["id"].get<std::string>();
 
     // Get all backend information
+//    xacc::info(std::string("Response to Backend request to") + IBM_API_URL + getBackendPath );
     response = get(IBM_API_URL, getBackendPath + currentApiToken);
+    xacc::info(response.c_str());
     backends_root = json::parse("{\"backends\":" + response + "}");
     getBackendPropsResponse = "{\"backends\":" + response + "}";
 
+    std::vector<std::string> your_available_backends;
+    selectBackend(your_available_backends);
+
+    getBackendPropertiesPath = "/api/Network/" + hub + "/Groups/" + group +
+                               "/Projects/" + project + "/devices/" + backend +
+                               "/properties";
     // Get current backend properties
+    xacc::info(std::string("Response to BackendProp request to") + IBM_API_URL + getBackendPropertiesPath + currentApiToken );
     auto backend_props_response =
         get(IBM_API_URL, getBackendPropertiesPath, {},
             {std::make_pair("version", "1"),
@@ -229,16 +317,6 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
     xacc::info("Backend property:\n" + backend_props_response);
     auto props = json::parse(backend_props_response);
     backendProperties.insert({backend, props});
-    std::vector<std::string> your_available_backends;
-    for (auto &b : backends_root["backends"]) {
-      if (b.count("backend_name") &&
-          b["backend_name"].get<std::string>() == backend) {
-        availableBackends.insert(std::make_pair(backend, b));
-      }
-      if (b.count("backend_name")) {
-        your_available_backends.push_back(b["backend_name"].get<std::string>());
-      }
-    }
 
     if (!xacc::container::contains(your_available_backends, backend)) {
       std::stringstream error_ss;
