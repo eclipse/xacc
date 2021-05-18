@@ -116,7 +116,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         auto kernels = observable->observe(evaled);
 
         double identityCoeff = 0.0;
-        int nInstructionsEnergy = 0, nInstructionsGradient = 0;
+        int nInstructionsEnergy = kernels.size(), nInstructionsGradient = 0;
         for (auto &f : kernels) {
           kernelNames.push_back(f->name());
           std::complex<double> coeff = f->getCoefficient();
