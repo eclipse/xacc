@@ -5,19 +5,28 @@ xacc.set_verbose(True)
 # allocate some qubits to run on
 qpu = xacc.getAccelerator('qsim')
 graph = xacc.getGraph("boost-digraph")
-nbNodes = 3
-random_graph = graph.gen_random_graph(nbNodes, 3.0 / nbNodes)
-print(random_graph)
+# Manual construction:
+# Triangular graph
+graph.addVertex({'name': 'v1'})
+graph.addVertex({'name': 'v2'})
+graph.addVertex({'name': 'v3'})
+
+graph.addEdge(0, 1)
+graph.addEdge(0, 2)
+graph.addEdge(1, 2)
+
+print(graph)
+
 nbSteps = 1
-buffer = xacc.qalloc(nbNodes)
+buffer = xacc.qalloc(3)
 opt = xacc.getOptimizer('nlopt')
 # Create QAOA
-qaoa = xacc.getAlgorithm('QAOA', {
+qaoa = xacc.getAlgorithm('maxcut-qaoa', {
                         'accelerator': qpu,
-                        'graph': random_graph,
+                        'graph': graph,
                         'optimizer': opt,
                         'steps': nbSteps,
-                        'parameter-scheme': 'Standard'
+                        'shuffle-terms': True
                         })
 result = qaoa.execute(buffer)
 print("Max-cut val:", buffer["opt-val"])

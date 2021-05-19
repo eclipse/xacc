@@ -19,7 +19,7 @@
 #include <math.h>
 #include <limits>
 #include <stdlib.h>
-
+#include <algorithm>
 namespace {
   // Null if not an Observable-like type 
   std::shared_ptr<xacc::Observable> getObservableRuntimeArg(const xacc::HeterogeneousMap& in_runtimeArg) 
@@ -77,6 +77,12 @@ bool QAOA::expand(const xacc::HeterogeneousMap& runtimeOptions)
   {
     std::cout << "'cost-ham' is required.\n";
     return false;
+  }
+
+  m_shuffleTerms = false;
+  if (runtimeOptions.keyExists<bool>("shuffle-terms")) 
+  {
+    m_shuffleTerms = runtimeOptions.get<bool>("shuffle-terms");
   }
 
   m_nbQubits = runtimeOptions.get<int>("nbQubits");
@@ -172,7 +178,7 @@ void QAOA::parseObservables(Observable* costHam, Observable* refHam)
   }
 }
 
-std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(bool extendedMode) const
+std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(bool extendedMode)
 {   
   // If initial state not provided, apply Hadamards to each qubit as default
   auto provider = getIRProvider("quantum");
@@ -190,6 +196,13 @@ std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(bool ex
   // Trotter layers (parameterized): mixing b/w cost and drive (reference) Hamiltonian
   int betaParamCounter = 0;
   int gammaParamCounter = 0;
+
+  if (m_shuffleTerms) {
+    static std::random_device rd;
+    static std::mt19937 g(rd());
+    // Shuffle the list of terms:
+    std::shuffle(m_costHam.begin(), m_costHam.end(), g);
+  }
 
   for (size_t i = 0; i < m_nbSteps; ++i)
   {

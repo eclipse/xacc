@@ -252,7 +252,10 @@ namespace algorithm {
         if (parameters.keyExists<bool>("maximize")) {
             m_maximize = parameters.get<bool>("maximize");
         }
-
+        m_shuffleTerms = false;
+        if (parameters.keyExists<bool>("shuffle-terms")) {
+          m_shuffleTerms = parameters.get<bool>("shuffle-terms");
+        }
         if (m_optimizer && m_optimizer->isGradientBased() &&
             gradientStrategy == nullptr) {
             // No gradient strategy was provided, just use autodiff.
@@ -275,6 +278,7 @@ namespace algorithm {
         m.insert("observable", m_costHamObs);
         m.insert("steps", m_nbSteps);
         m.insert("parameter-scheme", "Standard");
+        m.insert("shuffle-terms", m_shuffleTerms);
 
         if (m_initializationMode == "warm-start") {
             m.insert("initial-state", warm_start(m_graph));
@@ -295,7 +299,8 @@ namespace algorithm {
         m.insert("observable", m_costHamObs);
         m.insert("steps", m_nbSteps);
         m.insert("parameter-scheme", "Standard");
-        
+        m.insert("shuffle-terms", m_shuffleTerms);
+
         // If: warm-start selected, call the warm start function
         // and use as initial-state.
         // Else if: custom initial-state given, pass that to the

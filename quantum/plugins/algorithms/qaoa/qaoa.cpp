@@ -111,6 +111,11 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
       m_maximize = parameters.get<bool>("maximize");
   }
 
+  m_shuffleTerms = false;
+  if (parameters.keyExists<bool>("shuffle-terms")) {
+    m_shuffleTerms = parameters.get<bool>("shuffle-terms");
+  }
+
   if (m_optimizer && m_optimizer->isGradientBased() &&
       gradientStrategy == nullptr) {
     // No gradient strategy was provided, just use autodiff.
@@ -143,6 +148,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       if (m_initial_state){
           m.insert("initial-state", m_initial_state);
       }
+      m.insert("shuffle-terms", m_shuffleTerms);
       kernel->expand(m);
   } 
 
@@ -303,6 +309,7 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     if (m_initial_state){
         m.insert("initial-state", m_initial_state);
     }
+    m.insert("shuffle-terms", m_shuffleTerms);
     kernel->expand(m);
     // save this kernel for future calls to execute
     m_single_exec_kernel = kernel;
