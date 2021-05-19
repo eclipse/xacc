@@ -33,7 +33,7 @@ public:
     DEFINE_CLONE(QAOA);
 
 private:
-    std::shared_ptr<CompositeInstruction> constructParameterizedKernel(bool extendedMode = true) const;
+    std::shared_ptr<CompositeInstruction> constructParameterizedKernel(bool extendedMode = true);
     void parseObservables(Observable* costHam, Observable* refHam);
 private:
     size_t m_nbQubits;
@@ -41,6 +41,11 @@ private:
     std::vector<std::string> m_refHam;
     std::vector<std::string> m_costHam;
     CompositeInstruction* m_initial_state = nullptr;
+    // Should we shuffle the terms when generating the circuit?
+    // This technically doesn't matter but may be relevant for placement and scheduling
+    // i.e. gates on different set of qubits can be aligned -> reduce depth.
+    // Users may loop over the algorithm to observe the final circuit depth.
+    bool m_shuffleTerms = false;
 };
 } // namespace circuits
 } // namespace xacc
