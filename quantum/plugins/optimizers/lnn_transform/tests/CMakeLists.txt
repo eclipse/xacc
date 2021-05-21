@@ -1,0 +1,2 @@
+add_xacc_test(NearestNeighborTransform)
+target_link_libraries(NearestNeighborTransformTester xacc-quantum-gate xacc-circuit-optimizers)

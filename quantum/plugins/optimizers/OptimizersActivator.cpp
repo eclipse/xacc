@@ -14,7 +14,8 @@
 #include "default_placement.hpp"
 #include "GateMergeOptimizer.hpp"
 #include "PulseTransform.hpp"
-#include "GateFusion.hpp" 
+#include "GateFusion.hpp"
+#include "NearestNeighborTransform.hpp"
 // #include "qsearch.hpp"
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -28,40 +29,40 @@ namespace {
 
 /**
  */
-class US_ABI_LOCAL OptimizersActivator: public BundleActivator {
+class US_ABI_LOCAL OptimizersActivator : public BundleActivator {
 
 public:
+  OptimizersActivator() {}
 
-	OptimizersActivator() {
-	}
+  /**
+   */
+  void Start(BundleContext context) {
+    auto c4 = std::make_shared<xacc::quantum::CircuitOptimizer>();
+    context.RegisterService<xacc::IRTransformation>(c4);
 
-	/**
-	 */
-	void Start(BundleContext context) {
-		auto c4 = std::make_shared<xacc::quantum::CircuitOptimizer>();
-        context.RegisterService<xacc::IRTransformation>(c4);
+    auto c5 = std::make_shared<xacc::quantum::DefaultPlacement>();
+    context.RegisterService<xacc::IRTransformation>(c5);
 
-        auto c5 = std::make_shared<xacc::quantum::DefaultPlacement>();
-        context.RegisterService<xacc::IRTransformation>(c5);
+    // auto c6 = std::make_shared<xacc::quantum::QsearchOptimizer>();
+    // context.RegisterService<xacc::IRTransformation>(c6);
 
+    context.RegisterService<xacc::IRTransformation>(c5);
+    context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<xacc::quantum::PulseTransform>());
+    context.RegisterService<GateFuser>(std::make_shared<GateFuser>());
+    context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<xacc::quantum::MergeSingleQubitGatesOptimizer>());
+    context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<xacc::quantum::MergeTwoQubitBlockOptimizer>());
+    context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<xacc::quantum::NearestNeighborTransform>());
+  }
 
-        // auto c6 = std::make_shared<xacc::quantum::QsearchOptimizer>();
-		// context.RegisterService<xacc::IRTransformation>(c6);
-		
-        context.RegisterService<xacc::IRTransformation>(c5);
-        context.RegisterService<xacc::IRTransformation>(std::make_shared<xacc::quantum::PulseTransform>());
-		context.RegisterService<GateFuser>(std::make_shared<GateFuser>());
-		context.RegisterService<xacc::IRTransformation>(std::make_shared<xacc::quantum::MergeSingleQubitGatesOptimizer>());
-		context.RegisterService<xacc::IRTransformation>(std::make_shared<xacc::quantum::MergeTwoQubitBlockOptimizer>());
-	}
-
-	/**
-	 */
-	void Stop(BundleContext /*context*/) {
-	}
-
+  /**
+   */
+  void Stop(BundleContext /*context*/) {}
 };
 
-}
+} // namespace
 
 CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(OptimizersActivator)
