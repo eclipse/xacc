@@ -212,16 +212,16 @@ void IBMAccelerator::processBackendCandidate(nlohmann::json& backend_json) {
 // Get current backend status
   auto status_response = get(IBM_API_URL, getStatusPath, {},
         {std::make_pair("version", "1"),
-          std::make_pair("access_token", currentApiToken)});
+         std::make_pair("access_token", currentApiToken)});
   auto status_response_json = json::parse(status_response);
   auto queue_lenght = status_response_json["lengthQueue"].get<int>();
   auto state = status_response_json["state"].get<bool>();
 
-  if( state && (backend_queue_lenght < 0 || backend_queue_lenght > queue_lenght)) {
+  if (state && (selected_backend_queue_lenght < 0 || selected_backend_queue_lenght > queue_lenght)) {
     if (filterByJobsLimit && !verifyJobsLimit(curr_backend)) {
       return;
     }
-    backend_queue_lenght = queue_lenght;
+    selected_backend_queue_lenght = queue_lenght;
     auto old_backend = backend;
     backend = curr_backend;
     availableBackends.clear();
@@ -231,7 +231,7 @@ void IBMAccelerator::processBackendCandidate(nlohmann::json& backend_json) {
 
 void IBMAccelerator::selectBackend(std::vector<std::string>& all_available_backends) {
   bool lowest_queue_backend = false;
-  if( backend == "lowest-queue-count" ) {
+  if (backend == "lowest-queue-count") {
     lowest_queue_backend = true;
   }
 
@@ -246,8 +246,8 @@ void IBMAccelerator::selectBackend(std::vector<std::string>& all_available_backe
       }
     }
     // Simple case: select by backend_name
-    if( !lowest_queue_backend ) {
-      if(b["backend_name"].get<std::string>() == backend) {
+    if (!lowest_queue_backend) {
+      if (b["backend_name"].get<std::string>() == backend) {
         availableBackends.insert(std::make_pair(backend, b));
       }
     } else {
@@ -311,7 +311,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
         get(IBM_API_URL, getBackendPropertiesPath, {},
             {std::make_pair("version", "1"),
              std::make_pair("access_token", currentApiToken)});
-    //xacc::info("Backend property:\n" + backend_props_response);
+    xacc::info("Backend property:\n" + backend_props_response);
     auto props = json::parse(backend_props_response);
     backendProperties.insert({backend, props});
 
