@@ -56,10 +56,10 @@ public:
   void visit(Ry &h) override {}
   void visit(Rx &h) override {}
   void visit(U1 &u1) override {
-      InstructionParameter p = u1.getParameter(0);
-      Rz rz(u1.bits());
-      rz.setParameter(0, p);
-      visit(rz);
+    InstructionParameter p = u1.getParameter(0);
+    Rz rz(u1.bits());
+    rz.setParameter(0, p);
+    visit(rz);
   }
   void visit(X &h) override {}
   void visit(Y &h) override {}
@@ -92,15 +92,31 @@ public:
 
   void visit(fSim &fsim) override {}
   void visit(iSwap &isw) override {}
-  void visit(XY& xy) override {}
+  void visit(XY &xy) override {}
   void visit(CRZ &crz) override {}
-  void visit(CH &ch) override {}
+  void visit(CH &ch) override {
+    S s(ch.bits()[1]);
+    Hadamard h(ch.bits()[1]);
+    T t(ch.bits()[1]);
+    CNOT cn(ch.bits());
+    Tdg tdg(ch.bits()[1]);
+    Hadamard h2(ch.bits()[1]);
+    Sdg sdg(ch.bits()[1]);
+
+    visit(s);
+    visit(h);
+    visit(t);
+    visit(cn);
+    visit(tdg);
+    visit(h2);
+    visit(sdg);
+  }
   void visit(S &s) override {}
-  void visit(CPhase& cp) override {}
-  
-  void visit(Measure& cp) override {}
-  void visit(Identity& cp) override {}
-  void visit(U& cp) override {}
+  void visit(CPhase &cp) override {}
+
+  void visit(Measure &cp) override {}
+  void visit(Identity &cp) override {}
+  void visit(U &cp) override {}
 
   void visit(Sdg &sdg) override {}
   void visit(T &t) override {}

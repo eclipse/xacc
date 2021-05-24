@@ -33,6 +33,11 @@ void bind_compiler(py::module &m) {
                xacc::Compiler::compile,
            "Compile the "
            "given source code.")
+      .def("compile",
+           (std::shared_ptr<xacc::IR>(xacc::Compiler::*)()) &
+               xacc::Compiler::compile,
+           "Compile the "
+           "given source code.")
       .def("translate",
            (const std::string (xacc::Compiler::*)(
                std::shared_ptr<CompositeInstruction>)) &
