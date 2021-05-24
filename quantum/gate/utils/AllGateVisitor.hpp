@@ -66,12 +66,12 @@ public:
   void visit(Z &h) override {}
 
   void visit(CY &cy) override {
-    Hadamard h(cy.bits()[1]);
+    Sdg sdg(cy.bits()[1]);
     CNOT cn(cy.bits());
-    Hadamard h2(cy.bits()[1]);
-    visit(h);
+    S s(cy.bits()[1]);
+    visit(sdg);
     visit(cn);
-    visit(h2);
+    visit(s);
   }
 
   void visit(CZ &cz) override {
