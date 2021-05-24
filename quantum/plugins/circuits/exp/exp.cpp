@@ -68,6 +68,11 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
 
   std::vector<xacc::InstPtr> exp_insts;
 
+  // Should we apply the compute action uncompute opt pattern
+  // always default to true
+  auto apply_cau_opt = parameters.get_or_default(
+      "__internal_compute_action_uncompute_opt__", true);
+
   // auto q_name = q.name();
   for (auto inst : terms) {
     auto spinInst = inst.second;
@@ -100,11 +105,24 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
             std::make_shared<xacc::quantum::Hadamard>(qid));
         basis_back.emplace_back(std::make_shared<xacc::quantum::Hadamard>(qid));
 
+        if (apply_cau_opt) {
+          basis_front.back()->attachMetadata(
+              {{"__qcor__compute__segment__", true}});
+          basis_back.back()->attachMetadata(
+              {{"__qcor__compute__segment__", true}});
+        }
       } else if (pop == "Y") {
         basis_front.emplace_back(
             std::make_shared<xacc::quantum::Rx>(qid, 1.57079362679));
         basis_back.emplace_back(
             std::make_shared<xacc::quantum::Rx>(qid, -1.57079362679));
+
+        if (apply_cau_opt) {
+          basis_front.back()->attachMetadata(
+              {{"__qcor__compute__segment__", true}});
+          basis_back.back()->attachMetadata(
+              {{"__qcor__compute__segment__", true}});
+        }
       }
     }
 
@@ -125,6 +143,10 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
       auto c = pairs(0);
       auto t = pairs(1);
       cnot_front.emplace_back(std::make_shared<xacc::quantum::CNOT>(c, t));
+      if (apply_cau_opt) {
+        cnot_front.back()->attachMetadata(
+            {{"__qcor__compute__segment__", true}});
+      }
     }
 
     for (int i = qidxs.size() - 2; i >= 0; i--) {
@@ -132,6 +154,10 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
       auto c = pairs(0);
       auto t = pairs(1);
       cnot_back.emplace_back(std::make_shared<xacc::quantum::CNOT>(c, t));
+      if (apply_cau_opt) {
+        cnot_back.back()->attachMetadata(
+            {{"__qcor__compute__segment__", true}});
+      }
     }
     exp_insts.insert(exp_insts.end(),
                      std::make_move_iterator(basis_front.begin()),
