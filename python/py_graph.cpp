@@ -46,6 +46,13 @@ void bind_graph(py::module &m) {
           },
           "")
       .def(
+          "addVertex",
+          [](xacc::Graph &g) {
+            HeterogeneousMap m;
+            g.addVertex(m);
+          },
+          "")
+      .def(
           "setVertexProperties",
           [](xacc::Graph &g, const int index,
              const PyHeterogeneousMap &vertex) {
