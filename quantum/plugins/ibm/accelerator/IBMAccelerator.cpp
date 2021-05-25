@@ -258,7 +258,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
 
     chosenBackend = availableBackends[backend];
     xacc::info("Backend config:\n" + chosenBackend.dump());
-    multi_meas_enabled = chosenBackend["multi_meas_enabled"].get<bool>();
+    multi_meas_enabled = chosenBackend.value("multi_meas_enabled", false);
     defaults_response =
         get(IBM_API_URL,
             IBM_CREDENTIALS_PATH + "/devices/" + backend + "/defaults", {},
