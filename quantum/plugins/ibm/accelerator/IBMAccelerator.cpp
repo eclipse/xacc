@@ -99,7 +99,15 @@ std::vector<xacc::ibm_pulse::Instruction> alignMeasurePulseInstructions(
   if (!acquiredBits.empty()) {
     auto mergedAcquire = acquireInsts.front();
     mergedAcquire.set_qubits(acquiredBits);
-    mergedAcquire.set_memory_slot(acquiredBits);
+    // Use the same logic as QASM-based measurements:
+    // i.e. use memory slots from 0 onward.
+    // This is important for the AcceleratorBuffer to summarize the bit count
+    // later.
+    // e.g. when only measure qubit 1 (acquire pulse), we need to map the result
+    // to memory slot 0, not 1.
+    std::vector<int64_t> memory_slots(acquiredBits.size());
+    std::iota(std::begin(memory_slots), std::end(memory_slots), 0);
+    mergedAcquire.set_memory_slot(memory_slots);
     result.emplace_back(mergedAcquire);
   }
 
