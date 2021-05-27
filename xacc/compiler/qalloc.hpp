@@ -25,11 +25,52 @@ class Observable;
 namespace internal_compiler {
 // We treat a qubit as a pair { QREG_VAR_NAME, QREG_IDX }
 // for use with qcor QRT API we also need to keep track of the buffer
+struct qubit;
+struct AllocEventListener {
+  virtual void onAllocate(qubit* qubit) = 0;
+  virtual void onDealloc(qubit* qubit) = 0;
+};
+
+extern AllocEventListener *getGlobalQubitManager();
+extern void setGlobalQubitManager(AllocEventListener *);
+
+// This is the struct that will be embedded into the qubit
+// to track the **true** lifetime of a qubit.
+// It will notify the AllocEventListener once a qubit is deallocated
+// (all copies go out of scope)
+// Use case: scratch qubits created inside a quantum kernel. 
+struct AllocTracker {
+  qubit *m_qubit;
+  AllocEventListener *listener;
+  AllocTracker(qubit *q) : m_qubit(q), listener(getGlobalQubitManager()) {
+    listener->onAllocate(m_qubit);
+  }
+
+  ~AllocTracker() { listener->onDealloc(m_qubit); }
+};
+
+// Qubit allocator interface:
+struct QubitAllocator {
+  virtual qubit allocate() = 0;
+};
+
 struct qubit {
   std::string first;
   std::size_t second;
   xacc::AcceleratorBuffer *buffer;
   xacc::AcceleratorBuffer *results() { return buffer; }
+
+  // New allocation:
+  qubit(const std::string &reg_name, size_t idx,
+        xacc::AcceleratorBuffer *in_buffer)
+      : first(reg_name), second(idx), buffer(in_buffer) {
+    tracker = std::make_shared<AllocTracker>(this);
+  }
+
+  // Having this tracker as a shared_ptr so that we can follow the qubit
+  // even if it is copied, e.g. via slicing.
+  // Default copy and copy assign should just copy this tracker across.
+  std::shared_ptr<AllocTracker> tracker;
 };
 
 class qreg;
@@ -120,7 +161,14 @@ public:
 } // namespace internal_compiler
 } // namespace xacc
 
-xacc::internal_compiler::qreg qalloc(const int n);
+// Optionally provide an allocator:
+// The idea is that during code-gen (syntax handling)
+// we can add in a special auxillary/ancilla allocator
+// which allocate qubits from a shared pool rather than
+// create new qubits.
+xacc::internal_compiler::qreg
+qalloc(const int n,
+       xacc::internal_compiler::QubitAllocator *allocator = nullptr);
 
 // __qpu__ indicates this functions is for the QCOR Clang Syntax Handler
 // and annotated with quantum for the LLVM IR CodeGen

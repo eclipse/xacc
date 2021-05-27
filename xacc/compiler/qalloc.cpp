@@ -166,9 +166,43 @@ double qreg::weighted_sum(Observable *obs) {
   return sum;
 }
 
+static AllocEventListener *global_alloc_tracker = nullptr;
+void setGlobalQubitManager(AllocEventListener *in_listener) {
+  global_alloc_tracker = in_listener;
+}
+
+// Dummy one:
+struct DummyListener : AllocEventListener {
+  virtual void onAllocate(qubit *qubit) override {
+    xacc::debug("Allocate: " + qubit->first + "[" +
+                std::to_string(qubit->second) + "]");
+  }
+  virtual void onDealloc(qubit *qubit) override {
+    xacc::debug("Deallocate: " + qubit->first + "[" +
+                std::to_string(qubit->second) + "]");
+  }
+  static AllocEventListener *getInstance() {
+    static DummyListener dummy;
+    return &dummy;
+  }
+};
+
+AllocEventListener *getGlobalQubitManager() {
+  return global_alloc_tracker ? global_alloc_tracker
+                              : DummyListener::getInstance();
+}
 } // namespace internal_compiler
 } // namespace xacc
 
-xacc::internal_compiler::qreg qalloc(const int n) {
-  return xacc::internal_compiler::qreg(n);
+xacc::internal_compiler::qreg
+qalloc(const int n, xacc::internal_compiler::QubitAllocator *allocator) {
+  if (allocator) {
+    std::vector<xacc::internal_compiler::qubit> qubits;
+    for (int i = 0; i < n; ++i) {
+      qubits.emplace_back(allocator->allocate());
+    }
+    return xacc::internal_compiler::qreg(qubits);
+  } else {
+    return xacc::internal_compiler::qreg(n);
+  }
 }
