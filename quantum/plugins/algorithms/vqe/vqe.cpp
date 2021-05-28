@@ -96,9 +96,12 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
                 "valid Optimizer.");
   }
 
+  std::vector<std::shared_ptr<AcceleratorBuffer>> min_child_buffers;
+
   // auto kernels = observable->observe(xacc::as_shared_ptr(kernel));
   // Cache of energy values during iterations.
   std::vector<double> energies;
+  double last_energy = std::numeric_limits<double>::max();
 
   // Here we just need to make a lambda kernel
   // to optimize that makes calls to the targeted QPU.
@@ -264,6 +267,16 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         xacc::info(ss.str());
         // Saves the energy value.
         energies.emplace_back(energy);
+
+        if (energy < last_energy) {
+          min_child_buffers.clear();
+          min_child_buffers.push_back(idBuffer);
+          for (auto b : buffers) {
+            min_child_buffers.push_back(b);
+          } 
+          last_energy = energy;
+        }
+
         return energy;
       },
       kernel->nVariables());
@@ -271,11 +284,9 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   auto result = optimizer->optimize(f);
 
   // Get the children at the opt-params
-  auto children_at_final_parameters =
-      buffer->getChildren("parameters", result.second);
   std::vector<double> opt_exp_vals, children_coeffs;
   std::vector<std::string> children_names;
-  for (auto &child : children_at_final_parameters) {
+  for (auto &child : min_child_buffers) {
     if (!child->hasExtraInfoKey("is-gradient-calc")) {
       opt_exp_vals.push_back(child->getInformation("exp-val-z").as<double>());
 
@@ -283,7 +294,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       children_coeffs.push_back(
           child->getInformation("coefficient").as<double>());
       children_names.push_back(child->name());
-    }
+    } 
   }
 
   buffer->addExtraInfo("opt-exp-vals", opt_exp_vals);
