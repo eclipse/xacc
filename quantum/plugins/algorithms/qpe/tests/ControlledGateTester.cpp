@@ -151,58 +151,52 @@ TEST(ControlledGateTester, checkMultipleControl)
     }
 }
 
-// TEST(ControlledGateTester, checkMultipleControlQregs) 
-// {    
-//     // Reference circuit (index-based)
-//     const std::string ref_circuit_str = []() {
-//       auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-//       auto x = std::make_shared<X>(0);
-//       std::shared_ptr<xacc::CompositeInstruction> comp =
-//           gateRegistry->createComposite("__COMPOSITE__X");
-//       comp->addInstruction(x);
-//       auto ccx = std::dynamic_pointer_cast<CompositeInstruction>(
-//           xacc::getService<Instruction>("C-U"));
-//       const std::vector<int> ctrl_idxs{1, 2};
-//       ccx->expand({{"U", comp}, {"control-idx", ctrl_idxs}});
-//       return ccx->toString();
-//     }();
+TEST(ControlledGateTester, checkMultipleControlQregs) 
+{    
+    // Reference circuit (index-based)
+    const std::string ref_circuit_str = []() {
+      auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+      auto x = std::make_shared<X>(0);
+      std::shared_ptr<xacc::CompositeInstruction> comp =
+          gateRegistry->createComposite("__COMPOSITE__X");
+      comp->addInstruction(x);
+      auto ccx = std::dynamic_pointer_cast<CompositeInstruction>(
+          xacc::getService<Instruction>("C-U"));
+      const std::vector<int> ctrl_idxs{1, 2};
+      ccx->expand({{"U", comp}, {"control-idx", ctrl_idxs}});
+      return ccx->toString();
+    }();
     
-//     // Circuit with different buffer names.
-//     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-//     auto x = std::make_shared<X>(0);
-//     x->setBufferNames({"target"});
-//     std::shared_ptr<xacc::CompositeInstruction> comp =
-//         gateRegistry->createComposite("__COMPOSITE__X");
-//     comp->addInstruction(x);
-//     auto ccx = std::dynamic_pointer_cast<CompositeInstruction>(
-//         xacc::getService<Instruction>("C-U"));
+    // Circuit with different buffer names.
+    auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+    auto x = std::make_shared<X>(0);
+    x->setBufferNames({"target"});
+    std::shared_ptr<xacc::CompositeInstruction> comp =
+        gateRegistry->createComposite("__COMPOSITE__X");
+    comp->addInstruction(x);
+    auto ccx = std::dynamic_pointer_cast<CompositeInstruction>(
+        xacc::getService<Instruction>("C-U"));
 
-//     auto ctrlReg1 = ::qalloc(1);
-//     auto ctrl1 = ctrlReg1[0];
-//     ctrl1.first = "control1";
-//     auto ctrlReg2 = ::qalloc(1);
-//     auto ctrl2 = ctrlReg2[0];
-//     ctrl2.first = "control2";
-//     const std::vector<std::pair<std::string, size_t>> ctrl_qubits{
-//         {ctrl1.first, ctrl1.second}, {ctrl2.first, ctrl2.second}};
+    const std::vector<std::pair<std::string, size_t>> ctrl_qubits{
+        {"control1", 0}, {"control2", 0}};
 
-//     ccx->expand({{"U", comp}, {"control-idx", ctrl_qubits}});
-//     auto new_circ_str = ccx->toString();
-//     const auto replaceAll = [](const std::string &t, const std::string &s,
-//                                std::string &str) {
-//       std::string::size_type n = 0;
-//       while ((n = str.find(s, n)) != std::string::npos) {
-//         str.replace(n, s.size(), t);
-//         n += t.size();
-//       }
-//     };
+    ccx->expand({{"U", comp}, {"control-idx", ctrl_qubits}});
+    auto new_circ_str = ccx->toString();
+    const auto replaceAll = [](const std::string &t, const std::string &s,
+                               std::string &str) {
+      std::string::size_type n = 0;
+      while ((n = str.find(s, n)) != std::string::npos) {
+        str.replace(n, s.size(), t);
+        n += t.size();
+      }
+    };
 
-//     replaceAll("q0", "target0", new_circ_str);
-//     replaceAll("q1", "control10", new_circ_str);
-//     replaceAll("q2", "control20", new_circ_str);
-//     std::cout << "HOWDY:\n" << new_circ_str << "\n";
-//     EXPECT_EQ(ref_circuit_str, new_circ_str);
-// }
+    replaceAll("q0", "target0", new_circ_str);
+    replaceAll("q1", "control10", new_circ_str);
+    replaceAll("q2", "control20", new_circ_str);
+    std::cout << "HOWDY:\n" << new_circ_str << "\n";
+    EXPECT_EQ(ref_circuit_str, new_circ_str);
+}
 
 TEST(ControlledGateTester, checkControlSwap) 
 {
