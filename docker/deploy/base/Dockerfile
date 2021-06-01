@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND noninteractive
 ARG GITHUB_TOKEN
-ARG NODE_VERSION=10.16.0
+ARG NODE_VERSION=10.17.0
 ENV NODE_VERSION $NODE_VERSION
 ENV YARN_VERSION 1.13.0
 
@@ -115,24 +115,3 @@ RUN apt-get update && \
     ln -s /usr/bin/clangd-12 /usr/bin/clangd && \
     ln -s /usr/bin/clang-tidy-12 /usr/bin/clang-tidy && \
     rm -rf /var/lib/apt/lists/* 
-
-
-    #&& cd /home/dev && git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
-    #&& cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE \
-    #&& make -j18 install \
-    #&& cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
-    #&& cmake .. -DXACC_DIR=~/.xacc && make -j18 install \
-
-
-# Theia application
-
-#ADD $version.package.json ./package.json
-
-#RUN yarn --cache-folder ./ycache && rm -rf ./ycache && \
-#    NODE_OPTIONS="--max_old_space_size=4096" yarn theia build ;\
-#    yarn theia download:plugins
-#EXPOSE 3000
-#ENV SHELL=/bin/bash \
-#    THEIA_DEFAULT_PLUGINS=local-dir:/home/dev/plugins
-#ENV PYTHONPATH "${PYTHONPATH}:/root/.xacc"
-#ENTRYPOINT [ "yarn", "theia", "start", "/home/dev", "--hostname=0.0.0.0" ]
