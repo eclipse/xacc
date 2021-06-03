@@ -536,6 +536,24 @@ public:
   DEFINE_VISITABLE()
 };
 
+class RZZ : public Gate {
+public:
+  RZZ() : Gate("RZZ",std::vector<InstructionParameter>{0.0}) {}
+  RZZ(std::size_t controlQubit, std::size_t targetQubit)
+      : Gate("RZZ", std::vector<std::size_t>{controlQubit, targetQubit},
+             std::vector<InstructionParameter>{0.0}) {} 
+  RZZ(std::vector<std::size_t> qbits)
+      : Gate("RZZ", qbits, std::vector<InstructionParameter>{0.0}) {}
+  RZZ(std::size_t controlQubit, std::size_t targetQubit, double theta)
+      : Gate("RZZ", std::vector<std::size_t>{controlQubit, targetQubit},
+             std::vector<InstructionParameter>{theta}) {}
+ 
+  const int nRequiredBits() const override { return 2; }
+
+  DEFINE_CLONE(RZZ)
+  DEFINE_VISITABLE()
+};
+
 } // namespace quantum
 } // namespace xacc
 #endif

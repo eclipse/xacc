@@ -48,8 +48,10 @@ class AllGateVisitor : public BaseInstructionVisitor,
                        public InstructionVisitor<U1>,
                        public InstructionVisitor<IfStmt>,
                        public InstructionVisitor<XY>,
-                       public InstructionVisitor<Reset> {
+                       public InstructionVisitor<Reset>,
+                       public InstructionVisitor<RZZ> {
 public:
+  void visit(RZZ &rzz) override {}
   void visit(Hadamard &h) override {}
   void visit(CNOT &h) override {}
   void visit(Rz &h) override {}

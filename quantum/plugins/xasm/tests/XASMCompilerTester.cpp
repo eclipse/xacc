@@ -22,6 +22,23 @@
 
 #include "Circuit.hpp"
 
+TEST(XASMCompilerTester, checkRZZ) {
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR =
+      compiler->compile(R"(
+__qpu__ void rzz_test(qbit q, double theta) {
+  H(q[0]);
+  RZZ(q[0], q[1], theta);
+  CX(q[0], q[1]);
+}
+)");
+
+  auto kernel = IR->getComposites()[0];
+  std::cout << "HELLO: " << kernel->toString() << "\n";
+  std::cout << kernel->operator()({2.4})->toString() << "\n";
+}
+
 TEST (XASMCompilerTester, checkQcorIssue23) {
 auto compiler = xacc::getCompiler("xasm");
   auto IR = compiler->compile(R"(__qpu__ void rotate(qbit q, double x) {
