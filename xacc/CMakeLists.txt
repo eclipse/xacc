@@ -28,8 +28,7 @@ file(GLOB
      HEADERS
      xacc.hpp
      ir/*.hpp
-     compiler/*.hpp
-     compiler/qalloc
+     compiler/Compiler.hpp
      accelerator/*.hpp
      accelerator/remote/*.hpp
      utils/*.hpp
@@ -42,8 +41,6 @@ add_library(xacc SHARED
             accelerator/AcceleratorBuffer.cpp
             utils/Utils.cpp
             utils/CLIParser.cpp
-            compiler/xacc_internal_compiler.cpp
-            compiler/qalloc.cpp
             service/ServiceRegistry.cpp
             service/xacc_service.cpp
             accelerator/remote/RemoteAccelerator.cpp)

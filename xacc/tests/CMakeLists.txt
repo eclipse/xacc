@@ -18,13 +18,13 @@ add_xacc_test(Algorithm xacc)
 add_xacc_test(Heterogeneous xacc)
 target_compile_features(HeterogeneousTester PRIVATE cxx_std_14)
 
-configure_file(InternalCompilerTester.in.cpp
-               ${CMAKE_BINARY_DIR}/xacc/tests/InternalCompilerTester.cpp)
+# configure_file(InternalCompilerTester.in.cpp
+#                ${CMAKE_BINARY_DIR}/xacc/tests/InternalCompilerTester.cpp)
 
-add_executable(InternalCompilerTester ${CMAKE_BINARY_DIR}/xacc/tests/InternalCompilerTester.cpp)
-target_include_directories(InternalCompilerTester PRIVATE ${GTEST_INCLUDE_DIRS})
-target_link_libraries(InternalCompilerTester PRIVATE xacc ${GTEST_LIBRARIES})
-add_test(NAME xacc_InternalCompilerTester COMMAND InternalCompilerTester)
-target_compile_features(InternalCompilerTester PRIVATE cxx_std_14)
+# add_executable(InternalCompilerTester ${CMAKE_BINARY_DIR}/xacc/tests/InternalCompilerTester.cpp)
+# target_include_directories(InternalCompilerTester PRIVATE ${GTEST_INCLUDE_DIRS})
+# target_link_libraries(InternalCompilerTester PRIVATE xacc ${GTEST_LIBRARIES})
+# add_test(NAME xacc_InternalCompilerTester COMMAND InternalCompilerTester)
+# target_compile_features(InternalCompilerTester PRIVATE cxx_std_14)
 
 #add_xacc_test(InternalCompiler xacc)
