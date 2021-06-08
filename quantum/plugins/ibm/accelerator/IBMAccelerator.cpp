@@ -214,14 +214,14 @@ void IBMAccelerator::processBackendCandidate(nlohmann::json& backend_json) {
         {std::make_pair("version", "1"),
          std::make_pair("access_token", currentApiToken)});
   auto status_response_json = json::parse(status_response);
-  auto queue_lenght = status_response_json["lengthQueue"].get<int>();
+  auto queue_length = status_response_json["lengthQueue"].get<int>();
   auto state = status_response_json["state"].get<bool>();
 
-  if (state && (backendQueueLenght < 0 || backendQueueLenght > queue_lenght)) {
+  if (state && (backendQueueLength < 0 || backendQueueLength > queue_length)) {
     if (filterByJobsLimit && !verifyJobsLimit(curr_backend)) {
       return;
     }
-    backendQueueLenght = queue_lenght;
+    backendQueueLength = queue_length;
     auto old_backend = backend;
     backend = curr_backend;
     availableBackends.clear();
