@@ -182,7 +182,7 @@ private:
 
   int shots = 1024;
   std::string backend = DEFAULT_IBM_BACKEND;
-  int selected_backend_queue_lenght = -1; 
+  int backendQueueLenght = -1; 
 
   bool jobIsRunning = false;
   std::string currentJobId = "";

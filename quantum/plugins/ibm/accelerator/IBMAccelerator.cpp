@@ -190,7 +190,7 @@ bool IBMAccelerator::verifyJobsLimit(std::string& curr_backend) {
   auto maximumJobs = backend_jobslimit_response_json["maximumJobs"].get<int>();
   auto runningJobs = backend_jobslimit_response_json["runningJobs"].get<int>();
 
-  return runningJobs < maximumJobs;
+  return maximumJobs < 0 || runningJobs < maximumJobs;
 }
 
 void IBMAccelerator::processBackendCandidate(nlohmann::json& backend_json) {
@@ -217,11 +217,11 @@ void IBMAccelerator::processBackendCandidate(nlohmann::json& backend_json) {
   auto queue_lenght = status_response_json["lengthQueue"].get<int>();
   auto state = status_response_json["state"].get<bool>();
 
-  if (state && (selected_backend_queue_lenght < 0 || selected_backend_queue_lenght > queue_lenght)) {
+  if (state && (backendQueueLenght < 0 || backendQueueLenght > queue_lenght)) {
     if (filterByJobsLimit && !verifyJobsLimit(curr_backend)) {
       return;
     }
-    selected_backend_queue_lenght = queue_lenght;
+    backendQueueLenght = queue_lenght;
     auto old_backend = backend;
     backend = curr_backend;
     availableBackends.clear();
@@ -256,7 +256,11 @@ void IBMAccelerator::selectBackend(std::vector<std::string>& all_available_backe
     }
     all_available_backends.push_back(b["backend_name"].get<std::string>());
   }
+  if (lowest_queue_backend) {
+    xacc::info("Backend with lowest queue count: " + backend);
+  }
 }
+
 
 void IBMAccelerator::initialize(const HeterogeneousMap &params) {
   if (!initialized) {
@@ -302,7 +306,6 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
 
     std::vector<std::string> your_available_backends;
     selectBackend(your_available_backends);
-
     getBackendPropertiesPath = "/api/Network/" + hub + "/Groups/" + group +
                                "/Projects/" + project + "/devices/" + backend +
                                "/properties";
