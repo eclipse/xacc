@@ -60,10 +60,6 @@ To enable XACC Python support, ensure that `python3` is set to your desired vers
 find the corresponding development headers. Ensure that when you try to run XACC-enabled Python scripts
 you are using the same `python3` executable that was set during your build.
 
-On Mac OS X, we recommend our users install GCC 8 via Homebrew instead of relying
-on XCode command line tools installation and the default Apple Clang compilers.
-See [here](https://xacc.readthedocs.io/en/latest/install.html#mac-os-x) for more details on this.
-
 Clone the repository recursively, configure with `cmake` and build with `make`
 ```bash
 $ git clone https://github.com/eclipse/xacc
