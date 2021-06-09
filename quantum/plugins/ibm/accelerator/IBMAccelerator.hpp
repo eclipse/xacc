@@ -101,6 +101,12 @@ public:
     if (config.stringExists("backend")) {
       backend = config.getString("backend");
     }
+    if (config.keyExists<int>("n-qubits")) {
+      requested_n_qubits = config.get<int>("n-qubits");
+    }
+    if (config.keyExists<bool>("check-jobs-limit")) {
+      filterByJobsLimit = config.get<bool>("check-jobs-limit");
+    }
     if (config.keyExists<bool>("http-verbose")) {
       restClient->setVerbose(config.get<bool>("http-verbose"));
     }
@@ -111,7 +117,7 @@ public:
   }
 
   const std::vector<std::string> configurationKeys() override {
-    return {"shots", "backend"};
+    return {"shots", "backend", "n-qubits", "check-jobs-limit", "http-verbose", "mode"};
   }
 
   HeterogeneousMap getProperties() override;
@@ -156,6 +162,10 @@ private:
                     std::string &project);
   void findApiKeyInFile(std::string &key, std::string &hub, std::string &group,
                         std::string &project, const std::string &p);
+  void selectBackend(std::vector<std::string>& all_available_backends);
+  void processBackendCandidate(nlohmann::json& b);
+  bool verifyJobsLimit(std::string& curr_backend);
+
   std::shared_ptr<RestClient> restClient;
 
   static const std::string IBM_AUTH_URL;
@@ -172,6 +182,7 @@ private:
 
   int shots = 1024;
   std::string backend = DEFAULT_IBM_BACKEND;
+  int backendQueueLength = -1; 
 
   bool jobIsRunning = false;
   std::string currentJobId = "";
@@ -185,6 +196,8 @@ private:
   std::string getBackendPropsResponse = "{}";
   std::string defaults_response = "{}";
   std::string mode = "qasm";
+  int requested_n_qubits = 0;
+  bool filterByJobsLimit = false;
   std::string post(const std::string &_url, const std::string &path,
                    const std::string &postStr,
                    std::map<std::string, std::string> headers = {});
