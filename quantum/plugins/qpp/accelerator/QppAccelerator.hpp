@@ -28,6 +28,7 @@ public:
     virtual void initialize(const HeterogeneousMap& params = {}) override;
     virtual void updateConfiguration(const HeterogeneousMap& config) override {initialize(config);};
     virtual const std::vector<std::string> configurationKeys() override { return {}; }
+    virtual HeterogeneousMap getProperties() override { return {{"shots", m_shots}}; }
     virtual BitOrder getBitOrder() override {return BitOrder::LSB;}
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction) override;
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions) override;

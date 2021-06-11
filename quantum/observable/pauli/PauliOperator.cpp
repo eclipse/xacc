@@ -277,7 +277,7 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const Het
   }
 
   // For this, we require the Accelerator info:
-  if (grouping_options.pointerLikeExists<Accelerator>("accelerator")) {
+  if (!grouping_options.pointerLikeExists<Accelerator>("accelerator")) {
     xacc::error("'accelerator' is required for Observable grouping");
   }
   auto qpu = grouping_options.getPointerLike<Accelerator>("accelerator");
