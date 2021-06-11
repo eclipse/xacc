@@ -297,9 +297,8 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const Het
 
   if (!shots_enabled) {
     // Log that we cannot do grouping (since shots is not set)
-    std::cout << qpu->name()
-              << " accelerator is not running 'shots' execution. Observable "
-                 "grouping will be ignored.\n";
+    xacc::info(qpu->name() + " accelerator is not running 'shots' execution. "
+                             "Observable grouping will be ignored.");
     return observe(function);
   }
   // For this grouping, we only support *single* grouping,
@@ -431,7 +430,7 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const Het
     meas->setParameter(0, classicalIdx);
     gateFunction->addInstruction(meas);
   }
-  std::cout << "Group observed circuit:\n" << gateFunction->toString() << "\n";
+  // std::cout << "Group observed circuit:\n" << gateFunction->toString() << "\n";
   return {gateFunction};
 }
 

@@ -50,7 +50,9 @@ std::string hex_string_to_binary_string(std::string hex) {
 HeterogeneousMap AerAccelerator::getProperties() {
   auto props = physical_backend_properties;
   // Insert 'shots' data
-  props.insert("shots", m_shots);
+  if (m_simtype == "qasm") {
+    props.insert("shots", m_shots);
+  }
   return props;
 }
 
