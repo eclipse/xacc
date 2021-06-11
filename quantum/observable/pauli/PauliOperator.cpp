@@ -304,23 +304,35 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const Het
   // For this grouping, we only support *single* grouping,
   // i.e. all sub-terms commute.
   const int nbQubits = std::max<int>(function->nPhysicalBits(), nQubits());
-  const bool all_terms_commute = [this]() {
-    auto terms = getNonIdentitySubTerms();
-    for (int i = 0; i < terms.size(); ++i) {
-      auto this_term =
-          std::dynamic_pointer_cast<quantum::PauliOperator>(terms[i]);
-      assert(this_term);
-      for (int j = i + 1; j < terms.size(); ++j) {
-        auto other_term =
-            std::dynamic_pointer_cast<quantum::PauliOperator>(terms[j]);
-        assert(other_term);
-        // TODO: has a fast path for all-Z, all-X, all-Y
-        // so that we don't need to check commutation.
-        if (!this_term->commutes(*other_term)) {
-          return false;
+  const bool all_terms_commute = [this, nbQubits]() {
+    // Check that each qubit location has a **unique** basis
+    // across all terms:
+    // This is much faster than checking the commutes()
+    std::unordered_map<int, int> qubit_to_basis;
+    for (auto &inst : terms) {
+      Term spinInst = inst.second;
+      std::vector<int> meas_bits;
+      if (!spinInst.isIdentity()) {
+        auto [v, w] = spinInst.toBinaryVector(nbQubits);
+        assert(v.size() == w.size());
+        for (int i = 0; i < v.size(); ++i) {
+          if (v[i] != 0 || w[i] != 0) {
+            // 1, 2, 3 => X, Z, Y
+            int op_id = v[i] + 2 * w[i];
+            if (qubit_to_basis.find(i) == qubit_to_basis.end()) {
+              // Not seen this:
+              qubit_to_basis[i] = op_id;
+            } else {
+              if (qubit_to_basis[i] != op_id) {
+                // Different basis at this location.
+                return false;
+              }
+            }
+          }
         }
       }
     }
+    // unique basis at each qubit location.
     return true;
   }();
 
