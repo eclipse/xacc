@@ -513,6 +513,25 @@ TEST(PauliOperatorTester, checkGroupingQaoa) {
   EXPECT_EQ(observed_non_commute.size(), 3);
 }
 
+TEST(PauliOperatorTester, checkGroupingQaoaPostProcess) {
+  PauliOperator op;
+  op.fromString("(0, -1) Z0 Z1 + (0, -1) Z1 Z2 + (0, -1) Z2 Z0");
+  std::cout << op.toString() << "\n";
+  auto qpu = xacc::getAccelerator("qpp", {{"shots", 1024}});
+  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+  auto f = gateRegistry->createComposite("f");
+  auto h0 = gateRegistry->createInstruction("H", 0);
+  auto h1 = gateRegistry->createInstruction("H", 1);
+  auto h2 = gateRegistry->createInstruction("H", 2);
+  f->addInstructions({h0, h1, h2});
+  auto observed = op.observe(f, {{"accelerator", qpu}});
+  auto buffer = xacc::qalloc(3);
+  qpu->execute(buffer, observed);
+  buffer->print();
+  auto exp_val = op.postProcess(buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, {});
+  std::cout << "Exp-val = " << exp_val << "\n";
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);

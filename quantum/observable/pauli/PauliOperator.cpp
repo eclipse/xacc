@@ -351,9 +351,14 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const Het
     buf_name = function->getInstruction(0)->getBufferNames()[0];
   }
 
+  // Specify the bit-ordering of the accelerator
+  // to decode later.
+  const std::string compositeName =
+      std::string("GroupObserve_") +
+      (qpu->getBitOrder() == Accelerator::BitOrder::MSB ? "MSB" : "LSB");
   // Single observed circuit.
   auto gateFunction =
-      gateRegistry->createComposite("GroupObserve", function->getVariables());
+      gateRegistry->createComposite(compositeName, function->getVariables());
   if (function->hasChildren()) {
     gateFunction->addInstruction(function->clone());
   }
@@ -971,14 +976,60 @@ void PauliOperator::normalize() {
   return;
 }
 
+double PauliOperator::calcExpValFromGroupedExecution(
+    std::shared_ptr<AcceleratorBuffer> buffer) {
+  assert(buffer->nChildren() == 1);
+  auto resultBuffer = buffer->getChildren()[0];
+  std::complex<double> energy =
+      getIdentitySubTerm() ? getIdentitySubTerm()->coefficient() : 0.0;
+
+  const auto bit_order = resultBuffer->name().find("MSB") != std::string::npos
+                             ? AcceleratorBuffer::BitOrder::MSB
+                             : AcceleratorBuffer::BitOrder::LSB;
+   auto temp_buffer = xacc::qalloc(resultBuffer->size());
+  for (auto &inst : terms) {
+    Term spinInst = inst.second;
+    std::vector<int> meas_bits;
+    if (!spinInst.isIdentity()) {
+      // std::cout << "Term: " << inst.first << "\n";
+      auto [v, w] = spinInst.toBinaryVector(resultBuffer->size());
+      assert(v.size() == w.size());
+      for (int i = 0; i < v.size(); ++i) {
+        // std::cout << "v = " << v[i] << "; w = " << w[i] << "\n";
+        if (v[i] != 0 || w[i] != 0) {
+          // Has an operator here:
+          meas_bits.emplace_back(i);
+        }
+      }
+     
+      temp_buffer->setMeasurements(resultBuffer->getMarginalCounts(meas_bits, bit_order));
+      const auto coeff = spinInst.coeff();
+      const double term_exp_val = temp_buffer->getExpectationValueZ();
+      temp_buffer->print();
+      // std::cout << "Exp = " << term_exp_val << "\n";
+      // std::cout << "Coeff = " << coeff << "\n";
+      energy += (term_exp_val * coeff);
+    }
+  }
+  return energy.real();
+}
+
 double PauliOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
                                   const std::string &postProcessTask,
                                   const HeterogeneousMap &extra_data) {
+  if (buffer->nChildren() == 1 &&
+      buffer->getChildren()[0]->name().find("GroupObserve") !=
+          std::string::npos &&
+      !buffer->getChildren()[0]->getMeasurementCounts().empty()) {
+    std::cout << "Grouping post processing!\n";
+    return calcExpValFromGroupedExecution(buffer);
+  }
+
   if (buffer->nChildren() < getNonIdentitySubTerms().size()) {
-    xacc::error(
-        "The buffer doesn't contain enough sub-buffers as expected. Expect: " +
-        std::to_string(getNonIdentitySubTerms().size()) +
-        "; Received: " + std::to_string(buffer->nChildren()));
+    xacc::error("The buffer doesn't contain enough sub-buffers as expected. "
+                "Expect: " +
+                std::to_string(getNonIdentitySubTerms().size()) +
+                "; Received: " + std::to_string(buffer->nChildren()));
     return 0.0;
   }
 

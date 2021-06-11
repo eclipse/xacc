@@ -352,6 +352,9 @@ public:
   virtual double postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
                              const std::string &postProcessTask,
                              const HeterogeneousMap &extra_data) override;
+private:
+  double
+  calcExpValFromGroupedExecution(std::shared_ptr<AcceleratorBuffer> buffer);
 };
 } // namespace quantum
 
