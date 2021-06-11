@@ -270,6 +270,166 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
   return observed;
 }
 
+std::vector<std::shared_ptr<CompositeInstruction>>
+PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const HeterogeneousMap &grouping_options) {
+  if (grouping_options.size() == 0) {
+    return observe(function);
+  }
+
+  // For this, we require the Accelerator info:
+  if (grouping_options.pointerLikeExists<Accelerator>("accelerator")) {
+    xacc::error("'accelerator' is required for Observable grouping");
+  }
+  auto qpu = grouping_options.getPointerLike<Accelerator>("accelerator");
+  const bool shots_enabled = [&qpu](){
+    // Remote QPU's (IBM, etc.) -> shots 
+    if (qpu->isRemote()) {
+      return true;
+    }
+    // This is not fully-compatible yet, but we need Accelerators to expose
+    // the 'shots' info to their getProperties() for this to work.
+    auto qpu_props = qpu->getProperties();
+    if (qpu_props.keyExists<int>("shots")) {
+      return qpu_props.get<int>("shots") > 0;
+    }
+    return false;
+  }();
+
+  if (!shots_enabled) {
+    // Log that we cannot do grouping (since shots is not set)
+    std::cout << qpu->name()
+              << " accelerator is not running 'shots' execution. Observable "
+                 "grouping will be ignored.\n";
+    return observe(function);
+  }
+  // For this grouping, we only support *single* grouping,
+  // i.e. all sub-terms commute.
+  const int nbQubits = std::max<int>(function->nPhysicalBits(), nQubits());
+  const bool all_terms_commute = [this]() {
+    auto terms = getNonIdentitySubTerms();
+    for (int i = 0; i < terms.size(); ++i) {
+      auto this_term =
+          std::dynamic_pointer_cast<quantum::PauliOperator>(terms[i]);
+      assert(this_term);
+      for (int j = i + 1; j < terms.size(); ++j) {
+        auto other_term =
+            std::dynamic_pointer_cast<quantum::PauliOperator>(terms[j]);
+        assert(other_term);
+        // TODO: has a fast path for all-Z, all-X, all-Y
+        // so that we don't need to check commutation.
+        if (!this_term->commutes(*other_term)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }();
+
+  if (!all_terms_commute) {
+    xacc::info("Not all terms commute with each other. Grouping cannot be done.");
+    return observe(function);
+  }
+
+  // Grouping can be done:
+  // all terms in this Observable will generate a **single** observed circuit,
+  // i.e. if there is a Pauli-X at qubit 3 (add Hadamard gate),
+  // there is no chance that another term with Pauli-Z or Pauli-Y at that location.
+  // Create a new GateQIR to hold the spin based terms
+  auto gateRegistry = xacc::getService<IRProvider>("quantum");
+  std::vector<std::shared_ptr<CompositeInstruction>> observed;
+  int counter = 0;
+  auto pi = xacc::constants::pi;
+
+  // If the incoming function has instructions that have
+  // their buffer_names set, then we need to set the
+  // new measurement instructions buffer names to be the same.
+  // Here we assume that all instructions have the same buffer name
+  std::string buf_name = "";
+
+  if (function->nInstructions() > 0 &&
+      !function->getInstruction(0)->getBufferNames().empty()) {
+    buf_name = function->getInstruction(0)->getBufferNames()[0];
+  }
+
+  // Single observed circuit.
+  auto gateFunction =
+      gateRegistry->createComposite("GroupObserve", function->getVariables());
+  if (function->hasChildren()) {
+    gateFunction->addInstruction(function->clone());
+  }
+  for (auto arg : function->getArguments()) {
+    gateFunction->addArgument(arg, 0);
+  }
+
+  // Track the basis change per qubit
+  std::unordered_map<size_t, std::string> qubits_to_basis_change_inst;
+
+  // Populate GateQIR now...
+  for (auto &inst : terms) {
+    Term spinInst = inst.second;
+    auto termsMap = spinInst.ops();
+    std::vector<std::pair<int, std::string>> terms;
+    for (auto &kv : termsMap) {
+      if (kv.second != "I" && !kv.second.empty()) {
+        terms.push_back({kv.first, kv.second});
+      }
+    }
+
+    for (int i = terms.size() - 1; i >= 0; i--) {
+      std::size_t qbit = terms[i].first;
+      auto gateName = terms[i].second;
+      if (qubits_to_basis_change_inst.find(qbit) !=
+          qubits_to_basis_change_inst.end()) {
+        // Have seen this qubit before
+        const std::string previous_gate = qubits_to_basis_change_inst[qbit];
+        if (gateName != previous_gate) {
+          // Something wrong with the commute check:
+          std::stringstream error_ss;
+          error_ss << "Internal error: Qubit " << qbit << " was observed with "
+                   << previous_gate << "; but requested to change to "
+                   << gateName << " during grouping.";
+          xacc::error(error_ss.str());
+        }
+        // Nothing to do: same basis.
+        continue;
+      }
+
+      // First time see this qubit:
+      qubits_to_basis_change_inst[qbit] = gateName;
+      // Adding the gate:
+      if (gateName == "X") {
+        auto hadamard =
+            gateRegistry->createInstruction("H", {qbit});
+        if (!buf_name.empty()) {
+          hadamard->setBufferNames({buf_name});
+        }
+        gateFunction->addInstruction(hadamard);
+      } else if (gateName == "Y") {
+        auto rx =
+            gateRegistry->createInstruction("Rx", {qbit});
+        if (!buf_name.empty()) {
+          rx->setBufferNames({buf_name});
+        }
+        InstructionParameter p(pi / 2.0);
+        rx->setParameter(0, p);
+        gateFunction->addInstruction(rx);
+      }
+    }
+  }
+
+  // Add measure (all qubits)
+  for (size_t i = 0; i < nbQubits; ++i) {
+    auto meas = gateRegistry->createInstruction("Measure", {i});
+    if (!buf_name.empty())
+      meas->setBufferNames({buf_name});
+    xacc::InstructionParameter classicalIdx((int)i);
+    meas->setParameter(0, classicalIdx);
+    gateFunction->addInstruction(meas);
+  }
+  std::cout << "Group observed circuit:\n" << gateFunction->toString() << "\n";
+  return {gateFunction};
+}
+
 std::pair<std::vector<int>, std::vector<int>>
 Term::toBinaryVector(const int nQubits) {
   // return v,w

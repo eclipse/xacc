@@ -247,6 +247,9 @@ public:
 
   std::vector<std::shared_ptr<CompositeInstruction>>
   observe(std::shared_ptr<CompositeInstruction> function) override;
+  std::vector<std::shared_ptr<CompositeInstruction>>
+  observe(std::shared_ptr<CompositeInstruction> function,
+          const HeterogeneousMap &grouping_options) override;
 
   std::vector<std::shared_ptr<Observable>> getSubTerms() override {
     std::vector<std::shared_ptr<Observable>> ret;
