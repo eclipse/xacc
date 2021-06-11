@@ -513,23 +513,51 @@ TEST(PauliOperatorTester, checkGroupingQaoa) {
   EXPECT_EQ(observed_non_commute.size(), 3);
 }
 
-TEST(PauliOperatorTester, checkGroupingQaoaPostProcess) {
+TEST(PauliOperatorTester, checkGroupingQaoaPostProcessLSB) {
   PauliOperator op;
-  op.fromString("(0, -1) Z0 Z1 + (0, -1) Z1 Z2 + (0, -1) Z2 Z0");
+  op.fromString("(1.5,0) + (-0.5,0) Z0 Z1 + (-0.5,0) Z0 Z2 + (-0.5,0) Z1 Z2");
   std::cout << op.toString() << "\n";
+  xacc::Observable *obs = &op;
   auto qpu = xacc::getAccelerator("qpp", {{"shots", 1024}});
-  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-  auto f = gateRegistry->createComposite("f");
-  auto h0 = gateRegistry->createInstruction("H", 0);
-  auto h1 = gateRegistry->createInstruction("H", 1);
-  auto h2 = gateRegistry->createInstruction("H", 2);
-  f->addInstructions({h0, h1, h2});
+  auto qaoa_ansatz =
+      xacc::createComposite("qaoa", {{"nbQubits", 3},
+                                     {"nbSteps", 1},
+                                     {"cost-ham", obs},
+                                     {"parameter-scheme", "Standard"}});
+  const std::vector<double> opt_params{0.308, 0.614205};
+  auto f = (*qaoa_ansatz)(opt_params);
   auto observed = op.observe(f, {{"accelerator", qpu}});
+  EXPECT_EQ(observed.size(), 1);
   auto buffer = xacc::qalloc(3);
   qpu->execute(buffer, observed);
   buffer->print();
-  auto exp_val = op.postProcess(buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, {});
-  std::cout << "Exp-val = " << exp_val << "\n";
+  auto exp_val = op.postProcess(
+      buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, {});
+  EXPECT_NEAR(exp_val, 2.0, 0.1);
+}
+
+TEST(PauliOperatorTester, checkGroupingQaoaPostProcessMSB) {
+  PauliOperator op;
+  op.fromString("(1.5,0) + (-0.5,0) Z0 Z1 + (-0.5,0) Z0 Z2 + (-0.5,0) Z1 Z2");
+  std::cout << op.toString() << "\n";
+  xacc::Observable *obs = &op;
+  // Aer => MSB
+  auto qpu = xacc::getAccelerator("aer", {{"shots", 1024}});
+  auto qaoa_ansatz =
+      xacc::createComposite("qaoa", {{"nbQubits", 3},
+                                     {"nbSteps", 1},
+                                     {"cost-ham", obs},
+                                     {"parameter-scheme", "Standard"}});
+  const std::vector<double> opt_params{0.308, 0.614205};
+  auto f = (*qaoa_ansatz)(opt_params);
+  auto observed = op.observe(f, {{"accelerator", qpu}});
+  EXPECT_EQ(observed.size(), 1);
+  auto buffer = xacc::qalloc(3);
+  qpu->execute(buffer, observed);
+  buffer->print();
+  auto exp_val = op.postProcess(
+      buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, {});
+  EXPECT_NEAR(exp_val, 2.0, 0.1);
 }
 
 int main(int argc, char **argv) {

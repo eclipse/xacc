@@ -48,7 +48,10 @@ std::string hex_string_to_binary_string(std::string hex) {
 }
 
 HeterogeneousMap AerAccelerator::getProperties() {
-  return physical_backend_properties;
+  auto props = physical_backend_properties;
+  // Insert 'shots' data
+  props.insert("shots", m_shots);
+  return props;
 }
 
 void AerAccelerator::initialize(const HeterogeneousMap &params) {

@@ -1005,7 +1005,7 @@ double PauliOperator::calcExpValFromGroupedExecution(
       temp_buffer->setMeasurements(resultBuffer->getMarginalCounts(meas_bits, bit_order));
       const auto coeff = spinInst.coeff();
       const double term_exp_val = temp_buffer->getExpectationValueZ();
-      temp_buffer->print();
+      // temp_buffer->print();
       // std::cout << "Exp = " << term_exp_val << "\n";
       // std::cout << "Coeff = " << coeff << "\n";
       energy += (term_exp_val * coeff);
@@ -1021,7 +1021,7 @@ double PauliOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
       buffer->getChildren()[0]->name().find("GroupObserve") !=
           std::string::npos &&
       !buffer->getChildren()[0]->getMeasurementCounts().empty()) {
-    std::cout << "Grouping post processing!\n";
+    // std::cout << "Grouping post processing!\n";
     return calcExpValFromGroupedExecution(buffer);
   }
 
