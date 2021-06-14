@@ -124,7 +124,7 @@ TEST(QAOATester, checkInitialStateConstruction) {
   auto acc = xacc::getAccelerator("qpp");
   auto buffer = xacc::qalloc(2);
 
-  auto optimizer = xacc::getOptimizer("nlopt",  {{"initial-parameters", random_vector(-2., 2., 8)}});
+  auto optimizer = xacc::getOptimizer("nlopt",  {{"initial-parameters", random_vector(-2., 2., 12)}});
   auto qaoa = xacc::getService<Algorithm>("QAOA");
   // Create deuteron Hamiltonian
   auto H_N_2 = xacc::quantum::getObservable(
@@ -142,7 +142,7 @@ TEST(QAOATester, checkInitialStateConstruction) {
                         std::make_pair("optimizer", optimizer),
                         std::make_pair("observable", H_N_2),
                         // number of time steps (p) param
-                        std::make_pair("steps", 4),
+                        std::make_pair("steps", 6),
                         std::make_pair("initial-state", initial_program),
                         std::make_pair("parameter-scheme", "Standard")}));
   qaoa->execute(buffer);
@@ -241,6 +241,75 @@ TEST(QAOATester, checkMaxCut) {
   qaoa->execute(buffer);
   std::cout << "Opt-val: " << (*buffer)["opt-val"].as<double>() << "\n";
   // EXPECT_NEAR((*buffer)["opt-val"].as<double>(), 2.0, 1e-3);
+}
+
+TEST(QAOATester, checkMaxCutGrouping) {
+  auto acc = xacc::getAccelerator("qpp", {{"shots", 8192}});
+  auto buffer = xacc::qalloc(3);
+  xacc::set_verbose(true);
+  auto optimizer = xacc::getOptimizer(
+      "nlopt", {{"ftol", 0.001},
+                {"maximize", true},
+                {"initial-parameters", random_vector(-2., 2., 2)}});
+  auto qaoa = xacc::getService<Algorithm>("maxcut-qaoa");
+  auto graph = xacc::getService<xacc::Graph>("boost-digraph");
+
+  // Triangle graph
+  for (int i = 0; i < 3; i++) {
+    graph->addVertex();
+  }
+  graph->addEdge(0, 1);
+  graph->addEdge(0, 2);
+  graph->addEdge(1, 2);
+
+  const bool initOk = qaoa->initialize(
+      {std::make_pair("accelerator", acc),
+       std::make_pair("optimizer", optimizer), 
+       std::make_pair("graph", graph),
+       // number of time steps (p) param
+       std::make_pair("steps", 1),
+       // "Standard" or "Extended"
+       std::make_pair("parameter-scheme", "Standard")});
+  qaoa->execute(buffer);
+  buffer->print();
+  std::cout << "Opt-val: " << (*buffer)["opt-val"].as<double>() << "\n";
+  // There seems to be a local minima at 1.5 as well...
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), 2.0, 0.1);
+}
+
+TEST(QAOATester, checkP1TriangleGraphGroupingExpVal) {
+  auto acc = xacc::getAccelerator("aer", {{"shots", 8192}});
+  auto optimizer = xacc::getOptimizer(
+      "nlopt",
+      {{"maximize", true}, {"initial-parameters", random_vector(-2., 2., 2)}});
+  auto H = xacc::quantum::getObservable(
+      "pauli", std::string("1.5 I - 0.5 Z0 Z1 - 0.5 Z0 Z2 - 0.5 Z1 Z2"));
+  auto qaoa = xacc::getAlgorithm("QAOA", {{"accelerator", acc},
+                                          {"optimizer", optimizer},
+                                          {"observable", H},
+                                          {"steps", 1},
+                                          {"parameter-scheme", "Standard"}});
+  auto all_betas =
+      xacc::linspace(-xacc::constants::pi / 4., xacc::constants::pi / 4., 20);
+  auto all_gammas =
+      xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  for (auto gamma : all_gammas) {
+    for (auto beta : all_betas) {
+      auto buffer = xacc::qalloc(3);
+      auto cost = qaoa->execute(buffer, std::vector<double>{gamma, beta})[0];
+      auto d = 1;
+      auto e = 1;
+      auto f = 1;
+      auto theory = 3 * (.5 +
+                         .25 * std::sin(4 * beta) * std::sin(gamma) *
+                             (std::cos(gamma) + std::cos(gamma)) -
+                         .25 * std::sin(2 * beta) * std::sin(2 * beta) *
+                             (std::pow(std::cos(gamma), d + e - 2 * f)) *
+                             (1 - std::cos(2 * gamma)));
+      // std::cout << "Cost = " << cost << "; expected = " << theory << "\n";
+      EXPECT_NEAR(cost, theory, 0.1);
+    }
+  }
 }
 
 int main(int argc, char **argv) {

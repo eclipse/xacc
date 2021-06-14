@@ -247,6 +247,9 @@ public:
 
   std::vector<std::shared_ptr<CompositeInstruction>>
   observe(std::shared_ptr<CompositeInstruction> function) override;
+  std::vector<std::shared_ptr<CompositeInstruction>>
+  observe(std::shared_ptr<CompositeInstruction> function,
+          const HeterogeneousMap &grouping_options) override;
 
   std::vector<std::shared_ptr<Observable>> getSubTerms() override {
     std::vector<std::shared_ptr<Observable>> ret;
@@ -349,6 +352,9 @@ public:
   virtual double postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
                              const std::string &postProcessTask,
                              const HeterogeneousMap &extra_data) override;
+private:
+  double
+  calcExpValFromGroupedExecution(std::shared_ptr<AcceleratorBuffer> buffer);
 };
 } // namespace quantum
 

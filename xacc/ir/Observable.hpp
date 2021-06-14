@@ -35,6 +35,20 @@ public:
   virtual std::vector<std::shared_ptr<CompositeInstruction>>
   observe(std::shared_ptr<CompositeInstruction> CompositeInstruction) = 0;
 
+  // Overload for observe with grouping enabled.
+  virtual std::vector<std::shared_ptr<CompositeInstruction>>
+  observe(std::shared_ptr<CompositeInstruction> function,
+          const HeterogeneousMap &grouping_options) {
+    if (grouping_options.size() != 0) {
+      XACCLogger::instance()->error("Observable '" + name() +
+                                    "' doesn't support Observable grouping.");
+      return {};
+    } else {
+      // Gracefully use non-grouping method.
+      return observe(function);
+    }
+  }
+
   virtual const std::string toString() = 0;
   virtual void fromString(const std::string str) = 0;
   virtual const int nBits() = 0;

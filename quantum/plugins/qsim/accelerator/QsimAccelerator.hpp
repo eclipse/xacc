@@ -226,6 +226,9 @@ public:
     return {};
   }
   virtual BitOrder getBitOrder() override { return BitOrder::MSB; }
+  virtual HeterogeneousMap getProperties() override {
+    return {{"shots", m_shots}};
+  }
   virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                        const std::shared_ptr<CompositeInstruction>
                            compositeInstruction) override;

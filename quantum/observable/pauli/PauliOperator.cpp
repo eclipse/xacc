@@ -270,6 +270,182 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
   return observed;
 }
 
+std::vector<std::shared_ptr<CompositeInstruction>>
+PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const HeterogeneousMap &grouping_options) {
+  if (grouping_options.size() == 0) {
+    return observe(function);
+  }
+
+  // For this, we require the Accelerator info:
+  if (!grouping_options.pointerLikeExists<Accelerator>("accelerator")) {
+    xacc::error("'accelerator' is required for Observable grouping");
+  }
+  auto qpu = grouping_options.getPointerLike<Accelerator>("accelerator");
+  const bool shots_enabled = [&qpu](){
+    // Remote QPU's (IBM, etc.) -> shots 
+    if (qpu->isRemote()) {
+      return true;
+    }
+    // This is not fully-compatible yet, but we need Accelerators to expose
+    // the 'shots' info to their getProperties() for this to work.
+    auto qpu_props = qpu->getProperties();
+    if (qpu_props.keyExists<int>("shots")) {
+      return qpu_props.get<int>("shots") > 0;
+    }
+    return false;
+  }();
+
+  if (!shots_enabled) {
+    // Log that we cannot do grouping (since shots is not set)
+    xacc::info(qpu->name() + " accelerator is not running 'shots' execution. "
+                             "Observable grouping will be ignored.");
+    return observe(function);
+  }
+  // For this grouping, we only support *single* grouping,
+  // i.e. all sub-terms commute.
+  const int nbQubits = std::max<int>(function->nPhysicalBits(), nQubits());
+  const bool all_terms_commute = [this, nbQubits]() {
+    // Check that each qubit location has a **unique** basis
+    // across all terms:
+    // This is much faster than checking the commutes()
+    std::unordered_map<int, int> qubit_to_basis;
+    for (auto &inst : terms) {
+      Term spinInst = inst.second;
+      std::vector<int> meas_bits;
+      if (!spinInst.isIdentity()) {
+        auto [v, w] = spinInst.toBinaryVector(nbQubits);
+        assert(v.size() == w.size());
+        for (int i = 0; i < v.size(); ++i) {
+          if (v[i] != 0 || w[i] != 0) {
+            // 1, 2, 3 => X, Z, Y
+            int op_id = v[i] + 2 * w[i];
+            if (qubit_to_basis.find(i) == qubit_to_basis.end()) {
+              // Not seen this:
+              qubit_to_basis[i] = op_id;
+            } else {
+              if (qubit_to_basis[i] != op_id) {
+                // Different basis at this location.
+                return false;
+              }
+            }
+          }
+        }
+      }
+    }
+    // unique basis at each qubit location.
+    return true;
+  }();
+
+  if (!all_terms_commute) {
+    xacc::info("Not all terms commute with each other. Grouping cannot be done.");
+    return observe(function);
+  }
+
+  // Grouping can be done:
+  // all terms in this Observable will generate a **single** observed circuit,
+  // i.e. if there is a Pauli-X at qubit 3 (add Hadamard gate),
+  // there is no chance that another term with Pauli-Z or Pauli-Y at that location.
+  // Create a new GateQIR to hold the spin based terms
+  auto gateRegistry = xacc::getService<IRProvider>("quantum");
+  std::vector<std::shared_ptr<CompositeInstruction>> observed;
+  int counter = 0;
+  auto pi = xacc::constants::pi;
+
+  // If the incoming function has instructions that have
+  // their buffer_names set, then we need to set the
+  // new measurement instructions buffer names to be the same.
+  // Here we assume that all instructions have the same buffer name
+  std::string buf_name = "";
+
+  if (function->nInstructions() > 0 &&
+      !function->getInstruction(0)->getBufferNames().empty()) {
+    buf_name = function->getInstruction(0)->getBufferNames()[0];
+  }
+
+  // Specify the bit-ordering of the accelerator
+  // to decode later.
+  const std::string compositeName =
+      std::string("GroupObserve_") +
+      (qpu->getBitOrder() == Accelerator::BitOrder::MSB ? "MSB" : "LSB");
+  // Single observed circuit.
+  auto gateFunction =
+      gateRegistry->createComposite(compositeName, function->getVariables());
+  if (function->hasChildren()) {
+    gateFunction->addInstruction(function->clone());
+  }
+  for (auto arg : function->getArguments()) {
+    gateFunction->addArgument(arg, 0);
+  }
+
+  // Track the basis change per qubit
+  std::unordered_map<size_t, std::string> qubits_to_basis_change_inst;
+
+  // Populate GateQIR now...
+  for (auto &inst : terms) {
+    Term spinInst = inst.second;
+    auto termsMap = spinInst.ops();
+    std::vector<std::pair<int, std::string>> terms;
+    for (auto &kv : termsMap) {
+      if (kv.second != "I" && !kv.second.empty()) {
+        terms.push_back({kv.first, kv.second});
+      }
+    }
+
+    for (int i = terms.size() - 1; i >= 0; i--) {
+      std::size_t qbit = terms[i].first;
+      auto gateName = terms[i].second;
+      if (qubits_to_basis_change_inst.find(qbit) !=
+          qubits_to_basis_change_inst.end()) {
+        // Have seen this qubit before
+        const std::string previous_gate = qubits_to_basis_change_inst[qbit];
+        if (gateName != previous_gate) {
+          // Something wrong with the commute check:
+          std::stringstream error_ss;
+          error_ss << "Internal error: Qubit " << qbit << " was observed with "
+                   << previous_gate << "; but requested to change to "
+                   << gateName << " during grouping.";
+          xacc::error(error_ss.str());
+        }
+        // Nothing to do: same basis.
+        continue;
+      }
+
+      // First time see this qubit:
+      qubits_to_basis_change_inst[qbit] = gateName;
+      // Adding the gate:
+      if (gateName == "X") {
+        auto hadamard =
+            gateRegistry->createInstruction("H", {qbit});
+        if (!buf_name.empty()) {
+          hadamard->setBufferNames({buf_name});
+        }
+        gateFunction->addInstruction(hadamard);
+      } else if (gateName == "Y") {
+        auto rx =
+            gateRegistry->createInstruction("Rx", {qbit});
+        if (!buf_name.empty()) {
+          rx->setBufferNames({buf_name});
+        }
+        InstructionParameter p(pi / 2.0);
+        rx->setParameter(0, p);
+        gateFunction->addInstruction(rx);
+      }
+    }
+  }
+
+  // Add measure (all qubits)
+  for (size_t i = 0; i < nbQubits; ++i) {
+    auto meas = gateRegistry->createInstruction("Measure", {i});
+    if (!buf_name.empty())
+      meas->setBufferNames({buf_name});
+    xacc::InstructionParameter classicalIdx((int)i);
+    meas->setParameter(0, classicalIdx);
+    gateFunction->addInstruction(meas);
+  }
+  // std::cout << "Group observed circuit:\n" << gateFunction->toString() << "\n";
+  return {gateFunction};
+}
+
 std::pair<std::vector<int>, std::vector<int>>
 Term::toBinaryVector(const int nQubits) {
   // return v,w
@@ -811,14 +987,60 @@ void PauliOperator::normalize() {
   return;
 }
 
+double PauliOperator::calcExpValFromGroupedExecution(
+    std::shared_ptr<AcceleratorBuffer> buffer) {
+  assert(buffer->nChildren() == 1);
+  auto resultBuffer = buffer->getChildren()[0];
+  std::complex<double> energy =
+      getIdentitySubTerm() ? getIdentitySubTerm()->coefficient() : 0.0;
+
+  const auto bit_order = resultBuffer->name().find("MSB") != std::string::npos
+                             ? AcceleratorBuffer::BitOrder::MSB
+                             : AcceleratorBuffer::BitOrder::LSB;
+   auto temp_buffer = xacc::qalloc(resultBuffer->size());
+  for (auto &inst : terms) {
+    Term spinInst = inst.second;
+    std::vector<int> meas_bits;
+    if (!spinInst.isIdentity()) {
+      // std::cout << "Term: " << inst.first << "\n";
+      auto [v, w] = spinInst.toBinaryVector(resultBuffer->size());
+      assert(v.size() == w.size());
+      for (int i = 0; i < v.size(); ++i) {
+        // std::cout << "v = " << v[i] << "; w = " << w[i] << "\n";
+        if (v[i] != 0 || w[i] != 0) {
+          // Has an operator here:
+          meas_bits.emplace_back(i);
+        }
+      }
+     
+      temp_buffer->setMeasurements(resultBuffer->getMarginalCounts(meas_bits, bit_order));
+      const auto coeff = spinInst.coeff();
+      const double term_exp_val = temp_buffer->getExpectationValueZ();
+      // temp_buffer->print();
+      // std::cout << "Exp = " << term_exp_val << "\n";
+      // std::cout << "Coeff = " << coeff << "\n";
+      energy += (term_exp_val * coeff);
+    }
+  }
+  return energy.real();
+}
+
 double PauliOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
                                   const std::string &postProcessTask,
                                   const HeterogeneousMap &extra_data) {
+  if (buffer->nChildren() == 1 &&
+      buffer->getChildren()[0]->name().find("GroupObserve") !=
+          std::string::npos &&
+      !buffer->getChildren()[0]->getMeasurementCounts().empty()) {
+    // std::cout << "Grouping post processing!\n";
+    return calcExpValFromGroupedExecution(buffer);
+  }
+
   if (buffer->nChildren() < getNonIdentitySubTerms().size()) {
-    xacc::error(
-        "The buffer doesn't contain enough sub-buffers as expected. Expect: " +
-        std::to_string(getNonIdentitySubTerms().size()) +
-        "; Received: " + std::to_string(buffer->nChildren()));
+    xacc::error("The buffer doesn't contain enough sub-buffers as expected. "
+                "Expect: " +
+                std::to_string(getNonIdentitySubTerms().size()) +
+                "; Received: " + std::to_string(buffer->nChildren()));
     return 0.0;
   }
 
