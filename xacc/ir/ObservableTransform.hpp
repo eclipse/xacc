@@ -19,6 +19,8 @@ class ObservableTransform : public Identifiable {
 public:
   virtual std::shared_ptr<Observable>
   transform(std::shared_ptr<Observable> obs) = 0;
+
+  virtual void setOptions(HeterogeneousMap &options) { return; }
 };
 
 } // namespace xacc

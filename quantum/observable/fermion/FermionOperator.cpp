@@ -29,7 +29,7 @@ FermionTerm &FermionTerm::operator*=(const FermionTerm &v) noexcept {
     auto site = kv.first;
     auto c_or_a = kv.second;
     Operators o = ops();
-    for (auto oo : o ) {
+    for (auto oo : o) {
       if (oo.first == site) {
         if (oo.second == c_or_a) {
           ops().clear();
@@ -37,8 +37,7 @@ FermionTerm &FermionTerm::operator*=(const FermionTerm &v) noexcept {
           ops().push_back({site, c_or_a});
         }
         break;
-      }
-      else {
+      } else {
         ops().push_back({site, c_or_a});
         break;
       }
@@ -87,10 +86,18 @@ FermionOperator::FermionOperator(Operators operators, double coeff,
 
 void FermionOperator::clear() { terms.clear(); }
 
-std::vector<std::shared_ptr<CompositeInstruction>> FermionOperator::observe(
-    std::shared_ptr<CompositeInstruction> function) {
-  auto transform = xacc::getService<ObservableTransform>("jw");
-  return transform->transform(xacc::as_shared_ptr(this))->observe(function);
+std::vector<std::shared_ptr<CompositeInstruction>>
+FermionOperator::observe(std::shared_ptr<CompositeInstruction> function,
+                         std::string transformName) {
+  
+  auto mapping = xacc::getService<ObservableTransform>(transformName);
+  return mapping->transform(xacc::as_shared_ptr(this))->observe(function);
+}
+
+std::vector<std::shared_ptr<CompositeInstruction>>
+FermionOperator::observe(std::shared_ptr<CompositeInstruction> function) {
+  auto mapping = xacc::getService<ObservableTransform>("jw");
+  return mapping->transform(xacc::as_shared_ptr(this))->observe(function);
 }
 
 const std::string FermionOperator::toString() {
@@ -135,7 +142,8 @@ void FermionOperator::fromString(const std::string str) {
 }
 const int FermionOperator::nBits() {
   auto maxInt = 0;
-  if (terms.empty()) return 0;
+  if (terms.empty())
+    return 0;
 
   for (auto &kv : terms) {
     auto ops = kv.second.ops();
@@ -148,8 +156,8 @@ const int FermionOperator::nBits() {
   return maxInt + 1;
 }
 
-FermionOperator &FermionOperator::operator+=(
-    const FermionOperator &v) noexcept {
+FermionOperator &
+FermionOperator::operator+=(const FermionOperator &v) noexcept {
   FermionOperator vv = v;
   for (auto &kv : v.terms) {
     auto termId = kv.first;
@@ -171,13 +179,13 @@ FermionOperator &FermionOperator::operator+=(
   return *this;
 }
 
-FermionOperator &FermionOperator::operator-=(
-    const FermionOperator &v) noexcept {
+FermionOperator &
+FermionOperator::operator-=(const FermionOperator &v) noexcept {
   return operator+=(-1.0 * v);
 }
 
-FermionOperator &FermionOperator::operator*=(
-    const FermionOperator &v) noexcept {
+FermionOperator &
+FermionOperator::operator*=(const FermionOperator &v) noexcept {
   std::unordered_map<std::string, FermionTerm> newTerms;
   for (auto &kv : terms) {
     for (auto &vkv : v.terms) {
@@ -236,16 +244,16 @@ FermionOperator &FermionOperator::operator*=(const double v) noexcept {
   return operator*=(std::complex<double>(v, 0));
 }
 
-FermionOperator &FermionOperator::operator*=(
-    const std::complex<double> v) noexcept {
+FermionOperator &
+FermionOperator::operator*=(const std::complex<double> v) noexcept {
   for (auto &kv : terms) {
     std::get<0>(kv.second) *= v;
   }
   return *this;
 }
 
-std::shared_ptr<Observable> FermionOperator::commutator(
-    std::shared_ptr<Observable> op) {
+std::shared_ptr<Observable>
+FermionOperator::commutator(std::shared_ptr<Observable> op) {
   FermionOperator &A = *std::dynamic_pointer_cast<FermionOperator>(op);
   std::shared_ptr<FermionOperator> commutatorHA =
       std::make_shared<FermionOperator>((*this) * A - A * (*this));
@@ -279,7 +287,7 @@ void FermionOperator::normalize() {
   double norm = 0.0;
 
   for (auto &kv : terms) {
-    norm += std::pow(std::norm(std::get<0>(kv.second)), 2);
+    norm += std::norm(std::get<0>(kv.second));
   }
   norm = std::sqrt(norm);
 
@@ -293,12 +301,19 @@ void FermionOperator::normalize() {
 double FermionOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
                                     const std::string &postProcessTask,
                                     const HeterogeneousMap &extra_data) {
-  auto transform = xacc::getService<ObservableTransform>("jw");
-  return transform->transform(xacc::as_shared_ptr(this))->postProcess(buffer, postProcessTask, extra_data);
+  
+  std::string mapping = "jw";
+  if (extra_data.stringExists("transform")) {
+    mapping = extra_data.getString("transform");
+  }
+  auto transform = xacc::getService<ObservableTransform>(mapping);
+
+  return transform->transform(xacc::as_shared_ptr(this))
+      ->postProcess(buffer, postProcessTask, extra_data);
 }
 
 } // namespace quantum
-}  // namespace xacc
+} // namespace xacc
 
 bool operator==(const xacc::quantum::FermionOperator &lhs,
                 const xacc::quantum::FermionOperator &rhs) {

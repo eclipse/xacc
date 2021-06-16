@@ -12,5 +12,7 @@ include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/observable/fermion)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/observable/pauli)
 
 add_xacc_test(JW)
-
 target_link_libraries(JWTester CppMicroServices xacc-observable-transforms xacc-pauli xacc-fermion)
+
+add_xacc_test(BK)
+target_link_libraries(BKTester CppMicroServices xacc-observable-transforms xacc-pauli xacc-fermion xacc-quantum-gate)

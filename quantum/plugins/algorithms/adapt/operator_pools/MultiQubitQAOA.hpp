@@ -41,6 +41,10 @@ public:
 
   MultiQubitQAOA() = default;
 
+  bool needsNumberOfParticles() const override {
+    return false;
+  }
+
   // this is a required parameter for QAOA
   bool optionalParameters(const HeterogeneousMap parameters) override {
 

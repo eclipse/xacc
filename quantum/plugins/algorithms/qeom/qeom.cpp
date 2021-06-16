@@ -69,7 +69,14 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
         parameters.get<std::vector<std::shared_ptr<Observable>>>("operators");
   }
 
-  auto jw = xacc::getService<ObservableTransform>("jw");
+  std::shared_ptr<ObservableTransform> mapping;
+  if (parameters.stringExists("transform")) {
+    mapping = xacc::getService<ObservableTransform>(
+        parameters.getString("transform"));
+  } else {
+    mapping = xacc::getService<ObservableTransform>("jw");
+  }
+
   // if no vector<Observable> was given
   if (parameters.keyExists<int>("n-electrons")) {
     auto nOrbitals = observable->nBits();
@@ -88,18 +95,18 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
 
     pool->optionalParameters({{"n-electrons", nOccupied}});
     for (auto &op : pool->getExcitationOperators(nOrbitals)) {
-      operators.push_back(jw->transform(op));
+      operators.push_back(mapping->transform(op));
     }
   }
 
   if (observable->toString().find("^") != std::string::npos) {
 
     if (std::dynamic_pointer_cast<FermionOperator>(observable)) {
-      observable = jw->transform(observable);
+      observable = mapping->transform(observable);
     } else {
       auto fermionObservable =
           xacc::quantum::getObservable("fermion", observable->toString());
-      observable = jw->transform(
+      observable = mapping->transform(
           std::dynamic_pointer_cast<Observable>(fermionObservable));
     }
 

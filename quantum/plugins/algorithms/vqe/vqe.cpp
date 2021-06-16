@@ -82,6 +82,11 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
     gradientStrategy = xacc::getService<AlgorithmGradientStrategy>("autodiff");
     gradientStrategy->initialize(parameters);
   }
+
+  if (parameters.stringExists("transform")) {
+    transform = parameters.getString("transform");
+  }
+
   return true;
 }
 
@@ -116,7 +121,12 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         std::reverse(tmp_x.begin(), tmp_x.end());
         auto evaled = kernel->operator()(tmp_x);
         // observe
-        auto kernels = observable->observe(evaled);
+        std::vector<std::shared_ptr<CompositeInstruction>> kernels;
+        if (transform.empty()) {
+          kernels = observable->observe(evaled);
+        } else {
+          kernels = observable->observe(evaled, transform);
+        }
 
         double identityCoeff = 0.0;
         int nInstructionsEnergy = kernels.size(), nInstructionsGradient = 0;
@@ -273,7 +283,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           min_child_buffers.push_back(idBuffer);
           for (auto b : buffers) {
             min_child_buffers.push_back(b);
-          } 
+          }
           last_energy = energy;
         }
 
@@ -294,7 +304,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       children_coeffs.push_back(
           child->getInformation("coefficient").as<double>());
       children_names.push_back(child->name());
-    } 
+    }
   }
 
   buffer->addExtraInfo("opt-exp-vals", opt_exp_vals);
@@ -320,7 +330,13 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   auto tmp_x = x;
   std::reverse(tmp_x.begin(), tmp_x.end());
   auto evaled = xacc::as_shared_ptr(kernel)->operator()(tmp_x);
-  auto kernels = observable->observe(evaled);
+  std::vector<std::shared_ptr<CompositeInstruction>> kernels;
+  if (transform.empty()) {
+    kernels = observable->observe(evaled);
+  } else {
+    kernels = observable->observe(evaled, transform);
+  }
+
   for (auto &f : kernels) {
     kernelNames.push_back(f->name());
     std::complex<double> coeff = f->getCoefficient();
@@ -378,10 +394,16 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
       resultEnergy += aggregate_value;
       return resultEnergy;
     } else {
-      // Normal VQE: post-proces the result with the Observable.
+      // Normal VQE: post-process the result with the Observable.
       // This will also populate meta-data to the child-buffer of
       // the main buffer.
-      return observable->postProcess(tmpBuffer);
+      if (transform.empty()) {
+        return observable->postProcess(tmpBuffer);
+      } else {
+        return observable->postProcess(
+            tmpBuffer, Observable::PostProcessingTask::EXP_VAL_CALC,
+            {{"transform", transform}});
+      }
     }
   }();
 
@@ -397,10 +419,17 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     } else {
       // This will also populate information about variance to each child
       // buffer.
-      return observable->postProcess(
-          tmpBuffer, Observable::PostProcessingTask::VARIANCE_CALC);
+      if (transform.empty()) {
+        return observable->postProcess(
+            tmpBuffer, Observable::PostProcessingTask::VARIANCE_CALC);
+      } else {
+        return observable->postProcess(
+            tmpBuffer, Observable::PostProcessingTask::VARIANCE_CALC,
+            {{"transform", transform}});
+      }
     }
   }();
+
   // Append the child buffers from the temp. buffer
   // to the main buffer.
   // These child buffers have extra-information populate in the above

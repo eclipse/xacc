@@ -54,9 +54,17 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
   if (pauli_or_fermion == "fermion") {
     auto fermionStr = parameters.getString("fermion");
     auto op = std::make_shared<FermionOperator>(fermionStr);
-    terms = std::dynamic_pointer_cast<PauliOperator>(
-                xacc::getService<ObservableTransform>("jw")->transform(op))
-                ->getTerms();
+
+    if (parameters.stringExists("transform")) {
+      auto mapping = parameters.getString("transform");
+      terms = std::dynamic_pointer_cast<PauliOperator>(
+                  xacc::getService<ObservableTransform>(mapping)->transform(op))
+                  ->getTerms();
+    } else {
+      terms = std::dynamic_pointer_cast<PauliOperator>(
+                  xacc::getService<ObservableTransform>("jw")->transform(op))
+                  ->getTerms();
+    }
   } else {
     auto pauliStr = parameters.getString("pauli");
     PauliOperator op(pauliStr);

@@ -85,6 +85,14 @@ public:
     PYBIND11_OVERLOAD_PURE(std::shared_ptr<CompositeInstruction>, xacc::quantum::OperatorPool, getOperatorInstructions, opIdx, varIdx);
   }
 
+  bool needsNumberOfParticles() const override {
+    PYBIND11_OVERLOAD_PURE(bool, xacc::quantum::OperatorPool, needsNumberOfParticles);
+  }
+
+  void setIfNeedsNumberOfParticles(const bool needsNumberOfParticles) {
+    PYBIND11_OVERLOAD(void, xacc::quantum::OperatorPool, setIfNeedsNumberOfParticles, needsNumberOfParticles);
+  }
+
 };
 
 class PyAlgorithmGradientStrategy : public AlgorithmGradientStrategy {

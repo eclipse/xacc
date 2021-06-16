@@ -89,20 +89,29 @@ bool ADAPT::initialize(const HeterogeneousMap &parameters) {
         parameters.get<std::shared_ptr<CompositeInstruction>>("initial-state");
   }
 
-  if (parameters.keyExists<int>("n-electrons")) {
-    _nElectrons = parameters.get<int>("n-electrons");
+  if (pool->needsNumberOfParticles()) {
+    if (parameters.keyExists<int>("n-electrons")) {
+      _nElectrons = parameters.get<int>("n-electrons");
+    } else {
+      xacc::error("Selected pool needs number of electrons.");
+      return false;
+    }
   }
+  pool->optionalParameters(parameters);
 
-  if ((subAlgo == "vqe" && !initialState) &&
-      (subAlgo == "vqe" && !parameters.keyExists<int>("n-electrons"))) {
+  if (subAlgo == "vqe" && !initialState) {
 
-    xacc::info("VQE requires number of electrons or initial state.");
-  }
-
-  if (parameters.getString("pool") == "singlet-adapted-uccsd" &&
-      parameters.keyExists<int>("n-electrons")) {
-
-    pool->optionalParameters({std::make_pair("n-electrons", _nElectrons)});
+    // Now that we have JW and BK, we may want to specify it here
+    std::string mapping;
+    if (parameters.stringExists("transform")) {
+      mapping = parameters.getString("transform");
+    } else {
+      xacc::warning("No transform provided. Defaulting to Jordan-Wigner.");
+      mapping = "jw";
+    }
+    initialState = xacc::createComposite("hf", {{"ne", _nElectrons},
+                                                {"nq", observable->nBits()},
+                                                {"transform", mapping}});
   }
 
   // Check if Observable is Fermion or Pauli and manipulate accordingly
@@ -110,13 +119,20 @@ bool ADAPT::initialize(const HeterogeneousMap &parameters) {
   // if string has ^, it's FermionOperator
   if (observable->toString().find("^") != std::string::npos) {
 
-    auto jw = xacc::getService<ObservableTransform>("jw");
+    std::shared_ptr<ObservableTransform> mapping;
+    if (parameters.stringExists("transform")) {
+      mapping = xacc::getService<ObservableTransform>(
+          parameters.getString("transform"));
+    } else {
+      mapping = xacc::getService<ObservableTransform>("jw");
+    }
+
     if (std::dynamic_pointer_cast<FermionOperator>(observable)) {
-      observable = jw->transform(observable);
+      observable = mapping->transform(observable);
     } else {
       auto fermionObservable =
           xacc::quantum::getObservable("fermion", observable->toString());
-      observable = jw->transform(
+      observable = mapping->transform(
           std::dynamic_pointer_cast<Observable>(fermionObservable));
     }
 
@@ -156,31 +172,13 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       ansatzInstructions->addInstruction(inst);
     }
 
-  } else {
-
-    if (subAlgo == "vqe") {
-      // Define the initial state, usually HF for chemistry problems
-      std::size_t j;
-      for (int i = 0; i < _nElectrons / 2; i++) {
-        j = (std::size_t)i;
-        auto alphaXGate =
-            ansatzRegistry->createInstruction("X", std::vector<std::size_t>{j});
-        ansatzInstructions->addInstruction(alphaXGate);
-        j = (std::size_t)(i + buffer->size() / 2);
-        auto betaXGate =
-            ansatzRegistry->createInstruction("X", std::vector<std::size_t>{j});
-        ansatzInstructions->addInstruction(betaXGate);
-      }
-    }
-
-    if (subAlgo == "QAOA") {
-      std::size_t j;
-      for (int i = 0; i < buffer->size(); i++) {
-        j = (std::size_t)i;
-        auto H =
-            ansatzRegistry->createInstruction("H", std::vector<std::size_t>{j});
-        ansatzInstructions->addInstruction(H);
-      }
+  } else if (subAlgo == "QAOA") {
+    std::size_t j;
+    for (int i = 0; i < buffer->size(); i++) {
+      j = (std::size_t)i;
+      auto H =
+          ansatzRegistry->createInstruction("H", std::vector<std::size_t>{j});
+      ansatzInstructions->addInstruction(H);
     }
   }
 
@@ -319,7 +317,8 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
       // Add the ansatz to the compilation database for later retrieval
       xacc::appendCompiled(ansatzInstructions, true);
-      buffer->addExtraInfo("final-ansatz", ExtraInfo(ansatzInstructions->name()));
+      buffer->addExtraInfo("final-ansatz",
+                           ExtraInfo(ansatzInstructions->name()));
       return;
 
     } else if (iter < _maxIter) { // Add operator and reoptimize

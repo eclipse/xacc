@@ -20,6 +20,13 @@ class QubitTapering : public xacc::ObservableTransform {
     return "Reduce number of qubits required by exploiting Z2 symmetries.";
   }
 
+  // this is in case we want to specify the transform
+  // will default to JW
+  void setOptions(HeterogeneousMap &options) {
+    _options = options;
+    return;
+  }
+
  private:
   Eigen::MatrixXi computeTableaux(PauliOperator &H, const int nQubits);
   std::vector<std::vector<int>> generateCombinations(
@@ -29,6 +36,8 @@ class QubitTapering : public xacc::ObservableTransform {
     const double computeGroundStateEnergy(PauliOperator &op, const int n);
 
   Eigen::MatrixXi gauss(Eigen::MatrixXi &A, std::vector<int> &pivotCols);
+
+  HeterogeneousMap _options;
 
 };
 }  // namespace xacc

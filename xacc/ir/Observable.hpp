@@ -33,6 +33,12 @@ public:
 class Observable : public Identifiable {
 public:
   virtual std::vector<std::shared_ptr<CompositeInstruction>>
+  observe(std::shared_ptr<CompositeInstruction> CompositeInstruction,
+          std::string transformName) {
+    return {};
+  }
+
+  virtual std::vector<std::shared_ptr<CompositeInstruction>>
   observe(std::shared_ptr<CompositeInstruction> CompositeInstruction) = 0;
 
   // Overload for observe with grouping enabled.
@@ -70,12 +76,9 @@ public:
     return std::complex<double>(1.0, 0.0);
   }
 
-  virtual std::vector<SparseTriplet>
-  to_sparse_matrix() {
-    return {};
-  }
+  virtual std::vector<SparseTriplet> to_sparse_matrix() { return {}; }
 
-   virtual std::shared_ptr<Observable> commutator(std::shared_ptr<Observable>){
+  virtual std::shared_ptr<Observable> commutator(std::shared_ptr<Observable>) {
     return nullptr;
   }
 
@@ -86,8 +89,7 @@ public:
     static inline const std::string VARIANCE_CALC = "variance";
   };
   // Post process the execution data (stored on the AcceleratorBuffer)
-  virtual double
-  postProcess(
+  virtual double postProcess(
       std::shared_ptr<AcceleratorBuffer> buffer,
       const std::string &postProcessTask = PostProcessingTask::EXP_VAL_CALC,
       const HeterogeneousMap &extra_data = {}) = 0;

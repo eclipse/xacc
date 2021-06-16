@@ -36,9 +36,15 @@ class SinglesDoublesPool : public OperatorPool {
 protected:
   int _nElectrons;
   std::vector<std::shared_ptr<Observable>> pool, operators;
+  std::shared_ptr<ObservableTransform> mapping;
+
 
 public:
   SinglesDoublesPool() = default;
+
+  bool needsNumberOfParticles() const override {
+    return true;
+  }
 
   bool optionalParameters(const HeterogeneousMap parameters) override {
 
@@ -48,6 +54,10 @@ public:
     }
 
     _nElectrons = parameters.get<int>("n-electrons");
+
+    if (parameters.stringExists("transform")) {
+      mapping = xacc::getService<ObservableTransform>(parameters.getString("transform"));
+    }
 
     return true;
   }
@@ -104,12 +114,14 @@ public:
   generate(const int &nQubits) override {
 
     auto ops = getExcitationOperators(nQubits);
-    auto jw = xacc::getService<ObservableTransform>("jw");
+    if (!mapping) {
+      mapping = xacc::getService<ObservableTransform>("jw");
+    }
     for (auto &op : ops) {
       auto tmp = *std::dynamic_pointer_cast<FermionOperator>(op);
       tmp -= tmp.hermitianConjugate();
       tmp.normalize();
-      pool.push_back(jw->transform(std::make_shared<FermionOperator>(tmp)));
+      pool.push_back(mapping->transform(std::make_shared<FermionOperator>(tmp)));
     }
     return pool;
   }
