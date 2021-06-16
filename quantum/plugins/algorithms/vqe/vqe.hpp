@@ -26,6 +26,7 @@ protected:
   Accelerator * accelerator;
   std::vector<double> initial_params;
   std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
+  std::string transform;
 
   HeterogeneousMap parameters;
 

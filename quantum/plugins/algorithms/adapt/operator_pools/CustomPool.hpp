@@ -38,6 +38,7 @@ class CustomPool : public OperatorPool {
 protected:
 
   std::vector<std::shared_ptr<Observable>> pool;
+  bool _needsNumberOfParticles = false;
 
 public:
 
@@ -102,6 +103,14 @@ public:
       pool.push_back(std::dynamic_pointer_cast<Observable>((std::make_shared<PauliOperator>(op))));
     } 
   } 
+
+  void setIfNeedsNumberOfParticles(const bool needsNumberOfParticles) override {
+    _needsNumberOfParticles = needsNumberOfParticles;
+  }
+
+  bool needsNumberOfParticles() const override {
+    return _needsNumberOfParticles;
+  }
  
   bool optionalParameters(const HeterogeneousMap parameters) override {
     return true;

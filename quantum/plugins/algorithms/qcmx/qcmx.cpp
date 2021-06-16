@@ -63,14 +63,21 @@ bool QCMX::initialize(const HeterogeneousMap &parameters) {
   maxOrder = parameters.get<int>("cmx-order");
   kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
 
-  // check if Observable needs JW
+  // check if Observable needs ObservableTransform
   if (std::dynamic_pointer_cast<PauliOperator>(xacc::as_shared_ptr(
           parameters.getPointerLike<Observable>("observable")))) {
     observable = xacc::as_shared_ptr(
         parameters.getPointerLike<Observable>("observable"));
   } else {
-    auto jw = xacc::getService<ObservableTransform>("jw");
-    observable = jw->transform(xacc::as_shared_ptr(
+
+    std::shared_ptr<ObservableTransform> mapping;
+    if (parameters.stringExists("transform")) {
+      mapping = xacc::getService<ObservableTransform>(
+          parameters.getString("transform"));
+    } else {
+      mapping = xacc::getService<ObservableTransform>("jw");
+    }
+    observable = mapping->transform(xacc::as_shared_ptr(
         parameters.getPointerLike<Observable>("observable")));
   }
 

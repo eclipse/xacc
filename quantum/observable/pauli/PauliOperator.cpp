@@ -800,7 +800,7 @@ void PauliOperator::normalize() {
 
   double norm = 0.0;
   for (auto &kv : terms) {
-    norm += std::pow(std::norm(std::get<0>(kv.second)), 2);
+    norm += std::norm(std::get<0>(kv.second));
   }
   norm = std::sqrt(norm);
 

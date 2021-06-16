@@ -9,6 +9,7 @@
 #include "ObservableTransform.hpp"
 #include "xacc_service.hpp"
 #include "xacc_observable.hpp"
+#include "Circuit.hpp"
 
 using namespace xacc::quantum;
 
@@ -20,9 +21,8 @@ TEST(BravyiKitaevTransformationTester, checkBKTransform) {
   auto bk = xacc::getService<xacc::ObservableTransform>("bk");
   auto result = bk->transform(fermion);
   auto resultsStr = result->toString();
-  std::cout << "BK:\n" << resultsStr << "\n";
 
-  PauliOperator pauli("(-0.5,0) Y0 Y1 + (-0.5,0) X0 X1 Z2");
+  PauliOperator pauli("(-1.585,0) Y0 Y1 + (-1.585,0) X0 X1 Z2");
   EXPECT_TRUE(
       std::dynamic_pointer_cast<PauliOperator>(result)->operator==(pauli));
 }
@@ -54,30 +54,19 @@ TEST(BravyiKitaevTransformationTester, checkH2) {
       "(-0.120200490713,-0)  0^ 1^ 0 1 + (-0.120200490713,-0)  1^ 0^ 1 0 + "
       "(0.7080240981,0)");
 
-  auto H_jw = xacc::quantum::getObservable("fermion", str);
   auto acc = xacc::getAccelerator("qpp");
 
-  auto provider = xacc::getIRProvider("quantum");
-  auto ansatz = provider->createComposite("ansatz");
-  ansatz->addInstruction(provider->createInstruction("X", {(std::size_t)0}));
-  ansatz->addInstruction(provider->createInstruction("X", {(std::size_t)1}));
-  ansatz->addInstruction(provider->createInstruction("X", {(std::size_t)2}));
-  auto q = xacc::qalloc(4);
+  auto bk = xacc::getService<xacc::ObservableTransform>("bk");
+  auto H = bk->transform(xacc::quantum::getObservable("fermion", str));
 
-  auto vqe_jw = xacc::getAlgorithm(
-      "vqe", {{"ansatz", ansatz}, {"observable", H_jw}, {"accelerator", acc}});
+  auto ansatz =
+      xacc::createComposite("hf", {{"ne", 2}, {"nq", 4}, {"transform", "bk"}});
 
-  std::cout << "JW = " << vqe_jw->execute(q, {})[0] << "\n";
+  auto vqe = xacc::getAlgorithm(
+      "vqe", {{"ansatz", ansatz}, {"observable", H}, {"accelerator", acc}});
 
-    auto bk = xacc::getService<xacc::ObservableTransform>("bk");
-  auto H_bk = bk->transform(xacc::quantum::getObservable("fermion", str));
-
-  std::cout << H_bk->toString() << "\n";
-
-    auto vqe_bk = xacc::getAlgorithm(
-      "vqe", {{"ansatz", ansatz}, {"observable", H_bk}, {"accelerator", acc}});
-
-  std::cout << "BK = " << vqe_bk->execute(q, {})[0] << "\n";
+  auto q = xacc::qalloc(H->nBits());
+  EXPECT_NEAR(vqe->execute(q, {})[0], -1.11633, 1e-4);
 }
 
 int main(int argc, char **argv) {

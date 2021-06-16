@@ -34,10 +34,12 @@ using Operator = std::pair<int, bool>;
 using Operators = std::vector<Operator>;
 // using SiteMap = std::map<Operators, std::complex<double>>;
 
-using FermionTermTuple = std::tuple<std::complex<double>, Operators, std::string>;
-class FermionTerm : public FermionTermTuple,
-             public tao::operators::commutative_multipliable<FermionTerm>,
-             public tao::operators::equality_comparable<FermionTerm> {
+using FermionTermTuple =
+    std::tuple<std::complex<double>, Operators, std::string>;
+class FermionTerm
+    : public FermionTermTuple,
+      public tao::operators::commutative_multipliable<FermionTerm>,
+      public tao::operators::equality_comparable<FermionTerm> {
 
 public:
   FermionTerm() {
@@ -58,11 +60,10 @@ public:
     std::get<2>(*this) = "";
   }
 
- FermionTerm(double c) {
-    std::get<0>(*this) = std::complex<double>(c,0.0);
+  FermionTerm(double c) {
+    std::get<0>(*this) = std::complex<double>(c, 0.0);
     std::get<1>(*this) = {};
     std::get<2>(*this) = "";
-
   }
 
   FermionTerm(std::complex<double> c, Operators ops) {
@@ -71,7 +72,7 @@ public:
     std::get<2>(*this) = "";
   }
 
- FermionTerm(std::complex<double> c, Operators ops, std::string var) {
+  FermionTerm(std::complex<double> c, Operators ops, std::string var) {
     std::get<0>(*this) = c;
     std::get<1>(*this) = ops;
     std::get<2>(*this) = var;
@@ -121,7 +122,7 @@ public:
   Operators &ops() { return std::get<1>(*this); }
 
   std::complex<double> &coeff() { return std::get<0>(*this); }
-  std::string var() {return std::get<2>(*this);}
+  std::string var() { return std::get<2>(*this); }
 
   FermionTerm &operator*=(const FermionTerm &v) noexcept;
 
@@ -131,7 +132,8 @@ public:
 };
 
 class FermionOperator
-    : public Observable, public Cloneable<Observable>,
+    : public Observable,
+      public Cloneable<Observable>,
       public std::enable_shared_from_this<FermionOperator>,
       public tao::operators::commutative_ring<FermionOperator>,
       public tao::operators::equality_comparable<FermionOperator>,
@@ -144,7 +146,7 @@ protected:
 
 public:
   std::shared_ptr<Observable> clone() override {
-      return std::make_shared<FermionOperator>();
+    return std::make_shared<FermionOperator>();
   }
   FermionOperator();
   FermionOperator(std::complex<double> c);
@@ -158,12 +160,19 @@ public:
 
   std::vector<std::shared_ptr<CompositeInstruction>>
   observe(std::shared_ptr<CompositeInstruction> function) override;
+
+  std::vector<std::shared_ptr<CompositeInstruction>>
+  observe(std::shared_ptr<CompositeInstruction> function,
+          std::string transformName) override;
+
   const std::string toString() override;
   void fromString(const std::string str) override;
   const int nBits() override;
 
   void clear();
-  std::unordered_map<std::string, FermionTerm> getTerms() const { return terms; }
+  std::unordered_map<std::string, FermionTerm> getTerms() const {
+    return terms;
+  }
 
   FermionOperator &operator+=(const FermionOperator &v) noexcept;
   FermionOperator &operator-=(const FermionOperator &v) noexcept;
@@ -172,16 +181,10 @@ public:
   FermionOperator &operator*=(const double v) noexcept;
   FermionOperator &operator*=(const std::complex<double> v) noexcept;
 
-  const std::string name() const override {
-      return "fermion";
-  }
+  const std::string name() const override { return "fermion"; }
 
-  const std::string description() const override {
-      return "";
-  }
-  void fromOptions(const HeterogeneousMap& options) override {
-      return;
-  }
+  const std::string description() const override { return ""; }
+  void fromOptions(const HeterogeneousMap &options) override { return; }
 
   std::shared_ptr<Observable>
   commutator(std::shared_ptr<Observable> obs) override;
