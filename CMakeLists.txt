@@ -18,6 +18,7 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 
 option(XACC_BUILD_TESTS "Build test programs" OFF)
 option(XACC_BUILD_EXAMPLES "Build example programs" OFF)
+option(XACC_MULTI_THREADED "Enable multi-thread support" OFF)
 option(XACC_ENSMALLEN_INCLUDE_DIR "Path to ensmallen.hpp for mlpack optimizer" "")
 option(XACC_ARMADILLO_INCLUDE_DIR "Path to armadillo header for mlpack optimizer" "")
 
@@ -100,6 +101,13 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_INSTALL_PREFIX}. Override with -DCMAKE_INSTALL_PREFIX=...${ColorReset}")
+
+if (XACC_MULTI_THREADED)
+  message(STATUS "${BoldGreen}Multi-thread support is enabled ${ColorReset}")
+  add_compile_definitions(_XACC_MUTEX)
+else()
+  message(STATUS "${BoldGreen}Multi-thread support is disabled (default)${ColorReset}")
+endif()
 
 if (XACC_BUILD_TESTS)
    enable_testing()
