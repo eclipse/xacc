@@ -17,6 +17,7 @@
 #include <utility>
 
 #include "Optimizer.hpp"
+#include "xacc.hpp"
 
 namespace xacc {
 
@@ -24,7 +25,13 @@ struct ExtraNLOptData {
     std::function<double(const std::vector<double>&, std::vector<double>&)> f;
 };
 
-class NLOptimizer : public Optimizer {
+class NLOptimizer : public Optimizer, public xacc::Cloneable<Optimizer> {
+#ifdef _XACC_MUTEX
+  static std::mutex& getMutex() {
+    static std::mutex lock;
+    return lock;
+  }
+#endif
 public:
   OptResult optimize(OptFunction &function) override;
   const bool isGradientBased() const override;
@@ -32,6 +39,10 @@ public:
 
   const std::string name() const override { return "nlopt"; }
   const std::string description() const override { return ""; }
+
+  std::shared_ptr<Optimizer> clone() override {
+    return std::make_shared<NLOptimizer>();
+  }
 };
 } // namespace xacc
 #endif

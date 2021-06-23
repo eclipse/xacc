@@ -28,6 +28,10 @@
 #include <sys/stat.h>
 #include <fstream>
 
+#ifdef _XACC_MUTEX
+#include <mutex>
+#endif
+
 namespace xacc {
 
 namespace constants {
