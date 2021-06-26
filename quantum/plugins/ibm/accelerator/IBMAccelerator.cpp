@@ -947,7 +947,16 @@ void IBMAccelerator::contributeInstructions(
   xacc::contributeService("acquire", aq);
   auto dl = std::make_shared<Pulse>("delay");
   xacc::contributeService("delay", dl);
+  auto shiftf = std::make_shared<Pulse>("shiftf");
+  xacc::contributeService("shiftf", shiftf);
+  auto setf = std::make_shared<Pulse>("setf");
+  xacc::contributeService("setf", setf);
+  auto shiftp = std::make_shared<Pulse>("shiftp");
+  xacc::contributeService("shiftp", shiftp);
+  auto setp = std::make_shared<Pulse>("setp");
+  xacc::contributeService("setp", setp);
 
+  
   // Add "parametric_pulse"
   auto parametricPulse = std::make_shared<Pulse>("parametric_pulse");
   xacc::contributeService("parametric_pulse", parametricPulse);
@@ -1026,25 +1035,27 @@ void IBMAccelerator::contributeInstructions(
         if (inst_name == "delay") {
           inst->setDuration((*seq_iter)["duration"].get<int>());
         }
+        std::string numberParameterNames[] = {"phase", "frequency"};
+        for (const auto& numberName : numberParameterNames) {
+          if ((*seq_iter).find(numberName) != (*seq_iter).end()) {
+            // we have phase too
+            auto p = (*seq_iter)[numberName];
+            if (p.is_string()) {
+              // this is a variable we have to keep track of
+              auto ptmp = p.get<std::string>();
+              // get true variable
+              ptmp.erase(
+                  std::remove_if(ptmp.begin(), ptmp.end(),
+                                [](char ch) { return ch == '(' || ch == ')'; }),
+                  ptmp.end());
 
-        if ((*seq_iter).find("phase") != (*seq_iter).end()) {
-          // we have phase too
-          auto p = (*seq_iter)["phase"];
-          if (p.is_string()) {
-            // this is a variable we have to keep track of
-            auto ptmp = p.get<std::string>();
-            // get true variable
-            ptmp.erase(
-                std::remove_if(ptmp.begin(), ptmp.end(),
-                               [](char ch) { return ch == '(' || ch == ')'; }),
-                ptmp.end());
+              InstructionParameter parameter(ptmp);
+              inst->setParameter(0, parameter);
 
-            InstructionParameter phase(ptmp);
-            inst->setParameter(0, phase);
-
-          } else {
-            InstructionParameter phase(p.get<double>());
-            inst->setParameter(0, phase);
+            } else {
+              InstructionParameter parameter(p.get<double>());
+              inst->setParameter(0, parameter);
+            }
           }
         }
       } else {
