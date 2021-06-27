@@ -1091,8 +1091,6 @@ void IBMAccelerator::contributeInstructions(
     xacc::info("Contributing " + tmpName + " pulse composite.");
     xacc::contributeService(tmpName, cmd_def);
   }
-  // }
-  //   }
 }
 
 const std::string RestClient::post(const std::string &remoteUrl,
