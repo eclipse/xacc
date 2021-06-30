@@ -16,6 +16,8 @@
 
 #include "Identifiable.hpp"
 #include "heterogeneous.hpp"
+#include "Utils.hpp"
+
 namespace xacc {
 // Forward declare:
 class CompositeInstruction;

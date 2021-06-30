@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include "CommonGates.hpp"
 #include "Cloneable.hpp"
+#include <fstream>
 
 namespace {
 constexpr double NUM_TOL = 1e-9;

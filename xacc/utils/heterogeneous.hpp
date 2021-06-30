@@ -15,20 +15,13 @@
 
 #include <initializer_list>
 #include <map>
-#include <stdexcept>
 #include <vector>
-#include <unordered_map>
-#include <functional>
-#include <iostream>
-#include <experimental/type_traits>
-#include <cstring>
 
 // mpark variant
 #include "variant.hpp"
 
-#include "Utils.hpp"
-#include <complex>
 #include <any>
+#include <sstream>
 
 // If this is a GNU compiler
 #if defined(__GNUC__) || defined(__GNUG__)
@@ -88,6 +81,7 @@ template <typename T> bool isType(std::any in_any) {
 #endif
 
 namespace xacc {
+  void emit_error(const std::string&& s);
 
 class HeterogeneousMap;
 
@@ -139,8 +133,8 @@ public:
   }
 
   template <typename... Ts> void print(std::ostream &os) const {
-    _internal_print_visitor<Ts...> v(os);
-    visit(v);
+    // _internal_print_visitor<Ts...> v(os);
+    // visit(v);
   }
 
   template <class T> void insert(const std::string key, const T &_t) {
@@ -164,7 +158,7 @@ public:
         }
       }
 #endif
-      XACCLogger::instance()->error(
+      emit_error(
           "HeterogeneousMap::get() error - Invalid type or key (" + key + ").");
     }
     return T();
@@ -190,9 +184,9 @@ public:
     } else if (keyExists<std::string>(key)) {
       return get<std::string>(key);
     } else {
-      XACCLogger::instance()->error("No string-like value at provided key (" +
+      emit_error("No string-like value at provided key (" +
                                     key + ").");
-      print_backtrace();
+      // print_backtrace();
     }
     return "";
   }
@@ -221,9 +215,9 @@ public:
     } else if (keyExists<std::shared_ptr<T>>(key)) {
       return get<std::shared_ptr<T>>(key).get();
     } else {
-      XACCLogger::instance()->error("No pointer-like value at provided key (" +
+      emit_error("No pointer-like value at provided key (" +
                                     key + ").");
-      print_backtrace();
+      // print_backtrace();
     }
     return nullptr;
   }
@@ -281,18 +275,18 @@ private:
     void operator()(const std::string &key, const T &t) { count++; }
   };
 
-  template <typename... Ts>
-  class _internal_print_visitor : public visitor_base<Ts...> {
-  private:
-    std::ostream &ss;
+  // template <typename... Ts>
+  // class _internal_print_visitor : public visitor_base<Ts...> {
+  // private:
+  //   std::ostream &ss;
 
-  public:
-    _internal_print_visitor(std::ostream &s) : ss(s) {}
+  // public:
+  //   _internal_print_visitor(std::ostream &s) : ss(s) {}
 
-    template <typename T> void operator()(const std::string &key, const T &t) {
-      ss << key << ": " << t << "\n";
-    }
-  };
+  //   template <typename T> void operator()(const std::string &key, const T &t) {
+  //     ss << key << ": " << t << "\n";
+  //   }
+  // };
 
   template <class T, class HEAD, class... TAIL> struct try_visit {
     template <class U> static void apply(T &visitor, U &&element) {
@@ -324,9 +318,9 @@ template const bool HeterogeneousMap::get<bool>(const std::string key) const;
 template const int HeterogeneousMap::get<int>(const std::string key) const;
 template const double
 HeterogeneousMap::get<double>(const std::string key) const;
-template const std::vector<std::complex<double>>
-HeterogeneousMap::get<std::vector<std::complex<double>>>(
-    const std::string key) const;
+// template const std::vector<std::complex<double>>
+// HeterogeneousMap::get<std::vector<std::complex<double>>>(
+//     const std::string key) const;
 template const std::vector<double>
 HeterogeneousMap::get<std::vector<double>>(const std::string key) const;
 template const std::vector<double>
@@ -377,8 +371,8 @@ public:
       std::stringstream s;
       s << "InstructionParameter::this->toString() = " << toString() << "\n";
       s << "This InstructionParameter type id is " << this->which() << "\n";
-      XACCLogger::instance()->error("Cannot cast Variant: " + s.str());
-      print_backtrace();
+      emit_error("Cannot cast Variant: " + s.str());
+      // print_backtrace();
       exit(0);
     }
     return T();

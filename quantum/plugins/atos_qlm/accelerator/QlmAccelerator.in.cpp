@@ -21,6 +21,7 @@
 #include "xacc_service.hpp"
 #include "NoiseModel.hpp"
 #include <random>
+#include <fstream>
 
 using namespace pybind11::literals;
 

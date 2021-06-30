@@ -283,6 +283,8 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
     }
   }
 
+  std::cout << "HELLO WORLD EXEC: " << global_reg_size << "\n";
+  std::cout << program->toString() << "\n";
   // Now execute using the global merged register
   execute(tmp.get(), program, parameters);
 

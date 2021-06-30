@@ -17,6 +17,7 @@
 #include <memory>
 #include <signal.h>
 #include <cstdlib>
+#include <iostream>
 #include <fstream>
 #include "xacc_config.hpp"
 #include "cxxopts.hpp"
@@ -806,6 +807,13 @@ void unload_external_language_plugins() {
   }
 }
 } // namespace external
+
+void write_string_to_file_and_close(std::string file_Name, std::string s) {
+  std::ofstream out(file_Name);
+  out << s;
+  out.close();
+  return;
+}
 
 void Finalize() {
   XACCLogger::instance()->dumpQueue();

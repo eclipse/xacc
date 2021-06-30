@@ -174,7 +174,7 @@ PauliOperator::PauliOperator(std::map<int, std::string> operators,
 std::complex<double> PauliOperator::coefficient() {
   if (terms.size() > 1) {
     xacc::error("Cannot call PauliOperator::coefficient on operator with more "
-                "than 1 term.");
+                "than 1 term. " + toString());
   }
   return terms.begin()->second.coeff();
 }

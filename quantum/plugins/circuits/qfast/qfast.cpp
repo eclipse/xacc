@@ -21,6 +21,7 @@
 #include <random>
 #include "json.hpp"
 #include "xacc_config.hpp"
+#include <fstream>
 
 namespace {
 Eigen::MatrixXcd X { Eigen::MatrixXcd::Zero(2, 2)};      

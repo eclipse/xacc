@@ -26,7 +26,7 @@
 #include <memory>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fstream>
+#include <iosfwd>
 
 namespace xacc {
 
@@ -165,6 +165,8 @@ std::shared_ptr<Optimizer> getOptimizer(const std::string name,
 std::shared_ptr<Optimizer> getOptimizer(const std::string name,
                                         const HeterogeneousMap &&opts);
 
+void write_string_to_file_and_close(std::string file_Name, std::string s);
+
 bool hasCache(const std::string fileName, const std::string subdirectory = "");
 
 HeterogeneousMap getCache(const std::string fileName,
@@ -189,7 +191,7 @@ void appendCache(const std::string fileName, const std::string key, T &&param,
 
     appendCache(fileName, existingCache, subdirectory);
   } else {
-    std::ofstream out(rootPathStr + "/" + fileName);
+    // std::ofstream out(rootPathStr + "/" + fileName);
     std::stringstream s;
     AcceleratorBuffer b;
     b.useAsCache();
@@ -203,10 +205,12 @@ void appendCache(const std::string fileName, const std::string key, T &&param,
 
     b.print(s);
 
-    out << s.str();
-    out.close();
+    // out << s.str();
+    // out.close();
+    write_string_to_file_and_close(rootPathStr+"/"+fileName, s.str());
   }
 }
+
 
 template <typename T>
 void appendCache(const std::string fileName, const std::string key, T &param,
@@ -226,7 +230,7 @@ void appendCache(const std::string fileName, const std::string key, T &param,
 
     appendCache(fileName, existingCache, subdirectory);
   } else {
-    std::ofstream out(rootPathStr + "/" + fileName);
+    // std::ofstream out(rootPathStr + "/" + fileName);
     std::stringstream s;
     AcceleratorBuffer b;
     b.useAsCache();
@@ -240,8 +244,9 @@ void appendCache(const std::string fileName, const std::string key, T &param,
 
     b.print(s);
 
-    out << s.str();
-    out.close();
+    // out << s.str();
+    // out.close();
+    write_string_to_file_and_close(rootPathStr+"/"+fileName, s.str());
   }
 }
 

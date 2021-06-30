@@ -16,8 +16,6 @@
 #include <functional>
 #include <vector>
 
-#include "AcceleratorBuffer.hpp"
-#include "CompositeInstruction.hpp"
 #include "Identifiable.hpp"
 #include "heterogeneous.hpp"
 

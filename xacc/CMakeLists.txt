@@ -41,6 +41,7 @@ add_library(xacc SHARED
             accelerator/AcceleratorBuffer.cpp
             utils/Utils.cpp
             utils/CLIParser.cpp
+            utils/heterogeneous.cpp
             service/ServiceRegistry.cpp
             service/xacc_service.cpp
             accelerator/remote/RemoteAccelerator.cpp)

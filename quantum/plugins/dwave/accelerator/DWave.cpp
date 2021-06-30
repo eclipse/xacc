@@ -4,6 +4,7 @@
 #include "xacc.hpp"
 
 #include <algorithm>
+#include <fstream>
 #include "AnnealingProgram.hpp"
 
 namespace xacc {

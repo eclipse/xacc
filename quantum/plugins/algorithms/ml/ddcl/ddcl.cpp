@@ -20,6 +20,7 @@
 #include <cassert>
 #include <ctime>
 #include <regex>
+#include <fstream>
 
 #include "InstructionIterator.hpp"
 

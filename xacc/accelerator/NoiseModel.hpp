@@ -14,6 +14,7 @@
 #include "Identifiable.hpp"
 #include "heterogeneous.hpp"
 #include <cassert>
+#include <complex>
 
 namespace xacc {
 namespace quantum {
