@@ -13,6 +13,7 @@
 #include "Utils.hpp"
 #include "xacc.hpp"
 #include "xacc_observable.hpp"
+#include <fstream>
 
 // run this with
 // $ mpirun -n N h4_chain_8qbit_hpc_virt --n-virtual-qpus M --n-hydrogens H

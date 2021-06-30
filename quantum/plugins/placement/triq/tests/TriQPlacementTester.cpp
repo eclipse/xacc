@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include <fstream>
 
 using namespace xacc;
 
