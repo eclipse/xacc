@@ -198,7 +198,7 @@ TEST(QsimAcceleratorTester, testVqeMode) {
                            "- 2.1433 Y0Y1"
                            "+ .21829 Z0 - 6.125 Z1"));
 
-  auto optimizer = xacc::getOptimizer("nlopt");
+  auto optimizer = xacc::getOptimizer("nlopt", {{"maxeval", 40}});
   xacc::qasm(R"(
         .compiler xasm
         .circuit deuteron_ansatz
