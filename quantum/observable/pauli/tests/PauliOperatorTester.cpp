@@ -490,6 +490,108 @@ TEST(PauliOperatorTester, checkNormalize) {
 
 }
 
+TEST(PauliOperatorTester, checkGroupingCommuteCheck) {
+  PauliOperator op0;
+  op0.fromString("(0, -1) Z0 Z1 + (0, -1) Z1 Z2 + (0, -1) Z2 Z0");
+  std::cout << op0.toString() << "\n";
+
+  PauliOperator op1;
+  op1.fromString("(0, -1) Z0 + (0, -1) Z1 + (0, -1) X2");
+  std::cout << op1.toString() << "\n";
+
+  PauliOperator op2;
+  op2.fromString("(0, -1) Z0 Z1 + (0, -1) Z1 Z2 + (0, -1) X3 Y4");
+  std::cout << op2.toString() << "\n";
+
+  PauliOperator op3;
+  op3.fromString("(0, -1) Z0 X1 + (0, -1) X1 Y2 + (0, -1) Y2 Z3");
+  std::cout << op3.toString() << "\n";
+
+  // No optimization allowed here:
+  PauliOperator op4_no_opt_1;
+  op4_no_opt_1.fromString(
+      "(0, -1) Z0 X1 + (0, -1) X1 Y2 + (0, -1) Y2 Z3 + (0, -1) X0");
+  std::cout << op4_no_opt_1.toString() << "\n";
+
+  PauliOperator op4_no_opt_2;
+  op4_no_opt_2.fromString("(0, -1) Z0 Z1 + (0, -1) Z1 Z2 + (0, -1) Z2 X0");
+  std::cout << op4_no_opt_2.toString() << "\n";
+
+  std::vector<PauliOperator> opt_cases{op0, op1, op2, op3};
+  for (auto &test_case : opt_cases) {
+    auto qpu = xacc::getAccelerator("qpp", {{"shots", 1024}});
+    auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+    auto f = gateRegistry->createComposite("f");
+    auto h0 = gateRegistry->createInstruction("H", 0);
+    auto h1 = gateRegistry->createInstruction("H", 1);
+    auto h2 = gateRegistry->createInstruction("H", 2);
+    f->addInstructions({h0, h1, h2});
+    auto observed = test_case.observe(f, {{"accelerator", qpu}});
+    EXPECT_EQ(observed.size(), 1);
+  }
+
+  // Check non-commute as well:
+  std::vector<PauliOperator> no_opt_cases{op4_no_opt_1, op4_no_opt_2};
+  for (auto &test_case : no_opt_cases) {
+    auto qpu = xacc::getAccelerator("qpp", {{"shots", 1024}});
+    auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+    auto f = gateRegistry->createComposite("f");
+    auto h0 = gateRegistry->createInstruction("H", 0);
+    auto h1 = gateRegistry->createInstruction("H", 1);
+    auto h2 = gateRegistry->createInstruction("H", 2);
+    f->addInstructions({h0, h1, h2});
+    auto observed = test_case.observe(f, {{"accelerator", qpu}});
+    EXPECT_EQ(observed.size(), test_case.getNonIdentitySubTerms().size());
+  }
+}
+
+TEST(PauliOperatorTester, checkGroupingQaoaPostProcessLSB) {
+  PauliOperator op;
+  op.fromString("(1.5,0) + (-0.5,0) Z0 Z1 + (-0.5,0) Z0 Z2 + (-0.5,0) Z1 Z2");
+  std::cout << op.toString() << "\n";
+  xacc::Observable *obs = &op;
+  auto qpu = xacc::getAccelerator("qpp", {{"shots", 1024}});
+  auto qaoa_ansatz =
+      xacc::createComposite("qaoa", {{"nbQubits", 3},
+                                     {"nbSteps", 1},
+                                     {"cost-ham", obs},
+                                     {"parameter-scheme", "Standard"}});
+  const std::vector<double> opt_params{0.308, 0.614205};
+  auto f = (*qaoa_ansatz)(opt_params);
+  auto observed = op.observe(f, {{"accelerator", qpu}});
+  EXPECT_EQ(observed.size(), 1);
+  auto buffer = xacc::qalloc(3);
+  qpu->execute(buffer, observed);
+  buffer->print();
+  auto exp_val = op.postProcess(
+      buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, {});
+  EXPECT_NEAR(exp_val, 2.0, 0.1);
+}
+
+TEST(PauliOperatorTester, checkGroupingQaoaPostProcessMSB) {
+  PauliOperator op;
+  op.fromString("(1.5,0) + (-0.5,0) Z0 Z1 + (-0.5,0) Z0 Z2 + (-0.5,0) Z1 Z2");
+  std::cout << op.toString() << "\n";
+  xacc::Observable *obs = &op;
+  // Aer => MSB
+  auto qpu = xacc::getAccelerator("aer", {{"shots", 1024}});
+  auto qaoa_ansatz =
+      xacc::createComposite("qaoa", {{"nbQubits", 3},
+                                     {"nbSteps", 1},
+                                     {"cost-ham", obs},
+                                     {"parameter-scheme", "Standard"}});
+  const std::vector<double> opt_params{0.308, 0.614205};
+  auto f = (*qaoa_ansatz)(opt_params);
+  auto observed = op.observe(f, {{"accelerator", qpu}});
+  EXPECT_EQ(observed.size(), 1);
+  auto buffer = xacc::qalloc(3);
+  qpu->execute(buffer, observed);
+  buffer->print();
+  auto exp_val = op.postProcess(
+      buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, {});
+  EXPECT_NEAR(exp_val, 2.0, 0.1);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);

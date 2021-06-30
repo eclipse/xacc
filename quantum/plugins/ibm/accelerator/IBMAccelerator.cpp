@@ -184,6 +184,92 @@ bool hasMidCircuitMeasurement(
   return false;
 }
 
+bool IBMAccelerator::verifyJobsLimit(std::string& curr_backend) {
+  
+  // Get backend jobs limit
+  std::string getJobsLimitPath = "/api/Network/" + hub + "/Groups/" + group +
+                        "/Projects/" + project + "/devices/" + curr_backend +
+                        "/jobsLimit";
+  auto backend_jobslimit_response = get(IBM_API_URL, getJobsLimitPath, {},
+        {std::make_pair("version", "1"),
+        std::make_pair("access_token", currentApiToken)});
+  auto backend_jobslimit_response_json = json::parse(backend_jobslimit_response);
+
+  auto maximumJobs = backend_jobslimit_response_json["maximumJobs"].get<int>();
+  auto runningJobs = backend_jobslimit_response_json["runningJobs"].get<int>();
+
+  return maximumJobs < 0 || runningJobs < maximumJobs;
+}
+
+void IBMAccelerator::processBackendCandidate(nlohmann::json& backend_json) {
+  // First of all filter by count fo qubits  
+  if (requested_n_qubits > 0) {
+    if( backend_json.count("n_qubits") ) {
+      int nqubits = backend_json["n_qubits"].get<int>();
+      if(nqubits < requested_n_qubits) {
+        return;
+      } 
+    } else {
+      return;
+    }
+  }
+  std::string curr_backend = backend_json["backend_name"].get<std::string>();
+  std::string getStatusPath = "/api/Network/" + hub + "/Groups/" + group +
+                              "/Projects/" + project + "/devices/" + curr_backend +
+                              "/queue/status";
+// Get current backend status
+  auto status_response = get(IBM_API_URL, getStatusPath, {},
+        {std::make_pair("version", "1"),
+         std::make_pair("access_token", currentApiToken)});
+  auto status_response_json = json::parse(status_response);
+  auto queue_length = status_response_json["lengthQueue"].get<int>();
+  auto state = status_response_json["state"].get<bool>();
+
+  if (state && (backendQueueLength < 0 || backendQueueLength > queue_length)) {
+    if (filterByJobsLimit && !verifyJobsLimit(curr_backend)) {
+      return;
+    }
+    backendQueueLength = queue_length;
+    auto old_backend = backend;
+    backend = curr_backend;
+    availableBackends.clear();
+    availableBackends.insert(std::make_pair(backend, backend_json));
+  }
+}
+
+void IBMAccelerator::selectBackend(std::vector<std::string>& all_available_backends) {
+  bool lowest_queue_backend = false;
+  if (backend == "lowest-queue-count") {
+    lowest_queue_backend = true;
+  }
+
+  for (auto &b : backends_root["backends"]) {
+    if (!b.count("backend_name")) {
+      continue;
+    }
+    if (b.count("simulator")) {
+      // We don't need simulators at all
+      if (b["simulator"].get<bool>()) {
+        continue;
+      }
+    }
+    // Simple case: select by backend_name
+    if (!lowest_queue_backend) {
+      if (b["backend_name"].get<std::string>() == backend) {
+        availableBackends.insert(std::make_pair(backend, b));
+      }
+    } else {
+      // Select backend by job queue size and by parameters (optional)
+      processBackendCandidate(b);
+    }
+    all_available_backends.push_back(b["backend_name"].get<std::string>());
+  }
+  if (lowest_queue_backend) {
+    xacc::info("Backend with lowest queue count: " + backend);
+  }
+}
+
+
 void IBMAccelerator::initialize(const HeterogeneousMap &params) {
   if (!initialized) {
     std::string apiKey = "";
@@ -208,9 +294,6 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
     IBM_CREDENTIALS_PATH =
         "/api/Network/" + hub + "/Groups/" + group + "/Projects/" + project;
     getBackendPath = IBM_CREDENTIALS_PATH + "/devices?access_token=";
-    getBackendPropertiesPath = "/api/Network/" + hub + "/Groups/" + group +
-                               "/Projects/" + project + "/devices/" + backend +
-                               "/properties";
 
     // Post apiKey to get temp api key
     tokenParam += apiKey + "\"}";
@@ -229,6 +312,11 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
     backends_root = json::parse("{\"backends\":" + response + "}");
     getBackendPropsResponse = "{\"backends\":" + response + "}";
 
+    std::vector<std::string> your_available_backends;
+    selectBackend(your_available_backends);
+    getBackendPropertiesPath = "/api/Network/" + hub + "/Groups/" + group +
+                               "/Projects/" + project + "/devices/" + backend +
+                               "/properties";
     // Get current backend properties
     auto backend_props_response =
         get(IBM_API_URL, getBackendPropertiesPath, {},
@@ -237,16 +325,6 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
     xacc::info("Backend property:\n" + backend_props_response);
     auto props = json::parse(backend_props_response);
     backendProperties.insert({backend, props});
-    std::vector<std::string> your_available_backends;
-    for (auto &b : backends_root["backends"]) {
-      if (b.count("backend_name") &&
-          b["backend_name"].get<std::string>() == backend) {
-        availableBackends.insert(std::make_pair(backend, b));
-      }
-      if (b.count("backend_name")) {
-        your_available_backends.push_back(b["backend_name"].get<std::string>());
-      }
-    }
 
     if (!xacc::container::contains(your_available_backends, backend)) {
       std::stringstream error_ss;

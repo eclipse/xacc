@@ -152,10 +152,67 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       kernel->expand(m);
   } 
 
+  // Handle Max-cut optimization on shots-based backends (including physical
+  // backends). We only want to execute a single circuit for observable with all
+  // commuting terms such as the maxcut Hamiltonian.
+  // Limitation: this grouping cannot handle gradient strategy at the moment.
   // Observe the cost Hamiltonian:
-  auto kernels = m_costHamObs->observe(kernel);
+  auto kernels = [&] {
+    if (dynamic_cast<xacc::quantum::PauliOperator *>(m_costHamObs)) {
+      return m_costHamObs->observe(kernel, {{"accelerator", m_qpu}});
+    } else {
+      return m_costHamObs->observe(kernel);
+    }
+  }();
 
+  // Grouping is possible (no gradient strategy)
+  // TODO: Gradient strategy to handle grouping as well.
   int iterCount = 0;
+  if (m_costHamObs->getNonIdentitySubTerms().size() > 1 &&
+      kernels.size() == 1 && !gradientStrategy) {
+    OptFunction f(
+        [&, this](const std::vector<double> &x, std::vector<double> &dx) {
+          auto tmpBuffer = xacc::qalloc(buffer->size());
+          std::vector<std::shared_ptr<CompositeInstruction>> fsToExec{
+              kernels[0]->operator()(x)};
+          m_qpu->execute(tmpBuffer, fsToExec);
+          double energy = m_costHamObs->postProcess(tmpBuffer);
+          // We will only have one child buffer for each parameter set.
+          assert(tmpBuffer->getChildren().size() == 1);
+          auto result_buf = tmpBuffer->getChildren()[0];
+          result_buf->addExtraInfo("parameters", x);
+          result_buf->addExtraInfo("energy", energy);
+          buffer->appendChild("Iter" + std::to_string(iterCount), result_buf);
+
+          std::stringstream ss;
+
+          ss << "Iter " << iterCount << ": E("
+             << (!x.empty() ? std::to_string(x[0]) : "");
+          for (int i = 1; i < x.size(); i++) {
+            ss << "," << std::setprecision(3) << x[i];
+            if (i > 4) {
+              // Don't print too many params
+              ss << ", ...";
+              break;
+            }
+          }
+          ss << ") = " << std::setprecision(12) << energy;
+          xacc::info(ss.str());
+          iterCount++;
+          if (m_maximize)
+            energy *= -1.0;
+          return energy;
+        }, kernel->nVariables());
+    auto result = m_optimizer->optimize(f);
+    // Reports the final cost:
+    double finalCost = result.first;
+    if (m_maximize)
+      finalCost *= -1.0;
+    buffer->addExtraInfo("opt-val", ExtraInfo(finalCost));
+    buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
+    return;
+  }
+
   // Construct the optimizer/minimizer:
   OptFunction f(
       [&, this](const std::vector<double> &x, std::vector<double> &dx) {
@@ -315,8 +372,28 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     m_single_exec_kernel = kernel;
   }
 
-  // Observe the cost Hamiltonian:
-  auto kernels = m_costHamObs->observe(kernel);
+  // Observe the cost Hamiltonian, with the input Accelerator:
+  // i.e. perform grouping (e.g. max-cut QAOA, Pauli) if possible:
+  auto kernels = [&] {
+    if (dynamic_cast<xacc::quantum::PauliOperator *>(m_costHamObs)) {
+      return m_costHamObs->observe(kernel, {{"accelerator", m_qpu}});
+    } else {
+      return m_costHamObs->observe(kernel);
+    }
+  }();
+
+  if (m_costHamObs->getNonIdentitySubTerms().size() > 1 &&
+      kernels.size() == 1) {
+    // Grouping was done:
+    // just execute the single observed kernel:
+    std::vector<std::shared_ptr<CompositeInstruction>> fsToExec{
+        kernels[0]->operator()(x)};
+    m_qpu->execute(buffer, fsToExec);
+    const double finalCost = m_costHamObs->postProcess(buffer);
+    // std::cout << "Compute energy from grouping: " << finalCost << "\n";
+    return { finalCost };
+  }
+
   std::vector<double> coefficients;
   std::vector<std::string> kernelNames;
   std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;

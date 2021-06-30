@@ -69,7 +69,10 @@ public:
     auto ifstmt = std::make_shared<xacc::quantum::IfStmt>();
     auto reset = std::make_shared<xacc::quantum::Reset>();
     auto scheduler = std::make_shared<xacc::quantum::PulseScheduler>();
+    auto rzz= std::make_shared<xacc::quantum::RZZ>();
+
     context.RegisterService<xacc::Scheduler>(scheduler);
+    context.RegisterService<xacc::Instruction>(rzz);
 
     context.RegisterService<xacc::Instruction>(h);
     context.RegisterService<xacc::Instruction>(cn);
