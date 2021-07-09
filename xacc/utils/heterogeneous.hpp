@@ -369,7 +369,15 @@ public:
       return mpark::get<T>(*this);
     } catch (std::exception &e) {
       std::stringstream s;
+      // Bypass this error logging on Clang
+      // It will error due to:
+      // call to function 'operator<<' that is neither visible in the template definition nor found by argument-dependent lookup:
+      // https://clang.llvm.org/compatibility.html#dep_lookup
+      // Note: GCC will accept that but not Clang.
+      // Since this is just an error log, skip it.
+#ifndef __clang__
       s << "InstructionParameter::this->toString() = " << toString() << "\n";
+#endif
       s << "This InstructionParameter type id is " << this->which() << "\n";
       emit_error("Cannot cast Variant: " + s.str());
       // print_backtrace();
