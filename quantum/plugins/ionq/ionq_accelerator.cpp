@@ -89,6 +89,7 @@ void IonQAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   std::string jobId = j["id"].get<std::string>();
   std::string msg;
   bool jobCompleted = false;
+  int dots = 1;
   while (!jobCompleted) {
 
     msg = handleExceptionRestClientGet(url, "/jobs/" + jobId, headers);
@@ -97,8 +98,32 @@ void IonQAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
       jobCompleted = true;
     }
 
+    // Add a status message...
+    if (dots > 4) {
+      dots = 1;
+    }
+    std::stringstream ss;
+    ss << "\033[0;32m"
+       << "IonQ Job "
+       << "\033[0;36m" << jobId
+       << "\033[0;32m"
+       // IonQ use the word "ready" to denote the submitted job status
+       << " Status: "
+       << (j["status"].get<std::string>() == "ready"
+               ? "submitted"
+               : j["status"].get<std::string>());
+    for (int i = 0; i < dots; i++) {
+      ss << '.';
+    }
+
+    dots++;
+    std::cout << '\r' << ss.str() << std::setw(20) << std::setfill(' ')
+              << std::flush;
+
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
+  // End the color log
+  std::cout << "\033[0m" << "\n";
 
   std::map<std::string, double> histogram =
       j["data"]["histogram"].get<std::map<std::string, double>>();
