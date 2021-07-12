@@ -247,12 +247,6 @@ void IBMAccelerator::selectBackend(std::vector<std::string>& all_available_backe
     if (!b.count("backend_name")) {
       continue;
     }
-    if (b.count("simulator")) {
-      // We don't need simulators at all
-      if (b["simulator"].get<bool>()) {
-        continue;
-      }
-    }
     // Simple case: select by backend_name
     if (!lowest_queue_backend) {
       if (b["backend_name"].get<std::string>() == backend) {

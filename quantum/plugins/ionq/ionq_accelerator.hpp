@@ -72,6 +72,7 @@ private:
 
   int shots = 1024;
   std::string backend = "simulator";
+  std::vector<std::pair<int,int>> m_connectivity;
 
   bool jobIsRunning = false;
   std::string currentJobId = "";

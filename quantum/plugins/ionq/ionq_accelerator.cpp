@@ -14,6 +14,7 @@
 #include <cctype>
 #include <fstream>
 #include "xacc.hpp"
+#include "json.hpp"
 
 #include "ionq_program.hpp"
 #include "ionq_program_visitor.hpp"
@@ -40,6 +41,10 @@ void IonQAccelerator::initialize(const HeterogeneousMap &params) {
     headers.insert({"Authorization", "apiKey " + apiKey});
     headers.insert({"Content-Type", "application/json"});
 
+    auto calibrations = restClient->get(url, "/calibrations", headers);
+    auto j = nlohmann::json::parse(calibrations);
+    m_connectivity = j["calibrations"][0]["connectivity"].get<std::vector<std::pair<int,int>>>();
+    
     remoteUrl = url;
     postPath = "/jobs";
   }
@@ -146,18 +151,7 @@ void IonQAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
 void IonQAccelerator::cancel() {}
 
 std::vector<std::pair<int, int>> IonQAccelerator::getConnectivity() {
-  std::vector<std::pair<int, int>> graph;
-  int nq = 5;
-  for (int i = 0; i < nq; i++) {
-    for (int j = 0; j < nq; j++) {
-      if (i < j) {
-        //   graph->addEdge(i, j);
-        graph.push_back({i, j});
-      }
-    }
-  }
-
-  return graph;
+  return m_connectivity;
 }
 
 void IonQAccelerator::searchAPIKey(std::string &key, std::string &url) {
