@@ -18,7 +18,7 @@ ADD settings.json /home/dev/.theia/
 
 #Common deps
 RUN apt-get update && \
-    apt-get --no-install-recommends -y install build-essential \
+    apt-get --no-install-recommends -y install build-essential libsecret-1-dev \
                        curl \
                        git \
                        python python3 \
