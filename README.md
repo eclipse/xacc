@@ -5,6 +5,7 @@
 |[![pipeline status](https://code.ornl.gov/qci/xacc/badges/master/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/master) | [![pipeline status](https://code.ornl.gov/qci/xacc/badges/xacc-devel/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/xacc-devel) |
 
 ## Language and Hardware Independent Quantum Programming Framework
+
 XACC is an extensible compilation framework for hybrid quantum-classical computing architectures.
 It provides extensible language frontend and hardware backend compilation components glued together
 via a novel quantum intermediate representation. XACC currently supports quantum-classical programming
@@ -19,9 +20,11 @@ Documentation
 
 Quick Start
 -----------
-Click [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/eclipse/xacc) 
-to open up a pre-configured Eclipse Theia IDE. You should immediately be able to 
+
+Click [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/eclipse/xacc)
+to open up a pre-configured Eclipse Theia IDE. You should immediately be able to
 run any of the C++ or Python examples from the included terminal:
+
 ```bash
 [example C++ executables are in build/quantum/examples/*]
 $ build/quantum/examples/qasm/deuteron_from_qasm
@@ -30,23 +33,26 @@ $ build/quantum/examples/qasm/deuteron_from_qasm
 $ python3 python/examples/deuteronH2.py
 
 [run some XACC benchmarks]
-$ python3 -m xacc --benchmark python/benchmark/chemistry/benchmarks/tnqvm_nah_ucc1.ini 
+$ python3 -m xacc --benchmark python/benchmark/chemistry/benchmarks/tnqvm_nah_ucc1.ini
 ```
-All code is here and you can quickly start developing. We recommend 
+All code is here and you can quickly start developing. We recommend
 turning on file auto-save by clicking ``File > Auto Save ``.
-Note the Gitpod free account provides 100 hours of use for the month, so if 
+Note the Gitpod free account provides 100 hours of use for the month, so if
 you foresee needing more time, we recommend our nightly docker images.
 
-The XACC nightly docker images also serve an Eclipse Theia IDE (the same IDE Gitpod uses) on port 3000. To get started, run 
+The XACC nightly docker images also serve an Eclipse Theia IDE (the same IDE Gitpod uses) on port 3000. To get started, run
+
 ```bash
 $ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc
 ```
-Navigate to ``https://localhost:3000`` in your browser to open the IDE and get started with XACC. These are deployed 
+
+Navigate to ``https://localhost:3000`` in your browser to open the IDE and get started with XACC. These are deployed
 nightly, with ``xacc-tnqvm-exatn`` (tensor network simulator) and ``xacc-quac`` (pulse-level simulation) variants.
 
 
 Build from Source
 -----------------
+
 Full installation details can be followed [here](https://xacc.readthedocs.io/en/latest/install.html).
 
 Ensure that you have installed CMake 3.12+, a C++17 compliant compiler (GCC 8+, Clang 5+), and
@@ -61,6 +67,7 @@ find the corresponding development headers. Ensure that when you try to run XACC
 you are using the same `python3` executable that was set during your build.
 
 Clone the repository recursively, configure with `cmake` and build with `make`
+
 ```bash
 $ git clone https://github.com/eclipse/xacc
 $ cd xacc && mkdir build && cd build
@@ -81,11 +88,13 @@ See full documentation for all CMake optional arguments.
 
 Your installation will be in `$HOME/.xacc`. If you built with the Python API,
 be sure to update your `PYTHONPATH` environment variable to point to the installation:
+
 ```bash
 $ export PYTHONPATH=$PYTHONPATH:$HOME/.xacc
 ```
 
 You will probably want the XACC default simulator, TNQVM. To install, run the following:
+
 ```bash
 $ git clone https://github.com/ornl-qci/tnqvm
 $ cd tnqvm && mkdir build && cd build
@@ -107,8 +116,10 @@ XACC is dual licensed - [Eclipse Public License](LICENSE.EPL) and [Eclipse Distr
 
 Cite XACC
 ----------
+
 If you use XACC in your research, please use the following citation
-```
+
+```bib
 @article{xacc_2020,
 	doi = {10.1088/2058-9565/ab6bf6},
 	url = {https://doi.org/10.1088%2F2058-9565%2Fab6bf6},
