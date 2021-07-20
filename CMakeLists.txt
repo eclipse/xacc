@@ -104,9 +104,11 @@ message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_INSTALL_PREFIX}. Override
 
 if (XACC_MULTI_THREADED)
   message(STATUS "${BoldGreen}Multi-thread support is enabled ${ColorReset}")
-  add_compile_definitions(_XACC_MUTEX)
+    add_compile_definitions(_XACC_MUTEX)
+  set(_XACC_MUTEX True)
 else()
   message(STATUS "${BoldGreen}Multi-thread support is disabled (default)${ColorReset}")
+  set(_XACC_MUTEX False)
 endif()
 
 if (XACC_BUILD_TESTS)
