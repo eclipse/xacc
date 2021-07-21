@@ -146,7 +146,7 @@ public:
         quilStr += "RY("+angleStr+") " + qubit + "\n";
     } else {
       Rx rx1(ry.bits()[0], xacc::constants::pi/2.);
-      Rz rz1(ry.bits()[0], ry.getParameter(0).as<double>());
+      Rz rz1(ry.bits()[0], angleStr);
       Rx rx2(ry.bits()[0], -xacc::constants::pi/2.);
       
       visit(rx1);
