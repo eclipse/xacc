@@ -18,7 +18,17 @@
 namespace xacc {
 namespace quantum {
 
-void IRToGraphVisitor::addSingleQubitGate(Gate &inst) {
+std::string IRToGraphVisitor::getParamsString(Instruction &inst) {
+  std::string ret = "";
+  std::string sep = "";
+  for (auto &param : inst.getParameters()) {
+    ret += sep + InstructionParameterToString(param);
+    sep = ",";
+  }
+  return ret;
+}
+
+void IRToGraphVisitor::addSingleQubitGate(Instruction &inst) {
   auto bit = inst.bits()[0];
   auto lastNode = qubitToLastNode[bit];
   auto lastBit = lastNode.get<std::vector<std::size_t>>("bits")[0];
@@ -28,6 +38,9 @@ void IRToGraphVisitor::addSingleQubitGate(Gate &inst) {
   CircuitNode newNode{std::make_pair("name", inst.name()),
                       std::make_pair("id", id),
                       std::make_pair("bits", inst.bits())};
+  if (inst.nParameters()) {
+    newNode.insert("params", getParamsString(inst));
+  }
 
   graph->addVertex(newNode);
   graph->addEdge(lastNode.get<std::size_t>("id"), newNode.get<std::size_t>("id"), 1);
@@ -35,7 +48,7 @@ void IRToGraphVisitor::addSingleQubitGate(Gate &inst) {
   qubitToLastNode[bit] = newNode;
 }
 
-void IRToGraphVisitor::addTwoQubitGate(Gate &inst) {
+void IRToGraphVisitor::addTwoQubitGate(Instruction &inst) {
   auto srcbit = inst.bits()[0];
   auto tgtbit = inst.bits()[1];
 
@@ -46,6 +59,9 @@ void IRToGraphVisitor::addTwoQubitGate(Gate &inst) {
   CircuitNode newNode{std::make_pair("name", inst.name()),
                       std::make_pair("id", id),
                       std::make_pair("bits", inst.bits())};
+  if (inst.nParameters()) {
+    newNode.insert("params", getParamsString(inst));
+  }
   graph->addVertex(newNode);
   graph->addEdge(lastsrcnodeid, id, 1);
   graph->addEdge(lasttgtnodeid, id, 1);

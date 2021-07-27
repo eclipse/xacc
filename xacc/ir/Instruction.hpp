@@ -60,6 +60,17 @@ InstructionParameterToDouble(const xacc::InstructionParameter &in_parameter) {
   return 0.0;
 }
 
+static std::string InstructionParameterToString(const xacc::InstructionParameter &in_parameter) {
+  switch (in_parameter.which()) {
+    case 0:
+      return std::to_string(in_parameter.as<int>());
+    case 1:
+      return std::to_string(in_parameter.as<double>());
+    default: // 2
+      return in_parameter.as<std::string>();
+  }
+}
+
 class CompositeInstruction;
 
 class CompositeArgument {

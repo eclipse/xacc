@@ -15,6 +15,7 @@
 
 #include "AllGateVisitor.hpp"
 #include "Graph.hpp"
+#include "Pulse.hpp"
 #include "xacc.hpp"
 
 namespace xacc {
@@ -22,7 +23,7 @@ namespace quantum {
 
 using CircuitNode = HeterogeneousMap;
 
-class IRToGraphVisitor : public AllGateVisitor {
+class IRToGraphVisitor : public AllGateVisitor, public InstructionVisitor<Pulse> {
 
 protected:
   std::shared_ptr<Graph> graph;
@@ -31,8 +32,9 @@ protected:
 
   std::size_t id = 0;
 
-  void addSingleQubitGate(Gate &inst);
-  void addTwoQubitGate(Gate &inst);
+  std::string getParamsString(Instruction &inst);
+  void addSingleQubitGate(Instruction &inst);
+  void addTwoQubitGate(Instruction &inst);
 
 public:
   IRToGraphVisitor(const int nQubits);
@@ -73,6 +75,17 @@ public:
 
   void visit(CRZ &crz) override {addTwoQubitGate(crz);}
   void visit(CH &ch) override {addTwoQubitGate(ch);}
+
+  void visit(Pulse &pulse) override {
+    if (pulse.bits().size() == 1) {
+      addSingleQubitGate(pulse);
+    } else if (pulse.bits().size() == 2) {
+      addTwoQubitGate(pulse);
+    } else {
+      xacc::error("Cannot handle " + std::to_string(pulse.bits().size())
+                  + "-qubit pulse in IRToGraphVisitor");
+    }
+  }
   // Base gate visitor, i.e. none of the concrete gates can match.
   // We need to assert here because we cannot generate a graph when there are unknown gates.
   // e.g. there is an 1-1 mapping between node Id (in the graph) and instruction counter (in the circuit),
