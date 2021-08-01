@@ -126,6 +126,46 @@ TEST(IBMPulseRemoteTester, checkCnotPulse) {
 }
 #endif
 
+// Check manipulations with frequency
+TEST(IBMPulseRemoteTester, checkFrequencyHandle) {
+  xacc::set_verbose(true);
+  auto acc = xacc::getAccelerator("ibm:ibmq_armonk", {{"mode", "pulse"}});
+  std::string jjson("{"
+                    "\"pulse_library\": ["
+                     "{\"name\": \"pulse1\", \"samples\": [[0,0],[0,0],[0,0]]},"
+                     "{\"name\": \"pulse2\", \"samples\": [[0,0],[0,0],[0,0]]},"
+                     "{\"name\": \"pulse3\", \"samples\": [[0,0],[0,0],[0,0]]}"
+                                        "]"
+                    ","
+                    "\"cmd_def\":["
+                    "{\"name\":\"test_freq\",\"qubits\":[0],\"sequence\":["
+                              "{\"name\":\"setf\",\"ch\":\"d0\",\"t0\":0,\"frequency\":5}"
+                              ","
+                              "{\"name\":\"shiftf\",\"ch\":\"d0\",\"t0\":0,\"frequency\":-0.1}"
+                              ","
+                              "{\"name\":\"setp\",\"ch\":\"d0\",\"t0\":0,\"phase\":-1.57}"
+                              ","
+                              "{\"name\":\"shiftp\",\"ch\":\"d0\",\"t0\":0,\"phase\":0.1}"
+                    "]}"
+                    ","
+                    "{\"name\":\"id2\",\"qubits\":[0],\"sequence\":[{\"name\":\"setf\",\"ch\":\"d0\",\"t0\":0,\"frequency\":5}]}"
+                     "] "
+                    "}");
+
+  acc->contributeInstructions(jjson);
+  auto cr = xacc::getContributedService<xacc::Instruction>("pulse::test_freq_0");
+  auto cr_comp =
+      std::dynamic_pointer_cast<xacc::CompositeInstruction>(cr);
+
+  EXPECT_EQ(cr_comp->getInstructions().size(), 4);
+
+  std::string checkNames[] = {"setf", "shiftf", "setp", "shiftp"};
+
+  for( int nI = 0; nI < 4; ++nI ) {
+      EXPECT_EQ(cr_comp->getInstruction(nI)->name(), checkNames[nI] );
+  }
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);
