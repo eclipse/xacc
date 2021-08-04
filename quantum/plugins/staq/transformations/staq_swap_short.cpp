@@ -17,8 +17,17 @@
 #include "xacc_service.hpp"
 #include "xacc.hpp"
 #include "staq_visitors.hpp"
+#include "transformations/inline.hpp"
 
 #include <regex>
+
+// Need this to get around multiple definition error
+// from upstream staq
+namespace staq {
+  namespace transformations {
+    extern void desugar(staq::ast::ASTNode&);
+  }
+}
 
 namespace xacc {
 namespace quantum {
@@ -61,11 +70,19 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
   auto staq = xacc::getCompiler("staq");
   auto src = staq->translate(program);
 
-  //   std::cout << "HELLO WORLD:\n" << src << "\n";
+    // std::cout << "HELLO WORLD:\n" << src << "\n";
   // parse that to get staq ast
   ast::ptr<ast::Program> prog;
   try {
     prog = parser::parse_string(src);
+    transformations::desugar(*prog);
+    transformations::Inliner::config c;
+    // Make sure we treat map all control pauli 
+    // ops as CNOT gates
+    c.overrides.erase("cx");
+    c.overrides.erase("cy");
+    c.overrides.erase("cz");
+    transformations::inline_ast(*prog, c);
   } catch (std::exception &e) {
     std::stringstream ss;
     ss << e.what();
@@ -73,6 +90,7 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
     xacc::error(ss.str());
   }
 
+  // std::cout << "HI:\n" << *prog << "\n";
 
   mapping::Device device(qpu->getSignature(), nQubits, adj);
 
