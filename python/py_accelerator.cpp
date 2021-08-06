@@ -112,6 +112,12 @@ void bind_accelerator(py::module &m) {
                xacc::Accelerator::updateConfiguration,
            "")
       .def("getConnectivity", &xacc::Accelerator::getConnectivity, "")
+      .def(
+          "getNativeCode",
+          [](xacc::Accelerator &qpu, std::shared_ptr<CompositeInstruction> f) {
+            return qpu.getNativeCode(f);
+          },
+          "")
       .def("configurationKeys", &xacc::Accelerator::configurationKeys, "")
       .def("contributeInstructions", &xacc::Accelerator::contributeInstructions,
            "");
