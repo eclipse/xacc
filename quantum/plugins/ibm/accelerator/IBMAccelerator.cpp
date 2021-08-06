@@ -1260,7 +1260,30 @@ IBMAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
     return jsonStr;
   } else if (format == "qasm" || format == "Qasm" || format == "QASM" ||
              format == "OpenQASM" || format == "OPENQASM") {
-    return "";
+    chosenBackend = availableBackends[backend];
+    const auto basis_gates =
+        chosenBackend["basis_gates"].get<std::vector<std::string>>();
+    // If the gate set has "u3" -> old gateset.
+    const auto gateSet = (xacc::container::contains(basis_gates, "u3"))
+                             ? QObjectExperimentVisitor::GateSet::U_CX
+                             : QObjectExperimentVisitor::GateSet::RZ_SX_CX;
+    auto visitor = std::make_shared<QObjectExperimentVisitor>(
+        program->name(), program->nLogicalBits(), gateSet);
+    InstructionIterator it(program);
+    int memSlots = 0;
+    while (it.hasNext()) {
+      auto nextInst = it.next();
+      if (nextInst->isEnabled()) {
+        nextInst->accept(visitor);
+      }
+    }
+    auto experiment = visitor->getExperiment();
+    std::stringstream ss;
+    for (auto &inst : experiment.get_instructions()) {
+      // std::cout << "HOWDY: " << inst.toString() << "\n";
+      ss << inst.toString() << "\n";
+    }
+    return ss.str();
   }
   xacc::error("Unknown native code format '" + format + "'");
   return "";

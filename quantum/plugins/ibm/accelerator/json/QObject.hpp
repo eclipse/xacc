@@ -399,6 +399,26 @@ public:
 
   std::optional<int64_t> get_condition_reg_id() const { return conditional; }
   void set_condition_reg_id(int64_t value) { this->conditional = value; }
+
+  std::string toString() const {
+    std::stringstream ss;
+    ss << name;
+    if (!params.empty()) {
+      ss << "(";
+      for (int i = 0; i < params.size(); ++i) {
+        ss << params[i];
+        if (i != params.size() - 1) {
+          ss << ", ";
+        }
+      }
+      ss << ")";
+    }
+    for (const auto &qb : qubits) {
+      ss << " q[" << qb << "]";
+    }
+    ss << ";";
+    return ss.str();
+  }
 };
 
 class Experiment {
