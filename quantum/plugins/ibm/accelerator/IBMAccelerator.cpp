@@ -1267,22 +1267,41 @@ IBMAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
     const auto gateSet = (xacc::container::contains(basis_gates, "u3"))
                              ? QObjectExperimentVisitor::GateSet::U_CX
                              : QObjectExperimentVisitor::GateSet::RZ_SX_CX;
-    auto visitor = std::make_shared<QObjectExperimentVisitor>(
-        program->name(), program->nLogicalBits(), gateSet);
+    std::stringstream ss;
     InstructionIterator it(program);
     int memSlots = 0;
     while (it.hasNext()) {
       auto nextInst = it.next();
-      if (nextInst->isEnabled()) {
+      if (nextInst->isEnabled() && !nextInst->isComposite()) {
+        auto visitor = std::make_shared<QObjectExperimentVisitor>(
+            program->name(), program->nLogicalBits(), gateSet);
         nextInst->accept(visitor);
+        auto experiment = visitor->getExperiment();
+        for (auto &inst : experiment.get_instructions()) {
+          // std::cout << "HOWDY: " << inst.toString() << "\n";
+          ss << inst.toString() << "\n";
+        }
+      } else if (nextInst->name() == "ifstmt") {
+        auto ifStmt =
+            std::dynamic_pointer_cast<xacc::CompositeInstruction>(nextInst);
+        ss << "if (c[" << nextInst->bits()[0] << "] == 1){\n";
+        if (ifStmt) {
+          for (auto &i : ifStmt->getInstructions()) {
+            auto visitor = std::make_shared<QObjectExperimentVisitor>(
+                program->name(), program->nLogicalBits(), gateSet);
+            i->accept(visitor);
+            auto experiment = visitor->getExperiment();
+            for (auto &inst : experiment.get_instructions()) {
+              // std::cout << "HOWDY: " << inst.toString() << "\n";
+              ss << inst.toString() << "\n";
+            }
+          }
+        }
+
+        ss << "}\n";
       }
     }
-    auto experiment = visitor->getExperiment();
-    std::stringstream ss;
-    for (auto &inst : experiment.get_instructions()) {
-      // std::cout << "HOWDY: " << inst.toString() << "\n";
-      ss << inst.toString() << "\n";
-    }
+
     return ss.str();
   }
   xacc::error("Unknown native code format '" + format + "'");

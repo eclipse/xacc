@@ -413,8 +413,15 @@ public:
       }
       ss << ")";
     }
-    for (const auto &qb : qubits) {
-      ss << " q[" << qb << "]";
+    for (int i = 0; i < qubits.size(); ++i) {
+      ss << " q[" << qubits[i] << "]";
+      if (i != qubits.size() - 1) {
+        ss << ", ";
+      }
+    }
+
+    if (!get_memory().empty()) {
+      ss << " -> c[" << get_memory()[0] << "]";
     }
     ss << ";";
     return ss.str();
