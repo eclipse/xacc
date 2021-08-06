@@ -10,6 +10,8 @@ RUN apk add build-base gcc binutils cmake blas-dev lapack-dev python3-dev curl-d
     && mv /tmp/patch_Error.cpp xacc/tpls/cppmicroservices/util/src/Error.cpp \
     && mv /tmp/patch_glucose.hpp xacc/tpls/staq/libs/glucose/glucose.hpp \
     && cd xacc && mkdir build && cd build/ \
-    && cmake .. && make -j4 install \
+    && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/aideqc/qcor && make -j8 install \
     && python3 -m pip install ipopo --user \
     && cd ../../ && rm -rf /xacc
+
+ENV PYTHONPATH "${PYTHONPATH}:/usr/local/aideqc/qcor"
