@@ -30,7 +30,7 @@ $ build/quantum/examples/qasm/deuteron_from_qasm
 $ python3 python/examples/deuteronH2.py
 
 [run some XACC benchmarks]
-$ python3 -m xacc --benchmark python/benchmark/chemistry/benchmarks/tnqvm_nah_ucc1.ini 
+$ python3 -m xacc --benchmark python/benchmark/chemistry/benchmarks/nah_ucc1.ini 
 ```
 All code is here and you can quickly start developing. We recommend 
 turning on file auto-save by clicking ``File > Auto Save ``.

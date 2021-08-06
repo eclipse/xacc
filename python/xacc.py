@@ -34,7 +34,6 @@ try:
 except:
     pass
 
-
 class Benchmark(ABC):
 
     # Override this execute method to implement the algorithm
@@ -500,10 +499,14 @@ def _finalize():
     if not loaded_from_cpp_dont_finalize:
         # Stop the Pelix framework:
         # cleaning up all Python threads that it has started.
-        serviceRegistry.framework.stop()  
-        # Wait for the framework to stop
-        serviceRegistry.framework.wait_for_stop()
-        Finalize()
+        # don't tear down if already torn down
+        try:
+            serviceRegistry.framework.stop()  
+            # Wait for the framework to stop
+            serviceRegistry.framework.wait_for_stop()
+            Finalize()
+        except NameError:
+            pass
 
 atexit.register(_finalize)
 
