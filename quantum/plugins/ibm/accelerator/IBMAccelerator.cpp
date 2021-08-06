@@ -812,8 +812,7 @@ std::vector<std::pair<int, int>> IBMAccelerator::getConnectivity() {
     auto nq = backend__["n_qubits"].get<int>();
     for (int i = 0; i < nq; i++) {
       for (int j = 0; j < nq; j++) {
-        if (i < j) {
-          //   graph->addEdge(i, j);
+        if (i != j) {
           graph.push_back({i, j});
         }
       }
