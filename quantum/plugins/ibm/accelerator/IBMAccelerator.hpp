@@ -131,6 +131,8 @@ public:
 
   std::vector<std::pair<int, int>> getConnectivity() override;
 
+  std::string getNativeCode(std::shared_ptr<CompositeInstruction> program,
+                            const HeterogeneousMap &config) override;
   // Return the name of an IRTransformation of type Placement that is
   // preferred for this Accelerator
   const std::string defaultPlacementTransformation() override {

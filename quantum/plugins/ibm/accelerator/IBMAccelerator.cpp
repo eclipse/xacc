@@ -1238,6 +1238,35 @@ void IBMAccelerator::put(const std::string &_url, const std::string &postStr,
 }
 
 std::string
+IBMAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
+                              const HeterogeneousMap &config) {
+  std::string format = "QObj"; // QObj/QASM
+  if (config.stringExists("format")) {
+    format = config.getString("format");
+  }
+
+  // Handle different ways to specify the format:
+  if (format == "QObj" || format == "QOBJ" || format == "JSON") {
+    chosenBackend = availableBackends[backend];
+    auto connectivity = getConnectivity();
+    // Get the correct QObject Generator
+    auto qobjGen = xacc::getService<QObjGenerator>(mode);
+
+    // Generate the QObject JSON
+    auto jsonStr = qobjGen->getQObjJsonStr(
+        {program}, shots, chosenBackend, getBackendPropsResponse, connectivity,
+        json::parse(defaults_response));
+
+    return jsonStr;
+  } else if (format == "qasm" || format == "Qasm" || format == "QASM" ||
+             format == "OpenQASM" || format == "OPENQASM") {
+    return "";
+  }
+  xacc::error("Unknown native code format '" + format + "'");
+  return "";
+}
+
+std::string
 IBMAccelerator::get(const std::string &_url, const std::string &path,
                     std::map<std::string, std::string> headers,
                     std::map<std::string, std::string> extraParams) {

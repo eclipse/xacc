@@ -106,6 +106,14 @@ public:
     return std::vector<std::pair<int, int>>{};
   }
 
+  // Get circuit representation that the backend would be submitting to the
+  // physical QPU
+  virtual std::string
+  getNativeCode(std::shared_ptr<CompositeInstruction> program,
+                const HeterogeneousMap &config = {}) {
+    return program->toString();
+  }
+
   virtual const std::vector<std::complex<double>>
   getAcceleratorState(std::shared_ptr<CompositeInstruction> program) {
     return std::vector<std::complex<double>>{};
