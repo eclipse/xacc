@@ -195,6 +195,7 @@ private:
   std::string name;
   int64_t t0;
   double phase;
+  double frequency;
   std::vector<int64_t> memory_slot;
   int64_t duration;
   std::vector<int64_t> qubits;
@@ -214,6 +215,9 @@ public:
 
   double get_phase() const { return phase; }
   void set_phase(double value) { this->phase = value; }
+
+  double get_frequency() const { return frequency; }
+  void set_frequency(double value) { this->frequency = value; }
 
   std::vector<int64_t> get_memory_slot() const { return memory_slot; }
   void set_memory_slot(std::vector<int64_t> value) {
@@ -459,7 +463,7 @@ inline void to_json(json &j, const xacc::ibm_pulse::Instruction &x) {
 
   j["name"] = x.get_name();
   j["t0"] = x.get_t0();
-  if (x.get_name() == "fc") {
+  if (x.get_name() == "fc" || x.get_name() == "setp" || x.get_name() == "shiftp") {
     j["phase"] = x.get_phase();
   }
   if (x.get_name() == "acquire") {
@@ -476,6 +480,9 @@ inline void to_json(json &j, const xacc::ibm_pulse::Instruction &x) {
 
   if (x.get_name() == "delay") {
     j["duration"] = x.get_duration();
+  }
+  if (x.get_name() == "setf" || x.get_name() == "shiftf") {
+    j["frequency"] = x.get_frequency();
   }
 }
 

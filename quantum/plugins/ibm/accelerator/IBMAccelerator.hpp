@@ -195,6 +195,7 @@ private:
   std::map<std::string, nlohmann::json> backendProperties;
   std::string getBackendPropsResponse = "{}";
   std::string defaults_response = "{}";
+  bool contributed = false;
   std::string mode = "qasm";
   int requested_n_qubits = 0;
   bool filterByJobsLimit = false;

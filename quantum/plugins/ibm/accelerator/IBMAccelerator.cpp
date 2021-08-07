@@ -599,13 +599,10 @@ void IBMAccelerator::execute(
   if (qobj_type == "pulse") {
     // if we need to use pulse mode, contribute the pulse library of the
     // backend (if any)
-    if (!defaults_response.empty()) {
-      // Make sure we only contribute pulse cmd-def once
-      static bool contributed;
-      if (!contributed) {
-        contributed = true;
-        contributeInstructions();
-      }
+    // And make sure we only contribute pulse cmd-def once
+    if (!defaults_response.empty() && !contributed) {
+      contributed = true;
+      contributeInstructions();
     }
   }
   // Get the correct QObject Generator
@@ -1090,6 +1087,7 @@ void IBMAccelerator::contributeInstructions(
 
     xacc::info("Contributing " + tmpName + " pulse composite.");
     xacc::contributeService(tmpName, cmd_def);
+    contributed = true;
   }
 }
 

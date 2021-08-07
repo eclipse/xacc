@@ -90,7 +90,8 @@ public:
         inst.set_phase(i.getParameter(0).as<double>());
         inst.set_t0(i.start());
 
-        std::vector<std::string> builtIns {"fc", "acquire", "parametric_pulse", "delay" };
+        std::vector<std::string> builtIns {"fc", "acquire", "parametric_pulse", "delay", 
+                                           "setf","shiftf", "setp", "shiftp" };
         if (std::find(builtIns.begin(), builtIns.end(), i.name()) == std::end(builtIns)) {
             // add to default libr
             xacc::ibm_pulse::PulseLibrary lib;
@@ -120,6 +121,10 @@ public:
           auto pulseParameters = i.getPulseParams();
           inst.set_pulse_shape(pulseParameters.getString("pulse_shape"));
           inst.set_pulse_params(pulseParameters.getString("parameters_json"));
+        }
+
+        if (i.name() == "setf" || i.name() == "shiftf") {
+            inst.set_frequency(i.getParameter(0).as<double>());
         }
 
         instructions.push_back(inst);
