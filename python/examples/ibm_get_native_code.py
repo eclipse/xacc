@@ -60,4 +60,4 @@ Measure(q[0], c[3]);
 f = xacc.getCompiled('iterative_qpe')
 
 qpu = xacc.getAccelerator('ibm:ibmq_manhattan')
-print('HOWDY:\n', qpu.getNativeCode(f))
+print('HOWDY:\n', qpu.getNativeCode(f, {'format': 'qasm'}))

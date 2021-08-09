@@ -1288,7 +1288,8 @@ IBMAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
       } else if (nextInst->name() == "ifstmt") {
         auto ifStmt =
             std::dynamic_pointer_cast<xacc::CompositeInstruction>(nextInst);
-        ss << "if (c[" << nextInst->bits()[0] << "] == 1){\n";
+        // !! NOTE!! OpenQASM2 doesn't allow multi-statement if block
+        // so need to wrap each statement individually.
         if (ifStmt) {
           for (auto &i : ifStmt->getInstructions()) {
             auto visitor = std::make_shared<QObjectExperimentVisitor>(
@@ -1297,16 +1298,20 @@ IBMAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
             auto experiment = visitor->getExperiment();
             for (auto &inst : experiment.get_instructions()) {
               // std::cout << "HOWDY: " << inst.toString() << "\n";
+              ss << "if (c[" << nextInst->bits()[0] << "] == 1) ";
               ss << inst.toString() << "\n";
             }
           }
         }
-
-        ss << "}\n";
       }
     }
 
-    return ss.str();
+    const std::string preAmple = R"(OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[)" + std::to_string(program->nLogicalBits()) +
+                                 "];\ncreg c[" + std::to_string(memSlots) +
+                                 "];\n";
+    return preAmple + ss.str();
   }
   xacc::error("Unknown native code format '" + format + "'");
   return "";
