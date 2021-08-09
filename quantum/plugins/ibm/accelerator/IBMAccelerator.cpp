@@ -1275,7 +1275,11 @@ IBMAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
       if (nextInst->isEnabled() && !nextInst->isComposite()) {
         auto visitor = std::make_shared<QObjectExperimentVisitor>(
             program->name(), program->nLogicalBits(), gateSet);
+        visitor->maxMemorySlots = memSlots;
         nextInst->accept(visitor);
+        if (nextInst->name() == "Measure") {
+          ++memSlots;
+        }
         auto experiment = visitor->getExperiment();
         for (auto &inst : experiment.get_instructions()) {
           // std::cout << "HOWDY: " << inst.toString() << "\n";
