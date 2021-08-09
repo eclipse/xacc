@@ -1315,12 +1315,12 @@ IBMAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
                   "c[" + std::to_string(nextInst->bits()[0]) + "]";
               if (cbit_reg_map.find(orig_reg_name) != cbit_reg_map.end()) {
                 const std::string single_reg_name = cbit_reg_map[orig_reg_name];
-                ss << "if (c[" << nextInst->bits()[0] << "] == 1) ";
+                ss << "if (" + single_reg_name + " == 1) ";
               } else {
                 const std::string single_reg_name =
                     "cReg" + std::to_string(cbit_reg_map.size());
                 cbit_reg_map[orig_reg_name] = single_reg_name;
-                ss << "if (c[" << nextInst->bits()[0] << "] == 1) ";
+                ss << "if (" + single_reg_name + " == 1) ";
               }
               ss << inst.toString() << "\n";
             }
