@@ -1270,6 +1270,7 @@ IBMAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
     std::stringstream ss;
     InstructionIterator it(program);
     int memSlots = 0;
+    std::map<std::string, std::string> cbit_reg_map;
     while (it.hasNext()) {
       auto nextInst = it.next();
       if (nextInst->isEnabled() && !nextInst->isComposite()) {
@@ -1296,9 +1297,31 @@ IBMAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
                 program->name(), program->nLogicalBits(), gateSet);
             i->accept(visitor);
             auto experiment = visitor->getExperiment();
+            // Note: OpenQASM2 cannot express conditional on a single cbit
+            // e.g., if (c[k] == 1) (c is a multi-bit register)
+            // Ref:
+            // https://quantumcomputing.stackexchange.com/questions/17901/if-statement-in-openqasm2-0-on-ibm-quantum-experience-error/17902#17902
+            // Also see: https://github.com/Qiskit/qiskit-terra/pull/6018
+            // qc.qasm() breaks when circuit qc contains gates with classical conditioning on a single cbit
+            // Please note that this is a limitation of **OpenQASM** only,
+            // i.e., qiskit's QuantumCircuit and QObj can both handle classical conditioning on a single cbit.
+            // Our native code gen strategy here is to 
+            // convert multi-qreg indexing into multiple single-cbit registers:
+            // i.e., c[3] -> c3 (single-bit register)
+            // This only happens when classical conditioning on a single cbit is needed.
             for (auto &inst : experiment.get_instructions()) {
               // std::cout << "HOWDY: " << inst.toString() << "\n";
-              ss << "if (c[" << nextInst->bits()[0] << "] == 1) ";
+              const std::string orig_reg_name =
+                  "c[" + std::to_string(nextInst->bits()[0]) + "]";
+              if (cbit_reg_map.find(orig_reg_name) != cbit_reg_map.end()) {
+                const std::string single_reg_name = cbit_reg_map[orig_reg_name];
+                ss << "if (c[" << nextInst->bits()[0] << "] == 1) ";
+              } else {
+                const std::string single_reg_name =
+                    "cReg" + std::to_string(cbit_reg_map.size());
+                cbit_reg_map[orig_reg_name] = single_reg_name;
+                ss << "if (c[" << nextInst->bits()[0] << "] == 1) ";
+              }
               ss << inst.toString() << "\n";
             }
           }
@@ -1306,12 +1329,28 @@ IBMAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
       }
     }
 
-    const std::string preAmple = R"(OPENQASM 2.0;
+    const auto replaceAll = [](const std::string &t, const std::string &s,
+                               std::string &str) {
+      std::string::size_type n = 0;
+      while ((n = str.find(s, n)) != std::string::npos) {
+        str.replace(n, s.size(), t);
+        n += t.size();
+      }
+    };
+    std::string preAmple = R"(OPENQASM 2.0;
 include "qelib1.inc";
 qreg q[)" + std::to_string(program->nLogicalBits()) +
                                  "];\ncreg c[" + std::to_string(memSlots) +
                                  "];\n";
-    return preAmple + ss.str();
+    auto qasm_body = ss.str();
+    for (const auto &[org_name, new_name] : cbit_reg_map) {
+      const std::string creg_decl = "creg " + new_name + "[1];\n";
+      preAmple += creg_decl;
+      // Replace the target of the measurement as well.
+      replaceAll(new_name, org_name, qasm_body);
+    }
+
+    return preAmple + qasm_body;
   }
   xacc::error("Unknown native code format '" + format + "'");
   return "";
