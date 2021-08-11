@@ -29,7 +29,9 @@ docker run_docker_deploy:
    - schedules
   script:
   - cd docker/deploy/dev && docker build -t xacc/xacc . --no-cache
+  - cd ../../ci/alpine && docker build -t xacc/alpine . --no-cache
   - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
   - docker push xacc/xacc
+  - docker push xacc/alpine
   allow_failure: true
 
