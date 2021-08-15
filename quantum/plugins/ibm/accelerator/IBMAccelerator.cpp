@@ -1035,7 +1035,7 @@ void IBMAccelerator::contributeInstructions(
         std::string numberParameterNames[] = {"phase", "frequency"};
         for (const auto& numberName : numberParameterNames) {
           if ((*seq_iter).find(numberName) != (*seq_iter).end()) {
-            // we have phase too
+            // we have phase or frequency too
             auto p = (*seq_iter)[numberName];
             if (p.is_string()) {
               // this is a variable we have to keep track of
