@@ -266,9 +266,13 @@ class XACCToStaqOpenQasm : public AllGateVisitor {
 public:
   std::stringstream ss;
   std::map<std::string, std::string> cregNames;
-  // Last known creg that stored the measurement result of a qubit
-  std::map<size_t, std::string> qubitIdxToMeasCregName;
+  // Default: assume each qreg is accompanied by a creg of the same size
   XACCToStaqOpenQasm(std::map<std::string, int> bufNamesToSize);
+  // Explicit list of creg:
+  // e.g., IQPE algo: we requires a much larger creg than qreg to store all
+  // measurements.
+  XACCToStaqOpenQasm(std::map<std::string, int> bufNamesToSize,
+                     std::map<std::string, int> cRegNameToSize);
   void visit(Hadamard &h) override;
   void visit(CNOT &cnot) override;
   void visit(Rz &rz) override;

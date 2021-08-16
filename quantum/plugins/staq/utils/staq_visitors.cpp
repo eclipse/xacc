@@ -24,6 +24,18 @@ XACCToStaqOpenQasm::XACCToStaqOpenQasm(std::map<std::string, int> bufNamesToSize
   }
 }
 
+XACCToStaqOpenQasm::XACCToStaqOpenQasm(
+    std::map<std::string, int> bufNamesToSize,
+    std::map<std::string, int> cRegNameToSize) {
+  ss << "OPENQASM 2.0;\ninclude \"qelib1.inc\";\n";
+  for (auto &kv : bufNamesToSize) {
+    ss << "qreg " << kv.first << "[" << kv.second << "];\n";
+  }
+  for (auto &kv : cRegNameToSize) {
+    ss << "creg " << kv.first << "[" << kv.second << "];\n";
+  }
+}
+
 void XACCToStaqOpenQasm::visit(Hadamard &h) {
   ss << "h " << (h.getBufferNames().empty() ? "q" : h.getBufferName(0))
      << h.bits() << ";\n";
@@ -97,10 +109,16 @@ void XACCToStaqOpenQasm::visit(CPhase &cphase) {
      << "[" << cphase.bits()[0] << "], " << (cphase.getBufferNames().empty() ? "q" : cphase.getBufferName(1)) << "[" << cphase.bits()[1] << "];\n";
 }
 void XACCToStaqOpenQasm::visit(Measure &m) {
-  ss << "measure " << (m.getBufferNames().empty() ? "q" : m.getBufferName(0))
-     << m.bits() << " -> " << cregNames[m.getBufferName(0)] << m.bits()
-     << ";\n";
-  qubitIdxToMeasCregName[m.bits()[0]] = cregNames[m.getBufferName(0)];
+  if (m.hasClassicalRegAssignment()) {
+    ss << "measure " << (m.getBufferNames().empty() ? "q" : m.getBufferName(0))
+       << m.bits() << " -> " << m.getBufferName(1) << "["
+       << m.getClassicalBitIndex() << "]"
+       << ";\n";
+  } else {
+    ss << "measure " << (m.getBufferNames().empty() ? "q" : m.getBufferName(0))
+       << m.bits() << " -> " << cregNames[m.getBufferName(0)] << m.bits()
+       << ";\n";
+  }
 }
 void XACCToStaqOpenQasm::visit(Identity &i) {}
 void XACCToStaqOpenQasm::visit(U &u) {
@@ -111,8 +129,16 @@ void XACCToStaqOpenQasm::visit(IfStmt &ifStmt) {
   // Note: this extended syntax: if (creg[k] == 1) is not supported by IBM.
   // (IBM requires comparison to the full register value, not a bit check)
   for (auto i : ifStmt.getInstructions()) {
-    ss << "if (" << qubitIdxToMeasCregName[ifStmt.bits()[0]] << "["
-       << ifStmt.bits()[0] << "] == 1) ";
+    // If statement was specified by the qreg name -> find the associated cReg
+    if (cregNames.find(ifStmt.getBufferNames()[0]) != cregNames.end()) {
+      ss << "if (" << cregNames[ifStmt.getBufferNames()[0]] << "["
+         << ifStmt.bits()[0] << "] == 1) ";
+    } else {
+      // Explicit creg was used:
+      ss << "if (" << ifStmt.getBufferNames()[0] << "[" << ifStmt.bits()[0]
+         << "] == 1) ";
+    }
+
     i->accept(this);
   }
 }
