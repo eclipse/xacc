@@ -97,12 +97,24 @@ void XACCToStaqOpenQasm::visit(CPhase &cphase) {
      << "[" << cphase.bits()[0] << "], " << (cphase.getBufferNames().empty() ? "q" : cphase.getBufferName(1)) << "[" << cphase.bits()[1] << "];\n";
 }
 void XACCToStaqOpenQasm::visit(Measure &m) {
-    ss << "measure " << (m.getBufferNames().empty() ? "q" : m.getBufferName(0)) << m.bits() << " -> " << cregNames[m.getBufferName(0)] << m.bits() << ";\n";
+  ss << "measure " << (m.getBufferNames().empty() ? "q" : m.getBufferName(0))
+     << m.bits() << " -> " << cregNames[m.getBufferName(0)] << m.bits()
+     << ";\n";
+  qubitIdxToMeasCregName[m.bits()[0]] = cregNames[m.getBufferName(0)];
 }
 void XACCToStaqOpenQasm::visit(Identity &i) {}
 void XACCToStaqOpenQasm::visit(U &u) {
     ss << "u3(" << std::fixed << std::setprecision(16) << xacc::InstructionParameterToDouble(u.getParameter(0)) << "," << xacc::InstructionParameterToDouble(u.getParameter(1)) << "," <<xacc::InstructionParameterToDouble(u.getParameter(2)) << ") " << (u.getBufferNames().empty() ? "q" : u.getBufferName(0)) << u.bits() << ";\n";
 }
-void XACCToStaqOpenQasm::visit(IfStmt &ifStmt) {}
+void XACCToStaqOpenQasm::visit(IfStmt &ifStmt) {
+  // Note: QASM2 'if' must be inline (no braces)
+  // Note: this extended syntax: if (creg[k] == 1) is not supported by IBM.
+  // (IBM requires comparison to the full register value, not a bit check)
+  for (auto i : ifStmt.getInstructions()) {
+    ss << "if (" << qubitIdxToMeasCregName[ifStmt.bits()[0]] << "["
+       << ifStmt.bits()[0] << "] == 1) ";
+    i->accept(this);
+  }
+}
 } // namespace internal_staq
 } // namespace xacc

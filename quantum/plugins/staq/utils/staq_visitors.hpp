@@ -266,7 +266,8 @@ class XACCToStaqOpenQasm : public AllGateVisitor {
 public:
   std::stringstream ss;
   std::map<std::string, std::string> cregNames;
-
+  // Last known creg that stored the measurement result of a qubit
+  std::map<size_t, std::string> qubitIdxToMeasCregName;
   XACCToStaqOpenQasm(std::map<std::string, int> bufNamesToSize);
   void visit(Hadamard &h) override;
   void visit(CNOT &cnot) override;

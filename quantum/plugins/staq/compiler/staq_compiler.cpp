@@ -432,7 +432,7 @@ StaqCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function) {
   // First search buffer names and see if we have
   while (iter.hasNext()) {
     auto &next = *iter.next();
-    if (next.isEnabled()) {
+    if (!next.isComposite() && next.isEnabled()) {
       for (int i = 0; i < next.nRequiredBits(); i++) {
         auto bufName = next.getBufferName(i);
         int size = next.bits()[i] + 1;
