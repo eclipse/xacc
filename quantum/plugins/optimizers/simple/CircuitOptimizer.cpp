@@ -688,8 +688,6 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
             // This 2-q gate **involves** at least one qubit:
             if (instruction->name() != "CNOT") {
               // Not a CNOT: we need to terminate, hence prune the subcircuit.
-              // Move the outer loop index to after this gate.
-              i = idx + 1;
               break;
             }
 
@@ -750,6 +748,8 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
           }
         }
       }
+      // Move the instruction index
+      ++i;
     }
     else {
       // Not a CNOT gate, continue
