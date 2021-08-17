@@ -678,6 +678,21 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
             }
           }
           else if (instruction->bits().size() == 2) {
+            // If this gate not involved the qubits that we are checking
+            if (!container::contains(qubits, instruction->bits()[0]) &&
+                !container::contains(qubits, instruction->bits()[1])) {
+              // Skip
+              continue;
+            }
+
+            // This 2-q gate **involves** at least one qubit:
+            if (instruction->name() != "CNOT") {
+              // Not a CNOT: we need to terminate, hence prune the subcircuit.
+              // Move the outer loop index to after this gate.
+              i = idx + 1;
+              break;
+            }
+
             assert(instruction->name() == "CNOT");
             // If the control is *outside* the boundary, we need to terminate, hence prune the subcircuit.
             const auto controlIdx = instruction->bits()[0];
