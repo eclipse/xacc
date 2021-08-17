@@ -99,6 +99,37 @@ irt->apply(circuit, qpu);
 
 }
 
+TEST(Staq_MappingTester, checkSwapShortSwap) {
+  auto qpu = std::make_shared<AcceleratorWithConnectivity>(
+      std::vector<std::pair<int, int>>{{0, 1},
+                                       {1, 2}});
+
+  auto x = xacc::qalloc(3);
+  x->setName("x");
+  xacc::storeBuffer(x);
+
+  auto irt = xacc::getIRTransformation("swap-shortest-path");
+  auto compiler = xacc::getCompiler("xasm");
+  auto program = compiler->compile(R"(__qpu__ void test_simple_swap(qreg x) {
+      X(x[0]);
+      Swap(x[0], x[2]);
+      Measure(x[0]);
+      Measure(x[2]);
+  })")->getComposite("test_simple_swap");
+
+  EXPECT_EQ(4, program->nInstructions());
+  EXPECT_EQ("Swap", program->getInstruction(1)->name());
+
+  irt->apply(program, nullptr);
+  EXPECT_EQ(4, program->nInstructions());
+
+  irt->apply(program, qpu);
+
+  // Staq will expand the CNOT
+  EXPECT_EQ(9, program->nInstructions());
+  std::cout << program->toString() << "\n";
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);

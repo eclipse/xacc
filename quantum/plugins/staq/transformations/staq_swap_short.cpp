@@ -78,10 +78,11 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
     transformations::desugar(*prog);
     transformations::Inliner::config c;
     // Make sure we treat map all control pauli 
-    // ops as CNOT gates
+    // ops and swaps as CNOT gates
     c.overrides.erase("cx");
     c.overrides.erase("cy");
     c.overrides.erase("cz");
+    c.overrides.erase("swap");
     transformations::inline_ast(*prog, c);
   } catch (std::exception &e) {
     std::stringstream ss;
