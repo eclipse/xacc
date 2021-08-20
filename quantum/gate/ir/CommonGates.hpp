@@ -76,6 +76,9 @@ public:
   std::vector<InstructionParameter> getParameters() override {
     return {bufferName};
   }
+
+  std::vector<std::string> getBufferNames() override { return {bufferName}; }
+
   const int nParameters() override { return 1; }
 
   const int nRequiredBits() const override { return 1; }

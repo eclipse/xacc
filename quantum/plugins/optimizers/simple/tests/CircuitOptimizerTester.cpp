@@ -818,6 +818,53 @@ measure q[3] -> c[3];
   EXPECT_EQ(truthTableBefore, truthTableAfter);
 }
 
+TEST(CircuitOptimizerTester, checkCZ) {
+  xacc::set_verbose(true);
+  auto compiler = xacc::getService<xacc::Compiler>("xasm");
+  auto program = compiler
+                     ->compile(R"(__qpu__ void testCz(qbit q) {
+        CNOT(q[0], q[1]);
+        CZ(q[0], q[1]);
+        Measure(q[0]);
+        Measure(q[1]);
+    })")
+                     ->getComposites()[0];
+
+  const auto before_xasm_str = program->toString();
+  auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
+  optimizer->apply(program, nullptr);
+  std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
+  const auto after_xasm_str = program->toString();
+  EXPECT_EQ(before_xasm_str, after_xasm_str);
+}
+
+// Check circuit with random gates
+TEST(CircuitOptimizerTester, checkComplexCircuit) {
+  xacc::set_verbose(true);
+  auto compiler = xacc::getService<xacc::Compiler>("xasm");
+  auto program = compiler
+                     ->compile(R"(__qpu__ void testRandom(qbit q) {
+    X(q[0]);
+    H(q[1]);
+    CZ(q[0], q[1]);
+    H(q[1]);
+    CNOT(q[1], q[2]);
+    T(q[1]);
+    CZ(q[1], q[0]);
+    Measure(q[0]);
+    Measure(q[1]);
+    Measure(q[2]);
+    })")
+                     ->getComposites()[0];
+
+  const auto before_xasm_str = program->toString();
+  auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
+  optimizer->apply(program, nullptr);
+  std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
+  const auto after_xasm_str = program->toString();
+  EXPECT_EQ(before_xasm_str, after_xasm_str);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);

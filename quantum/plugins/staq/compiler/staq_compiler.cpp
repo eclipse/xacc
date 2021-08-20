@@ -428,27 +428,56 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src) {
 const std::string
 StaqCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function) {
   std::map<std::string, int> bufNamesToSize;
+  std::map<std::string, int> cRegNamesToSize;
   InstructionIterator iter(function);
   // First search buffer names and see if we have
   while (iter.hasNext()) {
     auto &next = *iter.next();
-    if (next.isEnabled()) {
-      for (int i = 0; i < next.nRequiredBits(); i++) {
-        auto bufName = next.getBufferName(i);
-        int size = next.bits()[i] + 1;
-        if (bufNamesToSize.count(bufName)) {
-          if (bufNamesToSize[bufName] < size) {
-            bufNamesToSize[bufName] = size;
+    if (!next.isComposite() && next.isEnabled()) {
+      if (next.name() == "Measure") {
+        xacc::quantum::Measure &m = (xacc::quantum::Measure &)next;
+        if (m.hasClassicalRegAssignment()) {
+          auto cregName = next.getBufferName(1);
+          int size = m.getClassicalBitIndex() + 1;
+          if (cRegNamesToSize.count(cregName)) {
+            if (cRegNamesToSize[cregName] < size) {
+              cRegNamesToSize[cregName] = size;
+            }
+          } else {
+            cRegNamesToSize.insert({cregName, size});
           }
         } else {
-          bufNamesToSize.insert({bufName, size});
+          auto bufName = next.getBufferName(0);
+          int size = next.bits()[0] + 1;
+          if (bufNamesToSize.count(bufName)) {
+            if (bufNamesToSize[bufName] < size) {
+              bufNamesToSize[bufName] = size;
+            }
+          } else {
+            bufNamesToSize.insert({bufName, size});
+          }
+        }
+      } else {
+        for (int i = 0; i < next.nRequiredBits(); i++) {
+          auto bufName = next.getBufferName(i);
+          int size = next.bits()[i] + 1;
+          if (bufNamesToSize.count(bufName)) {
+            if (bufNamesToSize[bufName] < size) {
+              bufNamesToSize[bufName] = size;
+            }
+          } else {
+            bufNamesToSize.insert({bufName, size});
+          }
         }
       }
     }
   }
 
   auto translate =
-      std::make_shared<internal_staq::XACCToStaqOpenQasm>(bufNamesToSize);
+      cRegNamesToSize.empty()
+          ? std::make_shared<internal_staq::XACCToStaqOpenQasm>(bufNamesToSize)
+          : std::make_shared<internal_staq::XACCToStaqOpenQasm>(
+                bufNamesToSize, cRegNamesToSize);
   InstructionIterator iter2(function);
   while (iter2.hasNext()) {
     auto &next = *iter2.next();

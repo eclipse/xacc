@@ -832,6 +832,14 @@ IbmqNoiseModel::averageTwoQubitGateFidelity() const {
 
   return result;
 }
+
+std::string
+AerAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
+                              const HeterogeneousMap &config) {
+  auto qobj_str = xacc_to_qobj->translate(program);
+  nlohmann::json j = nlohmann::json::parse(qobj_str)["qObject"];
+  return j.dump(2);
+}
 } // namespace quantum
 } // namespace xacc
 
