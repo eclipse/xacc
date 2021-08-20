@@ -115,6 +115,7 @@ public:
   Hadamard() : Gate("H") {}
   Hadamard(std::vector<std::size_t> qbits) : Gate("H", qbits) {}
   Hadamard(std::size_t qbit) : Hadamard(std::vector<std::size_t>{qbit}) {}
+  Hadamard(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params) : Gate("H", qbits, params) {}
 
   const int nRequiredBits() const override { return 1; }
 
@@ -128,6 +129,7 @@ public:
   CNOT(std::vector<std::size_t> qbits) : Gate("CNOT", qbits) {}
   CNOT(std::size_t srcqbit, std::size_t tgtqbit)
       : CNOT(std::vector<std::size_t>{srcqbit, tgtqbit}) {}
+  CNOT(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params) : Gate("CNOT", qbits, params) {}
 
   const std::string description() const override { return ""; }
   const int nRequiredBits() const override { return 2; }
@@ -275,13 +277,16 @@ public:
                       InstructionParameter(0.0), InstructionParameter(0.0),
                       InstructionParameter(0.0)}) {}
   U(std::size_t qbit, std::vector<xacc::InstructionParameter> params)
-      : Gate("U", params) {}
+      : Gate("U", std::vector<std::size_t>{qbit}, params) {}
   U(std::size_t qbit, double theta, double phi, double lambda)
       : Gate("U", std::vector<std::size_t>{qbit},
              std::vector<InstructionParameter>{InstructionParameter(theta),
                                                InstructionParameter(phi),
                                                InstructionParameter(lambda)}) {}
 
+  U(std::vector<std::size_t> qbits,
+    std::vector<xacc::InstructionParameter> params)
+      : Gate("U", qbits, params) {}
   U(std::vector<std::size_t> qbits)
       : Gate("U", qbits,
              std::vector<InstructionParameter>{InstructionParameter(0.0),
@@ -384,6 +389,7 @@ public:
   CZ(std::vector<std::size_t> qbits) : Gate("CZ", qbits) {}
   CZ(std::size_t srcqbit, std::size_t tgtqbit)
       : CZ(std::vector<std::size_t>{srcqbit, tgtqbit}) {}
+  CZ(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params) : Gate("CZ", qbits, params) {}
 
   const int nRequiredBits() const override { return 2; }
 
@@ -402,7 +408,8 @@ public:
   CPhase(std::vector<std::size_t> qbits)
       : Gate("CPhase", qbits,
              std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
-
+  CPhase(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params)
+      : Gate("CPhase", qbits,params) {}
   const int nRequiredBits() const override { return 2; }
 
   DEFINE_CLONE(CPhase)
@@ -432,6 +439,8 @@ public:
   S() : Gate("S") {}
   S(std::vector<std::size_t> qbits) : Gate("S", qbits) {}
   S(std::size_t qbit) : S(std::vector<std::size_t>{qbit}) {}
+  S(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params)
+      : Gate("S", qbits, params) {}
 
   const std::string description() const override { return ""; }
   const int nRequiredBits() const override { return 1; }
@@ -445,6 +454,8 @@ public:
   Sdg() : Gate("Sdg") {}
   Sdg(std::vector<std::size_t> qbits) : Gate("Sdg", qbits) {}
   Sdg(std::size_t qbit) : Sdg(std::vector<std::size_t>{qbit}) {}
+  Sdg(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params)
+      : Gate("Sdg", qbits, params) {}
 
   const std::string description() const override { return ""; }
   const int nRequiredBits() const override { return 1; }
@@ -457,6 +468,9 @@ class T : public Gate {
 public:
   T() : Gate("T") {}
   T(std::vector<std::size_t> qbits) : Gate("T", qbits) {}
+  T(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params)
+      : Gate("T", qbits, params) {}
+
   T(std::size_t qbit) : T(std::vector<std::size_t>{qbit}) {}
 
   const std::string description() const override { return ""; }
@@ -471,6 +485,8 @@ public:
   Tdg() : Gate("Tdg") {}
   Tdg(std::vector<std::size_t> qbits) : Gate("Tdg", qbits) {}
   Tdg(std::size_t qbit) : Tdg(std::vector<std::size_t>{qbit}) {}
+  Tdg(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params)
+      : Gate("Tdg", qbits, params) {}
 
   const std::string description() const override { return ""; }
   const int nRequiredBits() const override { return 1; }
@@ -485,6 +501,7 @@ public:
   CY(std::vector<std::size_t> qbits) : Gate("CY", qbits) {}
   CY(std::size_t sqbit, std::size_t tqbit)
       : CY(std::vector<std::size_t>{sqbit, tqbit}) {}
+  CY(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params) : Gate("CY", qbits, params) {}
 
   const std::string description() const override { return ""; }
   const int nRequiredBits() const override { return 2; }
@@ -499,6 +516,7 @@ public:
   CH(std::vector<std::size_t> qbits) : Gate("CH", qbits) {}
   CH(std::size_t sqbit, std::size_t tqbit)
       : CH(std::vector<std::size_t>{sqbit, tqbit}) {}
+  CH(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params) : Gate("CH", qbits, params) {}
 
   const std::string description() const override { return ""; }
   const int nRequiredBits() const override { return 2; }
@@ -520,6 +538,8 @@ public:
   CRZ(std::vector<std::size_t> qbits)
       : Gate("CRZ", qbits,
              std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
+  CRZ(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params)
+      : Gate("CRZ", qbits,params) {}
   const int nRequiredBits() const override { return 2; }
 
   DEFINE_CLONE(CRZ)
@@ -541,13 +561,15 @@ public:
   RZZ() : Gate("RZZ",std::vector<InstructionParameter>{0.0}) {}
   RZZ(std::size_t controlQubit, std::size_t targetQubit)
       : Gate("RZZ", std::vector<std::size_t>{controlQubit, targetQubit},
-             std::vector<InstructionParameter>{0.0}) {} 
+             std::vector<InstructionParameter>{0.0}) {}
   RZZ(std::vector<std::size_t> qbits)
       : Gate("RZZ", qbits, std::vector<InstructionParameter>{0.0}) {}
   RZZ(std::size_t controlQubit, std::size_t targetQubit, double theta)
       : Gate("RZZ", std::vector<std::size_t>{controlQubit, targetQubit},
              std::vector<InstructionParameter>{theta}) {}
- 
+  RZZ(std::vector<std::size_t> qbits, std::vector<InstructionParameter> params)
+      : Gate("RZZ", qbits, params) {}
+
   const int nRequiredBits() const override { return 2; }
 
   DEFINE_CLONE(RZZ)

@@ -27,15 +27,17 @@ public:
 
   const int getNRequiredBits(const std::string name) override;
   std::shared_ptr<Instruction> createInstruction(const std::string name,
-                                                         std::size_t bit) override;
+                                                 std::size_t bit) override;
   std::shared_ptr<Instruction>
   createInstruction(const std::string name, std::vector<std::size_t> bits,
                     std::vector<InstructionParameter> parameters =
-                        std::vector<InstructionParameter>{}, const HeterogeneousMap& analog_options = {}) override;
+                        std::vector<InstructionParameter>{},
+                    const HeterogeneousMap &analog_options = {}) override;
 
   std::shared_ptr<CompositeInstruction>
   createComposite(const std::string name,
-                  std::vector<std::string> variables = {}, const std::string type = "circuit") override;
+                  std::vector<std::string> variables = {},
+                  const std::string type = "circuit") override;
 
   std::shared_ptr<IR> createIR(const std::string type = "circuit") override;
 

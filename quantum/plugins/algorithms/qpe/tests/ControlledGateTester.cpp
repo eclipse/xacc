@@ -2,6 +2,8 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "CommonGates.hpp"
+#include <Eigen/Dense>
+#include "GateFusion.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -278,6 +280,31 @@ TEST(ControlledGateTester, checkControlSwap)
         runTestCase(i & 0x001, i & 0x002, i & 0x004);
     }
 }
+
+TEST(ControlledGateTester, checkEltonBug) {
+    auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+    auto z = std::make_shared<Z>(5);
+    z->setBufferNames(std::vector<std::string>{"q"});
+
+    std::shared_ptr<xacc::CompositeInstruction> comp =
+        gateRegistry->createComposite("__COMPOSITE__Z");
+    comp->addInstruction(z);
+    auto multi_ctrl_z = std::dynamic_pointer_cast<CompositeInstruction>(
+        xacc::getService<Instruction>("C-U"));
+    const std::vector<int> ctrl_idxs{0,1,2,3};
+    multi_ctrl_z->expand({{"U", comp}, {"control-idx", ctrl_idxs}});
+    auto opt = xacc::getIRTransformation("circuit-optimizer");
+    opt->apply(multi_ctrl_z, nullptr);
+    std::cout << "HOWDY: \n" << multi_ctrl_z->toString() << "\n";
+    std::cout << multi_ctrl_z->nInstructions() << "\n";
+
+    Eigen::MatrixXcd expected = Eigen::MatrixXcd::Identity(32,32);
+    expected(31,31) = -1;
+    std::cout << expected << "\n";
+
+    // FIXME Need to test
+
+} 
 
 int main(int argc, char **argv) 
 {

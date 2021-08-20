@@ -55,6 +55,7 @@ namespace {
 
 namespace xacc {
 namespace quantum {
+
     void QppVisitor::initialize(std::shared_ptr<AcceleratorBuffer> buffer, bool shotsMode)
     {
         m_buffer = std::move(buffer);

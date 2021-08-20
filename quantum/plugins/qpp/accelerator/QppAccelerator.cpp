@@ -254,7 +254,12 @@ namespace quantum {
                 auto nextInst = it.next();
                 if (nextInst->isEnabled())
                 {
-                    nextInst->accept(m_visitor);
+                    try {
+                        nextInst->accept(m_visitor);
+                    } catch (std::exception& ex) {
+                        std::cout <<"  QPP CAUGHT EXCEPTION:\n";
+                        xacc::error("");
+                    }
                 }
             }
 
@@ -401,7 +406,14 @@ namespace quantum {
         {
             auto gateCast = std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
             assert(gateCast);
-            m_visitor->applyGate(*gateCast);
+            try {
+                m_visitor->applyGate(*gateCast);
+            } catch(std::exception& e) {
+                // std::cout << "CAUGHT QPP EXCP\n";
+                std::stringstream ss;
+                ss << "Error executing QPP::apply() on gate: " << gateCast->toString() << "\n";
+                xacc::error(ss.str());
+            }
         }
     }
 

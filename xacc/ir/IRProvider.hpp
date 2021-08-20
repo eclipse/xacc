@@ -73,6 +73,15 @@ public:
     return inst;
   }
 
+  virtual std::shared_ptr<Instruction> createInstruction(
+      const std::string name,
+      const std::vector<std::pair<std::string, std::size_t>> &&bits,
+      std::vector<InstructionParameter> parameters =
+          std::vector<InstructionParameter>{},
+      const HeterogeneousMap &analog_options = {}) {
+    return createInstruction(name, bits, parameters, analog_options);
+  }
+
   virtual std::shared_ptr<CompositeInstruction>
   createComposite(const std::string name,
                   std::vector<std::string> variables = {},

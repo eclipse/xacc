@@ -15,6 +15,194 @@
 
 namespace xacc {
 namespace circuits {
+using QubitT = std::pair<std::string, std::size_t>;
+
+std::vector<std::string> _generate_gray_code(int num_bits) {
+  // if num_bits <= 0:
+  //     raise ValueError("Cannot generate the gray code for less than 1 bit.")
+
+  std::vector<int> result{0};
+  for (int i = 0; i < num_bits; i++) {
+    // reverse the vector
+    std::vector<int> copy_result = result;
+    std::reverse(copy_result.begin(), copy_result.end());
+
+    for (int x : copy_result) {
+      result.push_back(x + std::pow(2, i));
+    }
+  }
+
+  // for (auto r : result) {
+  //   std::cout << r << " ";
+  // }
+  // std::cout << "\n";
+
+  auto int_to_str = [&](int n) -> std::string {
+    const int size = sizeof(n) * 8;
+    std::string res;
+    bool s = 0;
+    for (int a = 0; a < size; a++) {
+      bool bit = n >> (size - 1);
+      if (bit)
+        s = 1;
+      if (s)
+        res.push_back(bit + '0');
+      n <<= 1;
+    }
+    while (res.size() < num_bits) {
+      res = '0' + res;
+    }
+    return res;
+  };
+
+  std::vector<std::string> ret;
+  for (auto r : result) {
+    ret.push_back(int_to_str(r));
+    // std::cout << "HI: " << ret.back() << "\n";
+  }
+
+  return ret;
+}
+
+using QubitT = std::pair<std::string, size_t>;
+
+void _apply_cu(std::shared_ptr<CompositeInstruction> circuit, double theta,
+               double phi, double lam, const QubitT &control, QubitT &target) {
+  auto provider = xacc::getIRProvider("quantum");
+
+  circuit->addInstruction(provider->createInstruction(
+      "U", {control},
+      std::vector<xacc::InstructionParameter>{0.0, 0.0, (lam + phi) / 2.}));
+  circuit->addInstruction(provider->createInstruction(
+      "U", {target},
+      std::vector<xacc::InstructionParameter>{0.0, 0.0, (lam - phi) / 2.}));
+  circuit->addInstruction(
+      provider->createInstruction("CNOT", {control, target}));
+
+  circuit->addInstruction(
+      provider->createInstruction("U", {target},
+                                  std::vector<xacc::InstructionParameter>{
+                                      -theta / 2, 0, -(lam + phi) / 2.}));
+
+  circuit->addInstruction(
+      provider->createInstruction("CNOT", {control, target}));
+  circuit->addInstruction(provider->createInstruction(
+      "U", {target},
+      std::vector<xacc::InstructionParameter>{theta / 2., phi, 0.0}));
+}
+
+void _apply_mcu_graycode(std::shared_ptr<CompositeInstruction> circuit,
+                         double theta, double phi, double lam,
+                         const std::vector<QubitT> &ctrl_qubits, QubitT &tgt) {
+  auto provider = xacc::getIRProvider("quantum");
+  auto zip = [](std::vector<char> first, std::vector<char> second) {
+    std::vector<std::pair<char, char>> zipped;
+    std::transform(
+        first.begin(), first.end(), second.begin(), std::back_inserter(zipped),
+        [](const auto &aa, const auto &bb) { return std::make_pair(aa, bb); });
+    return zipped;
+  };
+
+  auto n = ctrl_qubits.size();
+  auto gray_code = _generate_gray_code(n);
+  std::string last_pattern = "";
+
+  for (auto pattern : gray_code) {
+    if (pattern.find("1") == std::string::npos) {
+      continue;
+    }
+
+    if (last_pattern.empty()) {
+      last_pattern = pattern;
+    }
+
+    auto lm_pos = pattern.find_first_of("1");
+
+    std::vector<char> pattern_z(pattern.begin(), pattern.end()),
+        last_pattern_z(last_pattern.begin(), last_pattern.end());
+    std::vector<bool> comp;
+    for (auto [i, j] : zip(pattern_z, last_pattern_z)) {
+      comp.push_back(i != j);
+    }
+
+    int pos = -1;
+    auto true_itr = std::find(comp.begin(), comp.end(), true);
+    if (true_itr != comp.end()) {
+      pos = comp[std::distance(comp.begin(), true_itr)];
+    }
+
+    if (pos != -1) {
+      if (pos != lm_pos) {
+        circuit->addInstruction(provider->createInstruction(
+            "CNOT", {ctrl_qubits[pos], ctrl_qubits[lm_pos]}));
+      } else {
+        std::vector<int> indices;
+        for (int i = 0; i < pattern.size(); i++) {
+          if (pattern[i] == '1') {
+            indices.push_back(i);
+          }
+        }
+        // start at 1 here bc indices[0] == lm_pos
+        for (int idx = 1; idx < indices.size(); idx++) {
+          circuit->addInstruction(provider->createInstruction(
+              "CNOT", {ctrl_qubits[indices[idx]], ctrl_qubits[lm_pos]}));
+        }
+      }
+    }
+
+    int count = 0;
+    for (int i = 0; i < pattern.length(); i++) {
+      if (pattern[i] == '1')
+        count++;
+    }
+
+    if (count % 2 == 0) {
+      _apply_cu(circuit, -theta, -lam, -phi, ctrl_qubits[lm_pos], tgt);
+    } else {
+      _apply_cu(circuit, theta, phi, lam, ctrl_qubits[lm_pos], tgt);
+    }
+    last_pattern = pattern;
+  }
+}
+
+std::shared_ptr<CompositeInstruction> __gray_code_mcu_gen(
+    std::shared_ptr<CompositeInstruction> u,
+    const std::vector<std::pair<std::string, size_t>> &ctrl_qubits) {
+  auto inst = u->getInstruction(0);
+  auto name = inst->name();
+  QubitT target_qubit =
+      std::make_pair(inst->getBufferNames()[0], inst->bits()[0]);
+  auto n_c = ctrl_qubits.size();
+  auto circuit = std::make_shared<Circuit>("__ctrl_circuit__");
+
+  double theta = 0.0, phi = 0.0, lam = 0.0;
+  if (name == "Rz" || name == "Z") {
+    auto __lam = inst->isParameterized() ? inst->getParameter(0).as<double>()
+                                         : constants::pi;
+    lam = __lam * (1 / (std::pow(2, n_c - 1)));
+  }
+
+  _apply_mcu_graycode(circuit, theta, phi, lam, ctrl_qubits, target_qubit);
+
+  return circuit;
+}
+
+template <typename GateType>
+std::shared_ptr<GateType>
+createGate(std::vector<QubitT> &&args,
+           std::vector<InstructionParameter> params = {}) {
+  std::vector<std::string> buffer_names;
+  std::vector<std::size_t> idxs;
+
+  for (const auto &qb : args) {
+    buffer_names.emplace_back(qb.first);
+    idxs.emplace_back(qb.second);
+  }
+
+  auto i = std::make_shared<GateType>(idxs, params);
+  i->setBufferNames(buffer_names);
+  return i;
+}
 
 bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Single control or multiple-controls (as vector of int or qubits)
@@ -93,12 +281,34 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   const std::set<std::pair<std::string, size_t>> s(ctrlIdxs.begin(),
                                                    ctrlIdxs.end());
   if (s.size() != ctrlIdxs.size()) {
-    xacc::error("Control bits must be unique.");
+    std::stringstream ss;
+    for (auto c : ctrlIdxs) {
+      ss << c.first << ", " << c.second << "\n";
+    }
+    xacc::error("Control bits must be unique:\n" + ss.str());
   }
+
   auto ctrlU = uComposite;
-  // Recursive application of control bits:
-  for (const auto &ctrlIdx : ctrlIdxs) {
-    ctrlU = applyControl(ctrlU, ctrlIdx);
+
+  auto should_run_gray_mcu_synth = [ctrlU,&ctrlIdxs]() {
+    if (ctrlU->nInstructions() == 1) {
+      std::vector<std::string> allowed{"Z"};
+      auto inst = ctrlU->getInstruction(0);
+      if (xacc::container::contains(allowed, inst->name()) && ctrlIdxs.size() > 2) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  if (should_run_gray_mcu_synth()) {
+    ctrlU = __gray_code_mcu_gen(ctrlU, ctrlIdxs);
+  } else {
+
+    // Recursive application of control bits:
+    for (const auto &ctrlIdx : ctrlIdxs) {
+      ctrlU = applyControl(ctrlU, ctrlIdx);
+    }
   }
 
   for (int instId = 0; instId < ctrlU->nInstructions(); ++instId) {
@@ -144,8 +354,7 @@ void ControlledU::visit(Hadamard &h) {
   } else {
     const auto targetIdx = std::make_pair(h.getBufferName(0), h.bits()[0]);
     // CH
-    m_composite->addInstruction(
-        m_gateProvider->createInstruction("CH", {m_ctrlIdx, targetIdx}));
+    m_composite->addInstruction(createGate<CH>({m_ctrlIdx, targetIdx}));
   }
 }
 
@@ -156,8 +365,7 @@ void ControlledU::visit(X &x) {
   } else {
     const auto targetIdx = std::make_pair(x.getBufferName(0), x.bits()[0]);
     // CNOT
-    m_composite->addInstruction(
-        m_gateProvider->createInstruction("CX", {m_ctrlIdx, targetIdx}));
+    m_composite->addInstruction(createGate<CNOT>({m_ctrlIdx, targetIdx}));
   }
 }
 
@@ -168,8 +376,7 @@ void ControlledU::visit(Y &y) {
   } else {
     const auto targetIdx = std::make_pair(y.getBufferName(0), y.bits()[0]);
     // CY
-    m_composite->addInstruction(
-        m_gateProvider->createInstruction("CY", {m_ctrlIdx, targetIdx}));
+    m_composite->addInstruction(createGate<CY>({m_ctrlIdx, targetIdx}));
   }
 }
 
@@ -180,8 +387,7 @@ void ControlledU::visit(Z &z) {
   } else {
     const auto targetIdx = std::make_pair(z.getBufferName(0), z.bits()[0]);
     // CZ
-    m_composite->addInstruction(
-        m_gateProvider->createInstruction("CZ", {m_ctrlIdx, targetIdx}));
+    m_composite->addInstruction(createGate<CZ>({m_ctrlIdx, targetIdx}));
   }
 }
 
@@ -199,33 +405,34 @@ void ControlledU::visit(CNOT &cnot) {
   const auto b = ctrlIdx1;
   const auto c = targetIdx;
   //     h c;
-  m_composite->addInstruction(m_gateProvider->createInstruction("H", {c}));
+  m_composite->addInstruction(createGate<Hadamard>({c}));
+  // m_composite->addInstruction(m_gateProvider->createInstruction("H", {c}));
 
   //     cx b,c; tdg c;
-  m_composite->addInstruction(m_gateProvider->createInstruction("CX", {b, c}));
-  m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", {c}));
+  m_composite->addInstruction(createGate<CNOT>({b, c}));
+  m_composite->addInstruction(createGate<Tdg>({c}));
 
   //     cx a,c; t c;
-  m_composite->addInstruction(m_gateProvider->createInstruction("CX", {a, c}));
-  m_composite->addInstruction(m_gateProvider->createInstruction("T", {c}));
+  m_composite->addInstruction(createGate<CNOT>({a, c}));
+  m_composite->addInstruction(createGate<T>({c}));
 
   //     cx b,c; tdg c;
-  m_composite->addInstruction(m_gateProvider->createInstruction("CX", {b, c}));
-  m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", {c}));
+  m_composite->addInstruction(createGate<CNOT>({b, c}));
+  m_composite->addInstruction(createGate<Tdg>({c}));
 
   //     cx a,c; t b; t c; h c;
-  m_composite->addInstruction(m_gateProvider->createInstruction("CX", {a, c}));
-  m_composite->addInstruction(m_gateProvider->createInstruction("T", {b}));
-  m_composite->addInstruction(m_gateProvider->createInstruction("T", {c}));
-  m_composite->addInstruction(m_gateProvider->createInstruction("H", {c}));
+  m_composite->addInstruction(createGate<CNOT>({a, c}));
+  m_composite->addInstruction(createGate<T>({b}));
+  m_composite->addInstruction(createGate<T>({c}));
+  m_composite->addInstruction(createGate<Hadamard>({c}));
 
   //     cx a,b; t a; tdg b;
-  m_composite->addInstruction(m_gateProvider->createInstruction("CX", {a, b}));
-  m_composite->addInstruction(m_gateProvider->createInstruction("T", {a}));
-  m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", {b}));
+  m_composite->addInstruction(createGate<CNOT>({a, b}));
+  m_composite->addInstruction(createGate<T>({a}));
+  m_composite->addInstruction(createGate<Tdg>({b}));
 
   //     cx a,b;
-  m_composite->addInstruction(m_gateProvider->createInstruction("CX", {a, b}));
+  m_composite->addInstruction(createGate<CNOT>({a, b}));
 }
 
 void ControlledU::visit(Rx &rx) {
@@ -265,37 +472,37 @@ void ControlledU::visit(Rz &rz) {
     const auto targetIdx = std::make_pair(rz.getBufferName(0), rz.bits()[0]);
     const auto angle = InstructionParameterToDouble(rz.getParameter(0));
     // CRz
-    m_composite->addInstruction(m_gateProvider->createInstruction(
-        "CRZ", {m_ctrlIdx, targetIdx}, {angle}));
+    m_composite->addInstruction(
+        createGate<CRZ>({m_ctrlIdx, targetIdx}, {angle}));
   }
 }
 
 void ControlledU::visit(S &s) {
   // Ctrl-S = CPhase(pi/2)
   const auto targetIdx = std::make_pair(s.getBufferName(0), s.bits()[0]);
-  m_composite->addInstruction(m_gateProvider->createInstruction(
-      "CPhase", {m_ctrlIdx, targetIdx}, {M_PI_2}));
+  m_composite->addInstruction(
+      createGate<CPhase>({m_ctrlIdx, targetIdx}, {M_PI_2}));
 }
 
 void ControlledU::visit(Sdg &sdg) {
   // Ctrl-Sdg = CPhase(-pi/2)
   const auto targetIdx = std::make_pair(sdg.getBufferName(0), sdg.bits()[0]);
-  m_composite->addInstruction(m_gateProvider->createInstruction(
-      "CPhase", {m_ctrlIdx, targetIdx}, {-M_PI_2}));
+  m_composite->addInstruction(
+      createGate<CPhase>({m_ctrlIdx, targetIdx}, {-M_PI_2}));
 }
 
 void ControlledU::visit(T &t) {
   // Ctrl-T = CPhase(pi/4)
   const auto targetIdx = std::make_pair(t.getBufferName(0), t.bits()[0]);
-  m_composite->addInstruction(m_gateProvider->createInstruction(
-      "CPhase", {m_ctrlIdx, targetIdx}, {M_PI_4}));
+  m_composite->addInstruction(
+      createGate<CPhase>({m_ctrlIdx, targetIdx}, {M_PI_4}));
 }
 
 void ControlledU::visit(Tdg &tdg) {
   // Ctrl-Tdg = CPhase(-pi/4)
   const auto targetIdx = std::make_pair(tdg.getBufferName(0), tdg.bits()[0]);
-  m_composite->addInstruction(m_gateProvider->createInstruction(
-      "CPhase", {m_ctrlIdx, targetIdx}, {-M_PI_4}));
+  m_composite->addInstruction(
+      createGate<CPhase>({m_ctrlIdx, targetIdx}, {-M_PI_4}));
 }
 
 void ControlledU::visit(Swap &s) {
@@ -306,7 +513,7 @@ void ControlledU::visit(Swap &s) {
   // we only need to convert the middle CX to CCX:
   const auto qubit1 = std::make_pair(s.getBufferName(0), s.bits()[0]);
   const auto qubit2 = std::make_pair(s.getBufferName(1), s.bits()[1]);
-  m_composite->addInstruction(m_gateProvider->createInstruction("CX", {qubit1, qubit2}));
+  m_composite->addInstruction(createGate<CNOT>({qubit1, qubit2}));
 
   // Visit the middle CNOT ==> CCNOT
   CNOT c2(s.bits()[1], s.bits()[0]);
@@ -314,7 +521,7 @@ void ControlledU::visit(Swap &s) {
   visit(c2);
 
   // Add the uncompute CNOT
-  m_composite->addInstruction(m_gateProvider->createInstruction("CX", {qubit1, qubit2}));
+  m_composite->addInstruction(createGate<CNOT>({qubit1, qubit2}));
 }
 
 void ControlledU::visit(U &u) {
@@ -332,22 +539,20 @@ void ControlledU::visit(U &u) {
   const double lambda = InstructionParameterToDouble(u.getParameter(2));
   m_composite->addInstruction(m_gateProvider->createInstruction(
       "Rz", {targetIdx}, {(lambda - phi) / 2}));
+  m_composite->addInstruction(createGate<CNOT>({m_ctrlIdx, targetIdx}));
   m_composite->addInstruction(
-      m_gateProvider->createInstruction("CX", {m_ctrlIdx, targetIdx}));
-  m_composite->addInstruction(m_gateProvider->createInstruction(
-      "U", {targetIdx}, {-theta / 2, 0.0, -(phi + lambda) / 2}));
+      createGate<U>({targetIdx}, {-theta / 2, 0.0, -(phi + lambda) / 2}));
+  m_composite->addInstruction(createGate<CNOT>({m_ctrlIdx, targetIdx}));
   m_composite->addInstruction(
-      m_gateProvider->createInstruction("CX", {m_ctrlIdx, targetIdx}));
-  m_composite->addInstruction(m_gateProvider->createInstruction(
-      "U", {targetIdx}, {theta / 2, phi, 0.0}));
+      createGate<U>({targetIdx}, {theta / 2, phi, 0.0}));
 }
 
 void ControlledU::visit(U1 &u1) {
   // cU1 == CPhase
   const auto targetIdx = std::make_pair(u1.getBufferName(0), u1.bits()[0]);
   auto angle = u1.getParameter(0);
-  m_composite->addInstruction(m_gateProvider->createInstruction(
-      "CPhase", {m_ctrlIdx, targetIdx}, {angle}));
+  m_composite->addInstruction(
+      createGate<CPhase>({m_ctrlIdx, targetIdx}, {angle}));
 }
 
 void ControlledU::visit(CY &cy) {
@@ -440,16 +645,14 @@ void ControlledU::visit(CPhase &cphase) {
       std::make_pair(cphase.getBufferName(1), cphase.bits()[1]);
   // Angle
   const auto angle = InstructionParameterToDouble(cphase.getParameter(0));
-  m_composite->addInstruction(m_gateProvider->createInstruction(
-      "CPhase", {ctrlIdx1, ctrlIdx2}, {angle / 2}));
   m_composite->addInstruction(
-      m_gateProvider->createInstruction("CX", {ctrlIdx2, targetIdx}));
-  m_composite->addInstruction(m_gateProvider->createInstruction(
-      "CPhase", {ctrlIdx1, targetIdx}, {-angle / 2}));
+      createGate<CPhase>({ctrlIdx1, ctrlIdx2}, {angle / 2}));
+  m_composite->addInstruction(createGate<CNOT>({ctrlIdx2, targetIdx}));
   m_composite->addInstruction(
-      m_gateProvider->createInstruction("CX", {ctrlIdx2, targetIdx}));
-  m_composite->addInstruction(m_gateProvider->createInstruction(
-      "CPhase", {ctrlIdx1, targetIdx}, {angle / 2}));
+      createGate<CPhase>({ctrlIdx1, targetIdx}, {-angle / 2}));
+  m_composite->addInstruction(createGate<CNOT>({ctrlIdx2, targetIdx}));
+  m_composite->addInstruction(
+      createGate<CPhase>({ctrlIdx1, targetIdx}, {angle / 2}));
 }
 } // namespace circuits
 } // namespace xacc

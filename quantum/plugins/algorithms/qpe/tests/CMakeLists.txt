@@ -11,6 +11,7 @@
 #   Thien Nguyen - initial API and implementation
 # *******************************************************************************/
 include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/quantum/plugins/optimizers/pulse)
 add_xacc_test(Qpe)
 target_link_libraries(QpeTester xacc xacc-quantum-gate)
 add_xacc_test(ControlledGate)

@@ -125,9 +125,21 @@ void CircuitOptimizer::apply(std::shared_ptr<CompositeInstruction> gateFunction,
                 }
             }
         }
+      } else if (inst->name() == "U") {
+        auto p0 = inst->getParameter(0);
+        auto p1 = inst->getParameter(1);
+        auto p2 = inst->getParameter(2);
+        if (p0.isNumeric() && p1.isNumeric() && p2.isNumeric()) {
+          if (std::fabs(xacc::InstructionParameterToDouble(p0)) < 1e-12 &&
+              std::fabs(xacc::InstructionParameterToDouble(p1)) < 1e-12 &&
+              std::fabs(xacc::InstructionParameterToDouble(p2)) < 1e-12) {
+                std::cout << "Removing " << inst->toString() << "\n";
+            inst->disable();
+          }
+        }
       }
     }
-    
+
     // Remove all CNOT(p,q) CNOT(p,q) pairs
     while (true) {
       bool modified = false;
