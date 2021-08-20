@@ -290,11 +290,12 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   auto ctrlU = uComposite;
 
-  auto should_run_gray_mcu_synth = [ctrlU,&ctrlIdxs]() {
+  auto should_run_gray_mcu_synth = [ctrlU, &ctrlIdxs]() {
     if (ctrlU->nInstructions() == 1) {
       std::vector<std::string> allowed{"Z"};
       auto inst = ctrlU->getInstruction(0);
-      if (xacc::container::contains(allowed, inst->name()) && ctrlIdxs.size() > 2) {
+      if (xacc::container::contains(allowed, inst->name()) &&
+          ctrlIdxs.size() > 2) {
         return true;
       }
     }
@@ -303,6 +304,30 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   if (should_run_gray_mcu_synth()) {
     ctrlU = __gray_code_mcu_gen(ctrlU, ctrlIdxs);
+    std::vector<int> zero_rotation_idxs;
+    for (int i = 0; i < ctrlU->nInstructions(); i++) {
+      auto inst = ctrlU->getInstruction(i);
+      if (inst->name() == "U") {
+        auto p0 = inst->getParameter(0);
+        auto p1 = inst->getParameter(1);
+        auto p2 = inst->getParameter(2);
+        if (p0.isNumeric() && p1.isNumeric() && p2.isNumeric()) {
+          if (std::fabs(xacc::InstructionParameterToDouble(p0)) < 1e-12 &&
+              std::fabs(xacc::InstructionParameterToDouble(p1)) < 1e-12 &&
+              std::fabs(xacc::InstructionParameterToDouble(p2)) < 1e-12) {
+            // std::cout << "Removing " << inst->toString() << "\n";
+            // inst->disable();
+            zero_rotation_idxs.push_back(i);
+          }
+        }
+      }
+    }
+
+    for (auto iter = zero_rotation_idxs.rbegin();
+         iter != zero_rotation_idxs.rend(); ++iter) {
+      ctrlU->removeInstruction(*iter);
+    }
+
   } else {
 
     // Recursive application of control bits:

@@ -3,7 +3,7 @@
 #include "xacc_service.hpp"
 #include "CommonGates.hpp"
 #include <Eigen/Dense>
-#include "GateFusion.hpp"
+#include "CountGatesOfTypeVisitor.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -283,7 +283,7 @@ TEST(ControlledGateTester, checkControlSwap)
 
 TEST(ControlledGateTester, checkEltonBug) {
     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-    auto z = std::make_shared<Z>(5);
+    auto z = std::make_shared<Z>(4);
     z->setBufferNames(std::vector<std::string>{"q"});
 
     std::shared_ptr<xacc::CompositeInstruction> comp =
@@ -293,16 +293,24 @@ TEST(ControlledGateTester, checkEltonBug) {
         xacc::getService<Instruction>("C-U"));
     const std::vector<int> ctrl_idxs{0,1,2,3};
     multi_ctrl_z->expand({{"U", comp}, {"control-idx", ctrl_idxs}});
-    auto opt = xacc::getIRTransformation("circuit-optimizer");
-    opt->apply(multi_ctrl_z, nullptr);
+
     std::cout << "HOWDY: \n" << multi_ctrl_z->toString() << "\n";
     std::cout << multi_ctrl_z->nInstructions() << "\n";
 
-    Eigen::MatrixXcd expected = Eigen::MatrixXcd::Identity(32,32);
-    expected(31,31) = -1;
-    std::cout << expected << "\n";
+    // Eigen::MatrixXcd expected = Eigen::MatrixXcd::Identity(32,32);
+    // expected(31,31) = -1;
+    // std::cout << expected << "\n";
 
-    // FIXME Need to test
+    xacc::quantum::CountGatesOfTypeVisitor<CNOT> vis(multi_ctrl_z);
+    xacc::quantum::CountGatesOfTypeVisitor<U> visu(multi_ctrl_z);
+
+
+    // QiskitImpl Reports: OrderedDict([('cx', 44), ('p', 30), ('u', 30)])
+    // all ours are U+CX, and we remove U(0,0,0). 
+    // There are 8 U(0,0,0). So should have 44 CX, 60-8=52 Us
+    EXPECT_EQ(vis.countGates(), 44);
+    EXPECT_EQ(visu.countGates(), 52);
+
 
 } 
 
