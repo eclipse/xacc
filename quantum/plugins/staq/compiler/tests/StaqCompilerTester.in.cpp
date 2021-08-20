@@ -246,6 +246,31 @@ TEST(StaqCompilerTester, checkFloatingPointFormat) {
   EXPECT_NEAR(rxInst->getParameter(0).as<double>(), 2.5e-07, 1e-12);
 }
 
+TEST(StaqCompilerTester, checkIfStatementTranslate) {
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void test(qbit q) {
+    Measure(q[0], c[0]);
+    if(c[0]) {
+      Rz(q[0], -pi/2);
+    }
+    H(q[0]);
+    Measure(q[0], c[1]);
+    CPhase(q[0], q[1], -5*pi/8);
+    if(c[0]) {
+        Rz(q[0], -pi/4);
+    }
+    if(c[1]) {
+        Rz(q[0], -pi/2);
+    }
+  })", nullptr);
+  auto staq_compiler = xacc::getCompiler("staq");
+  auto qasm = staq_compiler->translate(ir->getComposites()[0]);
+  std::cout << "HOWDY:\n" << qasm << "\n";
+  // Check that If statements are translated.
+  EXPECT_TRUE(qasm.find("if (c[0] == 1) rz") != std::string::npos);
+  EXPECT_TRUE(qasm.find("if (c[1] == 1) rz") != std::string::npos);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);

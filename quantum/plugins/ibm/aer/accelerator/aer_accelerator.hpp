@@ -60,7 +60,8 @@ public:
   void apply(std::shared_ptr<AcceleratorBuffer> buffer,
              std::shared_ptr<Instruction> inst) override;
   bool isInitialized() const { return initialized; }
-
+  std::string getNativeCode(std::shared_ptr<CompositeInstruction> program,
+                            const HeterogeneousMap &config = {}) override;
 private:
   static double calcExpectationValueZ(
       const std::vector<std::pair<double, double>> &in_stateVec,
