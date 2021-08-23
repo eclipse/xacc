@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_honeywell",
+  "bundle.activator" : true,
+  "bundle.name" : "Honeywell ion trap accelerator",
+  "bundle.description" : ""
+}
