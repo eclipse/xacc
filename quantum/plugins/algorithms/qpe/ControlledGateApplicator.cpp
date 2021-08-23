@@ -32,11 +32,6 @@ std::vector<std::string> _generate_gray_code(int num_bits) {
     }
   }
 
-  // for (auto r : result) {
-  //   std::cout << r << " ";
-  // }
-  // std::cout << "\n";
-
   auto int_to_str = [&](int n) -> std::string {
     const int size = sizeof(n) * 8;
     std::string res;
@@ -57,8 +52,8 @@ std::vector<std::string> _generate_gray_code(int num_bits) {
 
   std::vector<std::string> ret;
   for (auto r : result) {
+    // std::cout << int_to_str(r) << "\n";
     ret.push_back(int_to_str(r));
-    // std::cout << "HI: " << ret.back() << "\n";
   }
 
   return ret;
@@ -125,12 +120,19 @@ void _apply_mcu_graycode(std::shared_ptr<CompositeInstruction> circuit,
       comp.push_back(i != j);
     }
 
+    // std::cout << pattern << " " << last_pattern << " [";
+    // for (auto c : comp) std::cout << std::boolalpha << c << " ";
+    // std::cout << "], ";
+
     int pos = -1;
-    auto true_itr = std::find(comp.begin(), comp.end(), true);
-    if (true_itr != comp.end()) {
-      pos = comp[std::distance(comp.begin(), true_itr)];
+    for (int i = 0; i < comp.size(); i++) {
+      if (comp[i]) {
+        pos = i;
+        break;
+      }
     }
 
+    // std::cout << pos << "\n";
     if (pos != -1) {
       if (pos != lm_pos) {
         circuit->addInstruction(provider->createInstruction(
@@ -180,7 +182,13 @@ std::shared_ptr<CompositeInstruction> __gray_code_mcu_gen(
     auto __lam = inst->isParameterized() ? inst->getParameter(0).as<double>()
                                          : constants::pi;
     lam = __lam * (1 / (std::pow(2, n_c - 1)));
-  }
+  } else if (name == "Rx" || name == "X") {
+    auto __theta = inst->isParameterized() ? inst->getParameter(0).as<double>()
+                                           : constants::pi;
+    theta = __theta * (1 / (std::pow(2, n_c - 1)));
+    phi = -constants::pi / 2.;
+    lam = constants::pi / 2.;
+  } 
 
   _apply_mcu_graycode(circuit, theta, phi, lam, ctrl_qubits, target_qubit);
 
@@ -292,7 +300,7 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   auto should_run_gray_mcu_synth = [ctrlU, &ctrlIdxs]() {
     if (ctrlU->nInstructions() == 1) {
-      std::vector<std::string> allowed{"Z"};
+      std::vector<std::string> allowed{"X", "Rx", "Z", "Rz"};
       auto inst = ctrlU->getInstruction(0);
       if (xacc::container::contains(allowed, inst->name()) &&
           ctrlIdxs.size() > 2) {
@@ -323,9 +331,13 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
       }
     }
 
-    for (auto iter = zero_rotation_idxs.rbegin();
-         iter != zero_rotation_idxs.rend(); ++iter) {
-      ctrlU->removeInstruction(*iter);
+    for (int instId = 0; instId < ctrlU->nInstructions(); ++instId) {
+      // Only add instructions that are not NOOPs
+      if (std::find(zero_rotation_idxs.begin(), zero_rotation_idxs.end(),
+                    instId) == zero_rotation_idxs.end()) {
+        auto inst = ctrlU->getInstruction(instId)->clone();
+        addInstruction(inst);
+      }
     }
 
   } else {
@@ -334,11 +346,11 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
     for (const auto &ctrlIdx : ctrlIdxs) {
       ctrlU = applyControl(ctrlU, ctrlIdx);
     }
-  }
 
-  for (int instId = 0; instId < ctrlU->nInstructions(); ++instId) {
-    auto inst = ctrlU->getInstruction(instId)->clone();
-    addInstruction(inst);
+    for (int instId = 0; instId < ctrlU->nInstructions(); ++instId) {
+      auto inst = ctrlU->getInstruction(instId)->clone();
+      addInstruction(inst);
+    }
   }
   return true;
 }
