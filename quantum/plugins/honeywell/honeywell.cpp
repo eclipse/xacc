@@ -168,6 +168,12 @@ void HoneywellAccelerator::execute(
   }
   auto qasm = getNativeCode(circuit);
 
+  auto backend_status = get(url, "machine/"+backend, generateRequestHeader());
+  auto status_J = nlohmann::json::parse(backend_status);
+  if (status_J["state"] != "online") {
+    xacc::error("Cannot run on " + backend + ", it is not online.");
+  }
+
   xacc::info("\nHoneywell sending qasm:\n" + qasm);
 
   nlohmann::json j;
@@ -209,6 +215,19 @@ void HoneywellAccelerator::execute(
     if (get_job_status_json["status"].get<std::string>() == "completed") {
       break;
     }
+
+    if (dots > 4)
+      dots = 1;
+    std::stringstream ss;
+    ss << "\033[0;32m"
+       << "Honeywell Job "
+       << "\033[0;36m" << job_id << "\033[0;32m"
+       << " Status: " << get_job_status_json["status"].get<std::string>();
+    for (int i = 0; i < dots; i++)
+      ss << '.';
+    dots++;
+    std::cout << '\r' << ss.str() << std::setw(20) << std::setfill(' ')
+              << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 
