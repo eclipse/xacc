@@ -20,7 +20,7 @@
 #include "xacc_observable.hpp"
 #include "CompositeInstruction.hpp"
 #include "AlgorithmGradientStrategy.hpp"
-
+#include "IRTransformation.hpp"
 #include <cassert>
 #include <iomanip>
 #include <random>
@@ -241,6 +241,21 @@ namespace algorithm {
             if (parameters.pointerLikeExists<Observable>("ref-ham")) {
             m_refHamObs = parameters.getPointerLike<Observable>("ref-ham");
             }
+            m_irTransformation = nullptr;
+            // This QPU has topology-constraint
+            if (!m_qpu->getConnectivity().empty()) {
+              if (parameters.pointerLikeExists<xacc::IRTransformation>(
+                      "placement")) {
+                m_irTransformation = xacc::as_shared_ptr(
+                    parameters.getPointerLike<xacc::IRTransformation>(
+                        "placement"));
+                if (m_irTransformation->type() !=
+                    xacc::IRTransformationType::Placement) {
+                  xacc::error(m_irTransformation->name() +
+                              " is not a placement service.");
+                }
+              }
+            }
         }
 
         // Check if a parameter initialization routine has been specified
@@ -285,6 +300,9 @@ namespace algorithm {
         } else if (m_initial_state){
             m.insert("initial-state", m_initial_state);
         }
+        if (m_irTransformation) {
+            m.insert("placement", m_irTransformation);
+        }
         // Initialize QAOA
         auto qaoa = xacc::getAlgorithm("QAOA", m);
         // Allocate some qubits and execute
@@ -310,6 +328,10 @@ namespace algorithm {
             m.insert("initial-state", warm_start(m_graph));
         } else if (m_initial_state){
             m.insert("initial-state", m_initial_state);
+        }
+
+        if (m_irTransformation) {
+            m.insert("placement", m_irTransformation);
         }
 
         // Initialize QAOA
