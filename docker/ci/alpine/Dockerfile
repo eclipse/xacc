@@ -5,7 +5,9 @@ FROM alpine:latest
 COPY patch_Error.cpp /tmp/
 COPY patch_glucose.hpp /tmp/
 
-RUN apk add build-base gcc binutils cmake blas-dev lapack-dev python3-dev curl-dev git linux-headers py3-pip \
+RUN apk add --no-cache build-base gcc binutils cmake blas-dev lapack-dev python3-dev \
+    curl-dev git linux-headers py3-pip py3-scipy gfortran \
+    && python3 -m pip install --upgrade pip \
     && git clone --recursive https://github.com/eclipse/xacc \
     && mv /tmp/patch_Error.cpp xacc/tpls/cppmicroservices/util/src/Error.cpp \
     && mv /tmp/patch_glucose.hpp xacc/tpls/staq/libs/glucose/glucose.hpp \
