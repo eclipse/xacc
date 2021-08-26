@@ -18,6 +18,8 @@
 #include "AlgorithmGradientStrategy.hpp"
 
 namespace xacc {
+class IRTransformation;
+
 namespace algorithm {
 class QAOA : public Algorithm 
 {
@@ -42,6 +44,7 @@ private:
     bool m_maximize = false;
     CompositeInstruction* m_initial_state = nullptr;
     bool m_shuffleTerms = false;
+    std::shared_ptr<xacc::IRTransformation> m_irTransformation;
 };
 } // namespace algorithm
 } // namespace xacc

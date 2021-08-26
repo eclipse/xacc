@@ -20,7 +20,7 @@
 #include "xacc_observable.hpp"
 #include "CompositeInstruction.hpp"
 #include "AlgorithmGradientStrategy.hpp"
-
+#include "IRTransformation.hpp"
 #include <cassert>
 #include <iomanip>
 
@@ -70,8 +70,21 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
     if (parameters.pointerLikeExists<Observable>("ref-ham")) {
       m_refHamObs = parameters.getPointerLike<Observable>("ref-ham");
     }
+    m_irTransformation = nullptr;
+    // This QPU has topology-constraint
+    if (!m_qpu->getConnectivity().empty()) {
+      if (parameters.pointerLikeExists<xacc::IRTransformation>("placement")) {
+        m_irTransformation = xacc::as_shared_ptr(
+            parameters.getPointerLike<xacc::IRTransformation>("placement"));
+        if (m_irTransformation->type() !=
+            xacc::IRTransformationType::Placement) {
+          xacc::error(m_irTransformation->name() +
+                      " is not a placement service.");
+        }
+      }
+    }
   }
-     
+
   // Check if an initial composite instruction set has been provided
   if (parameters.pointerLikeExists<CompositeInstruction>("initial-state")) {
         m_initial_state = parameters.getPointerLike<CompositeInstruction>("initial-state");
@@ -175,6 +188,12 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           auto tmpBuffer = xacc::qalloc(buffer->size());
           std::vector<std::shared_ptr<CompositeInstruction>> fsToExec{
               kernels[0]->operator()(x)};
+          if (m_irTransformation) {
+            for (auto &composite : fsToExec) {
+              m_irTransformation->apply(
+                  composite, xacc::as_shared_ptr<xacc::Accelerator>(m_qpu));
+            }
+          }
           m_qpu->execute(tmpBuffer, fsToExec);
           double energy = m_costHamObs->postProcess(tmpBuffer);
           // We will only have one child buffer for each parameter set.
@@ -261,6 +280,12 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         }
 
         auto tmpBuffer = xacc::qalloc(buffer->size());
+        if (m_irTransformation) {
+          for (auto &composite : fsToExec) {
+            m_irTransformation->apply(
+                composite, xacc::as_shared_ptr<xacc::Accelerator>(m_qpu));
+          }
+        }
         m_qpu->execute(tmpBuffer, fsToExec);
         auto buffers = tmpBuffer->getChildren();
 
@@ -388,6 +413,12 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     // just execute the single observed kernel:
     std::vector<std::shared_ptr<CompositeInstruction>> fsToExec{
         kernels[0]->operator()(x)};
+    if (m_irTransformation) {
+      for (auto &composite : fsToExec) {
+        m_irTransformation->apply(
+            composite, xacc::as_shared_ptr<xacc::Accelerator>(m_qpu));
+      }
+    }
     m_qpu->execute(buffer, fsToExec);
     const double finalCost = m_costHamObs->postProcess(buffer);
     // std::cout << "Compute energy from grouping: " << finalCost << "\n";
@@ -420,6 +451,12 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   }
 
   auto tmpBuffer = xacc::qalloc(buffer->size());
+  if (m_irTransformation) {
+    for (auto &composite : fsToExec) {
+      m_irTransformation->apply(composite,
+                                xacc::as_shared_ptr<xacc::Accelerator>(m_qpu));
+    }
+  }
   m_qpu->execute(tmpBuffer, fsToExec);
   auto buffers = tmpBuffer->getChildren();
 
