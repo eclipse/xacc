@@ -55,6 +55,19 @@ TEST(AcceleratorBufferTester, checkGetExpectationValueZ) {
   EXPECT_TRUE(std::fabs(b.getExpectationValueZ() - 0.178955078125) < 1e-6);
 }
 
+TEST(AcceleratorBufferTester, checkGetExpectationValueZPrioritizesExtraInfo) {
+
+  AcceleratorBuffer buffer("qreg", 5);
+
+  // Add decoy measurements, which have expected value of Z = 1
+  buffer.appendMeasurement("00000", 500);
+  // Add actual expectation we want
+  buffer.addExtraInfo("exp-val-z", -1.0);
+
+  // This should draw from extra info, not calculate from measurements
+  EXPECT_EQ(buffer.getExpectationValueZ(), -1.0);
+}
+
 TEST(AcceleratorBufferTester, checkLoad) {
   const std::string bufferStr = R"bufferStr({
     "AcceleratorBuffer": {
