@@ -46,6 +46,8 @@ class AllGateVisitor : public BaseInstructionVisitor,
                        public InstructionVisitor<Tdg>,
                        public InstructionVisitor<U>,
                        public InstructionVisitor<U1>,
+                       public InstructionVisitor<Rphi>,
+                       public InstructionVisitor<XX>,
                        public InstructionVisitor<IfStmt>,
                        public InstructionVisitor<XY>,
                        public InstructionVisitor<Reset>,
@@ -116,9 +118,81 @@ public:
   void visit(S &s) override {}
   void visit(CPhase &cp) override {}
 
-  void visit(Measure &cp) override {}
-  void visit(Identity &cp) override {}
-  void visit(U &cp) override {}
+  void visit(Measure &m) override {}
+  void visit(Identity &i) override {}
+  void visit(U &u) override {}
+
+  void visit(Rphi &r) override {
+    double phi = InstructionParameterToDouble(r.getParameter(0));
+    double theta = InstructionParameterToDouble(r.getParameter(1));
+
+    // Trick to rotate around azimuthal angle phi by theta
+    Rz rz1(r.bits()[0], phi);
+    Rx rx(r.bits()[0], theta);
+    Rz rz2(r.bits()[0], -phi);
+
+    visit(rz1);
+    visit(rx);
+    visit(rz2);
+  }
+
+  void visit(XX &xx) override {
+    double alpha = InstructionParameterToDouble(xx.getParameter(0));
+    std::size_t left = xx.bits()[0];
+    std::size_t right = xx.bits()[1];
+
+    // Suppose CRx(α) = |0><0|⊗ I + |1><1|⊗ Rx(α), where Rx(α) is
+    // defined in Section 4.2 of Mike & Ike. Then based on the
+    // Controlled-X decomposition from [1] and Controlled-sqrt(X)
+    // decomposition shown in the Methods section of [2], we can
+    // generalize and see that a controlled-Rx can be decomposed in
+    // terms of XX like this:
+    //
+    // CRx(α) = (Rz(-α/2)Ry(-π/2)Rx(α/2)⊗ Rx(α/2)) XX(-α/4) (Ry(π/2)⊗ I)
+    //
+    // Then, if we rearrange this equation, we can instead decompose XX
+    // in terms of CRx:
+    //
+    // XX(α) = (Rx(2α)Ry(π/2)Rz(-2α)⊗ Rx(2α)) CRx(-4α) (Ry(-π/2)⊗ I))
+    //
+    // However, CRx is not in XACC IR. So given that Rx is a special
+    // unitary and Rx(θ) = Rz(-π/2)Ry(θ)Rz(π/2), we can use Lemma 4.3 of [3]
+    // to decompose CRx into CNOTs, Ry, and Rz as follows:
+    //
+    // CRx(θ) = (I⊗ Rz(-π/2)Ry(θ/2)) CNOT (I⊗ Ry(-θ/2)) CNOT (I⊗ Rz(π/2))
+    //
+    // Then we substitute this into the earlier definition to find the
+    // decomposition we use below:
+    //
+    // XX(α) = (Rx(2α)Ry(π/2)Rz(-2α)⊗ Rx(2α)Rz(-π/2)Ry(-2*α)) CNOT (I⊗ Ry(2α)) CNOT (Ry(-π/2)⊗ Rz(π/2))
+    //
+    // [1]: https://doi.org/10.1088/1367-2630/aa5e47
+    // [2]: https://www.nature.com/articles/s41586-019-1427-5
+    // [3]: https://arxiv.org/abs/quant-ph/9503016
+    Ry left1(left, -M_PI/2.0);
+    Rz right1(right, M_PI/2.0);
+    CNOT cx1(left, right);
+    Ry right2(right, 2*alpha);
+    CNOT cx2(left, right);
+    Rz left2(left, -2.0*alpha);
+    Ry left3(left, M_PI/2.0);
+    Rx left4(left, 2.0*alpha);
+    Ry right3(right, -2.0*alpha);
+    Rz right4(right, -M_PI/2.0);
+    Rx right5(right, 2.0*alpha);
+
+    visit(left1);
+    visit(right1);
+    visit(cx1);
+    visit(right2);
+    visit(cx2);
+    visit(left2);
+    visit(left3);
+    visit(left4);
+    visit(right3);
+    visit(right4);
+    visit(right5);
+  }
 
   void visit(Sdg &sdg) override {}
   void visit(T &t) override {}

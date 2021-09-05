@@ -301,6 +301,49 @@ public:
   DEFINE_VISITABLE()
 };
 
+// The R_phi(theta) rotation from the Methods section of
+// https://www.nature.com/articles/nature18648
+class Rphi: public Gate {
+public:
+  Rphi()
+      : Gate("Rphi",
+             std::vector<InstructionParameter>{InstructionParameter(0.0),
+                                               InstructionParameter(0.0)}) {}
+  Rphi(std::size_t qbit, std::vector<xacc::InstructionParameter> params)
+      : Gate("Rphi", std::vector<std::size_t>{qbit}, params) {}
+  Rphi(std::size_t qbit, double phi, double theta)
+      : Gate("Rphi", std::vector<std::size_t>{qbit},
+             std::vector<InstructionParameter>{InstructionParameter(phi),
+                                               InstructionParameter(theta)}) {}
+
+  const int nRequiredBits() const override { return 1; }
+
+  DEFINE_CLONE(Rphi)
+  DEFINE_VISITABLE()
+};
+
+// The XX(alpha) entangling gate from the Methods section of
+// https://www.nature.com/articles/nature18648
+// (We call the parameter alpha instead of chi_ij)
+class XX : public Gate {
+public:
+  XX() : Gate("XX", std::vector<InstructionParameter>{0.0}) {}
+  XX(std::size_t leftQubit, std::size_t rightQubit)
+      : Gate("XX", std::vector<std::size_t>{leftQubit, rightQubit},
+             std::vector<InstructionParameter>{0.0, 0.0}) {}
+  XX(std::size_t leftQubit, std::size_t rightQubit, double alpha)
+      : Gate("XX", std::vector<std::size_t>{leftQubit, rightQubit},
+             std::vector<InstructionParameter>{alpha}) {}
+  XX(std::vector<std::size_t> qbits)
+      : Gate("XX", qbits, std::vector<InstructionParameter>{0.0}) {}
+  XX(std::vector<std::size_t> qbits, double alpha)
+      : Gate("XX", qbits, std::vector<InstructionParameter>{alpha}) {}
+  const int nRequiredBits() const override { return 2; }
+
+  DEFINE_CLONE(XX)
+  DEFINE_VISITABLE()
+};
+
 class X : public Gate {
 public:
   X() : Gate("X") {}
