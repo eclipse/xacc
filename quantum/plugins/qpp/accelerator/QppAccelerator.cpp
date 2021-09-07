@@ -148,9 +148,9 @@ namespace {
     bool shotCountFromFinalStateVec(const std::shared_ptr<CompositeInstruction>& in_composite)
     {
         InstructionIterator it(in_composite);
-        bool measureAtTheEnd = true;
-        bool measureEncountered = false;
+        std::set<std::size_t> bitsMeasured;
         bool hasReset = false;
+        bool postMeasureGates = false;
         while (it.hasNext())
         {
             auto nextInst = it.next();
@@ -158,25 +158,32 @@ namespace {
             {
                 if (nextInst->name() == "Reset") {
                     hasReset = true;
+                    break;
                 }
+
+                auto bits = nextInst->bits();
 
                 if (isMeasureGate(nextInst))
                 {
-                    // Flag that we have seen a Measure gate.
-                    measureEncountered = true;
+                    bitsMeasured.insert(bits.begin(), bits.end());
                 }
-
-                // We have seen a Measure gate but this one is not another Measure gate.
-                if (measureEncountered && !isMeasureGate(nextInst))
+                else
                 {
-                    measureAtTheEnd = false;
+                    postMeasureGates = std::any_of(bits.begin(), bits.end(),
+                                                   [&](std::size_t bit) {
+                                                       return bitsMeasured.count(bit);
+                                                   });
+                    if (postMeasureGates)
+                    {
+                        break;
+                    }
                 }
             }
         }
 
         // If Measure gates are at the very end and no reset,
         // this Composite can be simulated by random sampling from the state vec.
-        return !hasReset && measureAtTheEnd;
+        return !hasReset && !postMeasureGates;
     }
 
     Eigen::MatrixXcd convertToEigenMat(const NoiseModelUtils::cMat& in_stdMat)
