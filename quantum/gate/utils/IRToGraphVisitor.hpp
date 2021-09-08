@@ -70,9 +70,18 @@ public:
   void visit(Sdg &sdg) override {addSingleQubitGate(sdg);}
   void visit(T &t) override {addSingleQubitGate(t);}
   void visit(Tdg &tdg) override {addSingleQubitGate(tdg);}
+  void visit(Rphi &rphi) override { addSingleQubitGate(rphi); }
+  void visit(U1 &u1) override { addSingleQubitGate(u1); }
 
-  void visit(CRZ &crz) override {addTwoQubitGate(crz);}
-  void visit(CH &ch) override {addTwoQubitGate(ch);}
+  void visit(CRZ &crz) override { addTwoQubitGate(crz); }
+  void visit(CH &ch) override { addTwoQubitGate(ch); }
+  void visit(CY &cy) override { addTwoQubitGate(cy); }
+  void visit(fSim &fsim) override { addTwoQubitGate(fsim); }
+  void visit(iSwap &iswap) override { addTwoQubitGate(iswap); }
+  void visit(RZZ &rzz) override { addTwoQubitGate(rzz); }
+  void visit(XX &xx) override { addTwoQubitGate(xx); }
+  void visit(XY &xy) override { addTwoQubitGate(xy); }
+
   // Base gate visitor, i.e. none of the concrete gates can match.
   // We need to assert here because we cannot generate a graph when there are unknown gates.
   // e.g. there is an 1-1 mapping between node Id (in the graph) and instruction counter (in the circuit),
