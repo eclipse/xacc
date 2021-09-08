@@ -39,7 +39,7 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE CppMicroServices xacc-pauli xacc-fermion)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE CppMicroServices xacc-pauli xacc-fermion xacc-quantum-gate)
 
 if(APPLE)
    set_target_properties(${LIBRARY_NAME} PROPERTIES INSTALL_RPATH "@loader_path/../lib")
