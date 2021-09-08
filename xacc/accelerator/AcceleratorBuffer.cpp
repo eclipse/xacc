@@ -424,9 +424,15 @@ const double AcceleratorBuffer::getExpectationValueZ() {
     return 1;
   };
 
-  if (bitStringToCounts.empty() && this->hasExtraInfoKey("exp-val-z")) {
+  if (this->hasExtraInfoKey("exp-val-z")) {
     aver = mpark::get<double>(getInformation("exp-val-z"));
   } else {
+    if (bitStringToCounts.empty()) {
+      xacc::error("called getExpectationValueZ() on an AcceleratorBuffer with "
+                  "no measurements!");
+      return 0;
+    }
+
     for (auto &kv : bitStringToCounts) {
       int i = std::stoi(kv.first, nullptr, 2);
       auto par = has_even_parity(i);
