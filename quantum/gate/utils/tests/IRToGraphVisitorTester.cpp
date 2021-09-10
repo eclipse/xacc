@@ -44,6 +44,23 @@ TEST(IRToGraphTester, checkSimple) {
   auto graph = vis->getGraph();
 
   graph->write(std::cout);
+  EXPECT_EQ(graph->order(), f->nInstructions() + 2);
+  // X and H are on the first layer
+  EXPECT_EQ(graph->getVertexProperties(1).getString("name"), x->name());
+  EXPECT_EQ(graph->getVertexProperties(1).get<int>("layer"), 0);
+  EXPECT_EQ(graph->getVertexProperties(2).getString("name"), h->name());
+  EXPECT_EQ(graph->getVertexProperties(2).get<int>("layer"), 0);
+
+  // CNOT on the second layer
+  EXPECT_EQ(graph->getVertexProperties(3).getString("name"), "CNOT");
+  EXPECT_EQ(graph->getVertexProperties(3).get<int>("layer"), 1);
+
+  // Rz and Z on the third layer
+  EXPECT_EQ(graph->getVertexProperties(4).getString("name"), rz->name());
+  EXPECT_EQ(graph->getVertexProperties(4).get<int>("layer"), 2);
+
+  EXPECT_EQ(graph->getVertexProperties(5).getString("name"), z->name());
+  EXPECT_EQ(graph->getVertexProperties(5).get<int>("layer"), 2);
 }
 
 TEST(IRToGraphTester, checkCNOTLadder) {
@@ -69,6 +86,12 @@ TEST(IRToGraphTester, checkCNOTLadder) {
   auto graph = vis->getGraph();
 
   graph->write(std::cout);
+  // These CNOT gates cannot be on the same layer.
+  for (int i = 1; i < graph->order() - 2; i++) {
+    auto node = graph->getVertexProperties(i);
+    EXPECT_EQ(node.getString("name"), "CNOT");
+    EXPECT_EQ(node.get<int>("layer"), i - 1);
+  }
 }
 
 int main(int argc, char **argv) {
