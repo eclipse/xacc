@@ -30,7 +30,10 @@ void IRToGraphVisitor::addSingleQubitGate(Gate &inst) {
                       std::make_pair("bits", inst.bits())};
 
   graph->addVertex(newNode);
-  graph->addEdge(lastNode.get<std::size_t>("id"), newNode.get<std::size_t>("id"), 1);
+  graph->addEdge(lastNode.get<std::size_t>("id"),
+                 newNode.get<std::size_t>("id"), 1);
+  const int layerId = graph->depth();
+  graph->getVertexProperties(id).insert("layer", layerId);
 
   qubitToLastNode[bit] = newNode;
 }
@@ -49,7 +52,8 @@ void IRToGraphVisitor::addTwoQubitGate(Gate &inst) {
   graph->addVertex(newNode);
   graph->addEdge(lastsrcnodeid, id, 1);
   graph->addEdge(lasttgtnodeid, id, 1);
-
+  const auto layerId = graph->depth();
+  graph->getVertexProperties(id).insert("layer", layerId);
   qubitToLastNode[srcbit] = newNode;
   qubitToLastNode[tgtbit] = newNode;
 }
