@@ -61,6 +61,7 @@ TEST(IRToGraphTester, checkSimple) {
 
   EXPECT_EQ(graph->getVertexProperties(5).getString("name"), z->name());
   EXPECT_EQ(graph->getVertexProperties(5).get<int>("layer"), 2);
+  EXPECT_EQ(f->depth(), 3);
 }
 
 TEST(IRToGraphTester, checkCNOTLadder) {
@@ -92,6 +93,15 @@ TEST(IRToGraphTester, checkCNOTLadder) {
     EXPECT_EQ(node.getString("name"), "CNOT");
     EXPECT_EQ(node.get<int>("layer"), i - 1);
   }
+  EXPECT_EQ(f->depth(), 4);
+}
+
+TEST(IRToGraphTester, checkSingleGate) {
+  auto f = std::make_shared<Circuit>("foo");
+  auto x = std::make_shared<X>(0);
+  f->addInstruction(x);
+  f->toGraph()->write(std::cout);
+  EXPECT_EQ(f->depth(), 1);
 }
 
 int main(int argc, char **argv) {
