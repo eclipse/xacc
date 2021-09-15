@@ -279,11 +279,11 @@ TEST(GateTester, checkGenerateGraph) {
   std::string expected = R"expected(digraph G {
 node [shape=box style=filled]
 0 [label="bits=[0,1,2];id=0;name=InitialState"];
-1 [label="bits=[1];id=1;name=H"];
-2 [label="bits=[1,2];id=2;name=CNOT"];
-3 [label="bits=[0,1];id=3;name=CNOT"];
-4 [label="bits=[0];id=4;name=H"];
-5 [label="bits=[2];id=5;name=Rz"];
+1 [label="bits=[1];id=1;layer=0;name=H"];
+2 [label="bits=[1,2];id=2;layer=1;name=CNOT"];
+3 [label="bits=[0,1];id=3;layer=2;name=CNOT"];
+4 [label="bits=[0];id=4;layer=3;name=H"];
+5 [label="bits=[2];id=5;layer=3;name=Rz"];
 6 [label="bits=[0,1,2];id=6;name=FinalState"];
 0->1 ;
 0->2 ;

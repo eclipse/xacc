@@ -199,7 +199,7 @@ void Circuit::load(std::istream &inStream) {
   }
 }
 
-const int Circuit::depth() { return toGraph()->depth() - 2; }
+const int Circuit::depth() { return toGraph()->depth(); }
 
 const std::string Circuit::persistGraph() {
   std::stringstream s;
