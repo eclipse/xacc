@@ -12,3 +12,5 @@
 # *******************************************************************************/
 #add_xacc_test(InstructionParameter xacc)
 
+add_xacc_test(IRBuilder)
+target_link_libraries(IRBuilderTester xacc)

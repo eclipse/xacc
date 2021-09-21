@@ -20,6 +20,7 @@
 #include "Algorithm.hpp"
 #include "Optimizer.hpp"
 #include "IRTransformation.hpp"
+#include "IRBuilder.hpp"
 
 #include "heterogeneous.hpp"
 
