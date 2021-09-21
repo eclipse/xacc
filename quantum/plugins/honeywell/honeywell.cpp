@@ -231,6 +231,9 @@ void HoneywellAccelerator::execute(
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 
+  std::cout << "\033[0m"
+            << "\n";
+            
   xacc::info("\nHoneywell job result json:\n" + get_job_status);
   auto results =
       get_job_status_json["results"].begin()->get<std::vector<std::string>>();
