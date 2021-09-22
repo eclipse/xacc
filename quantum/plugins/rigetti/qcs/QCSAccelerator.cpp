@@ -92,6 +92,12 @@ result = str(np)
   return;
 }
 
+std::string QCSAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
+                              const HeterogeneousMap &config) {
+  auto irt = xacc::getIRTransformation("qcs-quilc");
+  irt->apply(program, nullptr);
+  return program->toString();
+}
 void QCSAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
@@ -151,8 +157,6 @@ void QCSAccelerator::initialize(const HeterogeneousMap &params) {
 
   if (!guard && !Py_IsInitialized()) {
     guard = std::make_shared<py::scoped_interpreter>();
-    //       libpython_handle = dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY |
-    //       RTLD_GLOBAL);
     initialized = true;
   }
 
@@ -184,22 +188,6 @@ void QCSAccelerator::_internal_init() {
     endpoint = backend;
   }
 
-  std::string json_data = "{\"endpointId\": \"" + endpoint + "\"}";
-  std::map<std::string, std::string> headers{
-      {"Content-Type", "application/json"},
-      {"Connection", "keep-alive"},
-      {"Content-Length", std::to_string(json_data.length())},
-      {"Authorization", "Bearer " + auth_token}};
-  auto resp = this->post(engagement_url, "/engagements", json_data, headers);
-
-  auto resp_json = json::parse(resp);
-
-  client_public = resp_json["credentials"]["clientPublic"].get<std::string>();
-  client_secret = resp_json["credentials"]["clientSecret"].get<std::string>();
-  server_public = resp_json["credentials"]["serverPublic"].get<std::string>();
-  qpu_endpoint = resp_json["address"];
-  qpu_compiler_endpoint = qpu_compiler_url;
-  user_id = resp_json["userId"].get<std::string>();
 }
 
 void QCSAccelerator::execute(
@@ -207,6 +195,28 @@ void QCSAccelerator::execute(
     const std::shared_ptr<CompositeInstruction> function) {
 
   using json = nlohmann::json;
+
+  if (!engaged) {
+    // Do this one time if we want to execute
+    std::string json_data = "{\"endpointId\": \"" + endpoint + "\"}";
+    std::map<std::string, std::string> headers{
+        {"Content-Type", "application/json"},
+        {"Connection", "keep-alive"},
+        {"Content-Length", std::to_string(json_data.length())},
+        {"Authorization", "Bearer " + auth_token}};
+    auto resp = this->post(engagement_url, "/engagements", json_data, headers);
+
+    auto resp_json = json::parse(resp);
+
+    client_public = resp_json["credentials"]["clientPublic"].get<std::string>();
+    client_secret = resp_json["credentials"]["clientSecret"].get<std::string>();
+    server_public = resp_json["credentials"]["serverPublic"].get<std::string>();
+    qpu_endpoint = resp_json["address"];
+    qpu_compiler_endpoint = qpu_compiler_url;
+    user_id = resp_json["userId"].get<std::string>();
+    engaged = true;
+  }
+
 
   // Map IR to Native Quil string
   auto visitor = std::make_shared<QuilVisitor>(true);

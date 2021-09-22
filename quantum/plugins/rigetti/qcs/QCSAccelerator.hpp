@@ -108,6 +108,7 @@ protected:
   bool use_rpcq_auth_config = true;
 
   bool initialized = false;
+  bool engaged = false;
   std::shared_ptr<py::scoped_interpreter> guard;
 
   void _internal_init();
@@ -122,6 +123,9 @@ public:
                const std::vector<std::shared_ptr<CompositeInstruction>>
                    functions) override;
 
+  std::string getNativeCode(std::shared_ptr<CompositeInstruction> program,
+                              const HeterogeneousMap &config) override;
+    
   void initialize(const HeterogeneousMap &params = {}) override;
 
   void updateConfiguration(const HeterogeneousMap &config) override {
