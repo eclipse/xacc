@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 UT-Battelle, LLC.
+ * Copyright (c) 2021 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -28,7 +28,6 @@ TEST(IRBuilderTester, checkSimple) {
     builder.mz(1);
     auto composite = builder.to_ir();
     std::cout << composite->toString() << "\n";
-
     EXPECT_EQ(9, composite->nInstructions());
   }
 
@@ -38,6 +37,7 @@ TEST(IRBuilderTester, checkSimple) {
     builder.cnot(std::make_pair("qregQQ", 0), std::make_pair("qregQQ", 1));
     auto composite = builder.to_ir();
     std::cout << composite->toString() << "\n";
+    EXPECT_EQ(2, composite->nInstructions());
   }
 }
 
