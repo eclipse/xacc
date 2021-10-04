@@ -29,6 +29,7 @@
 #include "xacc_service.hpp"
 
 #include <bitset>
+#include <optional>
 #include "QObjGenerator.hpp"
 #include "py-aer/aer_python_adapter.hpp"
 

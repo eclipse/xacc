@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <regex>
 #include <unordered_map>
+#include <optional>
 #ifndef NLOHMANN_OPT_HELPER
 #define NLOHMANN_OPT_HELPER
 namespace nlohmann {

@@ -15,7 +15,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <cassert>
-
+#include <optional>
 using namespace xacc;
 
 namespace {
