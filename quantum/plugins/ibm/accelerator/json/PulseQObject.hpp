@@ -16,6 +16,7 @@
 
 #include <stdexcept>
 #include <regex>
+#include <optional>
 
 namespace xacc {
 namespace ibm_pulse {

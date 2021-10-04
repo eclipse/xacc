@@ -14,7 +14,7 @@
 #include "xacc_plugin.hpp"
 #include "IRUtils.hpp"
 #include <cassert>
-
+#include <optional>
 namespace {
 inline bool isMeasureGate(const xacc::InstPtr &in_instr) {
   return (in_instr->name() == "Measure");

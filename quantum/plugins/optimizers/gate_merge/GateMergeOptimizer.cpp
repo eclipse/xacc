@@ -2,7 +2,7 @@
 #include "GateMergeOptimizer.hpp"
 #include "GateFusion.hpp"
 #include "xacc_service.hpp"
-
+#include <optional>
 namespace {
 bool compareMatIgnoreGlobalPhase(const Eigen::Matrix4cd& in_a, const Eigen::Matrix4cd& in_b)
 {

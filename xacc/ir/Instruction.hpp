@@ -17,6 +17,7 @@
 #include "Cloneable.hpp"
 #include "InstructionVisitor.hpp"
 #include "heterogeneous.hpp"
+#include <limits>
 
 namespace xacc {
 using InstructionParameter = Variant<int, double, std::string>;
