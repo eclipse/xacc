@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_iontrap",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Ion Trap Testbed Accelerator",
+  "bundle.description" : "This bundle provides an Accelerator for an ion trap quantum testbed."
+}
