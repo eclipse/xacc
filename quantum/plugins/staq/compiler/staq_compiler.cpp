@@ -273,10 +273,15 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
     _src = "OPENQASM 2.0;\n" + _src;
   }
 
-
-  std::string preamble = "include \"qelib1.inc\";";
+  const std::string preamble = [](const std::string &srcTxt) {
+    const auto includePos = srcTxt.find("include");
+    assert(includePos != std::string::npos);
+    const auto endPreample = srcTxt.find_first_of(";", includePos);
+    assert(endPreample != std::string::npos);
+    return srcTxt.substr(includePos, endPreample - includePos + 1);
+  }(_src);
   auto preamble_start = _src.find(preamble);
-
+  assert(preamble_start != std::string::npos);
 
   // Add any required missing pre-defines that we 
   // know the impl for.
