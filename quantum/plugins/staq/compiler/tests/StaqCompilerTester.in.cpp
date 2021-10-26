@@ -271,6 +271,33 @@ TEST(StaqCompilerTester, checkIfStatementTranslate) {
   EXPECT_TRUE(qasm.find("if (c[1] == 1) rz") != std::string::npos);
 }
 
+TEST(StaqCompilerTester, checkCustomInclude) {
+  auto src = R"#(
+    __qpu__ void QBCIRCUIT(qreg q) {
+    OPENQASM 2.0;
+    include "@CMAKE_SOURCE_DIR@/quantum/plugins/staq/compiler/tests/qelib1.inc"; 
+    creg c0[1];
+    creg c1[1];
+    creg c2[1];
+    h q[2];
+    h q[1];
+    h q[0];
+    measure q[0] -> c0[0];
+    measure q[1] -> c1[0];
+    measure q[2] -> c2[0];
+    }
+)#";
+  auto buffer = xacc::qalloc(3);
+  buffer->setName("q");
+  xacc::storeBuffer(buffer);
+
+  auto compiler = xacc::getCompiler("staq");
+  auto IR = compiler->compile(src);
+  auto hello = IR->getComposites()[0];
+  std::cout << hello->toString() << "\n";
+  EXPECT_EQ(hello->nInstructions(), 6);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);
