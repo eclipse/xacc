@@ -325,6 +325,7 @@ singleQubitGateGen(const Eigen::Matrix2cd &in_mat, size_t in_bitIdx) {
         }
       }
       assert(found);
+      return std::make_tuple(a, bHalf, cHalf, dHalf);
     } else if (std::abs(matrix(0, 0)) < TOLERANCE) {
       auto two_a = fmod(std::arg(-matrix(0, 1) * matrix(1, 0)), 2 * M_PI);
       a = (std::abs(two_a) < TOLERANCE ||
@@ -351,6 +352,7 @@ singleQubitGateGen(const Eigen::Matrix2cd &in_mat, size_t in_bitIdx) {
         }
       }
       assert(found);
+      return std::make_tuple(a, bHalf, cHalf, dHalf);
     } else {
       auto two_a = fmod(std::arg(matrix(0, 0) * matrix(1, 1)), 2 * M_PI);
       a = (std::abs(two_a) < TOLERANCE ||
@@ -392,11 +394,8 @@ singleQubitGateGen(const Eigen::Matrix2cd &in_mat, size_t in_bitIdx) {
         }
       }
       assert(found);
+      return std::make_tuple(a, bHalf, cHalf, dHalf);
     }
-
-    // Final check:
-    assert(checkParams(a, bHalf, cHalf, dHalf));
-    return std::make_tuple(a, bHalf, cHalf, dHalf);
   };
   // Use Z-Y decomposition of Nielsen and Chuang (Theorem 4.1).
   // An arbitrary one qubit gate matrix can be writen as
