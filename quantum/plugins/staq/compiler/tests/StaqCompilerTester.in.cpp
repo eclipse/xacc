@@ -14,6 +14,8 @@
 
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include <regex>
+#include <random>
 
 namespace {
   // CU1 decompose: 5 instructions
@@ -296,6 +298,60 @@ TEST(StaqCompilerTester, checkCustomInclude) {
   auto hello = IR->getComposites()[0];
   std::cout << hello->toString() << "\n";
   EXPECT_EQ(hello->nInstructions(), 6);
+}
+
+TEST(StaqCompilerTester, checkCRy) {
+  auto q = xacc::qalloc(2);
+  q->setName("q");
+  xacc::storeBuffer(q);
+
+  auto src = R"(__qpu__ void test(qreg q) {
+OPENQASM 2.0;
+include "qelib1.inc";
+cry(1.2345) q[0], q[1];
+})";
+  auto staq = xacc::getCompiler("staq");
+  auto IR = staq->compile(src);
+  auto hello = IR->getComposites()[0];
+  std::cout << hello->toString() << "\n";
+  EXPECT_EQ(hello->nInstructions(), 4);
+}
+
+TEST(StaqCompilerTester, checkCtrlRotationDef) {
+  // Functional test to validate CRx, CRy, CRz decomposition
+  // in staq compiler.
+  const std::vector<std::string> ROTATION_GATE{"rx", "ry", "rz"};
+  std::random_device rd;
+  std::default_random_engine eng(rd());
+  std::uniform_real_distribution<> distr(0.0, 2.0 * M_PI);
+  const double randomAngle = distr(eng);
+
+  for (const auto &rotation : ROTATION_GATE) {
+    // Ctrl rotation (control bit set) then reverse the rotation (no control)
+    std::string src = R"(OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[2];
+creg c[2];
+x q[0];
+cGATE_NAME(ANGLE) q[0], q[1];
+GATE_NAME(-ANGLE) q[1];
+measure q -> c;
+)";
+    src = std::regex_replace(src, std::regex("GATE_NAME"), rotation);
+    src = std::regex_replace(src, std::regex("ANGLE"),
+                             std::to_string(randomAngle));
+    std::cout << "HOWDY:\n" << src << "\n";
+    auto compiler = xacc::getCompiler("staq");
+    auto IR = compiler->compile(src);
+    auto hello = IR->getComposites()[0];
+    std::cout << hello->toString() << "\n";
+    auto accelerator = xacc::getAccelerator("qpp", {{"shots", 1024}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, hello);
+    buffer->print();
+    // Control bit is set to 1; target bit must return to 0.
+    EXPECT_EQ(buffer->getMeasurementCounts()["10"], 1024);
+  }
 }
 
 int main(int argc, char **argv) {
