@@ -50,6 +50,26 @@ namespace quantum {
             m_use_stabilizer = params.get<bool>("use_stabilizer");
         }
 
+        if (params.keyExists<bool>("use_binary_decision_tree"))
+        {
+            m_use_binary_decision_tree = params.get<bool>("use_binary_decision_tree");
+        }
+
+        if (params.keyExists<bool>("use_paging"))
+        {
+            m_use_paging = params.get<bool>("use_paging");
+        }
+
+        if (params.keyExists<bool>("use_z_x_fusion"))
+        {
+            m_use_z_x_fusion = params.get<bool>("use_z_x_fusion");
+        }
+
+        if (params.keyExists<bool>("use_cpu_gpu_hybrid"))
+        {
+            m_use_cpu_gpu_hybrid = params.get<bool>("use_cpu_gpu_hybrid");
+        }
+
         if (params.keyExists<int>("device_id"))
         {
             m_device_id = params.get<int>("device_id");
@@ -111,7 +131,7 @@ namespace quantum {
         }
 
         const auto runCircuit = [&](int shots){
-            m_visitor->initialize(buffer, shots, m_use_opencl, m_use_qunit, m_use_opencl_multi, m_use_stabilizer, m_device_id, m_do_normalize, m_zero_threshold);
+            m_visitor->initialize(buffer, shots, m_use_opencl, m_use_qunit, m_use_opencl_multi, m_use_stabilizer, m_use_binary_decision_tree, m_use_paging, m_use_z_x_fusion, m_use_cpu_gpu_hybrid, m_device_id, m_do_normalize, m_zero_threshold);
 
             // Walk the IR tree, and visit each node
             InstructionIterator it(compositeInstruction);
