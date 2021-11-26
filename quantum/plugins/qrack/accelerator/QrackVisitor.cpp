@@ -28,7 +28,7 @@ namespace quantum {
 
 #if ENABLE_OPENCL
         bool isOcl = use_opencl && (Qrack::OCLEngine::Instance()->GetDeviceCount() > 0);
-        bool isOclMulti = use_opencl_multi && (Qrack::OCLEngine::Instance()->GetDeviceCount() > 1);
+        bool isOclMulti = isOcl && use_opencl_multi && (Qrack::OCLEngine::Instance()->GetDeviceCount() > 1);
 #else
         bool isOcl = false;
         bool isOclMulti = false;
