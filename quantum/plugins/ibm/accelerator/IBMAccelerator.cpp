@@ -892,10 +892,14 @@ HeterogeneousMap IBMAccelerator::getProperties() {
         if (q["name"].get<std::string>() == "prob_meas0_prep1") {
           p01s.push_back(q["value"].get<double>());
         } else if (q["name"].get<std::string>() == "prob_meas1_prep0") {
+          p10s.push_back(q["value"].get<double>());
         }
-        p10s.push_back(q["value"].get<double>());
       }
     }
+    assert(std::all_of(p01s.begin(), p01s.end(),
+                       [](double x) { return x >= 0.0 && x < 1.0; }));
+    assert(std::all_of(p10s.begin(), p10s.end(),
+                       [](double x) { return x >= 0.0 && x < 1.0; }));
 
     m.insert("p01s", p01s);
     m.insert("p10s", p10s);
