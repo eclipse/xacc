@@ -24,7 +24,9 @@ namespace quantum {
 class IonQAccelerator : public RemoteAccelerator {
 public:
   void cancel() override;
-
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+               const std::vector<std::shared_ptr<CompositeInstruction>>
+                   circuits) override;
   void initialize(const HeterogeneousMap &params = {}) override;
   void updateConfiguration(const HeterogeneousMap &config) override {
     if (config.keyExists<int>("shots")) {
