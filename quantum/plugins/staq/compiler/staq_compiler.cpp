@@ -67,7 +67,6 @@ gate u(theta,phi,lambda) q { U(theta,phi,lambda) q; })#"},
   cx a,b;
   u3(-lambda/2,0,0) b;
   cx a,b;
-  ry(lambda) a;
 })#"},
     {"cp", R"#(gate cp(lambda) a,b
 {
