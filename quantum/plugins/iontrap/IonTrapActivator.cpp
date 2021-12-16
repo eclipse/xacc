@@ -15,6 +15,7 @@
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
+#include "IonTrapAccelerator.hpp"
 #include "IonTrapOneQubitPass.hpp"
 #include "IonTrapTwoQubitPass.hpp"
 
@@ -25,6 +26,9 @@ public:
   IonTrapActivator() {}
 
   void Start(BundleContext context) {
+    auto acc = std::make_shared<xacc::quantum::IonTrapAccelerator>();
+    context.RegisterService<xacc::Accelerator>(acc);
+
     auto twoQubitPass = std::make_shared<xacc::quantum::IonTrapTwoQubitPass>();
     context.RegisterService<xacc::IRTransformation>(twoQubitPass);
 
