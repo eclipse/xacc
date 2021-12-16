@@ -1,7 +1,11 @@
 ![XACC](docs/assets/xacc_full_logo.svg)
 
-[![Linux CI](https://github.com/eclipse/xacc/actions/workflows/ci-linux.yml/badge.svg?branch=xacc-devel)](https://github.com/eclipse/xacc/actions/workflows/ci-linux.yml)
-[![Mac CI](https://github.com/eclipse/xacc/actions/workflows/ci-mac.yml/badge.svg?branch=xacc-devel)](https://github.com/eclipse/xacc/actions/workflows/ci-mac.yml)
+
+| Branch | Status |
+|:-------|:-------|
+|master | [![Linux CI](https://github.com/eclipse/xacc/actions/workflows/ci-linux.yml/badge.svg?branch=master)](https://github.com/eclipse/xacc/actions/workflows/ci-linux.yml) [![Mac CI](https://github.com/eclipse/xacc/actions/workflows/ci-mac.yml/badge.svg?branch=master)](https://github.com/eclipse/xacc/actions/workflows/ci-mac.yml) |
+|devel | [![Linux CI](https://github.com/eclipse/xacc/actions/workflows/ci-linux.yml/badge.svg?branch=xacc-devel)](https://github.com/eclipse/xacc/actions/workflows/ci-linux.yml) [![Mac CI](https://github.com/eclipse/xacc/actions/workflows/ci-mac.yml/badge.svg?branch=xacc-devel)](https://github.com/eclipse/xacc/actions/workflows/ci-mac.yml)|
+
 
 ## Language and Hardware Independent Quantum Programming Framework
 XACC is an extensible compilation framework for hybrid quantum-classical computing architectures.
