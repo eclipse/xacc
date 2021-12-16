@@ -1,0 +1,41 @@
+name: "macOS CI"
+
+on:
+  push:
+    branches: [ master, xacc-devel ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    name: "Mac CI"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Setup XCode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      
+      - name: Create Build Environment
+        run: cmake -E make_directory build
+      
+      - name: Install ninja
+        run: brew install ninja
+      
+      - name: Install dependencies
+        run: brew install python3 openssl curl
+      
+      - name: Configure
+        working-directory: build/
+        run: export SDKROOT="`xcrun --show-sdk-path`" && cmake -GNinja $GITHUB_WORKSPACE -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE
+      
+      - name: Build
+        working-directory: build/
+        run: export SDKROOT="`xcrun --show-sdk-path`" && cmake --build . --target install
+      
+      - name: Test
+        working-directory: build/
+        run: export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HOME/.xacc/lib && ctest --output-on-failure
