@@ -15,6 +15,7 @@ set(LIBRARY_NAME xacc-iontrap)
 
 file(GLOB SRC
           *.cpp
+          accelerator/*.cpp
           decomp/*.cpp
           transformations/*.cpp)
 
@@ -25,6 +26,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
                              PUBLIC .
+                                    ./accelerator
                                     ./decomp
                                     ./transformations
                                     ${CMAKE_SOURCE_DIR}/tpls/ensmallen
