@@ -151,16 +151,49 @@ public:
   }
 
   void visit(U &u) override {
-    auto t = u.getParameter(0).toString();
-    auto p = u.getParameter(1).toString();
-    auto l = u.getParameter(2).toString();
-
-    Rz rz(u.bits()[0], t);
-    Ry ry(u.bits()[0], p);
-    Rz rz2(u.bits()[0], l);
-    visit(rz);
-    visit(ry);
-    visit(rz2);
+    auto t = u.getParameter(0).as<double>();
+    auto p = u.getParameter(1).as<double>();
+    auto l = u.getParameter(2).as<double>();
+    auto qubit = u.bits()[0];
+    {
+      // u3_qasm_def.rz(lam, 0)
+      xacc::ionq::CircuitInstruction inst;
+      inst.set_gate("rz");
+      inst.set_target(qubit);
+      inst.set_rotation(l);
+      instructions.push_back(inst);
+    }
+    {
+      // u3_qasm_def.sx(0)
+      // v = Square root of not gate
+      xacc::ionq::CircuitInstruction inst;
+      inst.set_gate("v");
+      inst.set_target(qubit);
+      instructions.push_back(inst);
+    }
+    {
+      // u3_qasm_def.rz(theta+pi, 0)
+      xacc::ionq::CircuitInstruction inst;
+      inst.set_gate("rz");
+      inst.set_target(qubit);
+      inst.set_rotation(t + M_PI);
+      instructions.push_back(inst);
+    }
+    {
+      // u3_qasm_def.sx(0)
+      xacc::ionq::CircuitInstruction inst;
+      inst.set_gate("v");
+      inst.set_target(qubit);
+      instructions.push_back(inst);
+    }
+    {
+      // u3_qasm_def.rz(phi+3*pi, 0)
+      xacc::ionq::CircuitInstruction inst;
+      inst.set_gate("rz");
+      inst.set_target(qubit);
+      inst.set_rotation(p + 3.0 * M_PI);
+      instructions.push_back(inst);
+    }
   }
 
   void visit(Rx &rx) override {

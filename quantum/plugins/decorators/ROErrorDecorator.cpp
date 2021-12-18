@@ -38,23 +38,8 @@ void ROErrorDecorator::execute(
 
   std::map<int, double> piplus, piminus;
 
-  if (properties.keyExists<std::vector<double>>("p01s") &&
-      properties.keyExists<std::vector<double>>("p10s")) {
-
-    auto p01s = properties.get<std::vector<double>>("p01s");
-    auto p10s = properties.get<std::vector<double>>("p10s");
-    for (int i = 0; i < p01s.size(); i++) {
-      piplus.insert({i, p01s[i] + p10s[i]});
-      piminus.insert({i, p01s[i] - p10s[i]});
-    }
-  } else {
-    if (!xacc::fileExists(roErrorFile)) {
-      xacc::info(
-          "Cannot find readout erro file (key 'file'). Skipping ReadoutError "
-          "correction.");
-      return;
-    }
-
+  if (xacc::fileExists(roErrorFile)) {
+    // First: if a readout error file is provided, use it (since user explicitly provided it)
     // Get RO error probs
     buffer->addExtraInfo("ro-error-file", ExtraInfo(roErrorFile));
 
@@ -78,6 +63,20 @@ void ROErrorDecorator::execute(
         piminus.insert({qbit, value["-"].GetDouble()});
       }
     }
+  } else if (properties.keyExists<std::vector<double>>("p01s") &&
+             properties.keyExists<std::vector<double>>("p10s")) {
+    // If no readout error file is provided, use the backend's p01s and p10s properties           
+    auto p01s = properties.get<std::vector<double>>("p01s");
+    auto p10s = properties.get<std::vector<double>>("p10s");
+    for (int i = 0; i < p01s.size(); i++) {
+      piplus.insert({i, p01s[i] + p10s[i]});
+      piminus.insert({i, p01s[i] - p10s[i]});
+    }
+  } else {
+    xacc::warning("Accelerator does not have readout error properties and Cannot "
+               "find readout erro file (key 'file'). Skipping ReadoutError "
+               "correction.");
+    return;
   }
 
   auto supports = [](std::shared_ptr<CompositeInstruction> f) {
@@ -184,24 +183,8 @@ void ROErrorDecorator::execute(
   if (decoratedAccelerator) {
     properties = decoratedAccelerator->getProperties();
   }
-  if (properties.keyExists<std::vector<double>>("p01s") &&
-      properties.keyExists<std::vector<double>>("p10s")) {
 
-    auto p01s = properties.get<std::vector<double>>("p01s");
-    auto p10s = properties.get<std::vector<double>>("p10s");
-    for (int i = 0; i < p01s.size(); i++) {
-
-      piplus.insert({i, p01s[i] + p10s[i]});
-      piminus.insert({i, p01s[i] - p10s[i]});
-    }
-  } else {
-
-    if (!xacc::fileExists(roErrorFile)) {
-      xacc::info(
-          "Cannot find readout error file (key 'file'). Skipping ReadoutError "
-          "correction.");
-      return;
-    }
+  if (xacc::fileExists(roErrorFile)) {
     // Get RO error probs
     buffer->addExtraInfo("ro-error-file", ExtraInfo(roErrorFile));
 
@@ -224,6 +207,22 @@ void ROErrorDecorator::execute(
         piminus.insert({qbit, value["-"].GetDouble()});
       }
     }
+  } else if (properties.keyExists<std::vector<double>>("p01s") &&
+             properties.keyExists<std::vector<double>>("p10s")) {
+
+    auto p01s = properties.get<std::vector<double>>("p01s");
+    auto p10s = properties.get<std::vector<double>>("p10s");
+    for (int i = 0; i < p01s.size(); i++) {
+
+      piplus.insert({i, p01s[i] + p10s[i]});
+      piminus.insert({i, p01s[i] - p10s[i]});
+    }
+  } else {
+    xacc::warning(
+        "Accelerator does not have readout error properties and Cannot "
+        "find readout erro file (key 'file'). Skipping ReadoutError "
+        "correction.");
+    return;
   }
 
   // Get the number of shots first

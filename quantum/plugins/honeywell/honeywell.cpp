@@ -167,13 +167,24 @@ void HoneywellAccelerator::execute(
         "Please specify a honeywell backend in your getAccelerator() call.");
   }
   auto qasm = getNativeCode(circuit);
-
-  auto backend_status = get(url, "machine/"+backend, generateRequestHeader());
-  auto status_J = nlohmann::json::parse(backend_status);
-  if (status_J["state"] != "online") {
-    xacc::error("Cannot run on " + backend + ", it is not online.");
+  while (true) {
+    auto backend_status =
+        get(url, "machine/" + backend, generateRequestHeader());
+    auto status_J = nlohmann::json::parse(backend_status);
+    // xacc::info("\nHoneywell status:\n" + backend_status);
+    // If offline, terminate
+    if (status_J["state"] == "offline") {
+      xacc::error("Cannot run on " + backend + ", it is offline.");
+    }
+    // If online, continue to run
+    if (status_J["state"] == "online") {
+      break;
+    }
+    // If status = 'in maintenance', wait for a bit and try again
+    xacc::info("Honeywell is '" + std::string(status_J["state"]) +
+               "', waiting for a bit...");
+    std::this_thread::sleep_for(std::chrono::seconds(60));
   }
-
   xacc::info("\nHoneywell sending qasm:\n" + qasm);
 
   nlohmann::json j;

@@ -30,6 +30,8 @@ namespace {
 // By default, this accelerator targets ORNL's QLM installation.
 // It can be used w/ other QLM by providing the host address explicitly.
 const std::string QLM_HOST_NAME = "quantumbull.ornl.gov";
+// Remote access QLM (via qlmaas) limits the number of CPU threads.
+constexpr int QLMAAS_MAX_CORE_COUNT = 75;
 
 inline bool isMeasureGate(const xacc::InstPtr &in_instr) {
   return (in_instr->name() == "Measure");
@@ -1010,7 +1012,7 @@ void QlmAccelerator::execute(
       if (!m_remoteAccess) {
         return m_qlmQpuServer.attr("submit")(qlmJob);
       } else {
-        auto asynchronous_result = m_qlmQpuServer.attr("submit")(qlmJob);
+        auto asynchronous_result = m_qlmQpuServer.attr("submit")(qlmJob, "core_usage"_a = QLMAAS_MAX_CORE_COUNT);
         // wait
         auto sync_result = asynchronous_result.attr("join")();
         return sync_result;
@@ -1039,7 +1041,7 @@ void QlmAccelerator::execute(
       if (!m_remoteAccess) {
         return m_qlmQpuServer.attr("submit")(qlmJob);
       } else {
-        auto asynchronous_result = m_qlmQpuServer.attr("submit")(qlmJob);
+        auto asynchronous_result = m_qlmQpuServer.attr("submit")(qlmJob, "core_usage"_a = QLMAAS_MAX_CORE_COUNT);
         // wait
         auto sync_result = asynchronous_result.attr("join")();
         return sync_result;
@@ -1068,7 +1070,7 @@ void QlmAccelerator::execute(
     if (!m_remoteAccess) {
       return m_qlmQpuServer.attr("submit")(batch);
     } else {
-      auto asynchronous_result = m_qlmQpuServer.attr("submit")(batch);
+      auto asynchronous_result = m_qlmQpuServer.attr("submit")(batch, "core_usage"_a = QLMAAS_MAX_CORE_COUNT);
       // wait
       auto sync_result = asynchronous_result.attr("join")();
       return sync_result;

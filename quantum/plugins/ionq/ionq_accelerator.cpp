@@ -50,6 +50,20 @@ void IonQAccelerator::initialize(const HeterogeneousMap &params) {
   }
 }
 
+// Note: IonQ don't support batching. 
+void IonQAccelerator::execute(
+    std::shared_ptr<AcceleratorBuffer> buffer,
+    const std::vector<std::shared_ptr<CompositeInstruction>> circuits) {
+  for (const auto &f : circuits) {
+    auto tmpBuffer =
+        std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size());
+    // Run each circuit
+    RemoteAccelerator::execute(tmpBuffer, f);
+    // tmpBuffer->print();
+    buffer->appendChild(f->name(), tmpBuffer);
+  }
+}
+
 const std::string IonQAccelerator::processInput(
     std::shared_ptr<AcceleratorBuffer> buffer,
     std::vector<std::shared_ptr<CompositeInstruction>> functions) {
@@ -80,7 +94,7 @@ const std::string IonQAccelerator::processInput(
   using json = nlohmann::json;
   json jj;
   to_json(jj, prog);
-
+  xacc::info("IonQ Job JSON:\n" + jj.dump(4) + "\n");
   return jj.dump();
 }
 
@@ -145,6 +159,8 @@ void IonQAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
     buffer->appendMeasurement(getBitStrForInt(std::stoi(kv.first)),
                               std::ceil(kv.second * shots));
   }
+
+  xacc::info("IonQ Result JSON:\n" + j.dump(4) + "\n");
   return;
 }
 

@@ -13,5 +13,8 @@
 #   Austin Adams - adaption for GTRI testbed
 # *******************************************************************************/
 
+add_xacc_test(IonTrapOneQubitPass)
+target_link_libraries(IonTrapOneQubitPassTester xacc-iontrap)
+
 add_xacc_test(IonTrapTwoQubitPass)
 target_link_libraries(IonTrapTwoQubitPassTester xacc-iontrap)
