@@ -18,6 +18,7 @@
 #include "xacc_service.hpp"
 #include "AlgorithmGradientStrategy.hpp"
 #include <iomanip>
+#include "InstructionIterator.hpp"
 
 using namespace xacc;
 
@@ -52,6 +53,8 @@ public:
 
     obs = parameters.get<std::shared_ptr<Observable>>("observable");
 
+    // Default step size
+    step = 1.0e-7; 
     // Change step size if need be
     if (parameters.keyExists<double>("step")) {
       step = parameters.get<double>("step");
@@ -70,7 +73,18 @@ public:
   std::vector<std::shared_ptr<CompositeInstruction>>
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
                         const std::vector<double> &x) override {
-
+    // Check if the composite contains measure gates
+    const auto containMeasureGates =
+        [](std::shared_ptr<CompositeInstruction> f) -> bool {
+      InstructionIterator it(f);
+      while (it.hasNext()) {
+        auto nextInst = it.next();
+        if (nextInst->name() == "Measure") {
+          return true;
+        }
+      }
+      return false;
+    };
     // std::stringstream ss;
     // ss << std::setprecision(5) << "Input parameters: ";
     // for (auto param : x) {
@@ -90,8 +104,10 @@ public:
         auto evaled_base = kernel_evaluator(tmpX);
         kernels = obs->observe(evaled_base);
         for (auto &f : kernels) {
-          coefficients.push_back(std::real(f->getCoefficient()));
-          gradientInstructions.push_back(f);
+          if (containMeasureGates(f)) {
+            coefficients.push_back(std::real(f->getCoefficient()));
+            gradientInstructions.push_back(f);
+          }
         }
       } else {
         kernels = obs->observe(circuit);
@@ -99,13 +115,18 @@ public:
         // loop over circuit instructions
         // and gather coefficients/instructions
         for (auto &f : kernels) {
-          auto evaled = f->operator()(tmpX);
-          coefficients.push_back(std::real(f->getCoefficient()));
-          gradientInstructions.push_back(evaled);
+          if (containMeasureGates(f)) {
+            auto evaled = f->operator()(tmpX);
+            coefficients.push_back(std::real(f->getCoefficient()));
+            gradientInstructions.push_back(evaled);
+          }
         }
       }
 
-      nInstructionsElement.push_back(kernels.size());
+      const auto numberGradKernels = std::count_if(
+          kernels.begin(), kernels.end(),
+          [&containMeasureGates](auto &f) { return containMeasureGates(f); });
+      nInstructionsElement.push_back(numberGradKernels);
     }
 
     return gradientInstructions;
@@ -119,8 +140,9 @@ public:
     int shift = 0;
     // loop over the remaining number of entries in the gradient vector
     for (int gradTerm = 0; gradTerm < dx.size(); gradTerm++) {
-
-      double gradElement = 0.0;
+      auto identityTerm = obs->getIdentitySubTerm();
+      double gradElement =
+          identityTerm ? identityTerm->coefficient().real() : 0.0;
 
       // loop over instructions for a given term, compute <+> and <->
       for (int instElement = 0; instElement < nInstructionsElement[gradTerm];

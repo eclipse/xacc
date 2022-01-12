@@ -14,6 +14,7 @@
 #define XACC_PARAMETER_SHIFT_GRADIENT_HPP_
 
 #include "CompositeInstruction.hpp"
+#include "InstructionIterator.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "AlgorithmGradientStrategy.hpp"
@@ -48,7 +49,9 @@ public:
           parameters.get<std::function<std::shared_ptr<CompositeInstruction>(
               std::vector<double>)>>("kernel-evaluator");
     }
-
+    // Default shiftScalar (this is not clonable, hence need to be
+    // reinitialized)
+    shiftScalar = 0.25;
     if (parameters.keyExists<double>("shift-scalar")) {
       shiftScalar = parameters.get<double>("shift-scalar");
     }
@@ -63,9 +66,23 @@ public:
   std::vector<std::shared_ptr<CompositeInstruction>>
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
                         const std::vector<double> &x) override {
+    // Check if the composite contains measure gates
+    const auto containMeasureGates =
+        [](std::shared_ptr<CompositeInstruction> f) -> bool {
+      InstructionIterator it(f);
+      while (it.hasNext()) {
+        auto nextInst = it.next();
+        if (nextInst->name() == "Measure") {
+          return true;
+        }
+      }
+      return false;
+    };
 
     std::vector<std::shared_ptr<CompositeInstruction>> gradientInstructions;
-
+    // Note: for the purpose of parameter-shift gradient calculation, the
+    // identity term has no effect, i.e., its contributions to the plus and
+    // minus sides will cancel out.
     // loop over parameters
     for (int param = 0; param < x.size(); param++) {
       // parameter shift sign
@@ -81,8 +98,10 @@ public:
           auto evaled_base = kernel_evaluator(tmpX);
           kernels = obs->observe(evaled_base);
           for (auto &f : kernels) {
-            coefficients.push_back(std::real(f->getCoefficient()));
-            gradientInstructions.push_back(f);
+            if (containMeasureGates(f)) {
+              coefficients.push_back(std::real(f->getCoefficient()));
+              gradientInstructions.push_back(f);
+            }
           }
         } else {
           kernels = obs->observe(circuit);
@@ -90,16 +109,22 @@ public:
           // loop over circuit instructions
           // and gather coefficients/instructions
           for (auto &f : kernels) {
-            auto evaled = f->operator()(tmpX);
-            coefficients.push_back(std::real(f->getCoefficient()));
-            gradientInstructions.push_back(evaled);
+            if (containMeasureGates(f)) {
+              auto evaled = f->operator()(tmpX);
+              coefficients.push_back(std::real(f->getCoefficient()));
+              gradientInstructions.push_back(evaled);
+            }
           }
         }
 
         // the number of instructions for a given element of x is the same
-        // regardless of the parameter sign, so we need only one of this
+        // regardless of the parameter sign, so we need only one of this.
         if (sign == 1.0) {
-          nInstructionsElement.push_back(kernels.size());
+          const auto numberGradKernels = std::count_if(
+              kernels.begin(), kernels.end(), [&containMeasureGates](auto &f) {
+                return containMeasureGates(f);
+              });
+          nInstructionsElement.push_back(numberGradKernels);
         }
       }
     }
@@ -121,7 +146,6 @@ public:
       // loop over instructions for a given term, compute <+> and <->
       for (int instElement = 0; instElement < nInstructionsElement[gradTerm];
            instElement++) {
-
         auto plus_expval =
             std::real(results[instElement + shift]->getExpectationValueZ());
         auto minus_expval = std::real(
