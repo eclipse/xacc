@@ -34,7 +34,7 @@ namespace xacc {
 namespace quantum {
 class QrackVisitor : public AllGateVisitor, public OptionsProvider, public xacc::Cloneable<QrackVisitor> {
 public:
-  void initialize(std::shared_ptr<AcceleratorBuffer> buffer, int shots, bool use_opencl, bool use_qunit, bool use_opencl_multi, bool use_stabilizer, int device_id, bool doNormalize, double zero_threshold);
+  void initialize(std::shared_ptr<AcceleratorBuffer> buffer, int shots, bool use_opencl, bool use_qunit, bool use_opencl_multi, bool use_stabilizer, bool use_binary_decision_tree, bool use_paging, bool use_z_x_fusion, bool use_cpu_gpu_hybrid, int device_id, bool doNormalize, double zero_threshold);
   void finalize();
 
   void visit(Hadamard& h) override;
