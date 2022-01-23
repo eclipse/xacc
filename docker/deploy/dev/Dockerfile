@@ -1,4 +1,4 @@
-from xacc/ubuntu:20.04
+FROM xacc/ubuntu:20.04
 ARG NODE_VERSION=12.18.3
 ENV NODE_VERSION $NODE_VERSION
 ENV YARN_VERSION 1.22.5
@@ -17,17 +17,15 @@ ADD settings.json /home/dev/.theia/
 # More deps (not in the xacc/ubuntu:20.04)
 RUN apt-get update && \
     apt-get --no-install-recommends -y install libsecret-1-dev gfortran\
-                       curl vim  xz-utils \
-                       && python3 -m pip install --upgrade pip --user \
-                       && python3 -m pip install setuptools \
-                       && python3 -m pip install python-language-server flake8 autopep8 \
-                                cmake ipopo pint numpy scipy pydantic qiskit pylint pyquil cirq matplotlib openfermion pyscf  \
+    curl vim  xz-utils \
+    && python3 -m pip install --upgrade pip --user \
+    && python3 -m pip install setuptools \
+    && python3 -m pip install python-language-server flake8 autopep8 \
+    cmake ipopo pint numpy scipy pydantic qiskit pylint pyquil cirq matplotlib openfermion pyscf  \
     && apt-get install -y gpg && rm -rf /var/lib/apt/lists/* \
-
-#Install node and yarn
-#From: https://github.com/nodejs/docker-node/blob/6b8d86d6ad59e0d1e7a94cec2e909cad137a028f/8/Dockerfile
-# gpg keys listed at https://github.com/nodejs/node#release-keys
-
+    #Install node and yarn
+    #From: https://github.com/nodejs/docker-node/blob/6b8d86d6ad59e0d1e7a94cec2e909cad137a028f/8/Dockerfile
+    # gpg keys listed at https://github.com/nodejs/node#release-keys
     && set -ex \
     && for key in \
     4ED778F539E3634C779C87C6D7062848A1AB005C \
@@ -47,7 +45,6 @@ RUN apt-get update && \
     gpg --batch --keyserver pgp.mit.edu --recv-keys "$key" || \
     gpg --batch --keyserver keyserver.pgp.com --recv-keys "$key" ; \
     done \
-
     && ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
     amd64) ARCH='x64';; \
@@ -65,8 +62,6 @@ RUN apt-get update && \
     && tar -xJf "node-v$NODE_VERSION-linux-$ARCH.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
     && rm "node-v$NODE_VERSION-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
-
-
     && set -ex \
     && for key in \
     6A010C5166006599AA17F08146C2130DFD2497F5 \
@@ -84,19 +79,17 @@ RUN apt-get update && \
     && ln -s /opt/yarn/bin/yarn /usr/local/bin/yarn \
     && ln -s /opt/yarn/bin/yarn /usr/local/bin/yarnpkg \
     && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz \
-
-#C/C++ Developer tools
-# install clangd and clang-tidy from the public LLVM PPA (nightly build / development version)
-# and also the GDB debugger, cmake from the Ubuntu repos
-
+    #C/C++ Developer tools
+    # install clangd and clang-tidy from the public LLVM PPA (nightly build / development version)
+    # and also the GDB debugger, cmake from the Ubuntu repos
     && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal main" > /etc/apt/sources.list.d/llvm.list && \
     apt-get update && \
     apt-get install --no-install-recommends -y \
-                       clang-tools-$LLVM \
-                       clangd-$LLVM \
-                       clang-tidy-$LLVM \
-                       gdb && \
+    clang-tools-$LLVM \
+    clangd-$LLVM \
+    clang-tidy-$LLVM \
+    gdb && \
     ln -s /usr/bin/clang-$LLVM /usr/bin/clang && \
     ln -s /usr/bin/clang++-$LLVM /usr/bin/clang++ && \
     ln -s /usr/bin/clang-cl-$LLVM /usr/bin/clang-cl && \
@@ -105,14 +98,14 @@ RUN apt-get update && \
     ln -s /usr/bin/clangd-$LLVM /usr/bin/clangd && \
     rm -rf /var/lib/apt/lists/* 
 
-run cd /home/dev && git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
+RUN cd /home/dev && git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
     && cmake .. -DXACC_BUILD_EXAMPLES=TRUE \
     && make -j$(nproc) install \
     && cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
     && cmake .. -DXACC_DIR=~/.xacc && make -j$(nproc) install 
 
 # Theia application
-workdir /home/dev
+WORKDIR /home/dev
 ARG version=latest
 ADD $version.package.json ./package.json
 
