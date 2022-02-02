@@ -65,7 +65,7 @@ you are using the same `python3` executable that was set during your build.
 
 Clone the repository recursively, configure with `cmake` and build with `make`
 ```bash
-$ git clone https://github.com/eclipse/xacc
+$ git clone --recursive https://github.com/eclipse/xacc
 $ cd xacc && mkdir build && cd build
 [default cmake call]
 $ cmake ..
