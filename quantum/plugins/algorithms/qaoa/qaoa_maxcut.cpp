@@ -271,6 +271,13 @@ namespace algorithm {
         if (parameters.keyExists<bool>("shuffle-terms")) {
           m_shuffleTerms = parameters.get<bool>("shuffle-terms");
         }
+
+        if (parameters.stringExists("gradient_strategy")) {
+          gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(
+              parameters.getString("gradient_strategy"));
+          gradientStrategy->initialize({{"observable", m_costHamObs}});
+        }
+
         if (m_optimizer && m_optimizer->isGradientBased() &&
             gradientStrategy == nullptr) {
             // No gradient strategy was provided, just use autodiff.
@@ -294,7 +301,9 @@ namespace algorithm {
         m.insert("steps", m_nbSteps);
         m.insert("parameter-scheme", "Standard");
         m.insert("shuffle-terms", m_shuffleTerms);
-
+        if (gradientStrategy) {
+          m.insert("gradient_strategy", gradientStrategy);
+        }
         if (m_initializationMode == "warm-start") {
             m.insert("initial-state", warm_start(m_graph));
         } else if (m_initial_state){
@@ -318,7 +327,9 @@ namespace algorithm {
         m.insert("steps", m_nbSteps);
         m.insert("parameter-scheme", "Standard");
         m.insert("shuffle-terms", m_shuffleTerms);
-
+        if (gradientStrategy) {
+          m.insert("gradient_strategy", gradientStrategy);
+        }
         // If: warm-start selected, call the warm start function
         // and use as initial-state.
         // Else if: custom initial-state given, pass that to the
