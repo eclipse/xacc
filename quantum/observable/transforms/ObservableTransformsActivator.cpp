@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "JW.hpp"
+#include "BK.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -33,8 +34,11 @@ public:
   /**
    */
   void Start(BundleContext context) {
-    auto c = std::make_shared<xacc::quantum::JW>();
-    context.RegisterService<xacc::ObservableTransform>(c);
+    auto jw = std::make_shared<xacc::quantum::JW>();
+    context.RegisterService<xacc::ObservableTransform>(jw);
+
+    auto bk = std::make_shared<xacc::quantum::BK>();
+    context.RegisterService<xacc::ObservableTransform>(bk);
   }
 
   /**

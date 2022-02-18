@@ -162,6 +162,12 @@ void bind_quantum(py::module &m) {
                std::shared_ptr<xacc::CompositeInstruction>)) &
                xacc::Observable::observe,
            "")
+      .def("observe",
+           (std::vector<std::shared_ptr<xacc::CompositeInstruction>>(
+               xacc::Observable::*)(
+               std::shared_ptr<xacc::CompositeInstruction>, std::string)) &
+               xacc::Observable::observe,
+           "")
       .def(py::init<>())
       .def(py::init<std::complex<double>>())
       .def(py::init<double>())
@@ -209,6 +215,8 @@ void bind_quantum(py::module &m) {
       .def("generate", &OperatorPool::generate)
       .def("operatorString", &OperatorPool::operatorString)
       .def("getOperatorInstructions", &OperatorPool::getOperatorInstructions)
+      .def("needsNumberOfParticles", &OperatorPool::needsNumberOfParticles)
+      .def("setIfNeedsNumberOfParticles", &OperatorPool::setIfNeedsNumberOfParticles)
       .def(
           "optionalParameters",
           [](OperatorPool &op, PyHeterogeneousMap &params) {

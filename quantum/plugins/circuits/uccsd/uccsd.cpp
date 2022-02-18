@@ -52,31 +52,31 @@ bool UCCSD::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   if (runtimeOptions.stringExists("pool")) {
 
-    auto pool = xacc::getService<OperatorPool>(runtimeOptions.getString("pool"));
+    auto pool =
+        xacc::getService<OperatorPool>(runtimeOptions.getString("pool"));
     pool->optionalParameters({std::make_pair("n-electrons", nElectrons)});
     auto operators = pool->generate(nQubits);
     PauliOperator sum, refOp;
 
     int i = 0;
     // loop over pointers to operators
-    for(auto& op : operators){
+    for (auto &op : operators) {
 
-      // get reference to the pointer 
+      // get reference to the pointer
       refOp = *std::dynamic_pointer_cast<PauliOperator>(op);
-      for (auto term : refOp.getTerms()){
+      for (auto term : refOp.getTerms()) {
 
-        //construct operator with parameter label
-        PauliOperator paramOp(term.second.ops(), term.second.coeff(), "theta" + std::to_string(i));
+        // construct operator with parameter label
+        PauliOperator paramOp(term.second.ops(), term.second.coeff(),
+                              "theta" + std::to_string(i));
         sum += paramOp;
- 
       }
 
       // add variable only if the operator is not zero
-      if(!refOp.getTerms().empty()){
+      if (!refOp.getTerms().empty()) {
         addVariable("theta" + std::to_string(i));
         i++;
       }
-
     }
 
     terms = sum.getTerms();
@@ -119,8 +119,8 @@ bool UCCSD::expand(const xacc::HeterogeneousMap &runtimeOptions) {
     auto singleParams = slice(params, 0, nSingle);
     auto doubleParams1 = slice(params, nSingle, 2 * nSingle);
     auto doubleParams2 = slice(params, 2 * nSingle);
-    std::vector<std::function<int(int, int)>> fs{[](int i, int n) { return i; },
-                                            [](int i, int n) { return i + n; }};
+    std::vector<std::function<int(int, int)>> fs{
+        [](int i, int n) { return i; }, [](int i, int n) { return i + n; }};
 
     using OpType = std::vector<std::pair<int, bool>>;
     int count = 0;
@@ -206,17 +206,22 @@ bool UCCSD::expand(const xacc::HeterogeneousMap &runtimeOptions) {
       count++;
     }
 
-    auto jw = xacc::getService<ObservableTransform>("jw");
+    std::shared_ptr<ObservableTransform> mapping;
+    if (runtimeOptions.stringExists("transform")) {
+      mapping = xacc::getService<ObservableTransform>(
+          runtimeOptions.getString("transform"));
+    } else {
+      mapping = xacc::getService<ObservableTransform>("jw");
+    }
 
-    auto compositeResult =
-        jw->transform(std::shared_ptr<Observable>(&myOp, [](Observable *) {}));
+    auto compositeResult = mapping->transform(
+        std::shared_ptr<Observable>(&myOp, [](Observable *) {}));
 
-    terms = std::dynamic_pointer_cast<PauliOperator>(compositeResult)->getTerms();
-
+    terms =
+        std::dynamic_pointer_cast<PauliOperator>(compositeResult)->getTerms();
   }
 
   auto pi = xacc::constants::pi;
-int co = 0;
   auto gateRegistry = xacc::getIRProvider("quantum");
   for (auto inst : terms) {
 
@@ -261,12 +266,11 @@ int co = 0;
 
         // this is necessary for the qubit pool
         // which has single Y terms
-        if(tempFunction->nInstructions() == 0){
+        if (tempFunction->nInstructions() == 0) {
           tempFunction->addInstruction(rx);
         } else {
           tempFunction->insertInstruction(0, rx);
         }
-
       }
 
       // Add the Rotation for the last term
@@ -282,7 +286,6 @@ int co = 0;
         rz->setParameter(0, p);
         tempFunction->addInstruction(rz);
       }
-
     }
 
     int counter = tempFunction->nInstructions();
@@ -299,8 +302,8 @@ int co = 0;
         auto cnot = gateRegistry->createInstruction(
             "CNOT", std::vector<std::size_t>{qbitIdx, tmp});
 
-        // this is necessary for the qubit pool 
-        if(counter == tempFunction->nInstructions()){
+        // this is necessary for the qubit pool
+        if (counter == tempFunction->nInstructions()) {
           tempFunction->addInstruction(cnot);
         } else {
           tempFunction->insertInstruction(counter, cnot);
@@ -321,12 +324,10 @@ int co = 0;
       }
     }
 
-    
     // Add to the total UCCSD State Prep function
     for (auto inst : tempFunction->getInstructions()) {
       addInstruction(inst);
     }
-
   }
 
   for (int i = (nElectrons / 2) - 1; i >= 0; i--) {

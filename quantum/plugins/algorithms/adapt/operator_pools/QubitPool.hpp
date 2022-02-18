@@ -38,6 +38,10 @@ public:
 
   QubitPool() = default;
 
+  bool needsNumberOfParticles() const override {
+    return false;
+  }
+
   bool optionalParameters(const HeterogeneousMap parameters) override {
     return true;
   }

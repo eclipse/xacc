@@ -63,6 +63,10 @@ public:
     exit(0);
     return;
   }
+
+  virtual void setIfNeedsNumberOfParticles(const bool) {
+    return;
+  }
   // end of custom pool methods
 
   virtual bool optionalParameters(const HeterogeneousMap parameters) = 0;
@@ -74,6 +78,11 @@ public:
 
   virtual std::shared_ptr<CompositeInstruction>
   getOperatorInstructions(const int opIdx, const int varIdx) const = 0;
+
+  // this is for pools that needs number of electrons
+  // but should come in handy for any Hamiltonians with "fillings"
+  // e.g, Hubbard
+  virtual bool needsNumberOfParticles() const = 0;
 
   virtual std::vector<std::shared_ptr<Observable>>
   getExcitationOperators(const int &nQubits) {

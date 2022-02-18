@@ -11,18 +11,23 @@
 
 namespace xacc {
 
-template <typename T>
-bool ptr_is_a(std::shared_ptr<Observable> ptr) {
+template <typename T> bool ptr_is_a(std::shared_ptr<Observable> ptr) {
   return std::dynamic_pointer_cast<T>(ptr) != nullptr;
 }
-std::shared_ptr<xacc::Observable> QubitTapering::transform(
-    std::shared_ptr<xacc::Observable> Hptr_input) {
+std::shared_ptr<xacc::Observable>
+QubitTapering::transform(std::shared_ptr<xacc::Observable> Hptr_input) {
 
   // First we pre-process the observable to a PauliOperator
   auto obs_str = Hptr_input->toString();
-  auto fermi_to_pauli = xacc::getService<xacc::ObservableTransform>("jw");
+  std::shared_ptr<xacc::ObservableTransform> fermi_to_pauli;
+  if (_options.stringExists("transform")) {
+    fermi_to_pauli = xacc::getService<xacc::ObservableTransform>(
+        _options.getString("transform"));
+  } else {
+    fermi_to_pauli = xacc::getService<xacc::ObservableTransform>("jw");
+  }
   std::shared_ptr<xacc::Observable> Hptr;
-  if (ptr_is_a<FermionOperator>(Hptr_input)) {  
+  if (ptr_is_a<FermionOperator>(Hptr_input)) {
     Hptr = fermi_to_pauli->transform(Hptr_input);
   } else if (obs_str.find("^") != std::string::npos) {
     auto fermionObservable = xacc::quantum::getObservable("fermion", obs_str);
@@ -34,7 +39,8 @@ std::shared_ptr<xacc::Observable> QubitTapering::transform(
              obs_str.find("Z") != std::string::npos) {
     Hptr = xacc::quantum::getObservable("pauli", obs_str);
   } else {
-    xacc::error("[Qubit Tapering] Error, cannot cast incoming Observable ptr to something we can process.");
+    xacc::error("[Qubit Tapering] Error, cannot cast incoming Observable ptr "
+                "to something we can process.");
   }
 
   // Convert the IR into a Hamiltonian
@@ -96,7 +102,8 @@ std::shared_ptr<xacc::Observable> QubitTapering::transform(
         generators.insert(tau);
         counter++;
 
-        if (counter == ker_dim) break;
+        if (counter == ker_dim)
+          break;
 
         for (auto &g : generators) {
           std::vector<int> s(2 * n);
@@ -164,10 +171,12 @@ std::shared_ptr<xacc::Observable> QubitTapering::transform(
       doubleNSet, nSet;
 
   // Generate range(2*n)
-  for (int i = 0; i < 2 * n; i++) doubleNSet.insert(i);
+  for (int i = 0; i < 2 * n; i++)
+    doubleNSet.insert(i);
 
   // Generate range(n)
-  for (int i = 0; i < n; i++) nSet.insert(i);
+  for (int i = 0; i < n; i++)
+    nSet.insert(i);
 
   // Create the phase_sites set which is the difference between
   // range(2*nQ) and the hPrimePivotSet
@@ -187,7 +196,8 @@ std::shared_ptr<xacc::Observable> QubitTapering::transform(
   std::vector<std::vector<int>> phase_configs =
       generateCombinations(phase_sites.size(), [&](std::vector<int> &tmp) {
         for (int i = 0; i < phase_sites.size(); i++) {
-          if (tmp[i] == 0) tmp[i] = -1;
+          if (tmp[i] == 0)
+            tmp[i] = -1;
         }
         return;
       });
@@ -380,7 +390,8 @@ std::vector<std::vector<int>> QubitTapering::generateCombinations(
   for (int nOnes = 0; nOnes <= n; nOnes++) {
     std::vector<int> test(n);
 
-    for (int k = 0; k < nOnes; k++) test[n - k - 1] = 1;
+    for (int k = 0; k < nOnes; k++)
+      test[n - k - 1] = 1;
 
     do {
       // Perform custom mapping on the vector before adding
@@ -438,12 +449,14 @@ Eigen::MatrixXi QubitTapering::gauss(Eigen::MatrixXi &A,
         break;
       }
     }
-    if (!found_row) sc += 1;
+    if (!found_row)
+      sc += 1;
   }
 
   unsigned row2 = 0;
   for (unsigned col = 0; col < A.cols() && row2 < A.rows(); col++) {
-    if (std::fabs(A(row2, col)) < 1e-12) continue;
+    if (std::fabs(A(row2, col)) < 1e-12)
+      continue;
 
     pivotCols.push_back(col);
     row2++;
@@ -452,6 +465,6 @@ Eigen::MatrixXi QubitTapering::gauss(Eigen::MatrixXi &A,
   return A;
 }
 
-}  // namespace xacc
+} // namespace xacc
 
 REGISTER_PLUGIN(xacc::QubitTapering, xacc::ObservableTransform)
