@@ -67,6 +67,8 @@ public:
 
   virtual bool optionalParameters(const HeterogeneousMap parameters) = 0;
 
+  virtual bool isNumberOfParticlesRequired() const { return false; };
+
   virtual std::vector<std::shared_ptr<Observable>>
   generate(const int &nQubits) = 0;
 

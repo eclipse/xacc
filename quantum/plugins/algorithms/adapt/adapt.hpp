@@ -15,8 +15,9 @@
 
 #include "Algorithm.hpp"
 #include "Observable.hpp"
-#include "PauliOperator.hpp"
 #include "OperatorPool.hpp"
+#include <memory>
+#include <vector>
 
 using namespace xacc::quantum;
 
@@ -31,7 +32,7 @@ protected:
   std::shared_ptr<Accelerator> accelerator;
   std::shared_ptr<OperatorPool> pool; 
   std::shared_ptr<CompositeInstruction> initialState; 
-  std::string subAlgo; // sub-algorithm, either VQE or QAOA
+  std::string subAlgorithm; // sub-algorithm, either VQE or QAOA
   HeterogeneousMap _parameters;
 
   //ADAPT parameters
@@ -39,13 +40,19 @@ protected:
   double _adaptThreshold = 1.0e-2; // gradient norm threshold
   double _printThreshold = 1.0e-10; // threshold to print commutator
   bool _printOps = false; // set to true to print operators at every iteration
-  int _nElectrons; // # of electrons, used for VQE
+  int _nParticles; // # of particles/electrons, used for VQE
 
   std::vector<int> checkpointOps; // indices of operators to construct initial ansatz
   std::vector<double> checkpointParams; // initial parameters for initial ansatz
   // name of class to compute gradient for optimization
   // defaults to parameter shift
-  std::string gradStrategyName = "parameter-shift-gradient"; 
+  std::string gradStrategyName = "parameter-shift-gradient";
+
+  std::vector<std::string> physicalSubAlgorithms = {"vqe", "qcmx", "qeom"};
+  std::vector<std::string> physicalPools = {"singlet-adapted-uccsd", "singles-doubles-pool", "qubit-pool"};
+
+  std::shared_ptr<CompositeInstruction> getHartreeFockState(const std::size_t nBits) const;
+  std::shared_ptr<CompositeInstruction> getQAOAInitialState(const std::size_t nBits) const;
 
 public:
 
