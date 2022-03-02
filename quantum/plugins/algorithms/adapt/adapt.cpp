@@ -14,9 +14,9 @@
 #include "adapt.hpp"
 
 #include "AcceleratorBuffer.hpp"
-#include "CommonGates.hpp"
 #include "CompositeInstruction.hpp"
 #include "ObservableTransform.hpp"
+#include "PauliOperator.hpp"
 #include "Utils.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
@@ -91,28 +91,25 @@ bool ADAPT::initialize(const HeterogeneousMap &parameters) {
         parameters.get<std::shared_ptr<CompositeInstruction>>("initial-state");
   }
 
-  if (!initialState && subAlgorithm != "QAOA" &&
-      !(parameters.keyExists<int>("n-electrons") ||
-        parameters.keyExists<int>("n-particles"))) {
-    xacc::error("This simulation needs the number of particles/electrons.");
-    return false;
-  }
-
   // adding the number of particles for future model Hamiltonians
   if (parameters.keyExists<int>("n-electrons") ||
       parameters.keyExists<int>("n-particles")) {
     _nParticles = parameters.get<int>("n-electrons");
   }
 
-  if (pool->isNumberOfParticlesRequired()) {
-    if (parameters.keyExists<int>("n-electrons") ||
-        parameters.keyExists<int>("n-particles")) {
-      pool->optionalParameters({{"n-electrons", _nParticles}});
-    } else {
-      xacc::error(
-          "The chosen pool requires the number of particles/electrons.");
-      return false;
-    }
+  if (subAlgorithm != "QAOA" && !(parameters.keyExists<int>("n-electrons") ||
+                                  parameters.keyExists<int>("n-particles"))) {
+    xacc::error("This simulation needs the number of particles/electrons.");
+    return false;
+  }
+
+  if (pool->isNumberOfParticlesRequired() &&
+      (parameters.keyExists<int>("n-electrons") ||
+       parameters.keyExists<int>("n-particles"))) {
+    pool->optionalParameters({{"n-electrons", _nParticles}});
+  } else {
+    xacc::error("The chosen pool requires the number of particles/electrons.");
+    return false;
   }
 
   // Check if Observable is Fermion or Pauli and manipulate accordingly
@@ -153,7 +150,6 @@ const std::vector<std::string> ADAPT::requiredParameters() const {
 void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   std::stringstream ss;
-
   // Instantiate adaptive circuit and add instructions from initial state
   // initial state for chemistry VQE is usually HF
   // initial state for QAOA is all |+>
@@ -208,14 +204,17 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   }
 
   // Gather all unique commutator terms
-  std::vector<std::shared_ptr<Observable>> uniqueCommutatorTerms;
+  std::map<std::string, std::shared_ptr<Observable>> uniqueCommutatorTerms;
   for (auto &commutator : commutators) {
 
     for (auto &term : commutator->getNonIdentitySubTerms()) {
 
-      if (std::find(uniqueCommutatorTerms.begin(), uniqueCommutatorTerms.end(),
-                    term) == uniqueCommutatorTerms.end()) {
-        uniqueCommutatorTerms.push_back(term);
+      auto termName = std::dynamic_pointer_cast<PauliOperator>(term)
+                          ->getTerms()
+                          .begin()
+                          ->first;
+      if (uniqueCommutatorTerms.find(termName) == uniqueCommutatorTerms.end()) {
+        uniqueCommutatorTerms[termName] = term;
       }
     }
   }
@@ -255,24 +254,27 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     std::vector<std::shared_ptr<CompositeInstruction>> observedKernels;
     for (auto &term : uniqueCommutatorTerms) {
 
-      std::vector<std::shared_ptr<CompositeInstruction>> termObservedKernels;
+      std::vector<std::shared_ptr<CompositeInstruction>> termObservedKernel;
       if (x.empty()) {
-        termObservedKernels = term->observe(ansatz);
+        termObservedKernel = term.second->observe(ansatz);
       } else {
         auto tmp_x = x;
         std::reverse(tmp_x.begin(), tmp_x.end());
         auto evaled = ansatz->operator()(tmp_x);
-        termObservedKernels = term->observe(evaled);
+        termObservedKernel = term.second->observe(evaled);
       }
-
-      observedKernels.insert(observedKernels.end(), termObservedKernels.begin(),
-                             termObservedKernels.end());
+      observedKernels.insert(observedKernels.end(), termObservedKernel.begin(),
+                             termObservedKernel.end());
     }
 
     // execute all unique terms
     auto tmpBuffer = xacc::qalloc(buffer->size());
     accelerator->execute(tmpBuffer, observedKernels);
-    auto buffers = tmpBuffer->getChildren();
+
+    std::map<std::string, std::shared_ptr<AcceleratorBuffer>> termToBuffer;
+    for (auto &buffer : tmpBuffer->getChildren()) {
+      termToBuffer[buffer->name()] = buffer;
+    }
 
     int maxCommutatorIdx = 0;
     double maxCommutator = 0.0, gradientNorm = 0.0;
@@ -281,20 +283,13 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     for (int operatorIdx = 0; operatorIdx < commutators.size(); operatorIdx++) {
 
       double commutatorValue = 0.0;
-
-      // loop over the terms in each commutator
-      // and locate their child buffer to retrieve the expectation value
       for (auto &term : commutators[operatorIdx]->getNonIdentitySubTerms()) {
-
-        double expectedValueZ;
-        for (auto &child : buffers) {
-          if (term->toString() == child->name()) {
-            expectedValueZ = child->getExpectationValueZ();
-            break;
-          }
-        }
-
-        commutatorValue += std::real(term->coefficient()) * expectedValueZ;
+        auto termName = std::dynamic_pointer_cast<PauliOperator>(term)
+                            ->getTerms()
+                            .begin()
+                            ->first;
+        commutatorValue += std::real(term->coefficient()) *
+                           termToBuffer[termName]->getExpectationValueZ();
       }
 
       // print commutator above threshold
@@ -445,11 +440,12 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 std::shared_ptr<CompositeInstruction>
 ADAPT::getHartreeFockState(const std::size_t nBits) const {
 
-  std::shared_ptr<CompositeInstruction> state;
+  auto provider = xacc::getIRProvider("quantum");
+  auto state = provider->createComposite("initial_state");
   for (std::size_t i = 0; i < _nParticles / 2; i++) {
-    state->addInstruction(std::make_shared<xacc::quantum::X>(i));
+    state->addInstruction(provider->createInstruction("X", {i}));
     auto j = (i + nBits / 2);
-    state->addInstruction(std::make_shared<xacc::quantum::X>(j));
+    state->addInstruction(provider->createInstruction("X", {j}));
   }
   return state;
 }
@@ -457,9 +453,10 @@ ADAPT::getHartreeFockState(const std::size_t nBits) const {
 std::shared_ptr<CompositeInstruction>
 ADAPT::getQAOAInitialState(const std::size_t nBits) const {
 
-  std::shared_ptr<CompositeInstruction> state;
+  auto provider = xacc::getIRProvider("quantum");
+  auto state = provider->createComposite("initial_state");
   for (std::size_t i = 0; i < nBits; i++) {
-    state->addInstruction(std::make_shared<xacc::quantum::Hadamard>(i));
+    state->addInstruction(provider->createInstruction("H", {i}));
   }
   return state;
 }

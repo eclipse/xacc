@@ -40,6 +40,8 @@ protected:
 public:
   SinglesDoublesPool() = default;
 
+   bool isNumberOfParticlesRequired() const override { return true; };
+
   bool optionalParameters(const HeterogeneousMap parameters) override {
 
     if (!parameters.keyExists<int>("n-electrons")) {
