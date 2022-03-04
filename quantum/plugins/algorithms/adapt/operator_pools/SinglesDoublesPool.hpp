@@ -116,6 +116,16 @@ public:
     return pool;
   }
 
+  double getNormalizationConstant(const int index) const override {
+
+    if (operators.empty()) {
+      xacc::error("You need to call generate() first.");
+    }
+    auto tmp = *std::dynamic_pointer_cast<FermionOperator>(operators[index]);
+    tmp -= tmp.hermitianConjugate();
+    return 1.0 / tmp.operatorNorm();
+  }
+
   std::string operatorString(const int index) override {
 
     return operators[index]->toString();

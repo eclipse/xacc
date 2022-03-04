@@ -14,7 +14,7 @@
 #include "adapt.hpp"
 
 #include "AcceleratorBuffer.hpp"
-#include "CompositeInstruction.hpp"
+#include "FermionOperator.hpp"
 #include "ObservableTransform.hpp"
 #include "PauliOperator.hpp"
 #include "Utils.hpp"
@@ -26,6 +26,7 @@
 
 #include <complex>
 #include <cstddef>
+#include <iostream>
 #include <memory>
 #include <iomanip>
 #include <sstream>
@@ -112,9 +113,6 @@ bool ADAPT::initialize(const HeterogeneousMap &parameters) {
     return false;
   }
 
-  // Check if Observable is Fermion or Pauli and manipulate accordingly
-  //
-  // if string has ^, it's FermionOperator
   if (observable->toString().find("^") != std::string::npos) {
 
     auto jw = xacc::getService<ObservableTransform>("jw");
@@ -150,6 +148,7 @@ const std::vector<std::string> ADAPT::requiredParameters() const {
 void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   std::stringstream ss;
+  ss << std::setprecision(12);
   // Instantiate adaptive circuit and add instructions from initial state
   // initial state for chemistry VQE is usually HF
   // initial state for QAOA is all |+>
@@ -179,6 +178,10 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     }
   }
 
+  auto vqe = xacc::getAlgorithm("vqe", {{"observable", observable},
+                                        {"accelerator", accelerator},
+                                        {"ansatz", ansatz}});
+
   // Generate operators in the pool
   auto operators = pool->generate(buffer->size());
   std::vector<int> ansatzOps;
@@ -207,12 +210,13 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   std::map<std::string, std::shared_ptr<Observable>> uniqueCommutatorTerms;
   for (auto &commutator : commutators) {
 
-    for (auto &term : commutator->getNonIdentitySubTerms()) {
+    for (auto &term : commutator->getSubTerms()) {
 
       auto termName = std::dynamic_pointer_cast<PauliOperator>(term)
                           ->getTerms()
                           .begin()
                           ->first;
+
       if (uniqueCommutatorTerms.find(termName) == uniqueCommutatorTerms.end()) {
         uniqueCommutatorTerms[termName] = term;
       }
@@ -294,8 +298,7 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
       // print commutator above threshold
       if (abs(commutatorValue) > _printThreshold) {
-        ss << std::setprecision(12) << "[H," << operatorIdx
-           << "] = " << commutatorValue;
+        ss << "[H," << operatorIdx << "] = " << commutatorValue;
         xacc::info(ss.str());
         ss.str(std::string());
       }
@@ -309,14 +312,13 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       gradientNorm += commutatorValue * commutatorValue;
     }
 
-    ss << std::setprecision(12) << "Max gradient component: [H, "
-       << maxCommutatorIdx << "] = " << maxCommutator << " a.u.";
+    ss << "Max gradient component: [H, " << maxCommutatorIdx
+       << "] = " << maxCommutator << " a.u.";
     xacc::info(ss.str());
     ss.str(std::string());
 
     gradientNorm = std::sqrt(gradientNorm);
-    ss << std::setprecision(12) << "Norm of gradient vector: " << gradientNorm
-       << " a.u.";
+    ss << "Norm of gradient vector: " << gradientNorm << " a.u.";
     xacc::info(ss.str());
     ss.str(std::string());
 
@@ -324,14 +326,13 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
       xacc::info("ADAPT-" + subAlgorithm + " converged in " +
                  std::to_string(iter) + " iterations.");
-      ss << std::setprecision(12) << "ADAPT-" << subAlgorithm
-         << " energy: " << oldEnergy << " a.u.";
+      ss << "ADAPT-" << subAlgorithm << " energy: " << oldEnergy << " a.u.";
       xacc::info(ss.str());
       ss.str(std::string());
 
       ss << "Optimal parameters: ";
       for (auto param : x) {
-        ss << std::setprecision(12) << param << " ";
+        ss << param << " ";
       }
       xacc::info(ss.str());
       ss.str(std::string());
@@ -364,23 +365,22 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       }
 
       // Convergence is improved if passing initial parameters to optimizer
-      // so we create a new instance of Optimizer with them
-      // insert 0.0 for VQE and pi/2 for QAOA
+      if (subAlgorithm == "QAOA") {
+        x.insert(x.begin(), xacc::constants::pi / 2.0);
+      } else {
+        // this should work for QAOA too, but I have not tested it
+        auto normConstant = pool->getNormalizationConstant(maxCommutatorIdx);
+        auto param = newParameter(ansatz, x, oldEnergy, normConstant);
+        x.insert(x.begin(), param);
+      }
+      optimizer->appendOption("initial-parameters", x);
 
       // Instantiate gradient class
       std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
-
       if (!gradStrategyName.empty() && optimizer->isGradientBased()) {
-
         gradientStrategy =
             xacc::getService<AlgorithmGradientStrategy>(gradStrategyName);
         gradientStrategy->initialize({{"observable", observable}});
-        if (subAlgorithm == "QAOA") {
-          x.insert(x.begin(), xacc::constants::pi / 2.0);
-        } else {
-          x.insert(x.begin(), 0.0);
-        }
-        optimizer->appendOption("initial-parameters", x);
       }
 
       // Start subAlgorithm optimization
@@ -390,19 +390,22 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
                          {"accelerator", accelerator},
                          {"gradient_strategy", gradientStrategy},
                          {"ansatz", ansatz}});
-      sub_opt->execute(buffer);
 
-      auto newEnergy = (*buffer)["opt-val"].as<double>();
-      x = (*buffer)["opt-params"].as<std::vector<double>>();
+      double newEnergy;
+      if (subAlgorithm == "vqe" && iter == 0) {
+        newEnergy = sub_opt->execute(buffer, x)[0];
+      } else {
+        sub_opt->execute(buffer);
+        newEnergy = (*buffer)["opt-val"].as<double>();
+        x = (*buffer)["opt-params"].as<std::vector<double>>();
+      }
+
       oldEnergy = newEnergy;
-
-      ss << std::setprecision(12) << "Energy at ADAPT iteration " << iter + 1
-         << ": " << newEnergy;
+      ss << "Energy at ADAPT iteration " << iter + 1 << ": " << newEnergy;
       xacc::info(ss.str());
       ss.str(std::string());
 
-      ss << std::setprecision(12) << "Parameters at ADAPT iteration "
-         << iter + 1 << ": ";
+      ss << "Parameters at ADAPT iteration " << iter + 1 << ": ";
       for (auto param : x) {
         ss << param << " ";
       }
@@ -459,6 +462,42 @@ ADAPT::getQAOAInitialState(const std::size_t nBits) const {
     state->addInstruction(provider->createInstruction("H", {i}));
   }
   return state;
+}
+
+// initializes new parameter from partial tomography ideas
+// where all previous parameters are frozen
+double ADAPT::newParameter(const std::shared_ptr<CompositeInstruction> kernel,
+                           const std::vector<double> &x, double zeroExpValue,
+                           const double normConstant) const {
+
+  auto vqe = xacc::getAlgorithm("vqe", {{"observable", observable},
+                                        {"accelerator", accelerator},
+                                        {"ansatz", kernel}});
+
+  std::vector<double> tmp_x;
+  auto nBits = observable->nBits();
+  // if this is the first iteration, we don't have the
+  // the energy/expectation value E(0.0, ...)
+  // for the other iterations, we use oldEnergy
+  if (zeroExpValue == 0.0) {
+    tmp_x = x;
+    tmp_x.insert(tmp_x.begin(), 0.0);
+    zeroExpValue = vqe->execute(xacc::qalloc(nBits), tmp_x)[0];
+  }
+
+  tmp_x = x;
+  tmp_x.insert(tmp_x.begin(), normConstant * xacc::constants::pi / 2.0);
+  auto plusExpValue = vqe->execute(xacc::qalloc(nBits), tmp_x)[0];
+
+  tmp_x = x;
+  tmp_x.insert(tmp_x.begin(), -normConstant * xacc::constants::pi / 2.0);
+  auto minusExpValue = vqe->execute(xacc::qalloc(nBits), tmp_x)[0];
+
+  auto B = zeroExpValue - (plusExpValue + minusExpValue) / 2.0;
+  auto C = (plusExpValue - minusExpValue) / 2.0;
+  auto newParam = std::atan2(-C, -B) * normConstant;
+
+  return newParam;
 }
 
 } // namespace algorithm
