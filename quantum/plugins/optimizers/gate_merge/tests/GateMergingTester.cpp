@@ -1098,11 +1098,8 @@ h q[0];
     const auto nbInstAfter = f->nInstructions();
     EXPECT_TRUE(nbInstAfter < nbInstBefore); 
     // Validate using gate fusion:
-    auto fuser = xacc::getService<xacc::quantum::GateFuser>("default");
-    fuser->initialize(circuitCopy);
-    const Eigen::MatrixXcd uMatOriginal = fuser->calcFusedGate(2);
-    fuser->initialize(f);
-    const Eigen::MatrixXcd uMatAfter = fuser->calcFusedGate(2);
+    const Eigen::MatrixXcd uMatOriginal = GateFuser::fuseGates(circuitCopy, 2);
+    const Eigen::MatrixXcd uMatAfter = GateFuser::fuseGates(f, 2);
     std::cout << "Before:\n" << uMatOriginal << "\n";
     std::cout << "After:\n" << uMatAfter << "\n";
     

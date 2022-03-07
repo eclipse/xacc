@@ -14,7 +14,6 @@
 #include "default_placement.hpp"
 #include "GateMergeOptimizer.hpp"
 #include "PulseTransform.hpp"
-#include "GateFusion.hpp"
 #include "NearestNeighborTransform.hpp"
 // #include "qsearch.hpp"
 #include "cppmicroservices/BundleActivator.h"
@@ -49,7 +48,6 @@ public:
     context.RegisterService<xacc::IRTransformation>(c5);
     context.RegisterService<xacc::IRTransformation>(
         std::make_shared<xacc::quantum::PulseTransform>());
-    context.RegisterService<GateFuser>(std::make_shared<GateFuser>());
     context.RegisterService<xacc::IRTransformation>(
         std::make_shared<xacc::quantum::MergeSingleQubitGatesOptimizer>());
     context.RegisterService<xacc::IRTransformation>(

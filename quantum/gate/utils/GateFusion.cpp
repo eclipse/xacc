@@ -40,10 +40,20 @@ namespace {
 }
 namespace xacc {
 namespace quantum {
-void GateFuser::initialize(const std::shared_ptr<xacc::CompositeInstruction>& in_program)
+Eigen::MatrixXcd GateFuser::fuseGates(const std::shared_ptr<xacc::CompositeInstruction> &in_program, int in_dim)
+{
+    GateFuser fuser(in_program, in_dim);
+    fuser.visitGates();
+    return fuser.calcFusedGate();
+}
+
+GateFuser::GateFuser(const std::shared_ptr<xacc::CompositeInstruction> in_program,
+                     int in_dim) : m_program(in_program), m_dim(in_dim) {};
+
+void GateFuser::visitGates()
 {
     m_gates.clear();
-    InstructionIterator it(in_program);
+    InstructionIterator it(m_program);
     while (it.hasNext())
     {
         auto nextInst = it.next();
@@ -54,12 +64,12 @@ void GateFuser::initialize(const std::shared_ptr<xacc::CompositeInstruction>& in
     }
 }
 
-Eigen::MatrixXcd GateFuser::calcFusedGate(int in_dim) const
+Eigen::MatrixXcd GateFuser::calcFusedGate() const
 {
-    const auto matSize = 1ULL << in_dim;
+    const auto matSize = 1ULL << m_dim;
     Eigen::MatrixXcd resultMat = Eigen::MatrixXcd::Identity(matSize, matSize);
     // Qubit index list (0->(dim-1))
-    std::vector<size_t> index_list(in_dim);
+    std::vector<size_t> index_list(m_dim);
     std::iota(index_list.begin(), index_list.end(), 0);
     
     for (const auto& item : m_gates)

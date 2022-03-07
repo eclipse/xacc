@@ -17,9 +17,7 @@ TEST(PulseTransformTester, checkSimple)
             R"(__qpu__ void test0(qbit q) {
                 H(q[0]);
             })")->getComposites()[0];
-        auto fuser = xacc::getService<GateFuser>("default");
-        fuser->initialize(program);
-        auto result = fuser->calcFusedGate(1);
+        auto result = GateFuser::fuseGates(program, 1);
         EXPECT_NEAR(result(0,0).real(), 1.0 / std::sqrt(2.), 1e-12);
         EXPECT_NEAR(result(0,1).real(), 1.0 / std::sqrt(2.), 1e-12);
         EXPECT_NEAR(result(1,0).real(), 1.0 / std::sqrt(2.), 1e-12);
@@ -35,9 +33,7 @@ TEST(PulseTransformTester, checkSimple)
                 Z(q[0]);
                 H(q[0]);
             })")->getComposites()[0];
-        auto fuser = xacc::getService<GateFuser>("default");
-        fuser->initialize(program);
-        auto result = fuser->calcFusedGate(1);
+        auto result = GateFuser::fuseGates(program, 1);
         std::cout << "Result:\n" << result << "\n";
         EXPECT_NEAR(result(0,0).real(), 0.0, 1e-12);
         EXPECT_NEAR(result(0,1).real(), 1.0, 1e-12);
@@ -53,9 +49,7 @@ TEST(PulseTransformTester, checkSimple)
                 H(q[0]);
                 CNOT(q[0], q[1]);
             })")->getComposites()[0];
-        auto fuser = xacc::getService<GateFuser>("default");
-        fuser->initialize(program);
-        auto result = fuser->calcFusedGate(2);
+        auto result = GateFuser::fuseGates(program, 2);
         std::cout << result << "\n";
         Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
         const auto H = []() {
@@ -98,9 +92,7 @@ TEST(PulseTransformTester, checkSimple)
             R"(__qpu__ void test3(qbit q) {
                 CNOT(q[0], q[2]);
             })")->getComposites()[0];
-        auto fuser = xacc::getService<GateFuser>("default");
-        fuser->initialize(program);
-        auto result = fuser->calcFusedGate(3);
+        auto result = GateFuser::fuseGates(program, 3);
         // Expected location (row, column) that has an element 1.0
         // Q0 is the control, hence it is a map 1 (001)->5(101), 3 (011) -> 7 (111) and vice versa
         std::vector<std::pair<size_t, size_t>> expectedLoc {
@@ -120,9 +112,7 @@ TEST(PulseTransformTester, checkSimple)
         auto qft = std::dynamic_pointer_cast<CompositeInstruction>(tmp);
         qft->expand({std::make_pair("nq", 2)});
         std::cout << "QFT Circuit: \n" << qft->toString() << "\n";
-        auto fuser = xacc::getService<GateFuser>("default");
-        fuser->initialize(qft);
-        auto result = fuser->calcFusedGate(2);
+        auto result = GateFuser::fuseGates(qft, 2);
         std::cout << "QFT Matrix: \n" << result << "\n";
         // Expected matrix
         Eigen::MatrixXcd QftMat{ Eigen::MatrixXcd::Zero(4, 4) }; 

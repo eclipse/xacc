@@ -241,9 +241,7 @@ std::size_t IonTrapOneQubitPass::decomposeInPlace(Decomp decomp,
         tmpKernel->addInstruction(instrPtr);
     }
 
-    auto fuser = xacc::getService<xacc::quantum::GateFuser>("default");
-    fuser->initialize(tmpKernel);
-    Eigen::Matrix2cd uMat = fuser->calcFusedGate(1);
+    Eigen::Matrix2cd uMat = GateFuser::fuseGates(tmpKernel, 1);
     const arma::cx_mat unitary = arma::cx_mat(uMat.data(), uMat.rows(), uMat.cols());
     const std::size_t bitIdx = program->getInstruction(sequence[0])->bits()[0];
 
