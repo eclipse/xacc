@@ -13,6 +13,7 @@
 #ifndef XACC_XACC_HPP_
 #define XACC_XACC_HPP_
 
+#include "AlgorithmGradientStrategy.hpp"
 #include "Compiler.hpp"
 #include "RemoteAccelerator.hpp"
 #include "IRProvider.hpp"
@@ -165,6 +166,12 @@ std::shared_ptr<Optimizer> getOptimizer(const std::string name,
                                         const HeterogeneousMap &opts);
 std::shared_ptr<Optimizer> getOptimizer(const std::string name,
                                         const HeterogeneousMap &&opts);
+
+std::shared_ptr<AlgorithmGradientStrategy> getGradient(const std::string name,
+                                        const xacc::HeterogeneousMap &params);
+std::shared_ptr<AlgorithmGradientStrategy> getGradient(const std::string name,
+                                        const xacc::HeterogeneousMap &&params);
+std::shared_ptr<AlgorithmGradientStrategy> getGradient(const std::string name);
 
 void write_string_to_file_and_close(std::string file_Name, std::string s);
 

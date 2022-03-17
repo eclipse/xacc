@@ -26,6 +26,7 @@
 #include "Optimizer.hpp"
 #include "IRTransformation.hpp"
 #include "AcceleratorDecorator.hpp"
+#include "AlgorithmGradientStrategy.hpp"
 
 #include <cppmicroservices/FrameworkFactory.h>
 #include <cppmicroservices/Framework.h>
@@ -35,6 +36,7 @@
 
 #include <map>
 #include <dirent.h>
+#include <memory>
 
 using namespace cppmicroservices;
 
@@ -44,7 +46,7 @@ using ContributableService =
     Variant<std::shared_ptr<Instruction>, std::shared_ptr<Accelerator>,
             std::shared_ptr<Compiler>, std::shared_ptr<Optimizer>, std::shared_ptr<Algorithm>,
             std::shared_ptr<IRTransformation>, std::shared_ptr<Observable>,
-            std::shared_ptr<AcceleratorDecorator>>;
+            std::shared_ptr<AcceleratorDecorator>, std::shared_ptr<AlgorithmGradientStrategy>>;
 
 class ServiceRegistry {
 

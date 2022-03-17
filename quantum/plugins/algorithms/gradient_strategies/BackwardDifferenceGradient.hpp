@@ -54,7 +54,7 @@ public:
     obs = parameters.get<std::shared_ptr<Observable>>("observable");
 
     // Default step size
-    step = 1.0e-7; 
+    step = 1.0e-7;
     // Change step size if need be
     if (parameters.keyExists<double>("step")) {
       step = parameters.get<double>("step");
@@ -110,15 +110,16 @@ public:
           }
         }
       } else {
-        kernels = obs->observe(circuit);
+        auto evaled = circuit->operator()(tmpX);
+        kernels = obs->observe(evaled);
 
         // loop over circuit instructions
         // and gather coefficients/instructions
         for (auto &f : kernels) {
           if (containMeasureGates(f)) {
-            auto evaled = f->operator()(tmpX);
+
             coefficients.push_back(std::real(f->getCoefficient()));
-            gradientInstructions.push_back(evaled);
+            gradientInstructions.push_back(f);
           }
         }
       }
@@ -171,9 +172,7 @@ public:
     return;
   }
 
-  const std::string name() const override {
-    return "backward";
-  }
+  const std::string name() const override { return "backward"; }
   const std::string description() const override { return ""; }
 };
 

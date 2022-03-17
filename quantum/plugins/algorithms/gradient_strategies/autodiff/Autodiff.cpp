@@ -386,8 +386,9 @@ std::vector<double> Autodiff::computeDerivative(
                   "vector size.");
     }
 
+    auto varNames = getOrderedVector(CompositeInstruction->getVariables());
     for (size_t i = 0; i < vars.size(); ++i) {
-      varMap.emplace(CompositeInstruction->getVariables()[i], vars[i]);
+      varMap.emplace(varNames[i], vars[i]);
     }
 
     AutodiffCircuitVisitor visitor(nbQubits, varMap);
