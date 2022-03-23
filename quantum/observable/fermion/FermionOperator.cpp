@@ -13,6 +13,7 @@
 #include "FermionOperator.hpp"
 
 #include <Utils.hpp>
+#include <iomanip>
 
 #include "FermionListenerImpl.hpp"
 #include "FermionOperatorLexer.h"
@@ -97,7 +98,7 @@ const std::string FermionOperator::toString() {
   std::stringstream s;
   for (auto &kv : terms) {
     std::complex<double> c = std::get<0>(kv.second);
-    s << c << " ";
+    s << std::setprecision(12) << c << " ";
     if (kv.first != "I") {
       s << kv.first;
     }
@@ -276,18 +277,21 @@ FermionOperator FermionOperator::hermitianConjugate() const {
 
 void FermionOperator::normalize() {
 
-  double norm = 0.0;
-
-  for (auto &kv : terms) {
-    norm += std::pow(std::norm(std::get<0>(kv.second)), 2);
-  }
-  norm = std::sqrt(norm);
-
+  auto norm = operatorNorm();
   for (auto &kv : terms) {
     std::get<0>(kv.second) = std::get<0>(kv.second) / norm;
   }
 
   return;
+}
+
+double FermionOperator::operatorNorm() const {
+
+  double norm = 0.0;
+  for (auto &kv : terms) {
+    norm += std::norm(std::get<0>(kv.second));
+  }
+  return std::sqrt(norm);
 }
 
 double FermionOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,

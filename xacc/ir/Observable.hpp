@@ -70,24 +70,26 @@ public:
     return std::complex<double>(1.0, 0.0);
   }
 
-  virtual std::vector<SparseTriplet>
-  to_sparse_matrix() {
-    return {};
-  }
+  virtual std::vector<SparseTriplet> to_sparse_matrix() { return {}; }
 
-   virtual std::shared_ptr<Observable> commutator(std::shared_ptr<Observable>){
+  virtual std::shared_ptr<Observable> commutator(std::shared_ptr<Observable>) {
     return nullptr;
   }
 
   virtual void normalize() { return; }
+  virtual double operatorNorm() const {
+    XACCLogger::instance()->error("Observable '" + name() +
+                                  "' doesn't compute norm.");
+    return 0.0;
+  }
+
   // Some pre-defined tasks (Observable sub-classes can have custom tasks)
   struct PostProcessingTask {
     static inline const std::string EXP_VAL_CALC = "exp-val";
     static inline const std::string VARIANCE_CALC = "variance";
   };
   // Post process the execution data (stored on the AcceleratorBuffer)
-  virtual double
-  postProcess(
+  virtual double postProcess(
       std::shared_ptr<AcceleratorBuffer> buffer,
       const std::string &postProcessTask = PostProcessingTask::EXP_VAL_CALC,
       const HeterogeneousMap &extra_data = {}) = 0;

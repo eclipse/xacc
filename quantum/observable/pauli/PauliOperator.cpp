@@ -174,7 +174,8 @@ PauliOperator::PauliOperator(std::map<int, std::string> operators,
 std::complex<double> PauliOperator::coefficient() {
   if (terms.size() > 1) {
     xacc::error("Cannot call PauliOperator::coefficient on operator with more "
-                "than 1 term. " + toString());
+                "than 1 term. " +
+                toString());
   }
   return terms.begin()->second.coeff();
 }
@@ -271,7 +272,8 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
 }
 
 std::vector<std::shared_ptr<CompositeInstruction>>
-PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const HeterogeneousMap &grouping_options) {
+PauliOperator::observe(std::shared_ptr<CompositeInstruction> function,
+                       const HeterogeneousMap &grouping_options) {
   if (grouping_options.size() == 0) {
     return observe(function);
   }
@@ -281,8 +283,8 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const Het
     xacc::error("'accelerator' is required for Observable grouping");
   }
   auto qpu = grouping_options.getPointerLike<Accelerator>("accelerator");
-  const bool shots_enabled = [&qpu](){
-    // Remote QPU's (IBM, etc.) -> shots 
+  const bool shots_enabled = [&qpu]() {
+    // Remote QPU's (IBM, etc.) -> shots
     if (qpu->isRemote()) {
       return true;
     }
@@ -337,15 +339,16 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const Het
   }();
 
   if (!all_terms_commute) {
-    xacc::info("Not all terms commute with each other. Grouping cannot be done.");
+    xacc::info(
+        "Not all terms commute with each other. Grouping cannot be done.");
     return observe(function);
   }
 
   // Grouping can be done:
   // all terms in this Observable will generate a **single** observed circuit,
   // i.e. if there is a Pauli-X at qubit 3 (add Hadamard gate),
-  // there is no chance that another term with Pauli-Z or Pauli-Y at that location.
-  // Create a new GateQIR to hold the spin based terms
+  // there is no chance that another term with Pauli-Z or Pauli-Y at that
+  // location. Create a new GateQIR to hold the spin based terms
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   std::vector<std::shared_ptr<CompositeInstruction>> observed;
   int counter = 0;
@@ -414,15 +417,13 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const Het
       qubits_to_basis_change_inst[qbit] = gateName;
       // Adding the gate:
       if (gateName == "X") {
-        auto hadamard =
-            gateRegistry->createInstruction("H", {qbit});
+        auto hadamard = gateRegistry->createInstruction("H", {qbit});
         if (!buf_name.empty()) {
           hadamard->setBufferNames({buf_name});
         }
         gateFunction->addInstruction(hadamard);
       } else if (gateName == "Y") {
-        auto rx =
-            gateRegistry->createInstruction("Rx", {qbit});
+        auto rx = gateRegistry->createInstruction("Rx", {qbit});
         if (!buf_name.empty()) {
           rx->setBufferNames({buf_name});
         }
@@ -442,7 +443,8 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function, const Het
     meas->setParameter(0, classicalIdx);
     gateFunction->addInstruction(meas);
   }
-  // std::cout << "Group observed circuit:\n" << gateFunction->toString() << "\n";
+  // std::cout << "Group observed circuit:\n" << gateFunction->toString() <<
+  // "\n";
   return {gateFunction};
 }
 
@@ -579,7 +581,7 @@ const std::string PauliOperator::toString() {
     std::string v = std::get<1>(kv.second);
     std::map<int, std::string> ops = std::get<2>(kv.second);
 
-    s << c << " ";
+    s << std::setprecision(12) << c << " ";
     if (!v.empty()) {
       s << v << " ";
     }
@@ -974,17 +976,21 @@ PauliOperator PauliOperator::hermitianConjugate() const {
 
 void PauliOperator::normalize() {
 
-  double norm = 0.0;
-  for (auto &kv : terms) {
-    norm += std::pow(std::norm(std::get<0>(kv.second)), 2);
-  }
-  norm = std::sqrt(norm);
-
+  auto norm = operatorNorm();
   for (auto &kv : terms) {
     std::get<0>(kv.second) = std::get<0>(kv.second) / norm;
   }
 
   return;
+}
+
+double PauliOperator::operatorNorm() const {
+
+  double norm = 0.0;
+  for (auto &kv : terms) {
+    norm += std::norm(std::get<0>(kv.second));
+  }
+  return std::sqrt(norm);
 }
 
 double PauliOperator::calcExpValFromGroupedExecution(
@@ -997,7 +1003,7 @@ double PauliOperator::calcExpValFromGroupedExecution(
   const auto bit_order = resultBuffer->name().find("MSB") != std::string::npos
                              ? AcceleratorBuffer::BitOrder::MSB
                              : AcceleratorBuffer::BitOrder::LSB;
-   auto temp_buffer = xacc::qalloc(resultBuffer->size());
+  auto temp_buffer = xacc::qalloc(resultBuffer->size());
   for (auto &inst : terms) {
     Term spinInst = inst.second;
     std::vector<int> meas_bits;
@@ -1012,8 +1018,9 @@ double PauliOperator::calcExpValFromGroupedExecution(
           meas_bits.emplace_back(i);
         }
       }
-     
-      temp_buffer->setMeasurements(resultBuffer->getMarginalCounts(meas_bits, bit_order));
+
+      temp_buffer->setMeasurements(
+          resultBuffer->getMarginalCounts(meas_bits, bit_order));
       const auto coeff = spinInst.coeff();
       const double term_exp_val = temp_buffer->getExpectationValueZ();
       // temp_buffer->print();

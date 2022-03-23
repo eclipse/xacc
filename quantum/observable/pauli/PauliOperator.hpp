@@ -349,6 +349,8 @@ public:
   PauliOperator hermitianConjugate() const;
 
   void normalize() override;
+  double operatorNorm() const override;
+
   virtual double postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
                              const std::string &postProcessTask,
                              const HeterogeneousMap &extra_data) override;

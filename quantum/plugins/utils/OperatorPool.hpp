@@ -67,6 +67,8 @@ public:
 
   virtual bool optionalParameters(const HeterogeneousMap parameters) = 0;
 
+  virtual bool isNumberOfParticlesRequired() const { return false; };
+
   virtual std::vector<std::shared_ptr<Observable>>
   generate(const int &nQubits) = 0;
 
@@ -74,6 +76,14 @@ public:
 
   virtual std::shared_ptr<CompositeInstruction>
   getOperatorInstructions(const int opIdx, const int varIdx) const = 0;
+
+  virtual double getNormalizationConstant(const int opIdx) const {
+    XACCLogger::instance()->error("OperatorPool::getOperatorNorm(int)"
+                                  "not implemented for " +
+                                  name());
+    exit(0);
+    return {};
+  }
 
   virtual std::vector<std::shared_ptr<Observable>>
   getExcitationOperators(const int &nQubits) {

@@ -19,14 +19,17 @@
 #include <pybind11/iostream.h>
 #include <pybind11/operators.h>
 #include <pybind11/functional.h>
+#include <vector>
 
 #include "xacc.hpp"
 
 namespace py = pybind11;
 using namespace xacc;
 
+const std::vector<std::string> CHEM_OBS_PLUGINS = {"pyscf", "psi4"};
 
 class PyObservable : public xacc::Observable {
+
 public:
   /* Inherit the constructors */
   using Observable::Observable;
@@ -62,6 +65,7 @@ public:
     PYBIND11_OVERLOAD_PURE(double, xacc::Observable, postProcess, buffer,
                            postProcessTask, extra_data);
   }
+
 };
 
 void bind_observable(py::module& m);

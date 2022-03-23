@@ -11,11 +11,14 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "py_observable.hpp"
+//#include "Observable.hpp"
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
+//#include "Utils.hpp"
 #include "xacc_service.hpp"
 #include "py_heterogeneous_map.hpp"
 #include "ObservableTransform.hpp"
+//#include <memory>
 
 using namespace xacc::quantum;
 
@@ -87,6 +90,12 @@ void bind_observable(py::module &m) {
             mpark::visit(vis, item.second);
           }
           t->fromOptions(m);
+
+          // this ensures the outcoming Observable casts to FermionOperator
+          if (xacc::container::contains(CHEM_OBS_PLUGINS, type)) {
+            t = std::make_shared<FermionOperator>(t->toString());
+          }
+
           return t;
         });
 

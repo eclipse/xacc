@@ -15,13 +15,14 @@
 
 #include "Algorithm.hpp"
 #include "Observable.hpp"
-#include "PauliOperator.hpp"
 #include "OperatorPool.hpp"
+#include <memory>
+#include <vector>
 
 using namespace xacc::quantum;
 
-namespace xacc{
-namespace algorithm{
+namespace xacc {
+namespace algorithm {
 
 class ADAPT : public Algorithm {
 
@@ -29,26 +30,35 @@ protected:
   std::shared_ptr<Observable> observable;
   std::shared_ptr<Optimizer> optimizer;
   std::shared_ptr<Accelerator> accelerator;
-  std::shared_ptr<OperatorPool> pool; 
-  std::shared_ptr<CompositeInstruction> initialState; 
-  std::string subAlgo; // sub-algorithm, either VQE or QAOA
+  std::shared_ptr<OperatorPool> pool;
+  std::shared_ptr<CompositeInstruction> initialState;
+  std::string subAlgorithm; // sub-algorithm, either VQE or QAOA
   HeterogeneousMap _parameters;
 
-  //ADAPT parameters
-  int _maxIter = 50; // max # of ADAPT cycles // # of QAOA layers
-  double _adaptThreshold = 1.0e-2; // gradient norm threshold
+  // ADAPT parameters
+  int _maxIter = 50;                // max # of ADAPT cycles // # of QAOA layers
+  double _adaptThreshold = 1.0e-2;  // gradient norm threshold
   double _printThreshold = 1.0e-10; // threshold to print commutator
   bool _printOps = false; // set to true to print operators at every iteration
-  int _nElectrons; // # of electrons, used for VQE
+  int _nParticles;        // # of particles/electrons, used for VQE
 
-  std::vector<int> checkpointOps; // indices of operators to construct initial ansatz
+  std::vector<int>
+      checkpointOps; // indices of operators to construct initial ansatz
   std::vector<double> checkpointParams; // initial parameters for initial ansatz
   // name of class to compute gradient for optimization
   // defaults to parameter shift
-  std::string gradStrategyName = "parameter-shift-gradient"; 
+  std::string gradStrategyName = "parameter-shift-gradient";
+
+  std::vector<std::string> physicalSubAlgorithms = {"vqe", "qcmx", "qeom"};
+
+  std::shared_ptr<CompositeInstruction>
+  getHartreeFockState(const std::size_t nBits) const;
+  std::shared_ptr<CompositeInstruction>
+  getQAOAInitialState(const std::size_t nBits) const;
+  double newParameter(const std::shared_ptr<CompositeInstruction>,
+                      const std::vector<double> &, double, const double) const;
 
 public:
-
   bool initialize(const HeterogeneousMap &parameters) override;
   const std::vector<std::string> requiredParameters() const override;
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
@@ -56,11 +66,9 @@ public:
   const std::string description() const override { return ""; }
 
   DEFINE_ALGORITHM_CLONE(ADAPT)
-
 };
-
 
 } // namespace algorithm
 } // namespace xacc
 
-#endif 
+#endif

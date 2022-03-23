@@ -41,6 +41,8 @@ protected:
 public:
   SingletAdaptedUCCSD() = default;
 
+  bool isNumberOfParticlesRequired() const override { return true; };
+
   bool optionalParameters(const HeterogeneousMap parameters) override {
 
     if (!parameters.keyExists<int>("n-electrons")) {
@@ -141,6 +143,16 @@ public:
   std::string operatorString(const int index) override {
 
     return pool[index]->toString();
+  }
+
+  double getNormalizationConstant(const int index) const override {
+
+    if (operators.empty()) {
+      xacc::error("You need to call generate() first.");
+    }
+    auto tmp = *std::dynamic_pointer_cast<FermionOperator>(operators[index]);
+    tmp -= tmp.hermitianConjugate();
+    return 1.0 / tmp.operatorNorm();
   }
 
   std::shared_ptr<CompositeInstruction>
