@@ -206,16 +206,68 @@ class Psi4Observable(xacc.Observable):
                         #Hamiltonian_fc_2body[p,q,r,ss]= 0.25* gmo[ip,iq,iss,ir]
 
 
-        Hamiltonian_fc_2body_tmp = 0.25 * Hamiltonian_fc_2body.transpose(0, 1, 3, 2)
-        for p in range(n_active):
-            ip = MSO_active_list[p]
-            for q in range(n_active):
-                iq = MSO_active_list[q]
-                for r in range(n_active):
-                    ir = MSO_active_list[r]
-                    for ss in range(n_active):
-                        if abs(Hamiltonian_fc_2body_tmp[p,q,r,ss]) > 1e-12:
-                            f_str += pos_or_neg(Hamiltonian_fc_2body_tmp[p,q,r,ss]) + str(abs(Hamiltonian_fc_2body_tmp[p,q,r,ss])) + ' ' + str(p) + '^ ' + str(q) + '^ ' + str(r) + ' ' + str(ss)
-        self.observable = xacc.getObservable('fermion', f_str)
-        self.asPauli = xacc.transformToPauli('jw', self.observable)
+        # checking whether to reduce Hamiltonian
+        reduce_hamiltonian = False
+        if 'reduce-hamiltonian' in inputParams and inputParams['reduce-hamiltonian']:
+            reduce_hamiltonian = True
 
+        if reduce_hamiltonian:
+
+            if Hamiltonian_fc_1body.shape[0] != 4:
+                raise NotImplementedError("Reduction only implemented for Hamiltonians with 4 spin orbitals / 2 spatial orbitals.")
+
+            # Gather pieces of the Hamiltonian
+            h11 = Hamiltonian_fc_1body[0,0]
+            h22 = Hamiltonian_fc_1body[1,1]
+            J11 = Hamiltonian_fc_2body[0,2,0,2]
+            J12 = Hamiltonian_fc_2body[1,2,1,2]
+            J22 = Hamiltonian_fc_2body[1,3,1,3]
+            K12 = Hamiltonian_fc_2body[0,2,1,3]
+            e1 = h11 + J11
+            e2 = h22 + 2 * J12 - K12
+
+            # The reduced Hamiltonian has the form
+            # H = g0 x I + g1 x z1 + g2 x z2 + g3 x z1z2 + g4 x x1x2
+            # We drop the y1y2 term because the Hamiltonian is real
+            # We now solve a 4 x 4 linear system
+            # <00|H|00> = g0 + g1 + g2 + g3 = HF = 2*e1 - J11 + E(R)
+            # <10|H|10> = g0 - g1 + g2 - g3 = e1 + e2 - J11 - J12 + K12 + E(R)
+            # <01|H|01> = g0 + g1 - g2 - g3 = e1 + e2 - J11 - J12 + K12 + E(R)
+            # <11|H|11> = g0 - g1 - g2 + g3 = 2*e2 - 4*J12 + J22 + 2*K12 + E(R)
+            # <10|H|01> = K12 = g4
+
+            from numpy import linalg
+            M = np.array([[1, 1, 1, 1], [1, -1, 1, -1], [1, 1, -1, -1], [1, -1, -1, 1]])
+            Minv = linalg.inv(M)
+
+            b = np.zeros(4)
+            b[0] = 2 * e1 - J11 + E_nucl
+            b[1] = e1 + e2 - J11 - J12 + K12 + E_nucl
+            b[2] = b[1]
+            b[3] = 2 * e2 - 4 * J12 + J22 + 2 * K12 + E_nucl
+
+            reduced_h_coeffs = Minv @ b
+            reduced_h_coeffs = np.append(reduced_h_coeffs, K12)
+
+            pauli_terms = ["Z0", "Z1", "Z0Z1", "X0X1"]
+
+            f_str = str(reduced_h_coeffs[0])
+            for a, b in zip(reduced_h_coeffs[1:], pauli_terms):
+                f_str += pos_or_neg(a) + str(abs(a)) + " " + b
+
+            self.observable = xacc.getObservable('pauli', f_str)
+
+        else:
+
+            Hamiltonian_fc_2body_tmp = 0.25 * Hamiltonian_fc_2body.transpose(0, 1, 3, 2)
+            for p in range(n_active):
+                ip = MSO_active_list[p]
+                for q in range(n_active):
+                    iq = MSO_active_list[q]
+                    for r in range(n_active):
+                        ir = MSO_active_list[r]
+                        for ss in range(n_active):
+                            if abs(Hamiltonian_fc_2body_tmp[p,q,r,ss]) > 1e-12:
+                                f_str += pos_or_neg(Hamiltonian_fc_2body_tmp[p,q,r,ss]) + str(abs(Hamiltonian_fc_2body_tmp[p,q,r,ss])) + ' ' + str(p) + '^ ' + str(q) + '^ ' + str(r) + ' ' + str(ss)
+            self.observable = xacc.getObservable('fermion', f_str)
+            self.asPauli = xacc.transformToPauli('jw', self.observable)
