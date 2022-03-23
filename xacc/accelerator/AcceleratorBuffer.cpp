@@ -424,7 +424,9 @@ const double AcceleratorBuffer::getExpectationValueZ() {
     return 1;
   };
 
-  if (this->hasExtraInfoKey("exp-val-z")) {
+  if (this->hasExtraInfoKey("ro-fixed-exp-val-z")) {
+    aver = mpark::get<double>(getInformation("ro-fixed-exp-val-z"));
+  } else if (this->hasExtraInfoKey("exp-val-z")) {
     aver = mpark::get<double>(getInformation("exp-val-z"));
   } else {
     if (bitStringToCounts.empty()) {
