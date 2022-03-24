@@ -88,10 +88,8 @@ namespace quantum {
         const std::string hamJsonStr = buffer->getInformation("ham-json").as<std::string>();
         
         // Step 2: Compute the total unitary matrix
-        auto fuser = xacc::getService<GateFuser>("default");
-        fuser->initialize(program);
         const int dim = calcSysDimension(program);
-        const Eigen::MatrixXcd targetUmat = fuser->calcFusedGate(dim);
+        const Eigen::MatrixXcd targetUmat = GateFuser::fuseGates(program, dim);
         std::cout << "\nTarget Unitary matrix: \n" << targetUmat << "\n";
 
         // Step 3: Get the required params

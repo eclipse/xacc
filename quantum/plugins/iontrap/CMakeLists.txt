@@ -34,7 +34,6 @@ target_include_directories(${LIBRARY_NAME}
 target_link_libraries(${LIBRARY_NAME}
                         PUBLIC xacc
                                xacc-quantum-gate
-                               xacc-circuit-optimizers
                      )
 
 if(LAPACK_FOUND)

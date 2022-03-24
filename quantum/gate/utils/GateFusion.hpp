@@ -21,12 +21,14 @@ struct FusionGateItem
 class GateFuser : public AllGateVisitor
 {
 public:
+    static Eigen::MatrixXcd fuseGates(const std::shared_ptr<xacc::CompositeInstruction> &in_program, int in_dim);
+
     // CTor
-    GateFuser() {}
-    void initialize(const std::shared_ptr<xacc::CompositeInstruction>& in_program);
+    GateFuser(const std::shared_ptr<xacc::CompositeInstruction> in_program, int in_dim);
+    void visitGates();
     // Compute the fused gate matrix given the output dimension
     // Note: the dimension must be greater than all the qubit indices in the Composite 
-    Eigen::MatrixXcd calcFusedGate(int in_dim) const;
+    Eigen::MatrixXcd calcFusedGate() const;
     // Gate visitor Impl
     void visit(Hadamard& h) override;
     void visit(CNOT& cnot) override;
@@ -50,10 +52,9 @@ public:
     void visit(Identity& i) override;
     void visit(U& u) override;
     void visit(IfStmt& ifStmt) override;
-    // Identifiable Impl
-    const std::string name() const override { return "default"; }
-    const std::string description() const override { return ""; }
 private:
+    const std::shared_ptr<xacc::CompositeInstruction> &m_program;
+    int m_dim;
     std::vector<FusionGateItem> m_gates;
 };
 } // namespace quantum

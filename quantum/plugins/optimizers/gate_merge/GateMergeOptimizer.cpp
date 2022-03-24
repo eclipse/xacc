@@ -111,9 +111,7 @@ void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction>
                 tmpKernel->addInstruction(instrPtr);
             }
 
-            auto fuser = xacc::getService<xacc::quantum::GateFuser>("default");
-            fuser->initialize(tmpKernel);
-            Eigen::Matrix2cd uMat = fuser->calcFusedGate(1);
+            Eigen::Matrix2cd uMat = GateFuser::fuseGates(tmpKernel, 1);
             uMat.transposeInPlace();
             Eigen::Vector4cd matAsVec(Eigen::Map<Eigen::Vector4cd>(uMat.data(), uMat.cols()*uMat.rows()));
             std::vector<std::complex<double>> flattenedUnitary;
@@ -290,9 +288,7 @@ void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> pr
                 instrPtr->setBits(mapBits(instrPtr->bits()));
                 tmpKernel->addInstruction(instrPtr);
             }
-            auto fuser = xacc::getService<xacc::quantum::GateFuser>("default");
-            fuser->initialize(tmpKernel);
-            Eigen::Matrix4cd uMat = fuser->calcFusedGate(2);
+            Eigen::Matrix4cd uMat = GateFuser::fuseGates(tmpKernel, 2);
             uMat.transposeInPlace();
             Eigen::VectorXcd matAsVec(Eigen::Map<Eigen::VectorXcd>(uMat.data(), uMat.cols()*uMat.rows()));
             std::vector<std::complex<double>> flattenedUnitary;
@@ -305,9 +301,7 @@ void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> pr
             assert(expandOk);
             
             const auto calcUopt = [](const std::shared_ptr<CompositeInstruction> composite) {
-                auto fuser = xacc::getService<xacc::quantum::GateFuser>("default");
-                fuser->initialize(composite);
-                return fuser->calcFusedGate(2);
+                return GateFuser::fuseGates(composite, 2);
             };
             
             // Optimized decomposed sequence:
