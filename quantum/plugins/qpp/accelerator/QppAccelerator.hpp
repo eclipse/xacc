@@ -14,7 +14,9 @@
 #include "xacc.hpp"
 #include "QppVisitor.hpp"
 #include "NoiseModel.hpp"
-
+#ifdef _XACC_MUTEX
+#include <mutex>
+#endif
 namespace xacc {
 namespace quantum {
 
@@ -50,6 +52,12 @@ public:
     std::vector<std::pair<int,int>> m_connectivity;
     xacc::HeterogeneousMap m_executionInfo;
     std::pair<AcceleratorBuffer*, size_t> m_currentBuffer;
+#ifdef _XACC_MUTEX
+    static std::recursive_mutex& getMutex() {
+        static std::recursive_mutex m;;
+        return m;
+    }
+#endif
 };
 
 class DefaultNoiseModelUtils : public NoiseModelUtils 

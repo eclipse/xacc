@@ -29,6 +29,11 @@
 #include <sys/stat.h>
 #include <iosfwd>
 
+#ifdef _XACC_MUTEX
+#pragma message("_XACC_MUTEX is defined")
+#include <mutex>
+#endif
+
 namespace xacc {
 
 namespace constants {

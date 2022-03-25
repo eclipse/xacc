@@ -251,6 +251,9 @@ namespace quantum {
 
     void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction)
     {
+#ifdef _XACC_MUTEX
+        std::lock_guard<std::recursive_mutex> lock(getMutex());
+#endif
         const auto runCircuit = [&](bool shotsMode){
             m_visitor->initialize(buffer, shotsMode);
 
@@ -337,6 +340,10 @@ namespace quantum {
     
     void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions)
     {
+#ifdef _XACC_MUTEX
+        std::lock_guard<std::recursive_mutex> lock(getMutex());
+#endif
+
         if (!m_vqeMode || compositeInstructions.size() <= 1) 
         {
             for (auto& f : compositeInstructions)
@@ -382,6 +389,10 @@ namespace quantum {
 
     void QppAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) 
     {
+#ifdef _XACC_MUTEX
+        std::lock_guard<std::recursive_mutex> lock(getMutex());
+#endif
+
         if (!m_visitor->isInitialized()) {
             m_visitor->initialize(buffer);
             m_currentBuffer = std::make_pair(buffer.get(), buffer->size());

@@ -156,7 +156,14 @@ void error(const std::string &msg, MessagePredicate predicate) {
   }
 }
 
+#ifdef _XACC_MUTEX
+std::mutex qalloc_lock;
+#endif
+
 qbit qalloc(const int n) {
+#ifdef _XACC_MUTEX
+  std::lock_guard<std::mutex> lock(qalloc_lock);
+#endif
   qbit q(n);
   std::stringstream ss;
   ss << "qreg_" << q;
@@ -165,6 +172,9 @@ qbit qalloc(const int n) {
   return q;
 }
 qbit qalloc() {
+#ifdef _XACC_MUTEX
+  std::lock_guard<std::mutex> lock(qalloc_lock);
+#endif
   qbit q;
   std::stringstream ss;
   ss << "qreg_" << q;

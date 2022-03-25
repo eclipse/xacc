@@ -179,3 +179,6 @@ set_target_properties(xacc::fermion PROPERTIES
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "${XACC_ROOT}" CACHE PATH "default install path" FORCE )
 endif()
+
+# If xacc is built with -DXACC_MULTI_THREADED
+set(XACC_MULTI_THREADED @XACC_MULTI_THREADED@)
