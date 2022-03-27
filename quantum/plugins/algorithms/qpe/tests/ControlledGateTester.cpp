@@ -4,6 +4,7 @@
 #include "CommonGates.hpp"
 #include <Eigen/Dense>
 #include "CountGatesOfTypeVisitor.hpp"
+#include "GateFusion.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -346,7 +347,105 @@ TEST(ControlledGateTester, checkEltonBug) {
     // all ours are U+CX, and we remove U(0,0,0).
     // There are 32 U(0,0,0). So should have ?? CX, 252-63=220 Us
     EXPECT_EQ(vis.countGates(), 188);
-    EXPECT_EQ(visu.countGates(), 189);
+    EXPECT_EQ(visu.countGates(), 220);
+  }
+}
+
+TEST(ControlledGateTester, checkMultipleControlGrayCodeGen) {
+  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+  auto x = std::make_shared<X>(0);
+  std::shared_ptr<xacc::CompositeInstruction> comp =
+      gateRegistry->createComposite("__COMPOSITE__X");
+  comp->addInstruction(x);
+  auto mcx = std::dynamic_pointer_cast<CompositeInstruction>(
+      xacc::getService<Instruction>("C-U"));
+  const std::vector<int> ctrl_idxs{1, 2, 3, 4};
+  mcx->expand({{"U", comp}, {"control-idx", ctrl_idxs}});
+  std::cout << "HOWDY: \n" << mcx->toString() << "\n";
+  Eigen::MatrixXcd uMat = GateFuser::fuseGates(mcx, 5);
+  for (int i = 0; i < 1 << 5; ++i) {
+    for (int j = 0; j < 1 << 5; ++j) {
+      if (std::abs(uMat(i, j)) > 1e-12) {
+        // std::cout << i << " " << j << ": " << uMat(i, j) << "\n";
+        // Validate no phase value mismatches.
+        EXPECT_NEAR(std::abs(uMat(i, j) - 1.0), 0.0, 1e-9);
+      }
+    }
+  }
+  // Test truth table
+  auto acc = xacc::getAccelerator("qpp", {std::make_pair("shots", 8192)});
+  auto xGate0 = gateRegistry->createInstruction("X", {0});
+  auto xGate1 = gateRegistry->createInstruction("X", {1});
+  auto xGate2 = gateRegistry->createInstruction("X", {2});
+  auto xGate3 = gateRegistry->createInstruction("X", {3});
+  auto xGate4 = gateRegistry->createInstruction("X", {4});
+  auto measureGate0 = gateRegistry->createInstruction("Measure", {0});
+  auto measureGate1 = gateRegistry->createInstruction("Measure", {1});
+  auto measureGate2 = gateRegistry->createInstruction("Measure", {2});
+  auto measureGate3 = gateRegistry->createInstruction("Measure", {3});
+  auto measureGate4 = gateRegistry->createInstruction("Measure", {4});
+
+  const auto runTestCase = [&](bool in_bit0, bool in_bit1, bool in_bit2,
+                               bool in_bit3, bool in_bit4) {
+    static int counter = 0;
+    auto composite = gateRegistry->createComposite("__TEMP_COMPOSITE__" +
+                                                   std::to_string(counter));
+    counter++;
+    // State prep:
+    if (in_bit0) {
+      composite->addInstruction(xGate0);
+    }
+    if (in_bit1) {
+      composite->addInstruction(xGate1);
+    }
+    if (in_bit2) {
+      composite->addInstruction(xGate2);
+    }
+    if (in_bit3) {
+      composite->addInstruction(xGate3);
+    }
+    if (in_bit4) {
+      composite->addInstruction(xGate4);
+    }
+
+    std::string inputBitString;
+    inputBitString.append(in_bit0 ? "1" : "0");
+    inputBitString.append(in_bit1 ? "1" : "0");
+    inputBitString.append(in_bit2 ? "1" : "0");
+    inputBitString.append(in_bit3 ? "1" : "0");
+    inputBitString.append(in_bit4 ? "1" : "0");
+
+    // Add mcx
+    composite->addInstructions(mcx->getInstructions());
+    // Mesurement:
+    composite->addInstructions(
+        {measureGate0, measureGate1, measureGate2, measureGate3, measureGate4});
+
+    auto buffer = xacc::qalloc(5);
+    acc->execute(buffer, composite);
+    // std::cout << "Input bitstring: " << inputBitString << "\n";
+    // buffer->print();
+    // MCX gate:
+    const auto expectedBitString = [&inputBitString]() -> std::string {
+      // If all control bits are 1's
+      // q0q1q2q3q4
+      if (inputBitString == "01111") {
+        return "11111";
+      }
+      if (inputBitString == "11111") {
+        return "01111";
+      }
+      // Otherwise, no changes
+      return inputBitString;
+    }();
+    // Check bit string
+    EXPECT_NEAR(buffer->computeMeasurementProbability(expectedBitString), 1.0,
+                0.1);
+  };
+
+  // 5 bits: run all test cases (8)
+  for (int i = 0; i < (1 << 5); ++i) {
+    runTestCase(i & 0x001, i & 0x002, i & 0x004, i & 0x008, i & 0x010);
   }
 }
 

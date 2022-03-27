@@ -170,10 +170,12 @@ void _apply_mcu_graycode(std::shared_ptr<CompositeInstruction> circuit,
 std::shared_ptr<CompositeInstruction> __gray_code_mcu_gen(
     std::shared_ptr<CompositeInstruction> u,
     const std::vector<std::pair<std::string, size_t>> &ctrl_qubits) {
+  auto provider = xacc::getIRProvider("quantum");
   auto inst = u->getInstruction(0);
   auto name = inst->name();
-  QubitT target_qubit =
-      std::make_pair(inst->getBufferNames()[0], inst->bits()[0]);
+  const std::string qregName =
+      inst->getBufferNames().empty() ? "q" : inst->getBufferNames()[0];
+  QubitT target_qubit = std::make_pair(qregName, inst->bits()[0]);
   auto n_c = ctrl_qubits.size();
   auto circuit = std::make_shared<Circuit>("__ctrl_circuit__");
 
@@ -182,16 +184,26 @@ std::shared_ptr<CompositeInstruction> __gray_code_mcu_gen(
     auto __lam = inst->isParameterized() ? inst->getParameter(0).as<double>()
                                          : constants::pi;
     lam = __lam * (1 / (std::pow(2, n_c - 1)));
-  } else if (name == "Rx" || name == "X") {
-    auto __theta = inst->isParameterized() ? inst->getParameter(0).as<double>()
-                                           : constants::pi;
+  } else if (name == "Rx") {
+    auto __theta = inst->getParameter(0).as<double>();
     theta = __theta * (1 / (std::pow(2, n_c - 1)));
     phi = -constants::pi / 2.;
     lam = constants::pi / 2.;
-  } 
+  } else if (name == "X") {
+    // IMPORTANT: Rx(pi) = -iX, i.e., it carries a global phase which will
+    // cause troubles when making the controlled version.
+    // Hence, we must do: MCX = H(target) - MCZ - H (target)
+    // i.e., change the basis with Hadamard and using MCZ which doesn't have the
+    // phase problem (Rz(pi) == Z).
+    circuit->addInstruction(provider->createInstruction("H", target_qubit));
+    lam = constants::pi * (1 / (std::pow(2, n_c - 1)));
+  }
 
   _apply_mcu_graycode(circuit, theta, phi, lam, ctrl_qubits, target_qubit);
 
+  if (name == "X") {
+    circuit->addInstruction(provider->createInstruction("H", target_qubit));
+  }
   return circuit;
 }
 
