@@ -27,41 +27,55 @@ namespace quantum {
         m_shotsMode = shots > 1;
 
 #if ENABLE_OPENCL
-        bool isOcl = use_opencl && (Qrack::OCLEngine::Instance()->GetDeviceCount() > 0);
-        bool isOclMulti = isOcl && use_opencl_multi && (Qrack::OCLEngine::Instance()->GetDeviceCount() > 1);
+        bool isOcl = use_opencl && (Qrack::OCLEngine::Instance().GetDeviceCount() > 0);
+        bool isOclMulti = isOcl && use_opencl_multi && (Qrack::OCLEngine::Instance().GetDeviceCount() > 1);
 #else
         bool isOcl = false;
         bool isOclMulti = false;
 #endif
 
+        // Construct backwards, then reverse:
         std::vector<Qrack::QInterfaceEngine> simulatorType;
 
-        if (use_qunit) {
-            simulatorType.push_back(isOclMulti ? Qrack::QINTERFACE_QUNIT_MULTI : Qrack::QINTERFACE_QUNIT);
+#if ENABLE_OPENCL
+        if (!use_cpu_gpu_hybrid || !isOcl) {
+            simulatorType.push_back(isOcl ? Qrack::QINTERFACE_OPENCL : Qrack::QINTERFACE_CPU);
+        }
+#endif
+
+        if (use_z_x_fusion && (!use_paging || simulatorType.size())) {
+            simulatorType.push_back(Qrack::QINTERFACE_MASK_FUSION);
         }
 
-        if (use_stabilizer) {
-            simulatorType.push_back(Qrack::QINTERFACE_STABILIZER_HYBRID);
+        if (use_paging && (use_binary_decision_tree || !use_stabilizer || simulatorType.size())) {
+            simulatorType.push_back(Qrack::QINTERFACE_QPAGER);
         }
 
         if (use_binary_decision_tree) {
             simulatorType.push_back(Qrack::QINTERFACE_BDT);
         }
 
-        if (use_paging) {
-            simulatorType.push_back(Qrack::QINTERFACE_QPAGER);
+        if (use_stabilizer && (!use_qunit || simulatorType.size())) {
+            simulatorType.push_back(Qrack::QINTERFACE_STABILIZER_HYBRID);
         }
 
-        if (use_z_x_fusion) {
-            simulatorType.push_back(Qrack::QINTERFACE_MASK_FUSION);
+        if (use_qunit) {
+            simulatorType.push_back(isOclMulti ? Qrack::QINTERFACE_QUNIT_MULTI : Qrack::QINTERFACE_QUNIT);
         }
 
-        if (isOcl && use_cpu_gpu_hybrid) {
-            simulatorType.push_back(Qrack::QINTERFACE_HYBRID);
-        }
+        // (...then reverse:)
+        std::reverse(simulatorType.begin(), simulatorType.end());
 
         if (!simulatorType.size()) {
-            simulatorType.push_back(isOcl ? Qrack::QINTERFACE_OPENCL : Qrack::QINTERFACE_CPU);
+#if ENABLE_OPENCL
+            if (use_cpu_gpu_hybrid && isOcl) {
+                simulatorType.push_back(Qrack::QINTERFACE_HYBRID);
+            } else {
+                simulatorType.push_back(isOcl ? Qrack::QINTERFACE_OPENCL : Qrack::QINTERFACE_CPU);
+            }
+#else
+            simulatorType.push_back(Qrack::QINTERFACE_CPU);
+#endif
         }
 
         m_qReg = MAKE_ENGINE(m_buffer->size(), 0);
