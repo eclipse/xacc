@@ -104,13 +104,15 @@ bool ADAPT::initialize(const HeterogeneousMap &parameters) {
     return false;
   }
 
-  if (pool->isNumberOfParticlesRequired() &&
-      (parameters.keyExists<int>("n-electrons") ||
-       parameters.keyExists<int>("n-particles"))) {
-    pool->optionalParameters({{"n-electrons", _nParticles}});
-  } else {
-    xacc::error("The chosen pool requires the number of particles/electrons.");
-    return false;
+  if (pool->isNumberOfParticlesRequired()) {
+    if (parameters.keyExists<int>("n-electrons") ||
+        parameters.keyExists<int>("n-particles")) {
+      pool->optionalParameters({{"n-electrons", _nParticles}});
+    } else {
+      xacc::error(
+          "The chosen pool requires the number of particles/electrons.");
+      return false;
+    }
   }
 
   if (observable->toString().find("^") != std::string::npos) {
