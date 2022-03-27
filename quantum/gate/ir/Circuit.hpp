@@ -398,11 +398,11 @@ public:
   DEFINE_VISITABLE()
   std::shared_ptr<Instruction> clone() override {
     auto cloned = std::make_shared<Circuit>(name(), variables, buffer_names);
-
-    for (auto i : instructions) {
-      cloned->addInstruction(i->clone());
+    cloned->instructions.reserve(instructions.size());
+    for (const auto &i : instructions) {
+      cloned->instructions.emplace_back(i->clone());
     }
-    return cloned; // std::make_shared<Circuit>(*this);
+    return cloned;
   }
 
   virtual ~Circuit() {}
