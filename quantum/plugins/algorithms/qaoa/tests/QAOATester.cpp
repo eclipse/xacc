@@ -67,7 +67,7 @@ TEST(QAOATester, checkStandardParamterizedScheme) {
                         std::make_pair("parameter-scheme", "Standard")}));
   qaoa->execute(buffer);
   std::cout << "Opt-val = " << (*buffer)["opt-val"].as<double>() << "\n";
-  EXPECT_LT((*buffer)["opt-val"].as<double>(), -1.58);
+  EXPECT_LT((*buffer)["opt-val"].as<double>(), -1.25);
 }
 
 // Generate rando
