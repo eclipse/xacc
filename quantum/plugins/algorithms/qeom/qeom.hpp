@@ -35,6 +35,7 @@ protected:
   CompositeInstruction *kernel;
   Accelerator *accelerator;
   HeterogeneousMap parameters;
+  bool computeDeexcitations = true;
   std::vector<std::shared_ptr<Observable>> operators;
   mutable std::unordered_map<std::string, double> cachedMeasurements;
 

@@ -86,7 +86,7 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
       pool = xacc::getService<OperatorPool>("singles-doubles-pool");
     }
 
-    pool->optionalParameters({{"n-electrons", nOccupied}});
+    pool->optionalParameters(parameters);
     for (auto &op : pool->getExcitationOperators(nOrbitals)) {
       operators.push_back(jw->transform(op));
     }
@@ -110,6 +110,10 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
     auto pauliObservable =
         xacc::quantum::getObservable("pauli", observable->toString());
     observable = std::dynamic_pointer_cast<Observable>(pauliObservable);
+  }
+
+  if (parameters.keyExists<bool>("compute-deexcitations")) {
+    computeDeexcitations = parameters.get<bool>("compute-deexcitations");
   }
 
   return true;
@@ -174,7 +178,7 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       }
 
       auto Q_MatOperator = doubleCommutator(bra, ketConj);
-      if (!Q_MatOperator->getSubTerms().empty()) {
+      if (!Q_MatOperator->getSubTerms().empty() && computeDeexcitations) {
         Q(i, j) = measureOperator(Q_MatOperator, buffer);
         Q(j, i) = Q(i, j);
       }
@@ -186,7 +190,7 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       }
 
       auto W_MatOperator = bra->commutator(ketConj);
-      if (!W_MatOperator->getSubTerms().empty()) {
+      if (!W_MatOperator->getSubTerms().empty() && computeDeexcitations) {
         W(i, j) = measureOperator(W_MatOperator, buffer);
         W(j, i) = W(i, j);
       }
@@ -199,21 +203,25 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   // | M  Q  |
   // | Q^ M^ |
   MQ.topLeftCorner(nOperators, nOperators) = M;
-  MQ.topRightCorner(nOperators, nOperators) = Q;
-  MQ.bottomLeftCorner(nOperators, nOperators) = Q.adjoint();
   MQ.bottomRightCorner(nOperators, nOperators) = M.adjoint();
+  if (computeDeexcitations) {
+    MQ.topRightCorner(nOperators, nOperators) = Q;
+    MQ.bottomLeftCorner(nOperators, nOperators) = Q.adjoint();
+  }
 
   // RHS matrix
   // |  V    W  |
   // | -V^  -W^ |
   VW.topLeftCorner(nOperators, nOperators) = V;
-  VW.topRightCorner(nOperators, nOperators) = W;
-  VW.bottomLeftCorner(nOperators, nOperators) = -W.adjoint();
   VW.bottomRightCorner(nOperators, nOperators) = -V.adjoint();
+  if (computeDeexcitations) {
+    VW.topRightCorner(nOperators, nOperators) = W;
+    VW.bottomLeftCorner(nOperators, nOperators) = -W.adjoint();
+  }
 
   // Compute eigenvalues
   // | M  Q  | |X| = E |  V    W  | |X|
-  // | Q^ M^ | |Y|     | -V^  -W^ | |Y|
+  // | Q^ M^ | |Y|     | -W^  -V^ | |Y|
   Eigen::GeneralizedEigenSolver<Eigen::MatrixXd> ges;
   ges.compute(MQ, VW);
   std::vector<double> excitationEnergies;
