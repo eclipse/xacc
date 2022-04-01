@@ -170,24 +170,25 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   // commuting terms such as the maxcut Hamiltonian.
   // Limitation: this grouping cannot handle gradient strategy at the moment.
   // Observe the cost Hamiltonian:
-  auto kernels = [&] {
+  auto getObservedKernels = [&] (const std::vector<double> x = {}) {
+    auto evaled = x.empty() ? kernel : kernel->operator()(x);
     if (dynamic_cast<xacc::quantum::PauliOperator *>(m_costHamObs)) {
-      return m_costHamObs->observe(kernel, {{"accelerator", m_qpu}});
+      return m_costHamObs->observe(evaled, {{"accelerator", m_qpu}});
     } else {
-      return m_costHamObs->observe(kernel);
+      return m_costHamObs->observe(evaled);
     }
-  }();
+  };
 
   // Grouping is possible (no gradient strategy)
   // TODO: Gradient strategy to handle grouping as well.
   int iterCount = 0;
   if (m_costHamObs->getNonIdentitySubTerms().size() > 1 &&
-      kernels.size() == 1 && !gradientStrategy) {
+      getObservedKernels().size() == 1 && !gradientStrategy) {
     OptFunction f(
         [&, this](const std::vector<double> &x, std::vector<double> &dx) {
           auto tmpBuffer = xacc::qalloc(buffer->size());
           std::vector<std::shared_ptr<CompositeInstruction>> fsToExec{
-              kernels[0]->operator()(x)};
+              getObservedKernels()[0]->operator()(x)};
           if (m_irTransformation) {
             for (auto &composite : fsToExec) {
               m_irTransformation->apply(
@@ -241,7 +242,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
         double identityCoeff = 0.0;
         int nInstructionsEnergy = 0, nInstructionsGradient = 0;
-        for (auto &f : kernels) {
+        for (auto &f : getObservedKernels(x)) {
           kernelNames.push_back(f->name());
           std::complex<double> coeff = f->getCoefficient();
 
@@ -254,8 +255,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
 
           if (nFunctionInstructions > kernel->nInstructions()) {
-            auto evaled = f->operator()(x);
-            fsToExec.push_back(evaled);
+            fsToExec.push_back(f);
             coefficients.push_back(std::real(coeff));
           } else {
             identityCoeff += std::real(coeff);
@@ -399,6 +399,7 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
 
   // Observe the cost Hamiltonian, with the input Accelerator:
   // i.e. perform grouping (e.g. max-cut QAOA, Pauli) if possible:
+  kernel = kernel->operator()(x);
   auto kernels = [&] {
     if (dynamic_cast<xacc::quantum::PauliOperator *>(m_costHamObs)) {
       return m_costHamObs->observe(kernel, {{"accelerator", m_qpu}});
@@ -412,7 +413,7 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     // Grouping was done:
     // just execute the single observed kernel:
     std::vector<std::shared_ptr<CompositeInstruction>> fsToExec{
-        kernels[0]->operator()(x)};
+        kernels[0]};
     if (m_irTransformation) {
       for (auto &composite : fsToExec) {
         m_irTransformation->apply(
@@ -442,8 +443,7 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     }
 
     if (nFunctionInstructions > kernel->nInstructions()) {
-      auto evaled = f->operator()(x);
-      fsToExec.push_back(evaled);
+      fsToExec.push_back(f);
       coefficients.push_back(std::real(coeff));
     } else {
       identityCoeff += std::real(coeff);

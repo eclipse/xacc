@@ -54,8 +54,8 @@ TEST(AutodiffTester, checkGates) {
 .parameters theta0, theta1
 X 0
 H 1
-Ry(theta0) 1
-Rx(theta1) 0
+Rx(theta0) 0
+Ry(theta1) 1
 CNOT 1 0
 )");
   auto ansatz = xacc::getCompiled("test1");
@@ -139,8 +139,8 @@ TEST(AutodiffTester, checkGradientH3) {
 .parameters t0, t1
 .qbit q
 X(q[0]);
-exp_i_theta(q, t0, {{"pauli", "X0 Y1 - Y0 X1"}});
-exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
+exp_i_theta(q, t1, {{"pauli", "X0 Y1 - Y0 X1"}});
+exp_i_theta(q, t0, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
 )");
   auto ansatz = xacc::getCompiled("ansatz_h3");
   auto autodiff = std::make_shared<xacc::quantum::Autodiff>();

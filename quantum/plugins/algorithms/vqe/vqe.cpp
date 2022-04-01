@@ -112,9 +112,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
 
         // call CompositeInstruction::operator()()
-        auto tmp_x = x;
-        std::reverse(tmp_x.begin(), tmp_x.end());
-        auto evaled = kernel->operator()(tmp_x);
+        auto evaled = kernel->operator()(x);
         // observe
         auto kernels = observable->observe(evaled);
 
@@ -259,6 +257,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         for (auto &b : buffers) {
           buffer->appendChild(b->name(), b);
         }
+
         std::stringstream ss;
         ss << "E(" << (!x.empty() ? std::to_string(x[0]) : "");
         for (int i = 1; i < x.size(); i++)
@@ -273,7 +272,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           min_child_buffers.push_back(idBuffer);
           for (auto b : buffers) {
             min_child_buffers.push_back(b);
-          } 
+          }
           last_energy = energy;
         }
 
@@ -294,7 +293,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       children_coeffs.push_back(
           child->getInformation("coefficient").as<double>());
       children_names.push_back(child->name());
-    } 
+    }
   }
 
   buffer->addExtraInfo("opt-exp-vals", opt_exp_vals);
@@ -317,9 +316,7 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
 
   double identityCoeff = 0.0;
-  auto tmp_x = x;
-  std::reverse(tmp_x.begin(), tmp_x.end());
-  auto evaled = xacc::as_shared_ptr(kernel)->operator()(tmp_x);
+  auto evaled = xacc::as_shared_ptr(kernel)->operator()(x);
   auto kernels = observable->observe(evaled);
   for (auto &f : kernels) {
     kernelNames.push_back(f->name());
@@ -408,6 +405,7 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   for (auto &b : buffers) {
     buffer->appendChild(b->name(), b);
   }
+
   std::stringstream ss;
   ss << "E(" << (!x.empty() ? std::to_string(x[0]) : "");
   for (int i = 1; i < x.size(); i++)

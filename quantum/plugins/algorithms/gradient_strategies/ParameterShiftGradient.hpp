@@ -31,7 +31,7 @@ protected:
   std::shared_ptr<Observable> obs; // Hamiltonian (or any) observable
   std::function<std::shared_ptr<CompositeInstruction>(std::vector<double>)>
       kernel_evaluator;
-  double shiftScalar = 0.25;
+  double shiftScalar = 0.5;
 
 public:
   bool initialize(const HeterogeneousMap parameters) override {
@@ -51,7 +51,7 @@ public:
     }
     // Default shiftScalar (this is not clonable, hence need to be
     // reinitialized)
-    shiftScalar = 0.25;
+    shiftScalar = 0.5;
     if (parameters.keyExists<double>("shift-scalar")) {
       shiftScalar = parameters.get<double>("shift-scalar");
     }
@@ -104,15 +104,16 @@ public:
             }
           }
         } else {
-          kernels = obs->observe(circuit);
-
+          // CompositeInstruction::operator()() must be called
+          // before Observable::observe()
+          auto evaled = circuit->operator()(tmpX);
+          kernels = obs->observe(evaled);
           // loop over circuit instructions
           // and gather coefficients/instructions
           for (auto &f : kernels) {
             if (containMeasureGates(f)) {
-              auto evaled = f->operator()(tmpX);
               coefficients.push_back(std::real(f->getCoefficient()));
-              gradientInstructions.push_back(evaled);
+              gradientInstructions.push_back(f);
             }
           }
         }
@@ -157,8 +158,8 @@ public:
             coefficients[instElement + nInstructionsElement[gradTerm] + shift];
       }
 
-      // gradient is (<+> - <->)
-      dx[gradTerm] = (plusGradElement - minusGradElement);
+      // gradient is (<+> - <->) / 2
+      dx[gradTerm] = (plusGradElement - minusGradElement) / 2.0;
       shift += 2 * nInstructionsElement[gradTerm];
     }
 

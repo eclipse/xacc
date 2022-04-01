@@ -106,15 +106,16 @@ public:
             }
           }
         } else {
-          kernels = obs->observe(circuit);
+          auto evaled = circuit->operator()(tmpX);
+          kernels = obs->observe(evaled);
 
           // loop over circuit instructions
           // and gather coefficients/instructions
           for (auto &f : kernels) {
             if (containMeasureGates(f)) {
-              auto evaled = f->operator()(tmpX);
+              
               coefficients.push_back(std::real(f->getCoefficient()));
-              gradientInstructions.push_back(evaled);
+              gradientInstructions.push_back(f);
             }
           }
         }

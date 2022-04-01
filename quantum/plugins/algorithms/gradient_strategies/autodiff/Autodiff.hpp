@@ -34,6 +34,13 @@ using cxdual = std::complex<autodiff::dual>;
 typedef Eigen::Matrix<cxdual, -1, 1, 0> VectorXcdual;
 typedef Eigen::Matrix<cxdual, -1, -1, 0> MatrixXcdual;
 
+
+template <typename T> std::vector<T> getOrderedVector(const std::vector<T> unorderedVector) {
+  std::set<T> s(unorderedVector.begin(), unorderedVector.end());
+  std::vector<T> orderedVector(s.begin(), s.end());
+  return orderedVector;
+}
+
 namespace xacc {
 namespace quantum {
 class Autodiff : public AlgorithmGradientStrategy {

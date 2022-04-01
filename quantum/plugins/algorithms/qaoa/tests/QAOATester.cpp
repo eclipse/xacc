@@ -102,7 +102,7 @@ TEST(QAOATester, checkP1TriangleGraph) {
     for (auto beta : all_betas) {
       auto buffer = xacc::qalloc(3);
       auto cost =
-          qaoa->execute(buffer, std::vector<double>{gamma, beta})[0];
+          qaoa->execute(buffer, std::vector<double>{beta, gamma})[0];
       auto d = 1;
       auto e = 1;
       auto f = 1;
@@ -116,6 +116,7 @@ TEST(QAOATester, checkP1TriangleGraph) {
     }
   }
 }
+
 
 // Making sure that a set of Hadamards can be passed
 // as the "initial-state" to the QAOA algorithm and 
@@ -296,7 +297,7 @@ TEST(QAOATester, checkP1TriangleGraphGroupingExpVal) {
   for (auto gamma : all_gammas) {
     for (auto beta : all_betas) {
       auto buffer = xacc::qalloc(3);
-      auto cost = qaoa->execute(buffer, std::vector<double>{gamma, beta})[0];
+      auto cost = qaoa->execute(buffer, std::vector<double>{beta, gamma})[0];
       auto d = 1;
       auto e = 1;
       auto f = 1;

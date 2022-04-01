@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "xacc.hpp"
+//#include "AlgorithmGradientStrategy.hpp"
 #include "InstructionIterator.hpp"
 #include "IRProvider.hpp"
 #include "CLIParser.hpp"
@@ -848,6 +849,39 @@ void Finalize() {
     allocated_buffers.clear();
     xacc::ServiceAPI_Finalize();
   }
+}
+
+std::shared_ptr<AlgorithmGradientStrategy> getGradient(const std::string name) {
+  if (!xacc::xaccFrameworkInitialized) {
+    error("XACC not initialized before use. Please execute "
+          "xacc::Initialize() before using API.");
+  }
+
+  auto g = xacc::getService<AlgorithmGradientStrategy>(name, false);
+
+  if (!g) {
+    if (xacc::hasContributedService<AlgorithmGradientStrategy>(name)) {
+      g = xacc::getContributedService<AlgorithmGradientStrategy>(name);
+
+    } else {
+      error("Invalid Gradient Strategy. Could not find " + name +
+            " in Service Registry.");
+    }
+  }
+  return g;
+}
+
+std::shared_ptr<AlgorithmGradientStrategy> getGradient(const std::string name,
+                                        const xacc::HeterogeneousMap &params) {
+  auto g = xacc::getGradient(name);
+  if (!g->initialize(params)) {
+    error("Error initializing " + name + " gradient strategy.");
+  }
+  return g;
+}
+std::shared_ptr<AlgorithmGradientStrategy> getGradient(const std::string name,
+                                        const xacc::HeterogeneousMap &&params) {
+  return getGradient(name, params);
 }
 
 } // namespace xacc

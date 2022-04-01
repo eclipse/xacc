@@ -11,6 +11,7 @@
  *   Daniel Claudino - initial API and implementation
  *******************************************************************************/
 #include <gtest/gtest.h>
+#include <string>
 
 #include "xacc.hpp"
 #include "xacc_service.hpp"
@@ -47,7 +48,54 @@ TEST(GradientStrategiesTester, checkParameterShift) {
 
   std::vector<double> dx(1);
   parameterShift->compute(dx, buffer->getChildren());
-  EXPECT_NEAR(dx[0], std::sqrt(2), 1e-4);
+  EXPECT_NEAR(dx[0], 1, 1e-10);
+}
+
+TEST(GradientStrategiesTester, checkParameterShiftXanadu) {
+  auto accelerator = xacc::getAccelerator("qpp");
+  auto buffer = xacc::qalloc(3);
+
+  std::shared_ptr<Observable> observable =
+      std::make_shared<xacc::quantum::PauliOperator>();
+  observable->fromString("Y0 Z2");
+
+  auto provider = xacc::getIRProvider("quantum");
+  auto ansatz = provider->createComposite("testCircuit");
+  std::vector<std::string> varNames = {"x0", "x1", "x2", "x3", "x4", "x5"};
+  ansatz->addVariables(varNames);
+  ansatz->addInstruction(provider->createInstruction("Rx", {0}, {"x0"}));
+  ansatz->addInstruction(provider->createInstruction("Ry", {1}, {"x1"}));
+  ansatz->addInstruction(provider->createInstruction("Rz", {2}, {"x2"}));
+  ansatz->addInstruction(provider->createInstruction("CNOT", {0, 1}));
+  ansatz->addInstruction(provider->createInstruction("CNOT", {1, 2}));
+  ansatz->addInstruction(provider->createInstruction("CNOT", {2, 0}));
+  ansatz->addInstruction(provider->createInstruction("Rx", {0}, {"x3"}));
+  ansatz->addInstruction(provider->createInstruction("Ry", {1}, {"x4"}));
+  ansatz->addInstruction(provider->createInstruction("Rz", {2}, {"x5"}));
+  ansatz->addInstruction(provider->createInstruction("CNOT", {0, 1}));
+  ansatz->addInstruction(provider->createInstruction("CNOT", {1, 2}));
+  ansatz->addInstruction(provider->createInstruction("CNOT", {2, 0}));
+
+  std::vector<double> params{0.37454012, 0.95071431, 0.73199394, 0.59865848, 0.15601864, 0.15599452};
+  auto opt = xacc::getOptimizer("nlopt", {{"nlopt-optimizer", "l-bfgs"}, {"initial-parameters", params}, {"maxeval", 1}});
+  auto vqe = xacc::getAlgorithm("vqe", {{"ansatz", ansatz}, {"accelerator", accelerator}, {"observable", observable}, {"optimizer", opt}, {"gradient_strategy", "parameter-shift"}});
+  vqe->execute(buffer);
+  EXPECT_NEAR(buffer->getInformation("opt-val").as<double>(), -0.1197136570687156, 1e-5);
+
+  auto parameterShift = xacc::getGradient("parameter-shift", {{"observable", observable}, {"shift-scalar", 0.5}});
+  auto gradientInstructions =
+      parameterShift->getGradientExecutions(ansatz, params);
+      auto tmpbuffer = xacc::qalloc(3);
+      accelerator->execute(tmpbuffer, gradientInstructions);
+   std::vector<double> dx(6);
+
+  parameterShift->compute(dx, tmpbuffer->getChildren());
+
+  // check gradient
+ std::vector<double> expectedGradient = {-0.0651888, -0.0272892, 0, -0.0933935, -0.761068, 0};
+ for(int i = 0; i < 6; i++) {
+   EXPECT_NEAR(dx[i], expectedGradient[i], 1e-5);
+ }
 }
 
 TEST(GradientStrategiesTester, checkCentralDifference) {
@@ -223,7 +271,7 @@ TEST(GradientStrategiesTester, checkParameterShiftShots) {
   accelerator->execute(buffer, gradientInstructions);
   std::vector<double> dx(1);
   parameterShift->compute(dx, buffer->getChildren());
-  EXPECT_NEAR(dx[0], std::sqrt(2), 0.1);
+  EXPECT_NEAR(dx[0], 1, 0.1);
 }
 
 TEST(GradientStrategiesTester, checkCentralDifferenceShots) {
