@@ -36,17 +36,22 @@ class SinglesDoublesPool : public OperatorPool {
 protected:
   int _nElectrons;
   std::vector<std::shared_ptr<Observable>> pool, operators;
+  std::string excitationLevel = "singles-doubles";
 
 public:
   SinglesDoublesPool() = default;
 
-   bool isNumberOfParticlesRequired() const override { return true; };
+  bool isNumberOfParticlesRequired() const override { return true; };
 
   bool optionalParameters(const HeterogeneousMap parameters) override {
 
     if (!parameters.keyExists<int>("n-electrons")) {
       xacc::info("UCCSD pool needs number of electrons.");
       return false;
+    }
+
+    if (parameters.stringExists("excitation-level")) {
+      excitationLevel = parameters.getString("excitation-level");
     }
 
     _nElectrons = parameters.get<int>("n-electrons");
@@ -64,35 +69,37 @@ public:
 
     std::shared_ptr<Observable> fermiOp;
     // singles
-    for (int i = 0; i < _nOccupied; i++) {
-      int ia = i;
-      int ib = i + _nOrbs;
-      for (int a = 0; a < _nVirtual; a++) {
-        int aa = a + _nOccupied;
-        int ab = a + _nOccupied + _nOrbs;
+    if (excitationLevel == "singles" || excitationLevel == "singles-doubles") {
+      for (int i = 0; i < _nOccupied; i++) {
+        int ia = i;
+        int ib = i + _nOrbs;
+        for (int a = 0; a < _nVirtual; a++) {
+          int aa = a + _nOccupied;
+          int ab = a + _nOccupied + _nOrbs;
 
-        operators.push_back(std::make_shared<FermionOperator>(
-            FermionOperator({{aa, 1}, {ia, 0}}, 4.0)));
+          operators.push_back(std::make_shared<FermionOperator>(
+              FermionOperator({{aa, 1}, {ia, 0}}, 4.0)));
 
-        operators.push_back(std::make_shared<FermionOperator>(
-            FermionOperator({{ab, 1}, {ib, 0}}, 4.0)));
-
+          operators.push_back(std::make_shared<FermionOperator>(
+              FermionOperator({{ab, 1}, {ib, 0}}, 4.0)));
+        }
       }
     }
 
     // double excitations
-    for (int i = 0; i < _nOccupied; i++) {
-      int ia = i;
-      for (int j = i; j < _nOccupied; j++) {
-        int jb = j + _nOrbs;
-        for (int a = 0; a < _nVirtual; a++) {
-          int aa = a + _nOccupied;
-          for (int b = a; b < _nVirtual; b++) {
-            int bb = b + _nOccupied + _nOrbs;
+    if (excitationLevel == "doubles" || excitationLevel == "singles-doubles") {
+      for (int i = 0; i < _nOccupied; i++) {
+        int ia = i;
+        for (int j = i; j < _nOccupied; j++) {
+          int jb = j + _nOrbs;
+          for (int a = 0; a < _nVirtual; a++) {
+            int aa = a + _nOccupied;
+            for (int b = a; b < _nVirtual; b++) {
+              int bb = b + _nOccupied + _nOrbs;
 
-            operators.push_back(std::make_shared<FermionOperator>(
-                FermionOperator({{aa, 1}, {ia, 0}, {bb, 1}, {jb, 0}}, 16.0)));
-
+              operators.push_back(std::make_shared<FermionOperator>(
+                  FermionOperator({{aa, 1}, {ia, 0}, {bb, 1}, {jb, 0}}, 16.0)));
+            }
           }
         }
       }
