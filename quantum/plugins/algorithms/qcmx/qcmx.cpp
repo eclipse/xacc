@@ -95,103 +95,66 @@ const std::vector<std::string> QCMX::requiredParameters() const {
 
 void QCMX::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
+  // First gather the operators for all required moments
+  std::vector<std::shared_ptr<Observable>> momentOperators;
+  auto momentOperator = PauliOperator("I");
+  for (int i = 0; i < 2 * maxOrder - 1; i++) {
+    momentOperator *= (*std::dynamic_pointer_cast<PauliOperator>(observable));
+    momentOperators.push_back(std::make_shared<PauliOperator>(momentOperator));
+  }
+
+  // now get the unique terms in all moments operators
+  auto uniqueTerms = getUniqueTerms(momentOperators);
+  auto kernels = uniqueTerms->observe(xacc::as_shared_ptr(kernel));
+  accelerator->execute(buffer, kernels);
+  auto buffers = buffer->getChildren();
+
+  // compute moments
+  auto moments = getMoments(momentOperators, buffers);
+
   // the energies are stored in this map
   std::map<std::string, double> energies;
+  for (int i = 2; i <= maxOrder; i++) {
 
-  auto H = *std::dynamic_pointer_cast<PauliOperator>(observable);
-  auto momentOperator = H;
-  std::vector<double> moments;
-  // The energy computation itself is just classical post processing
-  // So we can compute the energy from all implemented expansions
-  // because the bottleneck is the quantum computation of the moments
-  for (int i = 0; i < 2 * maxOrder - 1; i++) {
-    auto momentExpValue = measureOperator(
-        std::make_shared<PauliOperator>(momentOperator), buffer->size());
-    moments.push_back(momentExpValue);
-
+    // The energy computation itself is just classical post processing
+    // So we can compute the energy from all implemented expansions
+    // because the bottleneck is the quantum computation of the moments
     double e;
-    if ((i != 0) && (i % 2 == 0)) {
-      e = Cioslowski(moments, i / 2 + 1);
-      energies.emplace("CMX(" + std::to_string(i / 2 + 1) + ")", e);
-      std::stringstream ss;
-      ss << std::setprecision(12) << "CMX(" << i / 2 + 1 << ") = " << e;
-      xacc::info(ss.str());
-      ss.str(std::string());
+    std::vector<double> momentsUpToOrder(moments.begin(),
+                                         moments.begin() + 2 * i - 1);
+    e = Cioslowski(momentsUpToOrder, i);
+    energies.emplace("CMX(" + std::to_string(i) + ")", e);
+    std::stringstream ss;
+    ss << std::setprecision(12) << "CMX(" << i << ") = " << e;
+    xacc::info(ss.str());
+    ss.str(std::string());
 
-      e = PDS(moments, i / 2 + 1);
-      energies.emplace("PDS(" + std::to_string(i / 2 + 1) + ")", e);
-      ss << std::setprecision(12) << "PDS(" << i / 2 + 1 << ") = " << e;
-      xacc::info(ss.str());
-      ss.str(std::string());
+    e = PDS(momentsUpToOrder, i / 2 + 1);
+    energies.emplace("PDS(" + std::to_string(i) + ")", e);
+    ss << std::setprecision(12) << "PDS(" << i << ") = " << e;
+    xacc::info(ss.str());
+    ss.str(std::string());
 
-      e = Knowles(moments, i / 2 + 1);
-      energies.emplace("Knowles(" + std::to_string(i / 2 + 1) + ")", e);
-      ss << std::setprecision(12) << "Knowles(" << i / 2 + 1 << ") = " << e;
-      xacc::info(ss.str());
-      ss.str(std::string());
-    }
+    e = Knowles(momentsUpToOrder, i / 2 + 1);
+    energies.emplace("Knowles(" + std::to_string(i) + ")", e);
+    ss << std::setprecision(12) << "Knowles(" << i << ") = " << e;
+    xacc::info(ss.str());
+    ss.str(std::string());
 
     if (i == 2) {
-      e = Soldatov(moments);
+      e = Soldatov(momentsUpToOrder);
       energies.emplace("Soldatov", e);
       std::stringstream ss;
       ss << std::setprecision(12) << "Soldatov = " << e;
       xacc::info(ss.str());
       ss.str(std::string());
     }
-
-    momentOperator *= H;
   }
 
   // add energy to the buffer
   buffer->addExtraInfo("energies", energies);
   buffer->addExtraInfo("spectrum", spectrum);
   return;
-}
-
-double QCMX::measureOperator(const std::shared_ptr<Observable> obs,
-                             const int bufferSize) const {
-
-  std::vector<std::shared_ptr<CompositeInstruction>> kernels;
-  if (x.empty()) {
-    kernels = obs->observe(xacc::as_shared_ptr(kernel));
-  } else {
-    auto evaled = kernel->operator()(x);
-    kernels = obs->observe(evaled);
-  }
-
-  // we loop over all measured circuits
-  // and check if that term has been measured
-  // if so, we just multiply the measurement by the coefficient
-  // We gather all new circuits into fsToExec and execute
-  // Because these are all commutators, we don't need to worry about the I term
-  // Also, terms with small coeffs can be ignored by setting threshold below
-  std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
-  std::vector<std::complex<double>> coefficients;
-  double total = 0.0;
-  for (auto &f : kernels) {
-    std::complex<double> coeff = f->getCoefficient();
-    if (cachedMeasurements.find(f->name()) != cachedMeasurements.end()) {
-      total += std::real(coeff * cachedMeasurements[f->name()]);
-    } else if (std::fabs(coeff.real()) >= threshold) {
-      fsToExec.push_back(f);
-      coefficients.push_back(coeff);
-    }
-  }
-
-  // for circuits that have not been executed previously
-  auto tmpBuffer = xacc::qalloc(bufferSize);
-  accelerator->execute(tmpBuffer, fsToExec);
-  auto buffers = tmpBuffer->getChildren();
-  xacc::info("Number of terms to be measured = " +
-             std::to_string(fsToExec.size()));
-  for (int i = 0; i < fsToExec.size(); i++) {
-    auto expval = buffers[i]->getExpectationValueZ();
-    total += std::real(expval * coefficients[i]);
-    cachedMeasurements.emplace(fsToExec[i]->name(), expval);
-  }
-
-  return total;
 }
 
 // Compute energy from CMX
@@ -340,6 +303,55 @@ double QCMX::Soldatov(const std::vector<double> &moments) const {
   }
 
   return I[0] + I[2] / (2 * I[1]) - sqrt(std::pow(I[2] / (2 * I[1]), 2) + I[1]);
+}
+
+std::shared_ptr<Observable> QCMX::getUniqueTerms(
+    const std::vector<std::shared_ptr<Observable>> momentOps) const {
+
+  auto uniqueTermsPtr = std::make_shared<PauliOperator>();
+  for (auto &momentOp : momentOps) {
+    for (auto &term : momentOp->getNonIdentitySubTerms()) {
+
+      auto op =
+          std::dynamic_pointer_cast<PauliOperator>(term)->begin()->second.ops();
+      auto coeff = std::dynamic_pointer_cast<PauliOperator>(term)
+                       ->begin()
+                       ->second.coeff();
+      if (std::fabs(coeff) < threshold)
+        continue;
+      uniqueTermsPtr->operator+=(*std::make_shared<PauliOperator>(op));
+    }
+  }
+
+  return uniqueTermsPtr;
+}
+
+std::vector<double> QCMX::getMoments(
+    const std::vector<std::shared_ptr<Observable>> momentOperators,
+    const std::vector<std::shared_ptr<AcceleratorBuffer>> buffers) const {
+
+  std::vector<double> moments;
+  for (int i = 0; i < 2 * maxOrder - 1; i++) {
+    double expval = 0.0;
+    if (momentOperators[i]->getIdentitySubTerm()) {
+      expval +=
+          std::real(momentOperators[i]->getIdentitySubTerm()->coefficient());
+    }
+
+    for (auto subTerm : momentOperators[i]->getNonIdentitySubTerms()) {
+      auto term =
+          std::dynamic_pointer_cast<PauliOperator>(subTerm)->begin()->second;
+
+      for (auto buffer : buffers) {
+        if (buffer->name() == term.id()) {
+          expval += std::real(term.coeff() * buffer->getExpectationValueZ());
+          break;
+        }
+      }
+    }
+    moments.push_back(expval);
+  }
+  return moments;
 }
 
 } // namespace algorithm

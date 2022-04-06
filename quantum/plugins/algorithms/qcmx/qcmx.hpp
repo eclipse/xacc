@@ -33,17 +33,12 @@ protected:
 
   // CMX order, also K in the paper
   int maxOrder;
-  // cache measurements
-  mutable std::unordered_map<std::string, double> cachedMeasurements;
   // threshold below which we ignore measurement
   double threshold = 0.0;
   // x is the vector of parameters if the provided ansatz is parameterized
   std::vector<double> x;
   // spectrum is only for PDS
   mutable std::vector<double> spectrum;
-
-  double measureOperator(const std::shared_ptr<Observable> obs,
-                         const int bufferSize) const;
 
   // Compute energy from PDS CMX
   double PDS(const std::vector<double> &moments, const int order) const;
@@ -56,6 +51,15 @@ protected:
 
   // Compute energy from Soldatov's approximate functional
   double Soldatov(const std::vector<double> &moments) const;
+
+  // get unique Pauli words
+  std::shared_ptr<Observable>
+  getUniqueTerms(const std::vector<std::shared_ptr<Observable>>) const;
+
+  // get moments from measured unique Pauli words
+  std::vector<double>
+  getMoments(const std::vector<std::shared_ptr<Observable>>,
+             const std::vector<std::shared_ptr<AcceleratorBuffer>>) const;
 
 public:
   bool initialize(const HeterogeneousMap &parameters) override;

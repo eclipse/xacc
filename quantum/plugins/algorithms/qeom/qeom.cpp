@@ -125,12 +125,6 @@ const std::vector<std::string> qEOM::requiredParameters() const {
 
 void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
-  int nOperators = operators.size();
-  Eigen::MatrixXd M = Eigen::MatrixXd::Zero(nOperators, nOperators);
-  Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(nOperators, nOperators);
-  Eigen::MatrixXd V = Eigen::MatrixXd::Zero(nOperators, nOperators);
-  Eigen::MatrixXd W = Eigen::MatrixXd::Zero(nOperators, nOperators);
-
   // this lambda computes
   // [A, H, B] = 1/2 x ([[A,H],B] + [A,[H,B]])
   auto doubleCommutator = [&](std::shared_ptr<Observable> A,
@@ -153,6 +147,9 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   // Here we loop over operators on the left and on the right,
   // which I loosely refer to as bra and ket
   // loop over bra
+  int nOperators = operators.size();
+  std::vector<std::shared_ptr<Observable>> matElementOps;
+
   for (int i = 0; i < nOperators; i++) {
 
     auto tmp_bra = (*std::dynamic_pointer_cast<PauliOperator>(operators[i]))
@@ -171,27 +168,49 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           std::make_shared<PauliOperator>(tmp_ketConj));
 
       // qEOM matrix elements
+      // first the diagonal blocks
       auto M_MatOperator = doubleCommutator(bra, ket);
-      if (!M_MatOperator->getSubTerms().empty()) {
-        M(i, j) = measureOperator(M_MatOperator, buffer);
-        M(j, i) = M(i, j);
-      }
-
-      auto Q_MatOperator = doubleCommutator(bra, ketConj);
-      if (!Q_MatOperator->getSubTerms().empty() && computeDeexcitations) {
-        Q(i, j) = measureOperator(Q_MatOperator, buffer);
-        Q(j, i) = Q(i, j);
-      }
-
+      matElementOps.push_back(M_MatOperator);
       auto V_MatOperator = bra->commutator(ket);
-      if (!V_MatOperator->getSubTerms().empty()) {
-        V(i, j) = measureOperator(V_MatOperator, buffer);
-        V(j, i) = V(i, j);
-      }
+      matElementOps.push_back(V_MatOperator);
 
-      auto W_MatOperator = bra->commutator(ketConj);
-      if (!W_MatOperator->getSubTerms().empty() && computeDeexcitations) {
-        W(i, j) = measureOperator(W_MatOperator, buffer);
+      // off-diagonal blocks
+      // only if computing de-excitations
+      if (computeDeexcitations) {
+        auto Q_MatOperator = doubleCommutator(bra, ketConj);
+        matElementOps.push_back(Q_MatOperator);
+        auto W_MatOperator = bra->commutator(ketConj);
+        matElementOps.push_back(W_MatOperator);
+      }
+    }
+  }
+
+  // call Observable::observe() and Accelerator::execute() only once
+  auto uniqueTermsPtr = getUniqueTerms(matElementOps);
+  auto kernels = uniqueTermsPtr->observe(xacc::as_shared_ptr(kernel));
+  accelerator->execute(buffer, kernels);
+  auto buffers = buffer->getChildren();
+
+  // compute matrix elements
+  int counter = 0;
+  Eigen::MatrixXd M = Eigen::MatrixXd::Zero(nOperators, nOperators);
+  Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(nOperators, nOperators);
+  Eigen::MatrixXd V = Eigen::MatrixXd::Zero(nOperators, nOperators);
+  Eigen::MatrixXd W = Eigen::MatrixXd::Zero(nOperators, nOperators);
+  for (int i = 0; i < nOperators; i++) {
+    for (int j = i; j < nOperators; j++) {
+
+      M(i, j) = computeOperatorExpValue(matElementOps[counter++], buffers);
+      M(j, i) = M(i, j);
+
+      V(i, j) = computeOperatorExpValue(matElementOps[counter++], buffers);
+      V(j, i) = V(i, j);
+
+      if (computeDeexcitations) {
+        Q(i, j) = computeOperatorExpValue(matElementOps[counter++], buffers);
+        Q(j, i) = Q(i, j);
+
+        W(i, j) = computeOperatorExpValue(matElementOps[counter++], buffers);
         W(j, i) = W(i, j);
       }
     }
@@ -245,42 +264,63 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   return;
 }
 
-double
-qEOM::measureOperator(const std::shared_ptr<Observable> obs,
-                      const std::shared_ptr<AcceleratorBuffer> buffer) const {
+std::shared_ptr<Observable> qEOM::getUniqueTerms(
+    const std::vector<std::shared_ptr<Observable>> excitationOps) const {
 
-  // observe
-  auto kernels = obs->observe(xacc::as_shared_ptr(kernel));
+  // loop over all operators and all terms for each operator
+  // then check if that operator has been added to found
+  // and add it if not
+  // since each term is measured separately, we can have an operator
+  // that's the sum of all unique terms
+  auto uniqueTermsPtr = std::make_shared<PauliOperator>();
+  for (auto &op : excitationOps) {
+    for (auto &subTerm : op->getNonIdentitySubTerms()) {
 
-  // we loop over all measured circuits
-  // and check if that term has been measured
-  // if so, we just multiply the measurement by the coefficient
-  // We gather all new circuits into fsToExec and execute
-  // Because these are all commutators, we don't need to worry about the I term
-  std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
-  std::vector<std::complex<double>> coefficients;
-  double total = 0.0;
-  for (auto &f : kernels) {
-    std::complex<double> coeff = f->getCoefficient();
-    if (cachedMeasurements.find(f->name()) != cachedMeasurements.end()) {
-      total += std::real(coeff * cachedMeasurements[f->name()]);
-    } else {
-      fsToExec.push_back(f);
-      coefficients.push_back(coeff);
+      auto term1 = std::dynamic_pointer_cast<PauliOperator>(subTerm)->begin();
+      if (!uniqueTermsPtr->getNonIdentitySubTerms().empty()) {
+
+        for (auto uniqueTerm : uniqueTermsPtr->getNonIdentitySubTerms()) {
+          auto term2 =
+              std::dynamic_pointer_cast<PauliOperator>(uniqueTerm)->begin();
+
+          if (term1->second.id() == term2->second.id()) {
+            continue;
+          } else {
+            uniqueTermsPtr->operator+=(
+                *std::make_shared<PauliOperator>(term1->second.ops()));
+            break;
+          }
+
+        }
+
+      } else {
+        uniqueTermsPtr->operator+=(
+            *std::make_shared<PauliOperator>(term1->second.ops()));
+      }
     }
   }
 
-  // for circuits that have not been executed previously
-  auto tmpBuffer = xacc::qalloc(buffer->size());
-  accelerator->execute(tmpBuffer, fsToExec);
-  auto buffers = tmpBuffer->getChildren();
-  for (int i = 0; i < fsToExec.size(); i++) {
-    auto expval = buffers[i]->getExpectationValueZ();
-    total += std::real(expval * coefficients[i]);
-    cachedMeasurements.emplace(fsToExec[i]->name(), expval);
+  return uniqueTermsPtr;
+}
+
+double qEOM::computeOperatorExpValue(
+    const std::shared_ptr<Observable> &excitationOp,
+    const std::vector<std::shared_ptr<AcceleratorBuffer>> &buffers) const {
+
+  double expval = 0.0;
+  for (auto subTerm : excitationOp->getNonIdentitySubTerms()) {
+    auto term =
+        std::dynamic_pointer_cast<PauliOperator>(subTerm)->begin()->second;
+
+    for (auto buffer : buffers) {
+      if (buffer->name() == term.id()) {
+        expval += std::real(term.coeff() * buffer->getExpectationValueZ());
+        break;
+      }
+    }
   }
 
-  return total;
+  return expval;
 }
 
 } // namespace algorithm
