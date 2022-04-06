@@ -317,7 +317,7 @@ std::shared_ptr<Observable> QCMX::getUniqueTerms(
       auto coeff = std::dynamic_pointer_cast<PauliOperator>(term)
                        ->begin()
                        ->second.coeff();
-      if (std::fabs(coeff) < threshold)
+      if (std::fabs(coeff.real()) < threshold)
         continue;
       uniqueTermsPtr->operator+=(*std::make_shared<PauliOperator>(op));
     }
