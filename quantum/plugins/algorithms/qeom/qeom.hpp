@@ -37,9 +37,12 @@ protected:
   HeterogeneousMap parameters;
   bool computeDeexcitations = true;
   std::vector<std::shared_ptr<Observable>> operators;
-  mutable std::unordered_map<std::string, double> cachedMeasurements;
 
-  double measureOperator(const std::shared_ptr<Observable> obs, const std::shared_ptr<AcceleratorBuffer> buffer) const;
+  std::shared_ptr<Observable>
+  getUniqueTerms(const std::vector<std::shared_ptr<Observable>>) const;
+  double computeOperatorExpValue(
+      const std::shared_ptr<Observable> &,
+      const std::vector<std::shared_ptr<AcceleratorBuffer>> &) const;
 
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
