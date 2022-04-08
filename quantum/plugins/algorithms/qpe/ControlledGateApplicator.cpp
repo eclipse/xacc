@@ -77,7 +77,7 @@ void _apply_cu(std::shared_ptr<CompositeInstruction> circuit, double theta,
   circuit->addInstruction(
       provider->createInstruction("U", {target},
                                   std::vector<xacc::InstructionParameter>{
-                                      -theta / 2, 0, -(lam + phi) / 2.}));
+                                      -theta / 2, 0.0, -(lam + phi) / 2.}));
 
   circuit->addInstruction(
       provider->createInstruction("CNOT", {control, target}));
