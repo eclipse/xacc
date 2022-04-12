@@ -13,20 +13,36 @@
 #pragma once
 #include "xacc.hpp"
 #include "AllGateVisitor.hpp"
+#include "GateModifier.hpp"
 using namespace xacc::quantum;
 
 namespace xacc {
 namespace circuits {
 
-class ControlledU : public AllGateVisitor, public quantum::Circuit {
+class ControlledU : public AllGateVisitor, public quantum::Circuit, public quantum::ControlModifier {
 public:
-  ControlledU() : Circuit("C-U") {}
+  ControlledU() : Circuit("C-U") { m_expanded = false; }
   bool expand(const xacc::HeterogeneousMap &runtimeOptions) override;
   // Input: The composite "U" and the control Idx.
   // Control Idx must *not* be one of the qubits that U is acting on.
   const std::vector<std::string> requiredKeys() override {
     return {"U", "control-idx"};
   }
+
+  virtual std::shared_ptr<Instruction> getBaseInstruction() const override {
+    if (!m_expanded) {
+      xacc::error("Controlled modifier block not yet expanded.");
+    }
+    return m_originalU;
+  }
+  virtual std::vector<std::pair<std::string, size_t>>
+  getControlQubits() const override {
+    if (!m_expanded) {
+      xacc::error("Controlled modifier block not yet expanded.");
+    }
+    return m_ctrlIdxs;
+  }
+
   DEFINE_CLONE(ControlledU);
 
   // AllGateVisitor implementation
@@ -70,6 +86,9 @@ private:
   std::shared_ptr<xacc::IRProvider> m_gateProvider;
   // The current control qubit (buffer name & index)
   std::pair<std::string, size_t> m_ctrlIdx;
+  bool m_expanded;
+  std::vector<std::pair<std::string, size_t>> m_ctrlIdxs;
+  std::shared_ptr<Instruction> m_originalU;
 };
 } // namespace circuits
 } // namespace xacc

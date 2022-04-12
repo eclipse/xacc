@@ -11,6 +11,11 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 
+#include "Circuit.hpp"
+#include "Instruction.hpp"
+#include "InstructionVisitor.hpp"
+#include <functional>
+#include <memory>
 #pragma one
 #include "Identifiable.hpp"
 #include "AllGateVisitor.hpp"
@@ -23,7 +28,7 @@ using KetVectorType = qpp::ket;
 
 namespace xacc {
 namespace quantum {
-class QppVisitor : public AllGateVisitor, public OptionsProvider, public xacc::Cloneable<QppVisitor> {
+class QppVisitor : public AllGateVisitor, public InstructionVisitor<Circuit>, public OptionsProvider, public xacc::Cloneable<QppVisitor> {
 public:
   void initialize(std::shared_ptr<AcceleratorBuffer> buffer, bool shotsMode = false);
   void finalize();
@@ -53,6 +58,7 @@ public:
   void visit(iSwap& in_iSwapGate) override;
   void visit(fSim& in_fsimGate) override;
   void visit(Reset& in_resetGate) override;
+  void visit(Circuit& in_circuit) override;
   virtual std::shared_ptr<QppVisitor> clone() override { return std::make_shared<QppVisitor>(); }
   const KetVectorType& getStateVec() const { return m_stateVec; }
   static double calcExpectationValueZ(const KetVectorType& in_stateVec, const std::vector<qpp::idx>& in_bits);
@@ -76,5 +82,6 @@ private:
   bool m_shotsMode;
   std::string m_bitString;
   bool m_initialized = false;
+  std::vector<std::reference_wrapper<xacc::quantum::Circuit>> m_controlledBlocks;
 };
 }}

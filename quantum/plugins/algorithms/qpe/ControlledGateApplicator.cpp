@@ -245,7 +245,7 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   auto uComposite = std::shared_ptr<CompositeInstruction>(
       runtimeOptions.getPointerLike<CompositeInstruction>("U"),
       xacc::empty_delete<CompositeInstruction>());
-
+  m_originalU = uComposite;
   const std::vector<std::pair<std::string, size_t>> ctrlIdxs =
       [&runtimeOptions,
        uComposite]() -> std::vector<std::pair<std::string, size_t>> {
@@ -309,7 +309,7 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   }
 
   auto ctrlU = uComposite;
-
+  m_ctrlIdxs = ctrlIdxs;
   auto should_run_gray_mcu_synth = [ctrlU, &ctrlIdxs]() {
     if (ctrlU->nInstructions() == 1) {
       std::vector<std::string> allowed{"X", "Rx", "Z", "Rz"};
@@ -364,6 +364,7 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
       addInstruction(inst);
     }
   }
+  m_expanded = true;
   return true;
 }
 
