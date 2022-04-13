@@ -245,7 +245,7 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   auto uComposite = std::shared_ptr<CompositeInstruction>(
       runtimeOptions.getPointerLike<CompositeInstruction>("U"),
       xacc::empty_delete<CompositeInstruction>());
-  m_originalU = uComposite;
+  m_originalU = uComposite->clone();
   const std::vector<std::pair<std::string, size_t>> ctrlIdxs =
       [&runtimeOptions,
        uComposite]() -> std::vector<std::pair<std::string, size_t>> {

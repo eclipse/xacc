@@ -13,7 +13,8 @@
 #pragma once
 #include "xacc.hpp"
 #include "AllGateVisitor.hpp"
-
+#include "GateModifier.hpp"
+#include <cassert>
 // Workaround VirtualBox bug: https://www.virtualbox.org/ticket/15471
 // VirtualBox enables AVX2 flag but not FMA flag in -march=native
 // which is a **bug**, there is no such config.
@@ -36,7 +37,7 @@
 
 namespace xacc {
 namespace quantum {
-class QsimCircuitVisitor : public AllGateVisitor {
+class QsimCircuitVisitor : public AllGateVisitor, public InstructionVisitor<Circuit> {
 public:
   using fp_type = float;
 
@@ -91,7 +92,7 @@ public:
 
   void visit(CY &cy) override {
     auto yGate = qsim::GateY<fp_type>::Create(m_time++, cy.bits()[1]);
-    constexpr uint64_t cmask = uint64_t{1} << 1 - 1;
+    constexpr uint64_t cmask = (uint64_t{1} << 1) - 1;
     qsim::MakeControlledGate(std::vector<unsigned>{(unsigned)cy.bits()[0]},
                              cmask, yGate);
     m_circuit.gates.emplace_back(std::move(yGate));
@@ -111,7 +112,7 @@ public:
     auto rzGate = qsim::GateRZ<fp_type>::Create(
         m_time++, crz.bits()[1],
         InstructionParameterToDouble(crz.getParameter(0)));
-    constexpr uint64_t cmask = uint64_t{1} << 1 - 1;
+    constexpr uint64_t cmask = (uint64_t{1} << 1) - 1;
     qsim::MakeControlledGate(std::vector<unsigned>{(unsigned)crz.bits()[0]},
                              cmask, rzGate);
     m_circuit.gates.emplace_back(std::move(rzGate));
@@ -119,7 +120,7 @@ public:
 
   void visit(CH &ch) override {
     auto hGate = qsim::GateHd<fp_type>::Create(m_time++, ch.bits()[1]);
-    constexpr uint64_t cmask = uint64_t{1} << 1 - 1;
+    constexpr uint64_t cmask = (uint64_t{1} << 1) - 1;
     qsim::MakeControlledGate(std::vector<unsigned>{(unsigned)ch.bits()[0]},
                              cmask, hGate);
     m_circuit.gates.emplace_back(std::move(hGate));
@@ -191,13 +192,89 @@ public:
             m_time++, std::vector<unsigned>{(unsigned)measure.bits()[0]}));
   }
 
+  void visit(Circuit &in_circuit) override {
+    // std::cout << "HOWDY: Visit quantum circuit: " << in_circuit.name() << "\n";
+    if (in_circuit.name() == "C-U") {
+      auto *asControlledBlock =
+          dynamic_cast<xacc::quantum::ControlModifier *>(&in_circuit);
+      assert(asControlledBlock);
+      // Controlled circuit
+      const auto controlQubits = asControlledBlock->getControlQubits();
+      auto baseCircuit = asControlledBlock->getBaseInstruction();
+      assert(baseCircuit->isComposite());
+      auto asComp = xacc::ir::asComposite(baseCircuit);
+      assert(!controlQubits.empty());
+      const bool should_perform_mcu_sim = [&]() {
+        if (asComp->getInstructions().size() == 1) {
+          // Only support these for the moment
+          if (asComp->getInstruction(0)->name() == "X" ||
+              asComp->getInstruction(0)->name() == "Y" ||
+              asComp->getInstruction(0)->name() == "Z") {
+            return true;
+          }
+        }
+
+        return false;
+      }();
+
+      if (should_perform_mcu_sim) {
+        std::vector<unsigned> ctrlIdx;
+        const std::string regName = controlQubits[0].first;
+        for (const auto &[reg, idx] : controlQubits) {
+          if (reg != regName) {
+            xacc::error("Multiple qubit registers are not supported!");
+          }
+          ctrlIdx.emplace_back(idx);
+        }
+        assert(ctrlIdx.size() == controlQubits.size());
+
+        auto baseGate = asComp->getInstruction(0);
+        if (baseGate->name() == "X") {
+          auto xGate =
+              qsim::GateX<fp_type>::Create(m_time++, baseGate->bits()[0]);
+          const auto cmask = (uint64_t{1} << ctrlIdx.size()) - 1;
+          qsim::MakeControlledGate(ctrlIdx, cmask, xGate);
+          m_circuit.gates.emplace_back(std::move(xGate));
+        } else if (baseGate->name() == "Y") {
+          auto yGate =
+              qsim::GateY<fp_type>::Create(m_time++, baseGate->bits()[0]);
+          const auto cmask = (uint64_t{1} << ctrlIdx.size()) - 1;
+          qsim::MakeControlledGate(ctrlIdx, cmask, yGate);
+          m_circuit.gates.emplace_back(std::move(yGate));
+        } else if (baseGate->name() == "Z") {
+          auto zGate =
+              qsim::GateX<fp_type>::Create(m_time++, baseGate->bits()[0]);
+          const auto cmask = (uint64_t{1} << ctrlIdx.size()) - 1;
+          qsim::MakeControlledGate(ctrlIdx, cmask, zGate);
+          m_circuit.gates.emplace_back(std::move(zGate));
+        } else {
+          xacc::error("Internal error: Unhandled multi-controlled gate.");
+        }
+
+        // No need to handle this sub-circuit anymore.
+        in_circuit.disable();
+        m_controlledBlocks.emplace_back(in_circuit);
+      }
+    }
+  }
+
   qsim::Circuit<qsim::GateQSim<fp_type>> getQsimCircuit() const {
     return m_circuit;
+  }
+
+  ~QsimCircuitVisitor() {
+    for (auto &block : m_controlledBlocks) {
+      // We temporarily disabled these blocks while handling the simulation,
+      // now reset the status.
+      block.get().enable();
+    }
+    m_controlledBlocks.clear();
   }
 
 private:
   qsim::Circuit<qsim::GateQSim<fp_type>> m_circuit;
   size_t m_time;
+  std::vector<std::reference_wrapper<xacc::quantum::Circuit>> m_controlledBlocks;
 };
 
 class QsimAccelerator : public Accelerator {
