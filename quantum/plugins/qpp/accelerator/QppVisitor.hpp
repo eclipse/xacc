@@ -10,7 +10,7 @@
  * Contributors:
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
-#pragma one
+#pragma once
 #include "Circuit.hpp"
 #include "Instruction.hpp"
 #include "InstructionVisitor.hpp"
