@@ -10,13 +10,12 @@
  * Contributors:
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
-
+#pragma one
 #include "Circuit.hpp"
 #include "Instruction.hpp"
 #include "InstructionVisitor.hpp"
 #include <functional>
 #include <memory>
-#pragma one
 #include "Identifiable.hpp"
 #include "AllGateVisitor.hpp"
 #include "AcceleratorBuffer.hpp"
