@@ -15,68 +15,16 @@
 #include "QrackVisitor.hpp"
 #include "xacc.hpp"
 
-#define MAKE_ENGINE(num_qubits, perm) Qrack::CreateQuantumInterface(simulatorType, num_qubits, perm, nullptr, Qrack::CMPLX_DEFAULT_ARG, doNormalize, false, false, device_id, true, zero_threshold)
+#define MAKE_ENGINE(num_qubits, perm) Qrack::CreateArrangedLayers(use_qunit_multi, use_qunit, use_stabilizer, use_binary_decision_tree, use_paging, use_z_x_fusion, use_cpu_gpu_hybrid, use_opencl, num_qubits, perm, nullptr, Qrack::CMPLX_DEFAULT_ARG, doNormalize, false, false, device_id, true, zero_threshold)
 
 namespace xacc {
 namespace quantum {
-    void QrackVisitor::initialize(std::shared_ptr<AcceleratorBuffer> buffer, int shots, bool use_opencl, bool use_qunit, bool use_opencl_multi, bool use_stabilizer, bool use_binary_decision_tree, bool use_paging, bool use_z_x_fusion, bool use_cpu_gpu_hybrid, int device_id, bool doNormalize, double zero_threshold)
+    void QrackVisitor::initialize(std::shared_ptr<AcceleratorBuffer> buffer, int shots, bool use_opencl, bool use_qunit, bool use_qunit_multi, bool use_stabilizer, bool use_binary_decision_tree, bool use_paging, bool use_z_x_fusion, bool use_cpu_gpu_hybrid, int device_id, bool doNormalize, double zero_threshold)
     {
         m_buffer = std::move(buffer);
         m_measureBits.clear();
         m_shots = shots;
         m_shotsMode = shots > 1;
-
-#if ENABLE_OPENCL
-        bool isOcl = use_opencl && (Qrack::OCLEngine::Instance().GetDeviceCount() > 0);
-        bool isOclMulti = isOcl && use_opencl_multi && (Qrack::OCLEngine::Instance().GetDeviceCount() > 1);
-#else
-        bool isOcl = false;
-        bool isOclMulti = false;
-#endif
-
-        // Construct backwards, then reverse:
-        std::vector<Qrack::QInterfaceEngine> simulatorType;
-
-#if ENABLE_OPENCL
-        if (!use_cpu_gpu_hybrid || !isOcl) {
-            simulatorType.push_back(isOcl ? Qrack::QINTERFACE_OPENCL : Qrack::QINTERFACE_CPU);
-        }
-#endif
-
-        if (use_z_x_fusion && (!use_paging || simulatorType.size())) {
-            simulatorType.push_back(Qrack::QINTERFACE_MASK_FUSION);
-        }
-
-        if (use_paging && (use_binary_decision_tree || !use_stabilizer || simulatorType.size())) {
-            simulatorType.push_back(Qrack::QINTERFACE_QPAGER);
-        }
-
-        if (use_binary_decision_tree) {
-            simulatorType.push_back(Qrack::QINTERFACE_BDT);
-        }
-
-        if (use_stabilizer && (!use_qunit || simulatorType.size())) {
-            simulatorType.push_back(Qrack::QINTERFACE_STABILIZER_HYBRID);
-        }
-
-        if (use_qunit) {
-            simulatorType.push_back(isOclMulti ? Qrack::QINTERFACE_QUNIT_MULTI : Qrack::QINTERFACE_QUNIT);
-        }
-
-        // (...then reverse:)
-        std::reverse(simulatorType.begin(), simulatorType.end());
-
-        if (!simulatorType.size()) {
-#if ENABLE_OPENCL
-            if (use_cpu_gpu_hybrid && isOcl) {
-                simulatorType.push_back(Qrack::QINTERFACE_HYBRID);
-            } else {
-                simulatorType.push_back(isOcl ? Qrack::QINTERFACE_OPENCL : Qrack::QINTERFACE_CPU);
-            }
-#else
-            simulatorType.push_back(Qrack::QINTERFACE_CPU);
-#endif
-        }
 
         m_qReg = MAKE_ENGINE(m_buffer->size(), 0);
     }
