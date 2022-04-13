@@ -43,7 +43,7 @@ private:
     bool m_use_stabilizer = true;
     bool m_use_binary_decision_tree = false;
     bool m_use_paging = true;
-    bool m_use_z_x_fusion = true;
+    bool m_use_z_x_fusion = false;
     bool m_use_cpu_gpu_hybrid = true;
     int m_device_id = -1;
     bool m_do_normalize = false;
