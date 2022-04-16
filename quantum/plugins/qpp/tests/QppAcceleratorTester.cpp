@@ -673,8 +673,7 @@ TEST(QppAcceleratorTester, testMultiControlledGateNativeSim)
       xacc::getService<xacc::Instruction>("C-U"));
   // Testing many controls, only possible (complete in reasonable time) with
   // custom C-U handler
-  const std::vector<int> ctrl_idxs{1, 2,  3,  4,  5,  6,  7, 8,
-                                   9, 10, 11, 12, 13, 14, 15};
+  const std::vector<int> ctrl_idxs{1, 2,  3,  4,  5};
   const auto nQubits = ctrl_idxs.size() + 1;
   mcx->expand({{"U", comp}, {"control-idx", ctrl_idxs}});
   std::cout << "HOWDY: Gate count: " << mcx->nInstructions() << "\n";
