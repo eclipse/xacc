@@ -116,6 +116,17 @@ if (XACC_BUILD_TESTS)
 endif()
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
+
+# check MPI status
+# if MPI_CXX_COMPILER is not empty and cmake can find MPI
+# turn MPI_ENABLED on
+if(NOT MPI_CXX_COMPILER STREQUAL "")
+  find_package(MPI)
+  if(MPI_FOUND)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPI_ENABLED")
+  endif()
+endif()
+
 include_directories(${CMAKE_BINARY_DIR}/tpls/cppmicroservices/include)
 add_subdirectory(tpls)
 

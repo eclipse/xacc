@@ -119,6 +119,11 @@ public:
     PYBIND11_OVERLOAD(void, xacc::AlgorithmGradientStrategy, setFunctionValue, expValue);        
   }
 
+  std::vector<double> compute(const int n,
+    std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {
+    PYBIND11_OVERLOAD(std::vector<double>, xacc::AlgorithmGradientStrategy, compute, n, results) ;
+  }
+
 };
 
 #define QUICK_WRITE_VISIT_METHOD(GATE) void visit(GATE& gate) override { PYBIND11_OVERLOAD(void, AllGateVisitor, visit, gate); }

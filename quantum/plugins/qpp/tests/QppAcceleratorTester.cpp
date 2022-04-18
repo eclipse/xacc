@@ -143,8 +143,8 @@ TEST(QppAcceleratorTester, testDeuteronVqeH3)
         .parameters t0, t1
         .qbit q
         X(q[0]);
-        exp_i_theta(q, t0, {{"pauli", "X0 Y1 - Y0 X1"}});
-        exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
+        exp_i_theta(q, t1, {{"pauli", "X0 Y1 - Y0 X1"}});
+        exp_i_theta(q, t0, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
     )");
     auto ansatz = xacc::getCompiled("deuteron_ansatz_h3");
 

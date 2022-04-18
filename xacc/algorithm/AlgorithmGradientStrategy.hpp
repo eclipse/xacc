@@ -56,6 +56,17 @@ public:
   virtual void
   compute(std::vector<double> &dx,
           std::vector<std::shared_ptr<AcceleratorBuffer>> results) = 0;
+
+  virtual std::vector<double>
+  compute(const int nParams,
+          std::vector<std::shared_ptr<AcceleratorBuffer>> results) {
+    XACCLogger::instance()->error("AlgorithmGradientStrategy::compute(int, "
+                                  "vector<AcceleratorBuffer>) not implemented "
+                                  "for " +
+                                  name());
+    exit(0);
+    return {};
+  }
 };
 
 } // namespace xacc
