@@ -49,6 +49,10 @@ add_library(xacc SHARED
 
 add_dependencies(xacc cpr)
 
+if(MPI_FOUND)
+  include_directories(${MPI_CXX_HEADER_DIR})
+endif()
+
 if(LIBUNWIND_FOUND)
 message(
     STATUS "${BoldGreen}Building xacc with libunwind support.${ColorReset}")
