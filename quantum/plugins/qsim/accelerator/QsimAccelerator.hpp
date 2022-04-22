@@ -194,7 +194,8 @@ public:
 
   void visit(Circuit &in_circuit) override {
     // std::cout << "HOWDY: Visit quantum circuit: " << in_circuit.name() << "\n";
-    if (in_circuit.name() == "C-U") {
+    if (in_circuit.name() == "C-U" &&
+        dynamic_cast<xacc::quantum::ControlModifier *>(&in_circuit)) {
       auto *asControlledBlock =
           dynamic_cast<xacc::quantum::ControlModifier *>(&in_circuit);
       assert(asControlledBlock);
