@@ -21,20 +21,23 @@ namespace quantum {
 
 class RichExtrapDecorator : public AcceleratorDecorator {
 public:
- const std::vector<std::string> configurationKeys() override {
-      return {};
-  }
+  void initialize(const HeterogeneousMap &params = {}) override;
+  const std::vector<std::string> configurationKeys() override { return {}; }
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                const std::shared_ptr<CompositeInstruction> function) override;
 
-  void
-  execute(std::shared_ptr<AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<CompositeInstruction>> functions) override;
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+               const std::vector<std::shared_ptr<CompositeInstruction>>
+                   functions) override;
 
   const std::string name() const override { return "rich-extrap"; }
   const std::string description() const override { return ""; }
 
   ~RichExtrapDecorator() override {}
+
+private:
+  std::vector<int> m_noiseScalings;
+  std::string m_scalingGate;
 };
 
 } // namespace quantum
