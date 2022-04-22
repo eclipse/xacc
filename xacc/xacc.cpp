@@ -122,6 +122,7 @@ void Initialize(int arc, char **arv) {
     if (provided != MPI_THREAD_MULTIPLE) {
       xacc::warning("MPI_THREAD_MULTIPLE not provided.");
     }
+    isMPIInitialized = 1;
   }
 #endif
 }
@@ -851,17 +852,16 @@ void Finalize() {
       }
     }
 
+    xacc::xaccFrameworkInitialized = false;
+    compilation_database.clear();
+    allocated_buffers.clear();
+    xacc::ServiceAPI_Finalize();
     // This replaces the HPC virtualization TearDown
 #ifdef MPI_ENABLED
     if (isMPIInitialized) {
       MPI_Finalize();
     }
 #endif
-
-    xacc::xaccFrameworkInitialized = false;
-    compilation_database.clear();
-    allocated_buffers.clear();
-    xacc::ServiceAPI_Finalize();
   }
 }
 
