@@ -13,6 +13,15 @@
 add_executable(tnqvm_hpc_virt tnqvm_hpc_virtualization.cpp)
 target_link_libraries(tnqvm_hpc_virt PRIVATE xacc xacc-quantum-gate)
 
+add_executable(parameter_shift parameter_shift.cpp)
+target_link_libraries(parameter_shift PRIVATE xacc xacc-quantum-gate)
+
+add_executable(mc_vqe mc_vqe.cpp)
+target_link_libraries(mc_vqe PRIVATE xacc xacc-quantum-gate xacc-pauli)
+
+add_executable(h2_hwe h2_hwe.cpp)
+target_link_libraries(h2_hwe PRIVATE xacc xacc-quantum-gate)
+
 configure_file(tnqvm_h4_chain_8qbit_adapt_gs.in.cpp
                ${CMAKE_BINARY_DIR}/quantum/examples/hpc_virtualization/tnqvm_h4_chain_8qbit_adapt_gs.cpp)
 

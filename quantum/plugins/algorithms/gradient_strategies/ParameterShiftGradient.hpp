@@ -79,22 +79,61 @@ public:
       return false;
     };
 
+    // get all occurences of a parameter in the circuit
+    // and the corresponding coefficients
+    std::map<int, std::vector<std::pair<int, double>>> paramIdx;
+    auto circInsts = circuit->getInstructions();
+    auto vars = circuit->getVariables();
+    // parse parameters to circuit before shifts
+    auto evaled = circuit->operator()(x);
+    auto evaledInsts = evaled->getInstructions();
+    for (int i = 0; i < circuit->nInstructions(); i++) {
+      auto circInst = circInsts[i];
+      if (circInst->isParameterized()) {
+        if (circInst->getParameter(0).isVariable()) {
+          auto param = circInst->getParameter(0).as<std::string>();
+
+          // get coefficient
+          double coeff = 1.0;
+          std::string var;
+          if (param.find('*') != std::string::npos) {
+            coeff = std::stod(param.substr(0, param.find('*') - 1));
+            var = param.substr(param.find('*') + 1);
+          } else {
+            var = param;
+          }
+          auto paramValue =
+              evaledInsts[i]->getParameter(0).as<double>() / coeff;
+          for (int idx = 0; idx < x.size(); idx++) {
+            if (std::fabs(x[idx] - paramValue) < 1.0e-4) {
+              paramIdx[idx].push_back({i, coeff});
+              break;
+            }
+          }
+        }
+      }
+    }
+
     std::vector<std::shared_ptr<CompositeInstruction>> gradientInstructions;
     // Note: for the purpose of parameter-shift gradient calculation, the
     // identity term has no effect, i.e., its contributions to the plus and
     // minus sides will cancel out.
     // loop over parameters
     for (int param = 0; param < x.size(); param++) {
+
+      // get indices for the current parameter
+      auto idxs = paramIdx[param];
+
       // parameter shift sign
       for (double sign : {1.0, -1.0}) {
-
-        // parameter shift
-        auto tmpX = x;
-        tmpX[param] += sign * xacc::constants::pi * shiftScalar;
 
         // get instructions for shifted parameter
         std::vector<std::shared_ptr<CompositeInstruction>> kernels;
         if (kernel_evaluator) {
+          // parameter shift
+          // we move this here because only the kernel evaluator will need it
+          auto tmpX = x;
+          tmpX[param] += sign * xacc::constants::pi * shiftScalar;
           auto evaled_base = kernel_evaluator(tmpX);
           kernels = obs->observe(evaled_base);
           for (auto &f : kernels) {
@@ -104,10 +143,22 @@ public:
             }
           }
         } else {
-          // CompositeInstruction::operator()() must be called
-          // before Observable::observe()
-          auto evaled = circuit->operator()(tmpX);
-          kernels = obs->observe(evaled);
+
+          // clone the circuit after operator()()
+          // then loop over the occurences of the parameter and replace
+          // the rotation gate by the same gate with the shifted angle
+          auto evaledClone =
+              std::dynamic_pointer_cast<CompositeInstruction>(evaled->clone());
+          for (auto idx : idxs) {
+            auto gate = evaledClone->getInstructions()[idx.first]->clone();
+            auto shifted =
+                gate->getParameter(0).as<double>() +
+                sign * xacc::constants::pi * idx.second * shiftScalar;
+            gate->setParameter(0, shifted);
+            evaledClone->replaceInstruction(idx.first, gate);
+          }
+          kernels = obs->observe(evaledClone);
+
           // loop over circuit instructions
           // and gather coefficients/instructions
           for (auto &f : kernels) {
@@ -174,6 +225,16 @@ public:
     ss.str(std::string());
 
     return;
+  }
+
+
+  std::vector<double>
+  compute(const int n,
+          std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {
+
+    std::vector<double> dx(n);
+    compute(dx, results);
+    return dx;
   }
 
   const std::string name() const override { return "parameter-shift"; }

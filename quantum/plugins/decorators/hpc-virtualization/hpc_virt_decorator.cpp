@@ -9,18 +9,13 @@
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
+ *   Daniel Claudino - MPI native implementation
  *******************************************************************************/
 #include "hpc_virt_decorator.hpp"
 #include "InstructionIterator.hpp"
 #include "Utils.hpp"
 #include "xacc.hpp"
-
-#include <boost/mpi.hpp>
-#include <boost/mpi/collectives/all_gather.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
-
-#include <mpi.h>
+#include <numeric>
 
 namespace xacc {
 namespace quantum {
@@ -68,25 +63,19 @@ void HPCVirtDecorator::execute(
   // we wish to evaluate the <O> for each by partitioning
   // their quantum execution across the node sub-groups.
 
-  using namespace boost;
-  int initialized;
-  MPI_Initialized(&initialized);
-  if (!initialized) {
-    MPI_Init(&xacc::argc, &xacc::argv);
-  }
-
-  mpi::communicator world;
-
   // Get the rank and size in the original communicator
-  int world_rank = world.rank(), world_size = world.size();
+  int world_size, world_rank;
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+  auto world = std::make_shared<ProcessGroup>(MPI_COMM_WORLD, world_size);
 
   if (world_size < n_virtual_qpus) {
     // The number of MPI processes is less than the number of requested virtual
     // QPUs, just execute as if there is only one virtual QPU and give the QPU
     // the whole MPI_COMM_WORLD.
-    void *qpu_comm_ptr = reinterpret_cast<void *>((MPI_Comm)world);
+    void *qpu_comm_ptr = reinterpret_cast<void *>(world.get());
     if (!qpuComm) {
-      qpuComm = std::make_shared<boost::mpi::communicator>(world);
+      qpuComm = world;
     }
     decoratedAccelerator->updateConfiguration(
         {{"mpi-communicator", qpu_comm_ptr}});
@@ -95,26 +84,37 @@ void HPCVirtDecorator::execute(
     return;
   }
 
-  // Get the color for this rank
-  int color = world_rank % n_virtual_qpus;
+  // get ranks in each comm
+  std::vector<int> ranks(world_size);
+  std::iota(ranks.begin(), ranks.end(), 0);
+  auto ranksPerComm = split_vector(ranks, n_virtual_qpus);
+
+  // get color
+  int color;
+  for (int i = 0; i < n_virtual_qpus; i++) {
+    auto ranks = ranksPerComm[i];
+    if (std::find(ranks.begin(), ranks.end(), world_rank) != ranks.end()) {
+      color = i;
+    }
+  }
 
   // Split the communicator based on the color and use the
   // original rank for ordering
   if (!qpuComm) {
     // Splits MPI_COMM_WORLD into sub-communicators if not already.
-    qpuComm = std::make_shared<boost::mpi::communicator>(
-        world.split(color, world_rank));
+    qpuComm = world->split(color);
   }
-  auto qpu_comm = *qpuComm;
 
   // current rank now has a color to indicate which sub-comm it belongs to
   // Give that sub communicator to the accelerator
-  void *qpu_comm_ptr = reinterpret_cast<void *>((MPI_Comm)qpu_comm);
+  void *qpu_comm_ptr =
+      reinterpret_cast<void *>(qpuComm->getMPICommProxy().getRef<MPI_Comm>());
   decoratedAccelerator->updateConfiguration(
       {{"mpi-communicator", qpu_comm_ptr}});
 
+  // get the number of sub-communicators
   // Everybody split the CompositeInstructions vector into n_virtual_qpu
-  // segments
+  // segments and get the color for the given process
   auto split_vecs = split_vector(functions, n_virtual_qpus);
 
   // Get the segment corresponding to this color
@@ -124,104 +124,141 @@ void HPCVirtDecorator::execute(
   auto my_buffer = xacc::qalloc(buffer->size());
   decoratedAccelerator->execute(my_buffer, my_circuits);
 
-  // Create a mapping of all local buffer names to the buffer
-  std::map<std::string, std::shared_ptr<AcceleratorBuffer>>
-      local_name_to_buffer;
-  for (auto &child : my_buffer->getChildren()) {
-    local_name_to_buffer.insert({child->name(), child});
+  // Split world along rank-0 in each sub-communicator and reduce the local
+  // energies
+  auto zeroRanksComm =
+      world->split(world_rank == qpuComm->getProcessRanks()[0]);
+
+  // Here we get the number of children buffers
+  // and the number of children per comm
+  int nGlobalChildren = 0;
+  std::vector<int> nLocalChildren(n_virtual_qpus);
+  if (world_rank == qpuComm->getProcessRanks()[0]) {
+
+    // reduce the number of children
+    auto nChildren = my_buffer->nChildren();
+    MPI_Allreduce(&nChildren, &nGlobalChildren, 1, MPI_INT, MPI_SUM,
+                  zeroRanksComm->getMPICommProxy().getRef<MPI_Comm>());
+
+    // get number of children in each subcommunicator
+    MPI_Allgather(&nChildren, 1, MPI_INT, nLocalChildren.data(), 1, MPI_INT,
+                  zeroRanksComm->getMPICommProxy().getRef<MPI_Comm>());
   }
 
-  // Every sub-group compute local energy
-  double local_energy = 0.0;
-  for (auto &my_circuit : my_circuits) {
-    local_energy +=
-        std::real(my_circuit->getCoefficient()) *
-        local_name_to_buffer[my_circuit->name()]->getExpectationValueZ();
-  }
-  
-  // for all rank 0s on qpu_comms, split
-  // and add them to a new communicator, then
-  // all_gather each local_energy to all these ranks
-  auto split_along_rank_zeros = world.split(qpu_comm.rank() == 0, world_rank);
-  double global_energy = 0.0;
-  if (qpu_comm.rank() == 0) {
-    
-    // This will put every computed local_energy into each
-    // qpu sub-comm group, but on rank 0 only
-    std::vector<double> all_local_energies;
-    mpi::all_gather(split_along_rank_zeros, local_energy, all_local_energies);
-    // Sum them all up on all rank 0s to get the global energy
-    global_energy =
-        std::accumulate(all_local_energies.begin(), all_local_energies.end(),
-                        decltype(all_local_energies)::value_type(0));
+  // broadcast the total number of children
+  MPI_Bcast(&nGlobalChildren, 1, MPI_INT, 0,
+            qpuComm->getMPICommProxy().getRef<MPI_Comm>());
+
+  // broadcast the number of children in each communicator
+  MPI_Bcast(nLocalChildren.data(), nLocalChildren.size(), MPI_INT, 0,
+            qpuComm->getMPICommProxy().getRef<MPI_Comm>());
+
+  // get expectation values and the size of the key of each child buffer
+  std::vector<double> globalExpVals(nGlobalChildren);
+  std::vector<int> globalKeySizes(nGlobalChildren);
+  if (world_rank == qpuComm->getProcessRanks()[0]) {
+
+    // get displacements for the keys in each comm
+    std::vector<int> nKeyShift(n_virtual_qpus);
+    for (int i = 0; i < n_virtual_qpus; i++) {
+      nKeyShift[i] = std::accumulate(nLocalChildren.begin(),
+                                     nLocalChildren.begin() + i, 0);
+    }
+
+    // get size of each key in the communicator
+    std::vector<double> localExpVals;
+    std::vector<int> localKeySizes;
+    for (auto child : my_buffer->getChildren()) {
+      localKeySizes.push_back(child->name().size());
+      localExpVals.push_back(child->getExpectationValueZ());
+    }
+
+    // gather all expectation values
+    MPI_Allgatherv(localExpVals.data(), localExpVals.size(), MPI_DOUBLE,
+                   globalExpVals.data(), nLocalChildren.data(),
+                   nKeyShift.data(), MPI_DOUBLE,
+                   zeroRanksComm->getMPICommProxy().getRef<MPI_Comm>());
+
+    // gather the size of each child key
+    MPI_Allgatherv(localKeySizes.data(), localKeySizes.size(), MPI_INT,
+                   globalKeySizes.data(), nLocalChildren.data(),
+                   nKeyShift.data(), MPI_INT,
+                   zeroRanksComm->getMPICommProxy().getRef<MPI_Comm>());
   }
 
-  qpu_comm.barrier();
+  // broadcast expectation values
+  MPI_Bcast(globalExpVals.data(), globalExpVals.size(), MPI_DOUBLE, 0,
+            qpuComm->getMPICommProxy().getRef<MPI_Comm>());
 
-  // Now broadcast that global_energy to all
-  // other ranks in the sub groups
-  mpi::broadcast(qpu_comm, global_energy, 0);
+  // broadcast size of each key
+  MPI_Bcast(globalKeySizes.data(), globalKeySizes.size(), MPI_INT, 0,
+            qpuComm->getMPICommProxy().getRef<MPI_Comm>());
+
+  // get the size of all keys
+  auto nGlobalKeyChars =
+      std::accumulate(globalKeySizes.begin(), globalKeySizes.end(), 0);
+
+  // gather all keys chars
+  std::vector<char> globalKeyChars(nGlobalKeyChars);
+  if (world_rank == qpuComm->getProcessRanks()[0]) {
+
+    // get local key char arrays
+    std::vector<char> localKeys;
+    for (auto child : my_buffer->getChildren()) {
+      for (auto c : child->name()) {
+        localKeys.push_back(c);
+      }
+    }
+
+    // get the size of keys in the communicator
+    std::vector<int> commKeySize(n_virtual_qpus);
+    int shift = 0;
+    for (int i = 0; i < n_virtual_qpus; i++) {
+      auto it = globalKeySizes.begin() + shift;
+      commKeySize[i] = std::accumulate(it, it + nLocalChildren[i], 0);
+      shift += nLocalChildren[i];
+    }
+
+    // shifts for key sizes
+    std::vector<int> keySizeShift(n_virtual_qpus);
+    for (int i = 1; i < n_virtual_qpus; i++) {
+      keySizeShift[i] =
+          std::accumulate(commKeySize.begin(), commKeySize.begin() + i, 0);
+    }
+
+    // gather all key chars
+    MPI_Allgatherv(localKeys.data(), localKeys.size(), MPI_CHAR,
+                   globalKeyChars.data(), commKeySize.data(),
+                   keySizeShift.data(), MPI_CHAR,
+                   zeroRanksComm->getMPICommProxy().getRef<MPI_Comm>());
+  }
+
+  // broadcast all keys
+  MPI_Bcast(globalKeyChars.data(), globalKeyChars.size(), MPI_CHAR, 0,
+            qpuComm->getMPICommProxy().getRef<MPI_Comm>());
+
+  // now every process has everything to rebuild the buffer
+  int shift = 0;
+  for (int i = 0; i < nGlobalChildren; i++) {
+
+    // get child name
+    auto it = globalKeyChars.begin() + shift;
+    std::string name(it, it + globalKeySizes[i]);
+
+    // create child buffer and append it to buffer
+    auto child = xacc::qalloc(buffer->size());
+    child->setName(name);
+    child->addExtraInfo("exp-val-z", globalExpVals[i]);
+    buffer->appendChild(name, child);
+    shift += globalKeySizes[i];
+  }
 
   // Setup a barrier
-  qpu_comm.barrier();
-  world.barrier();
-
-  // every rank should have global_energy now
-  buffer->addExtraInfo("__internal__decorator_aggregate_vqe__", global_energy);
-
-  // Strategy:
-  // Every process in a sub-communicator has the same
-  // children buffer data. I want each sub-group to share
-  // its results with the other subgroups. My thinking is
-  // to do an all_gather on all world ranks, all ranks will then
-  // have multiple copies of the data strings, so lets filter them
-  // out by using a std::set. Then just load the buffers and add them
-  // to the buffer.
-
-  // Need to distribute resultant children buffers to all ranks
-  //   std::vector<std::vector<std::string>> all_child_buffer_strings;
-  //   mpi::all_gather(world, my_child_buffer_strings,
-  //   all_child_buffer_strings);
-
-  //   // Everyone has all copies of child buffer strings, filter them out to be
-  //   // unique
-  //   std::set<std::string> unique_buffer_strings;
-  //   for (auto &child_buffer_strings : all_child_buffer_strings) {
-  //     for (auto child_buffer_string : child_buffer_strings) {
-  //       unique_buffer_strings.insert(child_buffer_string);
-  //     }
-  //   }
-
-  //   // everyone add the children buffers to the incoming buffer
-  //   std::map<std::string, std::shared_ptr<AcceleratorBuffer>> name_to_buffer;
-  //   for (auto &buffer_string : unique_buffer_strings) {
-  //     auto child_buffer = xacc::qalloc(buffer->size());
-  //     std::istringstream s(buffer_string);
-  //     child_buffer->load(s);
-  //     name_to_buffer.insert({child_buffer->name(), child_buffer});
-  //   }
-
-  //   // buffers need to be in same order as functions coming in
-  //   for (auto &f : functions) {
-  //     buffer->appendChild(f->name(), name_to_buffer[f->name()]);
-  //   }
-
-  //   qpu_comm.barrier();
-  //   world.barrier();
-
+  MPI_Barrier(qpuComm->getMPICommProxy().getRef<MPI_Comm>());
+  MPI_Barrier(world->getMPICommProxy().getRef<MPI_Comm>());
   buffer->addExtraInfo("rank", world_rank);
-  return;
-}
 
-void HPCVirtTearDown::tearDown() {
-  int finalized, initialized;
-  MPI_Initialized(&initialized);
-  if (initialized) {
-    MPI_Finalized(&finalized);
-    if (!finalized) {
-      MPI_Finalize();
-    }
-  }
+  return;
 }
 
 } // namespace quantum
@@ -245,9 +282,6 @@ public:
 
     context.RegisterService<xacc::AcceleratorDecorator>(c);
     context.RegisterService<xacc::Accelerator>(c);
-
-    context.RegisterService<xacc::TearDown>(
-        std::make_shared<xacc::quantum::HPCVirtTearDown>());
   }
 
   /**

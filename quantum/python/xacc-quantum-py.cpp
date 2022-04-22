@@ -243,5 +243,12 @@ void bind_quantum(py::module &m) {
       .def("setFunctionValue", &AlgorithmGradientStrategy::setFunctionValue)
       .def("getGradientExecutions",
            &AlgorithmGradientStrategy::getGradientExecutions)
-      .def("compute", &AlgorithmGradientStrategy::compute);
+      .def("compute", (void (AlgorithmGradientStrategy::*)(
+                          std::vector<double> &,
+                          std::vector<std::shared_ptr<AcceleratorBuffer>>)) &
+                          AlgorithmGradientStrategy::compute)
+      .def("compute",
+           (std::vector<double>(AlgorithmGradientStrategy::*)(
+               const int, std::vector<std::shared_ptr<AcceleratorBuffer>>)) &
+               AlgorithmGradientStrategy::compute);
 }

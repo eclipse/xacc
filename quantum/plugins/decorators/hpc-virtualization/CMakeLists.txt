@@ -15,7 +15,7 @@ if(MPI_FOUND)
   set(LIBRARY_NAME xacc-hpc-virt-decorator)
 
   file(GLOB_RECURSE HEADERS *.hpp)
-  file(GLOB SRC hpc_virt_decorator.cpp)
+  file(GLOB SRC hpc_virt_decorator.cpp MPIProxy.cpp)
 
   # Set up dependencies to resources to track changes
   usfunctiongetresourcesource(TARGET
@@ -48,8 +48,8 @@ if(MPI_FOUND)
                            FILES
                            manifest.json)
 
-  target_include_directories(${LIBRARY_NAME} PUBLIC .)
-  target_link_libraries(${LIBRARY_NAME} PUBLIC xacc Boost::mpi)
+  target_include_directories(${LIBRARY_NAME} PUBLIC . ${MPI_CXX_HEADER_DIR})
+  target_link_libraries(${LIBRARY_NAME} PUBLIC xacc)
 
   if(APPLE)
     set_target_properties(${LIBRARY_NAME}

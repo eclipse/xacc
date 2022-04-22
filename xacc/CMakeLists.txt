@@ -49,6 +49,10 @@ add_library(xacc SHARED
 
 add_dependencies(xacc cpr)
 
+if(MPI_FOUND)
+  include_directories(${MPI_CXX_HEADER_DIR})
+endif()
+
 if(LIBUNWIND_FOUND)
 message(
     STATUS "${BoldGreen}Building xacc with libunwind support.${ColorReset}")
@@ -73,10 +77,18 @@ message(
                                     ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
                                     ${CMAKE_SOURCE_DIR}/tpls/nlohmann)
 
-  target_link_libraries(xacc
+  # linking against MPI libraries found by cmake
+  if(MPI_FOUND)
+    target_link_libraries(xacc
+                        PUBLIC CppMicroServices ${MPI_CXX_LIBRARIES}
+                        PRIVATE cpr ${LIBUNWIND_LIBRARIES}
+                                ${LIBUNWINDX86_LIBRARIES})
+  else()
+    target_link_libraries(xacc
                         PUBLIC CppMicroServices
                         PRIVATE cpr ${LIBUNWIND_LIBRARIES}
                                 ${LIBUNWINDX86_LIBRARIES})
+  endif()
 
 else()
 
@@ -98,7 +110,13 @@ else()
                                     optimizer
                                     ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
                                     ${CMAKE_SOURCE_DIR}/tpls/nlohmann)
-  target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr)
+
+  # linking against MPI libraries found by cmake
+  if(MPI_FOUND)
+    target_link_libraries(xacc PUBLIC CppMicroServices ${MPI_CXX_LIBRARIES} PRIVATE cpr)
+  else()
+    target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr)
+  endif()
 
 endif()
 
