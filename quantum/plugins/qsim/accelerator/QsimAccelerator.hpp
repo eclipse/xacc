@@ -34,6 +34,7 @@
 #include "run_qsim.h"
 #include "simmux.h"
 #include "io_file.h"
+#include "fuser_mqubit.h"
 
 namespace xacc {
 namespace quantum {
@@ -92,9 +93,8 @@ public:
 
   void visit(CY &cy) override {
     auto yGate = qsim::GateY<fp_type>::Create(m_time++, cy.bits()[1]);
-    constexpr uint64_t cmask = (uint64_t{1} << 1) - 1;
     qsim::MakeControlledGate(std::vector<unsigned>{(unsigned)cy.bits()[0]},
-                             cmask, yGate);
+                              yGate);
     m_circuit.gates.emplace_back(std::move(yGate));
   }
 
@@ -112,17 +112,15 @@ public:
     auto rzGate = qsim::GateRZ<fp_type>::Create(
         m_time++, crz.bits()[1],
         InstructionParameterToDouble(crz.getParameter(0)));
-    constexpr uint64_t cmask = (uint64_t{1} << 1) - 1;
     qsim::MakeControlledGate(std::vector<unsigned>{(unsigned)crz.bits()[0]},
-                             cmask, rzGate);
+                              rzGate);
     m_circuit.gates.emplace_back(std::move(rzGate));
   }
 
   void visit(CH &ch) override {
     auto hGate = qsim::GateHd<fp_type>::Create(m_time++, ch.bits()[1]);
-    constexpr uint64_t cmask = (uint64_t{1} << 1) - 1;
     qsim::MakeControlledGate(std::vector<unsigned>{(unsigned)ch.bits()[0]},
-                             cmask, hGate);
+                             hGate);
     m_circuit.gates.emplace_back(std::move(hGate));
   }
 
@@ -233,20 +231,17 @@ public:
         if (baseGate->name() == "X") {
           auto xGate =
               qsim::GateX<fp_type>::Create(m_time++, baseGate->bits()[0]);
-          const auto cmask = (uint64_t{1} << ctrlIdx.size()) - 1;
-          qsim::MakeControlledGate(ctrlIdx, cmask, xGate);
+          qsim::MakeControlledGate(ctrlIdx, xGate);
           m_circuit.gates.emplace_back(std::move(xGate));
         } else if (baseGate->name() == "Y") {
           auto yGate =
               qsim::GateY<fp_type>::Create(m_time++, baseGate->bits()[0]);
-          const auto cmask = (uint64_t{1} << ctrlIdx.size()) - 1;
-          qsim::MakeControlledGate(ctrlIdx, cmask, yGate);
+          qsim::MakeControlledGate(ctrlIdx, yGate);
           m_circuit.gates.emplace_back(std::move(yGate));
         } else if (baseGate->name() == "Z") {
           auto zGate =
-              qsim::GateX<fp_type>::Create(m_time++, baseGate->bits()[0]);
-          const auto cmask = (uint64_t{1} << ctrlIdx.size()) - 1;
-          qsim::MakeControlledGate(ctrlIdx, cmask, zGate);
+              qsim::GateZ<fp_type>::Create(m_time++, baseGate->bits()[0]);
+          qsim::MakeControlledGate(ctrlIdx, zGate);
           m_circuit.gates.emplace_back(std::move(zGate));
         } else {
           xacc::error("Internal error: Unhandled multi-controlled gate.");
@@ -278,16 +273,27 @@ private:
   std::vector<std::reference_wrapper<xacc::quantum::Circuit>> m_controlledBlocks;
 };
 
+struct Factory {
+  Factory(unsigned num_threads) : num_threads(num_threads) {}
+
+  using Simulator = qsim::Simulator<qsim::For>;
+  using StateSpace = Simulator::StateSpace;
+
+  StateSpace CreateStateSpace() const { return StateSpace(num_threads); }
+
+  Simulator CreateSimulator() const { return Simulator(num_threads); }
+
+  unsigned num_threads;
+};
+
 class QsimAccelerator : public Accelerator {
 public:
   // Qsim type:
   using Simulator = qsim::Simulator<qsim::For>;
   using StateSpace = Simulator::StateSpace;
   using State = StateSpace::State;
-  using Runner =
-      qsim::QSimRunner<qsim::IO,
-                       qsim::BasicGateFuser<qsim::IO, qsim::GateQSim<float>>,
-                       Simulator>;
+  using Fuser = qsim::MultiQubitGateFuser<qsim::IO, qsim::GateQSim<float>>;
+  using Runner = qsim::QSimRunner<qsim::IO, Fuser, Factory>;
 
   // Identifiable interface impls
   virtual const std::string name() const override { return "qsim"; }
@@ -323,6 +329,7 @@ private:
   Runner::Parameter m_qsimParam;
   int m_shots;
   bool m_vqeMode;
+  int m_numThreads;
 };
 } // namespace quantum
 } // namespace xacc

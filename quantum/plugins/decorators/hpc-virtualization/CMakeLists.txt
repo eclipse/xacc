@@ -67,6 +67,6 @@ if(MPI_FOUND)
 
   # Gather tests
   if(XACC_BUILD_TESTS)
-    # add_subdirectory(tests)
+    add_subdirectory(tests)
   endif()
 endif()

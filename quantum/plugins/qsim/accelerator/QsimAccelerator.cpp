@@ -68,8 +68,8 @@ void PrintAmplitudes(unsigned num_qubits, const StateSpace &state_space,
 // 1. Copy state onto scratch
 // 2. Evolve scratch forward with Z terms
 // 3. Compute < state | scratch >
-template <typename StateSpace, typename State>
-double computeExpValZ(size_t num_threads, const std::vector<size_t> &meas_bits,
+template <typename Params, typename StateSpace, typename State>
+double computeExpValZ(const Params& params, size_t num_threads, const std::vector<size_t> &meas_bits,
                       const StateSpace &state_space, const State &state) {
   auto scratch = state_space.Create(state.num_qubits());
   // copy from src to scratch.
@@ -81,23 +81,25 @@ double computeExpValZ(size_t num_threads, const std::vector<size_t> &meas_bits,
   for (const auto &bit : meas_bits) {
     meas_circuit.gates.emplace_back(qsim::GateZ<float>::Create(time++, bit));
   }
-
+  using namespace qsim;
+  using Fuser = MultiQubitGateFuser<IO, GateQSim<float>>;
   auto fused_circuit =
-      qsim::BasicGateFuser<qsim::IO, qsim::GateQSim<float>>().FuseGates(
-          meas_circuit.num_qubits, meas_circuit.gates);
+      Fuser::FuseGates(params, meas_circuit.num_qubits, meas_circuit.gates);
   xacc::quantum::QsimAccelerator::Simulator sim(num_threads);
   for (const auto &fused_gate : fused_circuit) {
     qsim::ApplyFusedGate(sim, fused_gate, scratch);
   }
   return state_space.RealInnerProduct(state, scratch);
 }
+
+
 } // namespace
 
 namespace xacc {
 namespace quantum {
 void QsimAccelerator::initialize(const HeterogeneousMap &params) {
   m_qsimParam.seed = 1;
-  m_qsimParam.num_threads = 1;
+  m_numThreads = 1;
   m_qsimParam.verbosity = xacc::verbose ? 1 : 0;
   m_shots = -1;
   if (params.keyExists<int>("shots")) {
@@ -113,7 +115,7 @@ void QsimAccelerator::initialize(const HeterogeneousMap &params) {
   }
 
   if (params.keyExists<int>("threads")) {
-    m_qsimParam.num_threads = params.get<int>("threads");
+    m_numThreads = params.get<int>("threads");
   }
   // Enable VQE mode by default if not using shots.
   // Note: in VQE mode, only expectation values are computed.
@@ -152,11 +154,11 @@ void QsimAccelerator::execute(
     }
 
     auto circuit = visitor.getQsimCircuit();
-    StateSpace stateSpace(m_qsimParam.num_threads);
+    StateSpace stateSpace(m_numThreads);
     State state = stateSpace.Create(circuit.num_qubits);
     stateSpace.SetStateZero(state);
 
-    if (Runner::Run(m_qsimParam, circuit, state)) {
+    if (Runner::Run(m_qsimParam, Factory(m_numThreads), circuit, state)) {
       // PrintAmplitudes(circuit.num_qubits, stateSpace, state);
       if (qsimSimulateSamples) {
         // Generate bit strings
@@ -173,8 +175,8 @@ void QsimAccelerator::execute(
           buffer->appendMeasurement(bitString);
         }
       } else {
-        const double expectedValueZ = computeExpValZ(
-            m_qsimParam.num_threads, measureBitIdxs, stateSpace, state);
+        const double expectedValueZ =
+            computeExpValZ(m_qsimParam, m_numThreads, measureBitIdxs, stateSpace, state);
         // Just add exp-val-z info
         buffer->addExtraInfo("exp-val-z", expectedValueZ);
       }
@@ -245,11 +247,11 @@ void QsimAccelerator::execute(
 
     // Run the base circuit:
     auto circuit = visitor.getQsimCircuit();
-    StateSpace stateSpace(m_qsimParam.num_threads);
+    StateSpace stateSpace(m_numThreads);
     State state = stateSpace.Create(circuit.num_qubits);
     stateSpace.SetStateZero(state);
 
-    const bool runOk = Runner::Run(m_qsimParam, circuit, state);
+    const bool runOk = Runner::Run(m_qsimParam, Factory(m_numThreads), circuit, state);
     assert(runOk);
 
     // Now we have a wavefunction that represents execution of the ansatz.
@@ -291,17 +293,14 @@ double QsimAccelerator::getExpectationValueZ(
     const bool copyOk = stateSpace.Copy(state, scratch);
     assert(copyOk);
     auto fused_circuit =
-        qsim::BasicGateFuser<qsim::IO, qsim::GateQSim<float>>().FuseGates(
-            circuit.num_qubits, circuit.gates);
-    xacc::quantum::QsimAccelerator::Simulator sim(m_qsimParam.num_threads);
+        Fuser::FuseGates(m_qsimParam, circuit.num_qubits, circuit.gates);
+    xacc::quantum::QsimAccelerator::Simulator sim(m_numThreads);
     for (const auto &fused_gate : fused_circuit) {
       qsim::ApplyFusedGate(sim, fused_gate, scratch);
     }
-    return computeExpValZ(m_qsimParam.num_threads, measureBitIdxs, stateSpace,
-                          scratch);
+    return computeExpValZ(m_qsimParam, m_numThreads, measureBitIdxs, stateSpace, scratch);
   } else {
-    return computeExpValZ(m_qsimParam.num_threads, measureBitIdxs, stateSpace,
-                          state);
+    return computeExpValZ(m_qsimParam, m_numThreads, measureBitIdxs, stateSpace, state);
   }
 }
 
@@ -310,7 +309,7 @@ void QsimAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer,
                             std::shared_ptr<Instruction> inst) {
   static std::shared_ptr<AcceleratorBuffer> current_buffer;
   static std::unique_ptr<QsimCircuitVisitor> visitor;
-  static StateSpace stateSpace(m_qsimParam.num_threads);
+  static StateSpace stateSpace(m_numThreads);
   static std::optional<State> current_state;
   xacc::info("Apply: " + inst->toString());
   if (!current_buffer || (current_buffer->name() != buffer->name())) {
@@ -333,7 +332,7 @@ void QsimAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer,
     // PrintAmplitudes(scratch.num_qubits(), stateSpace, scratch);
     m_qsimParam.seed = time(NULL);
     const bool runOk =
-        Runner::Run(m_qsimParam, qsimCirc, scratch, meas_results);
+        Runner::Run(m_qsimParam, Factory(m_numThreads), qsimCirc, scratch, meas_results);
     assert(runOk);
     if (meas_results.size() == 1 && meas_results[0].bitstring.size() == 1) {
       const auto bitResult = meas_results[0].bitstring[0];
