@@ -218,7 +218,7 @@ class DecoratorFunction(ABC):
         del frame
 
     def nParameters(self):
-        return self.getFunction().nParameters()
+        return len(self.getCompositeInstruction().getVariables())
 
     def getCompositeInstruction(self):
         return self.compiledKernel

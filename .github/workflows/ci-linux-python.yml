@@ -1,4 +1,4 @@
-name: "Linux CI with MPI"
+name: "Linux CI Python"
 
 on:
   push:
@@ -21,16 +21,19 @@ jobs:
         run: cmake -E make_directory build
       
       - name: Install dependencies
-        run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends ninja-build libssl-dev python3 libpython3-dev python3-pip libblas-dev liblapack-dev libopenmpi-dev
+        run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends ninja-build libssl-dev python3 libpython3-dev python3-pip libblas-dev liblapack-dev
       
+      - name: Install optional Python Packages 
+        run: python3 -m pip install numpy pyscf cma
+
       - name: Configure
         working-directory: build/
-        run: cmake -GNinja $GITHUB_WORKSPACE -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE -DXACC_ENABLE_MPI=TRUE
+        run: cmake -GNinja $GITHUB_WORKSPACE 
     
       - name: Build
         working-directory: build/
         run: cmake --build . --target install
       
       - name: Test
-        working-directory: build/quantum/plugins/decorators/hpc-virtualization/tests
-        run: ctest -V
+        working-directory: python/tests
+        run: export PYTHONPATH=$PYTHONPATH:~/.xacc && python3 -m unittest discover -s . -p '*_testing.py'

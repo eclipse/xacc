@@ -18,10 +18,10 @@ opstr = '''(0.174073,0) Z1 Z3 +
 
 op = xacc.getObservable('pauli',opstr)
 
-qpu = xacc.getAccelerator('tnqvm')
+qpu = xacc.getAccelerator('qpp')
 
 @xacc.qpu(algo='vqe', accelerator=qpu, observable=op)
-def ansatz_vqe(q, t0, t1):
+def ansatz_vqe(q, theta0, theta1):
     uccsd(q,{"ne":2,"nq":4})
 
 print(ansatz_vqe.getCompositeInstruction().toString())

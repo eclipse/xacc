@@ -47,7 +47,7 @@ protected:
   std::vector<double> checkpointParams; // initial parameters for initial ansatz
   // name of class to compute gradient for optimization
   // defaults to parameter shift
-  std::string gradStrategyName = "parameter-shift-gradient";
+  std::string gradStrategyName = "parameter-shift";
 
   std::vector<std::string> physicalSubAlgorithms = {"vqe", "qcmx", "qeom"};
 
