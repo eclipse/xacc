@@ -23,4 +23,5 @@ qcmx = xacc.getAlgorithm('qcmx', {
                         })
 
 qcmx.execute(buffer)
-print('Energy = ', buffer.getInformation('opt-val'))
+print(buffer["spectrum"])
+print(buffer["energies"])

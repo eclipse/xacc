@@ -5,7 +5,10 @@ on:
     branches: [ master, xacc-devel ]
   pull_request:
     branches: [ master ]
-
+  schedule:
+    # once every weekend
+    - cron: '0 3 * * 6'
+    
 jobs:
   build:
     runs-on: macos-latest
