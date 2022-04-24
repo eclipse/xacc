@@ -21,7 +21,7 @@ jobs:
         run: cmake -E make_directory build
       
       - name: Install dependencies
-        run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends ninja-build libssl-dev python3 libpython3-dev python3-pip libblas-dev liblapack-dev libopenmpi-dev
+        run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends ninja-build libssl-dev libcurl4-openssl-dev python3 libpython3-dev python3-pip libblas-dev liblapack-dev libopenmpi-dev
       
       - name: Configure
         working-directory: build/
