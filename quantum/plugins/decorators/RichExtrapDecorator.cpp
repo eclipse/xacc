@@ -29,6 +29,18 @@ void RichExtrapDecorator::initialize(const HeterogeneousMap &params) {
       if (x % 2 != 1) {
         xacc::error("Noise scaling factors must be odd integers.");
       }
+      if (x < 1) {
+        xacc::error("Noise scaling factors must be positive.");
+      }
+    }
+    std::set<int> noiseScalingsAsSet(m_noiseScalings.begin(), m_noiseScalings.end());
+    if (noiseScalingsAsSet.size() != m_noiseScalings.size()) {
+      xacc::error("Repeated values in noise scaling factors.");
+    }
+    std::sort(m_noiseScalings.begin(), m_noiseScalings.end());
+    if (m_noiseScalings[0] != 1) {
+      // If 1 (base circuit) was not present, adding it.
+      m_noiseScalings.insert(m_noiseScalings.begin(), 1);
     }
   }
   // Only scale CNOT by default
@@ -36,6 +48,7 @@ void RichExtrapDecorator::initialize(const HeterogeneousMap &params) {
   if (params.stringExists("scale-gate")) {
     m_scalingGate = params.getString("scale-gate");
   }
+  m_config = params;
 }
 
 void RichExtrapDecorator::execute(
@@ -46,9 +59,9 @@ void RichExtrapDecorator::execute(
   }
   
   // Single extrapolation mode (just scale and run)
-  if (xacc::optionExists("rich-extrap-r")) {
+  if (m_config.keyExists<int>("rich-extrap-r")) {
     // Get RO error probs
-    auto r = std::stoi(xacc::getOption("rich-extrap-r"));
+    auto r = m_config.get<int>("rich-extrap-r");
     buffer->addExtraInfo("rich-extrap-r", ExtraInfo(r));
 
     auto provider = xacc::getService<IRProvider>("quantum");
@@ -102,13 +115,13 @@ void RichExtrapDecorator::execute(
         }
       }
     }
-    std::cout << "HELLO: \n" << f->toString() << "\n";
+    // std::cout << "HELLO: \n" << f->toString() << "\n";
     foldedComps.emplace_back(f);
   }
 
   auto tmp_buffer = xacc::qalloc(buffer->size());
   decoratedAccelerator->execute(tmp_buffer, foldedComps);
-  tmp_buffer->print();
+  // tmp_buffer->print();
   std::vector<double> exp_vals;
   for (auto &child : tmp_buffer->getChildren()) {
     const double expValZ = child->getExpectationValueZ();
@@ -121,7 +134,14 @@ void RichExtrapDecorator::execute(
   }
   const auto fit_coeffs = xacc::poly_fit(x, exp_vals);
   const double zne_exp_val_z = fit_coeffs[0];
-  std::cout << "ZNE-val = " << zne_exp_val_z << "\n";
+  // std::cout << "ZNE-val = " << zne_exp_val_z << "\n";
+  // Report the raw count (first child buffer) along with the ZNE value for exp-val
+  auto base_buffer = tmp_buffer->getChildren()[0];
+  for (const auto &[bitStr, count] : base_buffer->getMeasurementCounts()) {
+    buffer->appendMeasurement(bitStr, count);
+  }
+  buffer->addExtraInfo("rich-extrap-exp-vals", exp_vals);
+  buffer->addExtraInfo("exp-val-z", zne_exp_val_z);
 }
 
 void RichExtrapDecorator::execute(
@@ -134,46 +154,52 @@ void RichExtrapDecorator::execute(
     xacc::error("RichExtrap - Null Decorated Accelerator Error");
   }
 
-  if (!xacc::optionExists("rich-extrap-r")) {
-    xacc::error(
-        "Cannot find rich-extrap-r. Skipping Richardson Extrapolation.");
-  }
+  if (m_config.keyExists<int>("rich-extrap-r")) {
+    // Get RO error probs
+    auto r = m_config.get<int>("rich-extrap-r");
+    buffer->addExtraInfo("rich-extrap-r", ExtraInfo(r));
 
-  // Get RO error probs
-  auto r = std::stoi(xacc::getOption("rich-extrap-r"));
-  buffer->addExtraInfo("rich-extrap-r", ExtraInfo(r));
+    auto provider = xacc::getService<IRProvider>("quantum");
 
-  auto provider = xacc::getService<IRProvider>("quantum");
+    std::vector<std::shared_ptr<CompositeInstruction>> newFuncs;
 
-  std::vector<std::shared_ptr<CompositeInstruction>> newFuncs;
+    for (auto &f : functions) {
+      auto newF = provider->createComposite(f->name(), f->getVariables());
 
-  for (auto &f : functions) {
-    auto newF = provider->createComposite(f->name(), f->getVariables());
+      InstructionIterator it(f);
+      while (it.hasNext()) {
+        auto nextInst = it.next();
 
-    InstructionIterator it(f);
-    while (it.hasNext()) {
-      auto nextInst = it.next();
+        if (!nextInst->isComposite() && nextInst->isEnabled()) {
 
-      if (!nextInst->isComposite() && nextInst->isEnabled()) {
-
-        if (nextInst->name() == "CNOT") {
-          for (int i = 0; i < r; i++) {
-            auto tmp = nextInst->clone();
-            tmp->setBits(nextInst->bits());
-            newF->addInstruction(tmp);
+          if (nextInst->name() == "CNOT") {
+            for (int i = 0; i < r; i++) {
+              auto tmp = nextInst->clone();
+              tmp->setBits(nextInst->bits());
+              newF->addInstruction(tmp);
+            }
+          } else {
+            newF->addInstruction(nextInst);
           }
-        } else {
-          newF->addInstruction(nextInst);
         }
       }
+
+      // xacc::info("HI: " + newF->toString("q"));
+
+      newFuncs.push_back(newF);
     }
 
-    // xacc::info("HI: " + newF->toString("q"));
-
-    newFuncs.push_back(newF);
+    decoratedAccelerator->execute(buffer, newFuncs);
+    return;
   }
 
-  decoratedAccelerator->execute(buffer, newFuncs);
+  // Full ZNE workflow
+  for (auto &f : functions) {
+    auto tmp_buffer = xacc::qalloc(buffer->size());
+    tmp_buffer->setName(f->name());
+    execute(tmp_buffer, f);
+    buffer->appendChild(f->name(), tmp_buffer);
+  }
 }
 
 } // namespace quantum

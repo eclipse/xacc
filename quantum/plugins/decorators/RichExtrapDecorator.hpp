@@ -38,6 +38,7 @@ public:
 private:
   std::vector<int> m_noiseScalings;
   std::string m_scalingGate;
+  HeterogeneousMap m_config;
 };
 
 } // namespace quantum
