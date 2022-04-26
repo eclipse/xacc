@@ -17,7 +17,8 @@
 #include "xacc_observable.hpp"
 #include "xacc_service.hpp"
 #include "Algorithm.hpp"
-
+#include "CommonGates.hpp"
+#include <random>
 namespace {
     template <typename T>
     std::vector<T> linspace(T a, T b, size_t N)
@@ -143,8 +144,8 @@ TEST(QppAcceleratorTester, testDeuteronVqeH3)
         .parameters t0, t1
         .qbit q
         X(q[0]);
-        exp_i_theta(q, t0, {{"pauli", "X0 Y1 - Y0 X1"}});
-        exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
+        exp_i_theta(q, t1, {{"pauli", "X0 Y1 - Y0 X1"}});
+        exp_i_theta(q, t0, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
     )");
     auto ansatz = xacc::getCompiled("deuteron_ansatz_h3");
 
@@ -659,6 +660,97 @@ TEST(QppAcceleratorTester, testFtqcApply)
     }
     // Make sure we have both values.
     EXPECT_TRUE(nb00 > 100 && nb11 > 100);
+}
+
+TEST(QppAcceleratorTester, testMultiControlledGateNativeSim)
+{
+  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+  auto x = std::make_shared<xacc::quantum::X>(0);
+  std::shared_ptr<xacc::CompositeInstruction> comp =
+      gateRegistry->createComposite("__COMPOSITE__X");
+  comp->addInstruction(x);
+  auto mcx = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
+      xacc::getService<xacc::Instruction>("C-U"));
+  // Testing many controls, only possible (complete in reasonable time) with
+  // custom C-U handler
+  const std::vector<int> ctrl_idxs{1, 2,  3,  4,  5};
+  const auto nQubits = ctrl_idxs.size() + 1;
+  mcx->expand({{"U", comp}, {"control-idx", ctrl_idxs}});
+  std::cout << "HOWDY: Gate count: " << mcx->nInstructions() << "\n";
+  // Test truth table
+  auto acc = xacc::getAccelerator("qpp", {std::make_pair("shots", 8192)});
+  std::vector<std::shared_ptr<xacc::Instruction>> xGateVec;
+  std::vector<std::shared_ptr<xacc::Instruction>> measGateVec;
+  for (size_t i = 0; i < nQubits; ++i) {
+    xGateVec.emplace_back(gateRegistry->createInstruction("X", {i}));
+    measGateVec.emplace_back(gateRegistry->createInstruction("Measure", {i}));
+  }
+
+  const auto runTestCase = [&](const std::vector<bool> &bitVals) {
+    static int counter = 0;
+    auto composite = gateRegistry->createComposite("__TEMP_COMPOSITE__" +
+                                                   std::to_string(counter));
+    counter++;
+    // State prep:
+    assert(bitVals.size() == nQubits);
+    std::string inputBitString;
+    for (int i = 0; i < bitVals.size(); ++i) {
+      if (bitVals[i]) {
+        composite->addInstruction(xGateVec[i]);
+      }
+      inputBitString.append((bitVals[i] ? "1" : "0"));
+    }
+
+    // Add mcx
+    composite->addInstruction(mcx);
+    // Mesurement:
+    composite->addInstructions(measGateVec);
+    auto buffer = xacc::qalloc(nQubits);
+    acc->execute(buffer, composite);
+    std::cout << "Input bitstring: " << inputBitString << "\n";
+    buffer->print();
+    // MCX gate:
+    const auto expectedBitString = [&inputBitString]() -> std::string {
+      // If all control bits are 1's
+      // q0q1q2q3q4
+      const std::string pattern1(inputBitString.size(), '1');
+      const std::string pattern0 = [&]() {
+        std::string tmp(inputBitString.size(), '1');
+        tmp[0] = '0';
+        return tmp;
+      }();
+      if (inputBitString == pattern0) {
+        return pattern1;
+      }
+      if (inputBitString == pattern1) {
+        return pattern0;
+      }
+      // Otherwise, no changes
+      return inputBitString;
+    }();
+    // Check bit string
+    EXPECT_NEAR(buffer->computeMeasurementProbability(expectedBitString), 1.0,
+                0.1);
+    // std::cout << "Circuit: \n" << composite->toString() << "\n";
+  };
+
+  // Run some test cases randomly (since there are many)
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  // Max run
+  constexpr int N_RUNS = 8;
+  const int N_STATES = 1 << nQubits;
+  const double prob = static_cast<double>(N_RUNS) / N_STATES;
+  std::bernoulli_distribution d(prob);
+  for (int i = 0; i < (1 << nQubits); ++i) {
+    if (d(gen)) {
+      std::vector<bool> bits;
+      for (int q = 0; q < nQubits; ++q) {
+        bits.emplace_back((i & (1 << q)) == (1 << q));
+      }
+      runTestCase(bits);
+    }
+  }
 }
 
 int main(int argc, char **argv) {

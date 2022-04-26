@@ -48,3 +48,5 @@ compile_commands.json
 # IDE files
 .vscode/*
 .theia/*
+# Python test cache
+__pycache__/

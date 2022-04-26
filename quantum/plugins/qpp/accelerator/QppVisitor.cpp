@@ -12,8 +12,12 @@
  *******************************************************************************/
 
 #include "QppVisitor.hpp"
+#include "CompositeInstruction.hpp"
+#include "Utils.hpp"
 #include "xacc.hpp"
-
+#include <memory>
+#include "GateModifier.hpp"
+#include "GateFusion.hpp"
 namespace {
     // Add gate matrix for iSwap and fSim gates
     qpp::cmat iSwapGateMat()
@@ -66,6 +70,7 @@ namespace quantum {
         m_measureBits.clear();
         m_shotsMode = shotsMode;
         m_initialized = true;
+        m_controlledBlocks.clear();
     }
 
     void QppVisitor::finalize()
@@ -77,6 +82,13 @@ namespace quantum {
         }
         m_stateVec.resize(0);
         m_initialized = false;
+        for (auto& block: m_controlledBlocks) 
+        {
+            // We temporarily disabled these blocks while handling the simulation,
+            // now reset the status.
+            block.get().enable();
+        }
+        m_controlledBlocks.clear();
     }
 
     qpp::idx QppVisitor::xaccIdxToQppIdx(size_t in_idx) const
@@ -348,6 +360,45 @@ namespace quantum {
         {
             std::cout << "If statement expanded to: " << ifStmt.toString() << "\n";
         }
+    }
+
+    void QppVisitor::visit(Circuit& in_circuit) 
+    {
+      //   std::cout << "HOWDY: Visit quantum circuit: " << in_circuit.name()
+      //             << "\n";
+      if (in_circuit.name() == "C-U") {
+        auto *asControlledBlock =
+            dynamic_cast<xacc::quantum::ControlModifier *>(&in_circuit);
+        assert(asControlledBlock);
+        // Controlled circuit
+        const auto controlQubits = asControlledBlock->getControlQubits();
+        auto baseCircuit = asControlledBlock->getBaseInstruction();
+        assert(baseCircuit->isComposite());
+        auto asComp = xacc::ir::asComposite(baseCircuit);
+        assert(!controlQubits.empty());
+        // Note: for qpp, we cannot handle multiple registers for now:
+        std::vector<qpp::idx> ctrlIdx;
+        const std::string regName = controlQubits[0].first;
+        for (const auto &[reg, idx] : controlQubits) {
+          if (reg != regName) {
+            xacc::error("Multiple qubit registers are not supported by qpp!");
+          }
+          ctrlIdx.emplace_back(xaccIdxToQppIdx(idx));
+        }
+        assert(ctrlIdx.size() == controlQubits.size());
+        const auto dim = asComp->nPhysicalBits();
+        const qpp::cmat uMat = GateFuser::fuseGates(asComp, dim);
+        // std::cout << "Umat = \n" << uMat << "\n";
+        std::vector<qpp::idx> targetIdx;
+        for (const auto &bit : asComp->uniqueBits()) {
+          targetIdx.emplace_back(xaccIdxToQppIdx(bit));
+        }
+        assert(targetIdx.size() == dim);
+        m_stateVec = qpp::applyCTRL(m_stateVec, uMat, {ctrlIdx}, {targetIdx});
+        // No need to handle this sub-circuit anymore.
+        in_circuit.disable();
+        m_controlledBlocks.emplace_back(in_circuit);
+      }
     }
     
     void QppVisitor::applyGate(Gate& in_gate) 

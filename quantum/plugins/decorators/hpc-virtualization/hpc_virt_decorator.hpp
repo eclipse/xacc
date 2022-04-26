@@ -9,18 +9,16 @@
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
+ *   Daniel Claudino - MPI native implementation
  *******************************************************************************/
 #ifndef XACC_HPC_VIRT_DECORATOR_HPP_
 #define XACC_HPC_VIRT_DECORATOR_HPP_
 
+#include "mpi.h"
+#include "xacc.hpp"
+#include "MPIProxy.hpp"
 #include "AcceleratorDecorator.hpp"
-#include "TearDown.hpp"
-namespace boost {
-namespace mpi {
-// Forward declaration
-class communicator;
-} // namespace mpi
-} // namespace boost
+
 namespace xacc {
 
 namespace quantum {
@@ -29,9 +27,8 @@ class HPCVirtDecorator : public AcceleratorDecorator {
 protected:
 
   int n_virtual_qpus = 1;
-  // The MPI communitor for each QPU.
-  std::shared_ptr<boost::mpi::communicator> qpuComm;
-
+  // The MPI communicator for each QPU
+  std::shared_ptr<ProcessGroup> qpuComm;
 
 public:
   void initialize(const HeterogeneousMap &params = {}) override;
@@ -75,11 +72,6 @@ private:
   }
 };
 
-class HPCVirtTearDown : public xacc::TearDown {
-public:
-  virtual void tearDown() override;
-  virtual std::string name() const override { return "xacc-hpc-virt"; }
-};
 } // namespace quantum
 } // namespace xacc
 #endif

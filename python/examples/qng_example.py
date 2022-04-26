@@ -64,7 +64,7 @@ def runVqeGradientDescent(gradientStrategy):
 # Quantum Natural Gradients
 energies_qng = runVqeGradientDescent('quantum-natural-gradient')
 # Vanilla Gradients (central differential)
-energies_vanilla = runVqeGradientDescent('central-difference-gradient')
+energies_vanilla = runVqeGradientDescent('central')
 
 # Plot the results:
 plt.style.use('seaborn')

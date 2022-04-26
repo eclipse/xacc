@@ -36,7 +36,7 @@ qaoa = xacc.getAlgorithm('QAOA', {
                         'observable': ham,
                         'optimizer': opt,
                         'steps': nbSteps,
-                        'gradient_strategy': 'parameter-shift-gradient'
+                        'gradient_strategy': 'parameter-shift'
                         })
 
 result = qaoa.execute(buffer)

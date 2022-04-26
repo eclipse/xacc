@@ -10,7 +10,7 @@
  * Contributors:
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
-#pragma one
+#pragma once
 #include "xacc.hpp"
 #include "QppVisitor.hpp"
 #include "NoiseModel.hpp"

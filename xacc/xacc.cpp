@@ -11,7 +11,6 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "xacc.hpp"
-//#include "AlgorithmGradientStrategy.hpp"
 #include "InstructionIterator.hpp"
 #include "IRProvider.hpp"
 #include "CLIParser.hpp"
@@ -30,6 +29,10 @@
 #include <sys/stat.h>
 #include "TearDown.hpp"
 
+#ifdef MPI_ENABLED
+#include "mpi.h"
+#endif
+
 using namespace cxxopts;
 
 namespace xacc {
@@ -45,6 +48,10 @@ std::map<std::string, std::shared_ptr<CompositeInstruction>>
 std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocated_buffers{};
 
 std::string rootPathString = "";
+
+#ifdef MPI_ENABLED
+int isMPIInitialized;
+#endif
 
 void set_verbose(bool v) { verbose = v; }
 
@@ -105,6 +112,19 @@ void Initialize(int arc, char **arv) {
   if (!optionExists("queue-preamble")) {
     XACCLogger::instance()->dumpQueue();
   }
+
+  // Initializing MPI here
+#ifdef MPI_ENABLED
+  int provided;
+  MPI_Initialized(&isMPIInitialized);
+  if (!isMPIInitialized) {
+    MPI_Init_thread(0, NULL, MPI_THREAD_MULTIPLE, &provided);
+    if (provided != MPI_THREAD_MULTIPLE) {
+      xacc::warning("MPI_THREAD_MULTIPLE not provided.");
+    }
+    isMPIInitialized = 1;
+  }
+#endif
 }
 
 void setIsPyApi() { isPyApi = true; }
@@ -823,31 +843,25 @@ void Finalize() {
     auto tearDowns = xacc::getServices<TearDown>();
     debug("Tearing down " + std::to_string(tearDowns.size()) +
           " registered TearDown services..");
-    std::vector<std::shared_ptr<TearDown>> frameworkTearDowns;
     for (auto &td : tearDowns) {
       try {
-        // If this is XACC HPC TearDown,
-        // add it to the list of XACC internal TearDown services to be executed
-        // after all plugins' TearDowns.
-        if (td->name() == "xacc-hpc-virt") {
-          frameworkTearDowns.emplace_back(td);
-        } else {
-          td->tearDown();
-        }
+        td->tearDown();
       } catch (int exception) {
         xacc::error("Error while tearing down a service. Code: " +
                     std::to_string(exception));
       }
-    }
-    // Runs XACC internal TearDowns
-    for (auto &td : frameworkTearDowns) {
-      td->tearDown();
     }
 
     xacc::xaccFrameworkInitialized = false;
     compilation_database.clear();
     allocated_buffers.clear();
     xacc::ServiceAPI_Finalize();
+    // This replaces the HPC virtualization TearDown
+#ifdef MPI_ENABLED
+    if (isMPIInitialized) {
+      MPI_Finalize();
+    }
+#endif
   }
 }
 
@@ -871,16 +885,16 @@ std::shared_ptr<AlgorithmGradientStrategy> getGradient(const std::string name) {
   return g;
 }
 
-std::shared_ptr<AlgorithmGradientStrategy> getGradient(const std::string name,
-                                        const xacc::HeterogeneousMap &params) {
+std::shared_ptr<AlgorithmGradientStrategy>
+getGradient(const std::string name, const xacc::HeterogeneousMap &params) {
   auto g = xacc::getGradient(name);
   if (!g->initialize(params)) {
     error("Error initializing " + name + " gradient strategy.");
   }
   return g;
 }
-std::shared_ptr<AlgorithmGradientStrategy> getGradient(const std::string name,
-                                        const xacc::HeterogeneousMap &&params) {
+std::shared_ptr<AlgorithmGradientStrategy>
+getGradient(const std::string name, const xacc::HeterogeneousMap &&params) {
   return getGradient(name, params);
 }
 
