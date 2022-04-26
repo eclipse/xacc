@@ -24,7 +24,7 @@ target_link_libraries(ROErrorDecoratorTester xacc xacc-pauli)
 
 
 add_xacc_test(RichExtrapDecorator)
-target_link_libraries(RichExtrapDecoratorTester xacc xacc-pauli)
+target_link_libraries(RichExtrapDecoratorTester xacc xacc-pauli xacc-quantum-gate)
 
 
 add_xacc_test(ImprovedSamplingDecorator)
