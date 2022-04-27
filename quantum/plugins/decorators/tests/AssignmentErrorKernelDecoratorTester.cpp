@@ -16,9 +16,21 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include "xacc_service.hpp"
+#include "NoiseModel.hpp"
+#include "xacc_observable.hpp"
 
 using namespace xacc;
 
+namespace {
+const std::string ro_error_noise_model =
+    R"({"gate_noise": [], "bit_order": "MSB", "readout_errors": [{"register_location": "0", "prob_meas0_prep1": 0.025, "prob_meas1_prep0": 0.015}, {"register_location": "1", "prob_meas0_prep1": 0.035, "prob_meas1_prep0": 0.02}]})";
+}
+
+// If we want to run remote tests (required IBMQ credentials)
+// Turn off by default for CI testing.
+#define RUN_REMOTE_TESTS 0
+
+#if RUN_REMOTE_TESTS
 TEST(AssignmentErrorKernelDecoratorTest, checkBasic) {
   xacc::set_verbose(true);
   if (xacc::hasAccelerator("aer")) {
@@ -129,14 +141,90 @@ Measure(q[1]);
     buffer->print();
   }
 }
+#endif
+
+
+TEST(AssignmentErrorKernelDecoratorTest, checkSimple) {
+  xacc::set_verbose(true);
+  const int shots = 8192;
+  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+  noiseModel->initialize({{"noise-model", ro_error_noise_model}});
+  const std::string ibmNoiseJson = noiseModel->toJson();
+  auto acc = xacc::getAccelerator(
+      "aer", {{"noise-model", ibmNoiseJson}, {"shots", shots}});
+  auto buffer = xacc::qalloc(2);
+  auto compiler = xacc::getService<xacc::Compiler>("xasm");
+  const std::string src = R"src(__qpu__ void foo(qbit q) {
+       H(q[0]);
+       CX(q[0], q[1]);
+       Measure(q[0]);
+       Measure(q[1]);
+       }
+       )src";
+
+  auto ir = compiler->compile(src, acc);
+  auto decorator = xacc::getAcceleratorDecorator(
+      "assignment-error-kernel", acc, {{"gen-kernel", true}});
+  decorator->execute(buffer, ir->getComposites()[0]);
+  buffer->print();
+  EXPECT_TRUE(buffer->hasExtraInfoKey("unmitigated-counts"));
+  auto unmitigated_counts = buffer->getInformation("unmitigated-counts")
+                                .as<std::map<std::string, double>>();
+  // Expect some improvements in statistics
+  EXPECT_GT(static_cast<double>(buffer->getMeasurementCounts()["00"]),
+            unmitigated_counts["00"]);
+  EXPECT_GT(static_cast<double>(buffer->getMeasurementCounts()["11"]),
+            unmitigated_counts["11"]);
+}
+
+TEST(AssignmentErrorKernelDecoratorTest, checkVecExecution) {
+  const int shots = 8192;
+  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+  noiseModel->initialize({{"noise-model", ro_error_noise_model}});
+  const std::string ibmNoiseJson = noiseModel->toJson();
+  auto acc = xacc::getAccelerator(
+      "aer", {{"noise-model", ibmNoiseJson}, {"shots", shots}});
+  // Create the N=2 deuteron Hamiltonian
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
+
+  auto optimizer = xacc::getOptimizer("nlopt");
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz
+        .parameters theta
+        .qbit q
+        X(q[0]);
+        Ry(q[1], theta);
+        CNOT(q[1],q[0]);
+    )");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz");
+  auto decorator = xacc::getAcceleratorDecorator("assignment-error-kernel", acc,
+                                                 {{"gen-kernel", true}});
+  // Get the VQE Algorithm and initialize it
+  auto vqe = xacc::getAlgorithm("vqe");
+  vqe->initialize({{"ansatz", ansatz},
+                   {"observable", H_N_2},
+                   {"accelerator", decorator},
+                   {"optimizer", optimizer}});
+
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(2);
+  xacc::set_verbose(true);
+  vqe->execute(buffer, {0.594});
+  buffer->print();
+  const double energy = H_N_2->postProcess(buffer);
+  std::cout << "Energy = " << energy << "\n";
+  EXPECT_NEAR(energy, -1.74886, 0.25);
+}
 
 int main(int argc, char **argv) {
   int ret = 0;
   xacc::Initialize();
-  xacc::external::load_external_language_plugins();
   ::testing::InitGoogleTest(&argc, argv);
   ret = RUN_ALL_TESTS();
-  xacc::external::unload_external_language_plugins();
   xacc::Finalize();
   return ret;
 }
