@@ -15,6 +15,7 @@
 
 #include "AcceleratorDecorator.hpp"
 #include <Eigen/Dense>
+#include <sstream>
 #include "xacc.hpp"
 
 namespace xacc {
@@ -119,12 +120,20 @@ protected:
       }
       row++;
     }
-    //std::cout << "MATRIX:\n" << K << "\n";
+    {
+      std::stringstream ss;
+      ss << "MATRIX:\n" << K << "\n";
+      xacc::info(ss.str());
+    }
     errorKernel = K.inverse();
-    //std::cout << "INVERSE:\n" << errorKernel << "\n";
+    {
+      std::stringstream ss;
+      ss << "INVERSE:\n" << errorKernel << "\n";
+      xacc::info(ss.str());
+    }
     std::vector<double> vec(errorKernel.data(), errorKernel.data() + errorKernel.rows()*errorKernel.cols());
     buffer->addExtraInfo("error-kernel", vec);
-
+    // No need to generate again
     gen_kernel = false;
   }
 
