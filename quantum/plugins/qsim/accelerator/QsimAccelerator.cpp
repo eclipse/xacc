@@ -15,6 +15,7 @@
 #include "IRUtils.hpp"
 #include <cassert>
 #include <optional>
+#include <thread>
 namespace {
 inline bool isMeasureGate(const xacc::InstPtr &in_instr) {
   return (in_instr->name() == "Measure");
@@ -99,7 +100,8 @@ namespace xacc {
 namespace quantum {
 void QsimAccelerator::initialize(const HeterogeneousMap &params) {
   m_qsimParam.seed = 1;
-  m_numThreads = 1;
+  m_numThreads =
+      std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
   m_qsimParam.verbosity = xacc::verbose ? 1 : 0;
   m_shots = -1;
   if (params.keyExists<int>("shots")) {
@@ -113,7 +115,7 @@ void QsimAccelerator::initialize(const HeterogeneousMap &params) {
   if (params.keyExists<int>("seed")) {
     m_qsimParam.seed = params.get<int>("seed");
   }
-
+  
   if (params.keyExists<int>("threads")) {
     m_numThreads = params.get<int>("threads");
   }
