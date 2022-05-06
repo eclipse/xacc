@@ -10,7 +10,6 @@
 # Contributors: Alexander J. McCaskey - initial API and implementation
 # ******************************************************************************
 # */
-find_package(MPI)
 if(MPI_FOUND)
   set(LIBRARY_NAME xacc-hpc-virt-decorator)
 
