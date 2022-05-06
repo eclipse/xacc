@@ -123,10 +123,12 @@ endif()
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
 
-# check MPI status
-# if MPI_CXX_COMPILER is not empty and cmake can find MPI
+# NOTE: to enable MPI, need to configure CMAKE with -DXACC_ENABLE_MPI=TRUE
+# (some XACC Python binding is not compatible with MPI, hence not building with MPI as default)
+# Check MPI status
+# if MPI_CXX_COMPILER is not empty and XACC_ENABLE_MPI is set
 # turn MPI_ENABLED on
-if(NOT MPI_CXX_COMPILER STREQUAL "" OR XACC_ENABLE_MPI)
+if(NOT MPI_CXX_COMPILER STREQUAL "" AND XACC_ENABLE_MPI)
   find_package(MPI)
   if(MPI_FOUND)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPI_ENABLED")
