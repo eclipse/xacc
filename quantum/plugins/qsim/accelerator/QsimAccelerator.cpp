@@ -133,7 +133,7 @@ void QsimAccelerator::initialize(const HeterogeneousMap &params) {
 void QsimAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> compositeInstruction) {
-  const bool qsimSimulateSamples = m_shots > 0;
+  const bool qsimSimulateSamples = m_shots > 0 && !m_vqeMode;
   const bool areAllMeasurementsTerminal =
       shotCountFromFinalStateVec(compositeInstruction);
 
@@ -159,7 +159,7 @@ void QsimAccelerator::execute(
     StateSpace stateSpace(m_numThreads);
     State state = stateSpace.Create(circuit.num_qubits);
     stateSpace.SetStateZero(state);
-
+    
     if (Runner::Run(m_qsimParam, Factory(m_numThreads), circuit, state)) {
       // PrintAmplitudes(circuit.num_qubits, stateSpace, state);
       if (qsimSimulateSamples) {
@@ -219,7 +219,11 @@ void QsimAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>>
         compositeInstructions) {
-  if (!m_vqeMode || compositeInstructions.size() <= 1) {
+  // The time to do observed circuit analysis is not optimal for a large number
+  // of circuits so just run it one by one.
+  constexpr int MAX_NUMBER_CIRCUITS_TO_ANALYZE = 100;
+  if (!m_vqeMode || compositeInstructions.size() <= 1 ||
+      compositeInstructions.size() > MAX_NUMBER_CIRCUITS_TO_ANALYZE) {
     // Cannot run VQE mode, just run each composite independently.
     for (auto &f : compositeInstructions) {
       auto tmpBuffer =
