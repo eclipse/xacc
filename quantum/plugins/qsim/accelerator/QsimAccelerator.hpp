@@ -309,7 +309,7 @@ public:
   virtual const std::vector<std::string> configurationKeys() override {
     return {};
   }
-  virtual BitOrder getBitOrder() override { return BitOrder::MSB; }
+  virtual BitOrder getBitOrder() override { return BitOrder::LSB; }
   virtual HeterogeneousMap getProperties() override {
     return {{"shots", m_shots}};
   }

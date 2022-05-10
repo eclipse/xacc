@@ -99,7 +99,9 @@ double computeExpValZ(const Params& params, size_t num_threads, const std::vecto
 namespace xacc {
 namespace quantum {
 void QsimAccelerator::initialize(const HeterogeneousMap &params) {
-  m_qsimParam.seed = 1;
+  std::srand(static_cast<unsigned int>(std::time(nullptr)));
+  // Seeding a random number.
+  m_qsimParam.seed = std::rand();
   m_numThreads =
       std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
   m_qsimParam.verbosity = xacc::verbose ? 1 : 0;
