@@ -386,10 +386,38 @@ namespace quantum {
           ctrlIdx.emplace_back(xaccIdxToQppIdx(idx));
         }
         assert(ctrlIdx.size() == controlQubits.size());
-        const auto dim = asComp->nPhysicalBits();
-        const qpp::cmat uMat = GateFuser::fuseGates(asComp, dim);
+
+        const bool should_perform_mcu_sim = [&]() {
+          if (asComp->getInstructions().size() == 1) {
+            // Only support these for the moment
+            if (asComp->getInstruction(0)->name() == "X" ||
+                asComp->getInstruction(0)->name() == "Y" ||
+                asComp->getInstruction(0)->name() == "Z") {
+              return true;
+            }
+          }
+
+          return false;
+        }();
+        // Not handle this case, visit gate-by-gate (decomposed C-U)
+        if (!should_perform_mcu_sim) {
+          return;
+        }
+
+        const qpp::cmat uMat = [&]() {
+          const auto baseGateName = asComp->getInstruction(0)->name();
+          if (baseGateName == "X") {
+            return qpp::Gates::get_instance().X;
+          } else if (baseGateName == "Y") {
+            return qpp::Gates::get_instance().Y;
+          } else {
+            assert(baseGateName == "Z");
+            return qpp::Gates::get_instance().Z;
+          }
+        }();
         // std::cout << "Umat = \n" << uMat << "\n";
         std::vector<qpp::idx> targetIdx;
+        assert(asComp->uniqueBits().size() == 1);
         for (const auto &bit : asComp->uniqueBits()) {
           targetIdx.emplace_back(xaccIdxToQppIdx(bit));
         }
