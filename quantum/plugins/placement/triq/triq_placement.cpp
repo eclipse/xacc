@@ -11,6 +11,7 @@
  *   Thien Nguyen
  *******************************************************************************/
 #include "triq_placement.hpp"
+#include "Utils.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "headers.hpp"
@@ -76,7 +77,13 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
     backendJson = acc->getProperties().getString("total-json");
   }
 
-  if (backendName.empty() && backendJson.empty()) {
+  xacc::NoiseModel *providedNoiseModel = nullptr;
+  if (options.pointerLikeExists<xacc::NoiseModel>("backend-noise-model")) {
+    providedNoiseModel =
+        options.getPointerLike<xacc::NoiseModel>("backend-noise-model");
+  }
+
+  if (backendName.empty() && backendJson.empty() && !providedNoiseModel) {
     // Nothing we can do.
     xacc::warning("No backend information was provided. Skipped!");
     return;
@@ -130,7 +137,9 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   }
   // DEBUG:
   // triqCirc.print_gates();
-  auto backendNoiseModel = xacc::getService<xacc::NoiseModel>("IBM");
+  auto backendNoiseModel = providedNoiseModel
+                               ? xacc::as_shared_ptr(providedNoiseModel)
+                               : xacc::getService<xacc::NoiseModel>("IBM");
   if (!backendName.empty()) {
     backendNoiseModel->initialize({{"backend", backendName}});
   } else {
