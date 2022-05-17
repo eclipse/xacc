@@ -68,6 +68,18 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   if (options.stringExists("backend")) {
     backendName = options.getString("backend");
   }
+
+  // Approximation factor to determine the stopping condition
+  // of the Z3 solver.
+  // The smaller this value is, the longer it takes to optimize.
+  // Must be > 1.0  
+  double approxFactor = 1.001;
+  if (options.keyExists<double>("approx-factor")) {
+    approxFactor = options.get<double>("approx-factor");
+    if (approxFactor <= 1.0) {
+      xacc::error("Invalid 'approx-factor'. Must be > 1.0");
+    }
+  }
   // Enable offline testing via JSON loading as well
   std::string backendJson;
   if (options.stringExists("backend-json")) {
@@ -154,7 +166,7 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   if (!xacc::verbose) {
     std::cout.rdbuf(NULL);
   }
-  const auto resultQasm = runTriQ(triqCirc, backendModel, compileAlgo);
+  const auto resultQasm = runTriQ(triqCirc, backendModel, compileAlgo, approxFactor);
   std::cout.rdbuf(origBuf);
   // DEBUG:
   // std::cout << "After placement: \n" << resultQasm << "\n";
@@ -165,10 +177,10 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
 }
 
 std::string TriQPlacement::runTriQ(Circuit &program, Machine &machine,
-                                   int algorithmSelector) const {
+                                   int algorithmSelector, double approxFactor) const {
   ::Mapper pMapper(&machine, &program);
   pMapper.set_config(MapSum, VarUnique);
-  pMapper.config.approx_factor = 1.001;
+  pMapper.config.approx_factor = approxFactor;
   pMapper.map_with_z3();
   pMapper.print_stats();
   const ::CompileAlgorithm selectedAlgo = static_cast<::CompileAlgorithm>(algorithmSelector);
