@@ -421,7 +421,6 @@ namespace quantum {
         for (const auto &bit : asComp->uniqueBits()) {
           targetIdx.emplace_back(xaccIdxToQppIdx(bit));
         }
-        assert(targetIdx.size() == dim);
         m_stateVec = qpp::applyCTRL(m_stateVec, uMat, {ctrlIdx}, {targetIdx});
         // No need to handle this sub-circuit anymore.
         in_circuit.disable();
