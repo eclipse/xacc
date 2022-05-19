@@ -119,6 +119,13 @@ void XaccTargetter::print_header(std::ofstream &out_file) {
   out_file << "creg c[" << nbQubits << "];\n";
 }
 
+void XaccTargetter::add_gate_print_maps() {
+  gate_print_ibm[typeid(RX)] = "rx";
+  gate_print_ibm[typeid(RY)] = "ry";
+  gate_print_ibm[typeid(RZ)] = "rz";
+  gate_print_ibm[typeid(CZ)] = "cz";
+}
+
 void XaccTargetter::print_one_qubit_gate(::Gate *g, std::ofstream &out_file,
                                          int is_last_gate) {
   int qid = g->vars[0]->id;

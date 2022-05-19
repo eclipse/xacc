@@ -11,6 +11,7 @@
  *   Thien Nguyen
  *******************************************************************************/
 #include "triq_placement.hpp"
+#include "Utils.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "headers.hpp"
@@ -67,6 +68,18 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   if (options.stringExists("backend")) {
     backendName = options.getString("backend");
   }
+
+  // Approximation factor to determine the stopping condition
+  // of the Z3 solver.
+  // The smaller this value is, the longer it takes to optimize.
+  // Must be > 1.0  
+  double approxFactor = 1.001;
+  if (options.keyExists<double>("approx-factor")) {
+    approxFactor = options.get<double>("approx-factor");
+    if (approxFactor <= 1.0) {
+      xacc::error("Invalid 'approx-factor'. Must be > 1.0");
+    }
+  }
   // Enable offline testing via JSON loading as well
   std::string backendJson;
   if (options.stringExists("backend-json")) {
@@ -76,7 +89,13 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
     backendJson = acc->getProperties().getString("total-json");
   }
 
-  if (backendName.empty() && backendJson.empty()) {
+  xacc::NoiseModel *providedNoiseModel = nullptr;
+  if (options.pointerLikeExists<xacc::NoiseModel>("backend-noise-model")) {
+    providedNoiseModel =
+        options.getPointerLike<xacc::NoiseModel>("backend-noise-model");
+  }
+
+  if (backendName.empty() && backendJson.empty() && !providedNoiseModel) {
     // Nothing we can do.
     xacc::warning("No backend information was provided. Skipped!");
     return;
@@ -130,7 +149,9 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   }
   // DEBUG:
   // triqCirc.print_gates();
-  auto backendNoiseModel = xacc::getService<xacc::NoiseModel>("IBM");
+  auto backendNoiseModel = providedNoiseModel
+                               ? xacc::as_shared_ptr(providedNoiseModel)
+                               : xacc::getService<xacc::NoiseModel>("IBM");
   if (!backendName.empty()) {
     backendNoiseModel->initialize({{"backend", backendName}});
   } else {
@@ -145,7 +166,7 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   if (!xacc::verbose) {
     std::cout.rdbuf(NULL);
   }
-  const auto resultQasm = runTriQ(triqCirc, backendModel, compileAlgo);
+  const auto resultQasm = runTriQ(triqCirc, backendModel, compileAlgo, approxFactor);
   std::cout.rdbuf(origBuf);
   // DEBUG:
   // std::cout << "After placement: \n" << resultQasm << "\n";
@@ -156,10 +177,10 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
 }
 
 std::string TriQPlacement::runTriQ(Circuit &program, Machine &machine,
-                                   int algorithmSelector) const {
+                                   int algorithmSelector, double approxFactor) const {
   ::Mapper pMapper(&machine, &program);
   pMapper.set_config(MapSum, VarUnique);
-  pMapper.config.approx_factor = 1.001;
+  pMapper.config.approx_factor = approxFactor;
   pMapper.map_with_z3();
   pMapper.print_stats();
   const ::CompileAlgorithm selectedAlgo = static_cast<::CompileAlgorithm>(algorithmSelector);

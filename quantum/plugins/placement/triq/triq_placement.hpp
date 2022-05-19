@@ -39,7 +39,7 @@ public:
   const std::string description() const override { return ""; }
 private:
   // Returns the QASM source string after placement
-  std::string runTriQ(Circuit& program, Machine& machine, int algorithmSelector) const;
+  std::string runTriQ(Circuit& program, Machine& machine, int algorithmSelector, double approxFactor) const;
 };
 } // namespace quantum
 } // namespace xacc
