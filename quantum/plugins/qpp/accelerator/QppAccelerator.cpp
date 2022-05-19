@@ -27,17 +27,11 @@ namespace {
         return NB_THREADS;
     }
 
-    inline double generateRandomProbability() 
-    {
-        auto randFunc = std::bind(std::uniform_real_distribution<double>(0, 1), std::mt19937(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
-        return randFunc();
-    }
-
-    bool applyMeasureOp(KetVectorType& io_psi, size_t in_qubitIndex)
+    bool applyMeasureOp(KetVectorType& io_psi, size_t in_qubitIndex, xacc::quantum::randomEngine& in_rng)
     {
         const auto N = io_psi.size();
         const auto k_range = 1ULL << in_qubitIndex;        
-        const double randProbPick = generateRandomProbability();
+        const double randProbPick = in_rng.randProb();
         double cumulativeProb = 0.0;
         size_t stateSelect = 0;
         //select a state based on cumulative distribution
@@ -87,7 +81,7 @@ namespace {
         return result;
     }
 
-    void generateMeasureBitString(std::shared_ptr<xacc::AcceleratorBuffer> in_buffer, const std::vector<size_t>& in_bits, const KetVectorType& in_stateVec, int in_shotCount, bool in_multiThread = false)
+    void generateMeasureBitString(std::shared_ptr<xacc::AcceleratorBuffer> in_buffer, const std::vector<size_t>& in_bits, const KetVectorType& in_stateVec, int in_shotCount, xacc::quantum::randomEngine& in_rng, bool in_multiThread = false)
     {
         if (!in_multiThread)
         {
@@ -98,7 +92,7 @@ namespace {
                 auto stateVecCopy = in_stateVec;
                 for (const auto& bit : in_bits)    
                 {
-                    bitString.append(std::to_string(applyMeasureOp(stateVecCopy, bit)));
+                    bitString.append(std::to_string(applyMeasureOp(stateVecCopy, bit, in_rng)));
                 }
 
                 in_buffer->appendMeasurement(bitString);
@@ -119,7 +113,7 @@ namespace {
                         auto stateVecCopy = in_stateVec;
                         for (const auto& bit : in_bits)    
                         {
-                            bitString.append(std::to_string(applyMeasureOp(stateVecCopy, bit)));
+                            bitString.append(std::to_string(applyMeasureOp(stateVecCopy, bit, in_rng)));
                         }
                         bitStringArray[i] = bitString;
                     }
@@ -232,6 +226,11 @@ namespace quantum {
                 xacc::error("Invalid 'shots' parameter.");
             }
         }
+        if (params.keyExists<int>("seed"))
+        {
+            const auto seed = params.get<int>("seed");
+            m_rng = randomEngine(seed);
+        }
         // Enable VQE mode by default if not using shots.
         // Note: in VQE mode, only expectation values are computed.
         m_vqeMode = (m_shots < 1);
@@ -326,7 +325,7 @@ namespace quantum {
                 {
                     // Try multi-threaded execution if there are many shots.
                     const bool multiThreadEnabled = (m_shots > 1024);
-                    generateMeasureBitString(buffer, measureBitIdxs, stateVec, m_shots, multiThreadEnabled);
+                    generateMeasureBitString(buffer, measureBitIdxs, stateVec, m_shots, m_rng, multiThreadEnabled);
                 }
             }
             // Note: must save the state-vector before finalizing the visitor.

@@ -17,6 +17,22 @@
 
 namespace xacc {
 namespace quantum {
+struct randomEngine {
+  randomEngine() {
+    std::random_device rd;
+    setSeed(rd());
+  }
+  randomEngine(size_t seed) { setSeed(seed); }
+  void setSeed(size_t seed) {
+    m_engine.seed(seed);
+    m_seed = seed;
+  }
+  double randProb() {
+    return std::uniform_real_distribution<double>(0.0, 1.0)(m_engine);
+  }
+  std::mt19937_64 m_engine;
+  size_t m_seed;
+};
 
 class QppAccelerator : public Accelerator {
 public:
@@ -50,6 +66,7 @@ public:
     std::vector<std::pair<int,int>> m_connectivity;
     xacc::HeterogeneousMap m_executionInfo;
     std::pair<AcceleratorBuffer*, size_t> m_currentBuffer;
+    randomEngine m_rng;
 };
 
 class DefaultNoiseModelUtils : public NoiseModelUtils 

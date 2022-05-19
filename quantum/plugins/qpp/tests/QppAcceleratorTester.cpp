@@ -753,6 +753,28 @@ TEST(QppAcceleratorTester, testMultiControlledGateNativeSim)
   }
 }
 
+TEST(QppAcceleratorTester, checkRandomSeed) {
+  auto accelerator =
+      xacc::getAccelerator("qpp", {{"shots", 8192}, {"seed", 123}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void bell(qbit q) {
+      H(q[0]);
+      CX(q[0], q[1]);
+      Measure(q[0]);
+      Measure(q[1]);
+    })",
+                                  accelerator);
+
+  auto program = ir->getComposite("bell");
+
+  auto buffer = xacc::qalloc(2);
+  accelerator->execute(buffer, program);
+  buffer->print();
+  // The result will be deterministic since we seed the simulator
+  EXPECT_EQ(buffer->getMeasurementCounts()["00"], 4090);
+  EXPECT_EQ(buffer->getMeasurementCounts()["11"], 4102);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
 
