@@ -754,8 +754,6 @@ TEST(QppAcceleratorTester, testMultiControlledGateNativeSim)
 }
 
 TEST(QppAcceleratorTester, checkRandomSeed) {
-  auto accelerator =
-      xacc::getAccelerator("qpp", {{"shots", 8192}, {"seed", 123}});
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto ir = xasmCompiler->compile(R"(__qpu__ void bell(qbit q) {
       H(q[0]);
@@ -763,16 +761,28 @@ TEST(QppAcceleratorTester, checkRandomSeed) {
       Measure(q[0]);
       Measure(q[1]);
     })",
-                                  accelerator);
+                                  nullptr);
 
   auto program = ir->getComposite("bell");
 
-  auto buffer = xacc::qalloc(2);
-  accelerator->execute(buffer, program);
-  buffer->print();
-  // The result will be deterministic since we seed the simulator
-  EXPECT_EQ(buffer->getMeasurementCounts()["00"], 4090);
-  EXPECT_EQ(buffer->getMeasurementCounts()["11"], 4102);
+  auto buffer1 = xacc::qalloc(2);
+  auto buffer2 = xacc::qalloc(2);
+  {
+    auto accelerator =
+        xacc::getAccelerator("qpp", {{"shots", 1000}, {"seed", 123}});
+    accelerator->execute(buffer1, program);
+    buffer1->print();
+  }
+  {
+    auto accelerator =
+        xacc::getAccelerator("qpp", {{"shots", 1000}, {"seed", 123}});
+    accelerator->execute(buffer2, program);
+    buffer2->print();
+  }
+  EXPECT_EQ(buffer1->getMeasurementCounts()["00"],
+            buffer2->getMeasurementCounts()["00"]);
+  EXPECT_EQ(buffer1->getMeasurementCounts()["11"],
+            buffer2->getMeasurementCounts()["11"]);
 }
 
 int main(int argc, char **argv) {
