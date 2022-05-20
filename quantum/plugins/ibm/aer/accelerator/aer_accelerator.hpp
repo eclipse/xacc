@@ -80,7 +80,8 @@ private:
   bool initialized = false;
   std::shared_ptr<AER::Noise::NoiseModel> noiseModelObj;
   HeterogeneousMap physical_backend_properties;
-
+  // No seed
+  int m_seed = -1;
 };
 } // namespace quantum
 } // namespace xacc

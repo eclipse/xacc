@@ -68,6 +68,10 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
   if (params.keyExists<int>("shots")) {
     m_shots = params.get<int>("shots");
   }
+
+  if (params.keyExists<int>("seed")) {
+    m_seed = params.get<int>("seed");
+  }
   if (params.stringExists("sim-type")) {
     if (!xacc::container::contains(
             std::vector<std::string>{"qasm", "statevector", "pulse", "density_matrix"},
@@ -185,7 +189,10 @@ void AerAccelerator::execute(
     nlohmann::json j = nlohmann::json::parse(qobj_str)["qObject"];
     j["config"]["shots"] = m_shots;
     j["config"]["noise_model"] = noise_model;
-
+    // If a seed was set:
+    if (m_seed > 0) {
+      j["config"]["seed_simulator"] = m_seed;
+    }
     // xacc::set_verbose(true);
     // xacc::info("Shots Qobj:\n" + j.dump(2));
     auto results_json = nlohmann::json::parse(
