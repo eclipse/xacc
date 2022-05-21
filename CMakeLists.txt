@@ -121,7 +121,9 @@ if (XACC_BUILD_TESTS)
    endmacro()
 endif()
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
+add_compile_flags_if_supported(-Wno-attributes)
+add_compile_flags_if_supported(-Wno-deprecated-declarations)
+add_compile_flags_if_supported(-Wno-maybe-uninitialized)
 
 # NOTE: to enable MPI, need to configure CMAKE with -DXACC_ENABLE_MPI=TRUE
 # (some XACC Python binding is not compatible with MPI, hence not building with MPI as default)
