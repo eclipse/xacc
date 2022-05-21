@@ -14,7 +14,7 @@
 #define XACC_UTILS_UTILS_HPP_
 
 #include "Singleton.hpp"
-
+#include "Stream.hpp"
 #include <memory>
 #include <queue>
 #include <functional>
@@ -64,53 +64,6 @@ inline std::vector<std::string> split(const std::string &s, char delim) {
   return elems;
 }
 
-template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::pair<T, T> &p) {
-  os << "[" << p.first << "," << p.second << "]";
-  return os;
-}
-
-template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
-  os << "[";
-  for (int i = 0; i < v.size(); ++i) {
-    os << v[i];
-    if (i != v.size() - 1)
-      os << ",";
-  }
-  os << "]";
-  return os;
-}
-
-template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::map<int, T> &m) {
-  os << "[";
-  int i = 0;
-  for (auto &kv : m) {
-    os << "(" << kv.first << "," << kv.second << ")";
-    if (i != m.size() - 1) {
-      os << ",";
-    }
-    i++;
-  }
-  os << "]";
-  return os;
-}
-
-template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::map<std::string, T> &m) {
-  os << "[";
-  int i = 0;
-  for (auto &kv : m) {
-    os << "(" << kv.first << "," << kv.second << ")";
-    if (i != m.size() - 1) {
-      os << ",";
-    }
-    i++;
-  }
-  os << "]";
-  return os;
-}
 static inline bool is_base64(unsigned char c);
 
 std::string base64_decode(std::string const &encoded_string);
