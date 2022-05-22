@@ -22,6 +22,7 @@
 
 #include <any>
 #include <sstream>
+#include "Stream.hpp"
 
 // If this is a GNU compiler
 #if defined(__GNUC__) || defined(__GNUG__)
