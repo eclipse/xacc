@@ -245,6 +245,10 @@ public:
   PauliOperator(std::map<int, std::string> operators,
                 std::complex<double> coeff, std::string var);
   PauliOperator(const std::map<std::string, Term> &in_terms);
+  // Prevent overload ambiguity, due to Term(std::string) constructor
+  PauliOperator(
+      std::initializer_list<std::map<int, std::string>::value_type> input)
+      : PauliOperator(std::map<int, std::string>(input)){};
 
   std::vector<std::shared_ptr<CompositeInstruction>>
   observe(std::shared_ptr<CompositeInstruction> function) override;
