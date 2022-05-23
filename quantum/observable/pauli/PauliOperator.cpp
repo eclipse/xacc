@@ -129,6 +129,8 @@ PauliOperator::PauliOperator(std::complex<double> c, std::string var) {
 }
 
 PauliOperator::PauliOperator(const PauliOperator &i) : terms(i.terms) {}
+PauliOperator::PauliOperator(const std::map<std::string, Term> &in_terms)
+    : terms(in_terms) {}
 
 /**
  * The Constructor, takes a vector of

@@ -244,6 +244,7 @@ public:
   PauliOperator(std::map<int, std::string> operators, double coeff);
   PauliOperator(std::map<int, std::string> operators,
                 std::complex<double> coeff, std::string var);
+  PauliOperator(const std::map<std::string, Term> &in_terms);
 
   std::vector<std::shared_ptr<CompositeInstruction>>
   observe(std::shared_ptr<CompositeInstruction> function) override;
