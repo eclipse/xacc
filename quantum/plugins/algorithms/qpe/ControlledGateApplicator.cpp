@@ -11,7 +11,12 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "ControlledGateApplicator.hpp"
+#include "CompositeInstruction.hpp"
+#include "Utils.hpp"
+#include "xacc.hpp"
 #include "xacc_service.hpp"
+#include <memory>
+#include <cassert>
 
 namespace xacc {
 namespace circuits {
@@ -353,10 +358,23 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
     }
 
   } else {
-
     // Recursive application of control bits:
     for (const auto &ctrlIdx : ctrlIdxs) {
       ctrlU = applyControl(ctrlU, ctrlIdx);
+    }
+
+    // Re-expand any roll-up C-U that we combine during the previous step.
+    // e.g., this might trigger the code path for Gray-code expansion.
+    InstructionIterator it(ctrlU);
+    while (it.hasNext()) {
+      auto nextInst = it.next();
+      auto asCU = std::dynamic_pointer_cast<ControlledU>(nextInst);
+      if (asCU && !asCU->m_expanded) {
+        assert(asCU->m_shouldRollupMultipleControls);
+        asCU->m_shouldRollupMultipleControls = false;
+        asCU->expand({{"U", xacc::ir::asComposite(asCU->m_originalU)},
+                      {"control-idx", asCU->m_ctrlIdxs}});
+      }
     }
 
     for (int instId = 0; instId < ctrlU->nInstructions(); ++instId) {
@@ -368,14 +386,95 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   return true;
 }
 
+// Added more control bits to a control-like operation in the recursive
+// application of control qubits. Note: we don't expand it yet here until the
+// end.
+void ControlledU::addMoreControlBits(
+    std::shared_ptr<xacc::Instruction> ctrlInst) {
+  if (ctrlInst->isComposite()) {
+    auto cu_gate = std::dynamic_pointer_cast<ControlledU>(ctrlInst);
+    assert(cu_gate);
+    assert(!xacc::container::contains(cu_gate->m_ctrlIdxs, m_ctrlIdx));
+    auto u_comp = xacc::ir::asComposite(cu_gate->m_originalU);
+    assert(u_comp);
+    auto newCtrlIdxs = cu_gate->m_ctrlIdxs;
+    newCtrlIdxs.emplace_back(m_ctrlIdx);
+    auto newCtrlKernel = std::make_shared<ControlledU>();
+    newCtrlKernel->m_originalU = u_comp;
+    newCtrlKernel->m_ctrlIdxs = newCtrlIdxs;
+    m_composite->addInstruction(newCtrlKernel);
+  } else {
+    const auto inst_name = ctrlInst->name();
+    assert(ctrlInst->bits().size() == 2);
+    const auto targetIdx =
+        std::make_pair(ctrlInst->getBufferName(1), ctrlInst->bits()[1]);
+    const auto controlIdx =
+        std::make_pair(ctrlInst->getBufferName(0), ctrlInst->bits()[0]);
+    assert(m_ctrlIdx != controlIdx);
+    const std::vector<std::pair<std::string, size_t>> controlIdxs{m_ctrlIdx,
+                                                                  controlIdx};
+    std::shared_ptr<Instruction> baseGate =
+        [&]() -> std::shared_ptr<Instruction> {
+      if (inst_name == "CNOT") {
+        auto gate = std::make_shared<X>(targetIdx.second);
+        gate->setBufferNames({targetIdx.first});
+        return gate;
+      }
+      if (inst_name == "CZ") {
+        auto gate = std::make_shared<Z>(targetIdx.second);
+        gate->setBufferNames({targetIdx.first});
+        return gate;
+      }
+      if (inst_name == "CH") {
+        auto gate = std::make_shared<Hadamard>(targetIdx.second);
+        gate->setBufferNames({targetIdx.first});
+        return gate;
+      }
+      if (inst_name == "CY") {
+        auto gate = std::make_shared<Y>(targetIdx.second);
+        gate->setBufferNames({targetIdx.first});
+        return gate;
+      }
+      if (inst_name == "CRZ") {
+        auto angle = ctrlInst->getParameters()[0];
+        auto gate = std::make_shared<Rz>(targetIdx.second, std::move(angle));
+        gate->setBufferNames({targetIdx.first});
+        return gate;
+      }
+      return nullptr;
+    }();
+    assert(baseGate);
+    std::shared_ptr<xacc::CompositeInstruction> comp =
+        m_gateProvider->createComposite("__COMPOSITE__TEMP");
+    comp->addInstruction(baseGate);
+    auto ctrlKernel = std::make_shared<ControlledU>();
+    ctrlKernel->m_originalU = comp;
+    ctrlKernel->m_ctrlIdxs = controlIdxs;
+    m_composite->addInstruction(ctrlKernel);
+  }
+}
+
 std::shared_ptr<xacc::CompositeInstruction> ControlledU::applyControl(
     const std::shared_ptr<xacc::CompositeInstruction> &in_program,
     const std::pair<std::string, size_t> &in_ctrlIdx) {
+  // Helper
+  const auto isControlGate =
+      [](const std::shared_ptr<Instruction> &inst) -> bool {
+    if (std::dynamic_pointer_cast<ControlledU>(inst)) {
+      return true;
+    }
+    const std::vector<std::string> CONTROLLED_GATES{"CNOT", "CZ", "CH", "CY",
+                                                    "CRZ"};
+    return !inst->isComposite() &&
+           xacc::container::contains(CONTROLLED_GATES, inst->name());
+  };
+
   std::string qcor_compute_section_key = "__qcor__compute__segment__";
   m_gateProvider = xacc::getService<xacc::IRProvider>("quantum");
   m_composite = m_gateProvider->createComposite(
       "CTRL_" + in_program->name() + "_" + in_ctrlIdx.first +
       std::to_string(in_ctrlIdx.second));
+  std::vector<std::shared_ptr<xacc::Instruction>> controlledBlocks;
   // Set the current control qubit before visiting...
   m_ctrlIdx = in_ctrlIdx;
   InstructionIterator it(in_program);
@@ -385,15 +484,26 @@ std::shared_ptr<xacc::CompositeInstruction> ControlledU::applyControl(
       auto metadata = nextInst->getMetadata();
       if (metadata.keyExists<bool>(qcor_compute_section_key) &&
           metadata.get<bool>(qcor_compute_section_key)) {
-        // Just add the instructino
+        // Just add the instruction
         m_composite->addInstruction(nextInst);
       } else {
         // Otherwise add the ctrl version of the gate
-        nextInst->accept(this);
+        if (m_shouldRollupMultipleControls && isControlGate(nextInst)) {
+          addMoreControlBits(nextInst);
+          if (nextInst->isComposite()) {
+            nextInst->disable();
+            controlledBlocks.emplace_back(nextInst);
+          }
+        } else {
+          nextInst->accept(this);
+        }
       }
     }
   }
 
+  for (auto &block : controlledBlocks) {
+    block->enable();
+  }
   return m_composite;
 }
 

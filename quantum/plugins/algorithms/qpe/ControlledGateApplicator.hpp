@@ -80,6 +80,8 @@ private:
   std::shared_ptr<xacc::CompositeInstruction>
   applyControl(const std::shared_ptr<xacc::CompositeInstruction> &in_program,
                const std::pair<std::string, size_t> &in_ctrlIdx);
+  // Adding more control bits to a ctrl instruction
+  void addMoreControlBits(std::shared_ptr<xacc::Instruction> ctrlInst);
 
 private:
   std::shared_ptr<xacc::CompositeInstruction> m_composite;
@@ -89,6 +91,7 @@ private:
   bool m_expanded;
   std::vector<std::pair<std::string, size_t>> m_ctrlIdxs;
   std::shared_ptr<Instruction> m_originalU;
+  bool m_shouldRollupMultipleControls = true;
 };
 } // namespace circuits
 } // namespace xacc

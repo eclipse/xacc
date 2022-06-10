@@ -449,6 +449,49 @@ TEST(ControlledGateTester, checkMultipleControlGrayCodeGen) {
   }
 }
 
+TEST(ControlledGateTester, checkMultipleControlRollup) {
+  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+  {
+    // Test that we can convert control(CZ) ==> MCZ where we can do Gray code
+    // circuit gen
+    auto cz = std::make_shared<CZ>(0, 4);
+    std::shared_ptr<xacc::CompositeInstruction> comp =
+        gateRegistry->createComposite("__COMPOSITE__Z");
+    comp->addInstruction(cz);
+    const std::vector<int> ctrl_idxs{1, 2, 3};
+    auto multi_ctrl_z = std::dynamic_pointer_cast<CompositeInstruction>(
+        xacc::getService<Instruction>("C-U"));
+    multi_ctrl_z->expand({{"U", comp}, {"control-idx", ctrl_idxs}});
+    xacc::quantum::CountGatesOfTypeVisitor<CNOT> vis(multi_ctrl_z);
+    xacc::quantum::CountGatesOfTypeVisitor<U> visu(multi_ctrl_z);
+    EXPECT_EQ(vis.countGates(), 44);
+    EXPECT_EQ(visu.countGates(), 52);
+  }
+  {
+    // Nesting of C-U circuits should also work
+    auto z = std::make_shared<Z>(4);
+    std::shared_ptr<xacc::CompositeInstruction> comp1 =
+        gateRegistry->createComposite("__COMPOSITE__Z1");
+    comp1->addInstruction(z);
+    auto ctrl_z = std::dynamic_pointer_cast<CompositeInstruction>(
+        xacc::getService<Instruction>("C-U"));
+    const std::vector<int> ctrl_idxs_1{0};
+    ctrl_z->expand({{"U", comp1}, {"control-idx", ctrl_idxs_1}});
+
+    std::shared_ptr<xacc::CompositeInstruction> comp =
+        gateRegistry->createComposite("__COMPOSITE__Z");
+    comp->addInstruction(ctrl_z);
+    const std::vector<int> ctrl_idxs{1, 2, 3};
+    auto multi_ctrl_z = std::dynamic_pointer_cast<CompositeInstruction>(
+        xacc::getService<Instruction>("C-U"));
+    multi_ctrl_z->expand({{"U", comp}, {"control-idx", ctrl_idxs}});
+    xacc::quantum::CountGatesOfTypeVisitor<CNOT> vis(multi_ctrl_z);
+    xacc::quantum::CountGatesOfTypeVisitor<U> visu(multi_ctrl_z);
+    EXPECT_EQ(vis.countGates(), 44);
+    EXPECT_EQ(visu.countGates(), 52);
+  }
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);
