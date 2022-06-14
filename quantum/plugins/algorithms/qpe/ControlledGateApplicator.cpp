@@ -327,6 +327,27 @@ bool ControlledU::expand(const xacc::HeterogeneousMap &runtimeOptions) {
     return false;
   };
 
+  // Always decomposed
+  bool should_decompose = true;
+  if (xacc::optionExists("skip-control-gate-decompose")) {
+    should_decompose = false;
+  }
+  if (runtimeOptions.keyExists<bool>("skip-decompose")) {
+    should_decompose = !(runtimeOptions.get<bool>("skip-decompose"));
+  }
+
+  if (!should_decompose) {
+    if (!should_run_gray_mcu_synth()) {
+      // If not simple Gray code, use recursive method to roll up control bits
+      // but skip the final expansion.
+      for (const auto &ctrlIdx : ctrlIdxs) {
+        ctrlU = applyControl(ctrlU, ctrlIdx);
+      }
+    }
+    m_expanded = true;
+    return true;
+  }
+
   if (should_run_gray_mcu_synth()) {
     ctrlU = __gray_code_mcu_gen(ctrlU, ctrlIdxs);
     std::vector<int> zero_rotation_idxs;
