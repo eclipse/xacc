@@ -84,7 +84,7 @@ void ServiceRegistry::initialize(const std::string rootPath) {
       try {
         b.Start();
       } catch (std::exception &e) {
-        xacc::error("Could not load " + b.GetSymbolicName() + ", error message: " + e.what());
+        xacc::exception("Could not load " + b.GetSymbolicName() + ", error message: " + e.what());
       }
     }
 
