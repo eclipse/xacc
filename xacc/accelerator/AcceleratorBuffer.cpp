@@ -411,17 +411,9 @@ std::shared_ptr<AcceleratorBuffer> AcceleratorBuffer::clone() {
  */
 const double AcceleratorBuffer::getExpectationValueZ() {
   double aver = 0.0;
-  auto has_even_parity = [](unsigned int x) -> int {
-    unsigned int count = 0, i, b = 1;
-    for (i = 0; i < 32; i++) {
-      if (x & (b << i)) {
-        count++;
-      }
-    }
-    if ((count % 2)) {
-      return 0;
-    }
-    return 1;
+  auto has_even_parity = [](const std::string &x) -> bool {
+    int c = std::count(x.begin(), x.end(), '1');
+    return c%2 == 0;
   };
 
   if (this->hasExtraInfoKey("ro-fixed-exp-val-z")) {
@@ -436,8 +428,7 @@ const double AcceleratorBuffer::getExpectationValueZ() {
     }
 
     for (auto &kv : bitStringToCounts) {
-      int i = std::stoi(kv.first, nullptr, 2);
-      auto par = has_even_parity(i);
+      auto par = has_even_parity(kv.first);
       auto p = computeMeasurementProbability(kv.first);
       if (!par) {
         p = -p;
