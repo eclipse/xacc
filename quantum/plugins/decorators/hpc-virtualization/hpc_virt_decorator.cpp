@@ -14,13 +14,29 @@
 #include "hpc_virt_decorator.hpp"
 #include "InstructionIterator.hpp"
 #include "Utils.hpp"
-#include "xacc.hpp"
+#include "xacc_service.hpp"
 #include <numeric>
+#include "TearDown.hpp"
 
+namespace {
+  static bool hpcVirtDecoratorInitializedMpi = false;
+}
 namespace xacc {
 namespace quantum {
 
 void HPCVirtDecorator::initialize(const HeterogeneousMap &params) {
+  if (!qpuComm) {
+    // Initializing MPI here
+    int provided, isMPIInitialized;
+    MPI_Initialized(&isMPIInitialized);
+    if (!isMPIInitialized) {
+      MPI_Init_thread(0, NULL, MPI_THREAD_MULTIPLE, &provided);
+      hpcVirtDecoratorInitializedMpi = true;
+      if (provided != MPI_THREAD_MULTIPLE) {
+        xacc::warning("MPI_THREAD_MULTIPLE not provided.");
+      }
+    }
+  }
   decoratedAccelerator->initialize(params);
 
   if (params.keyExists<int>("n-virtual-qpus")) {
@@ -261,6 +277,35 @@ void HPCVirtDecorator::execute(
   return;
 }
 
+void HPCVirtDecorator::finalize() {
+  if (qpuComm) {
+    // Make sure we explicitly release this so that MPICommProxy is destroyed 
+    // before framework shutdown (MPI_Finalize if needed)
+    qpuComm.reset();
+  }
+}
+
+class HPCVirtTearDown : public xacc::TearDown {
+public:
+  virtual void tearDown() override {
+    auto c = xacc::getService<xacc::AcceleratorDecorator>("hpc-virtualization", false);
+    if (c) {
+      auto casted = std::dynamic_pointer_cast<xacc::quantum::HPCVirtDecorator>(c);
+      assert(casted);
+      casted->finalize();
+    }
+
+    int finalized, initialized;
+    MPI_Initialized(&initialized);
+    if (initialized) {
+      MPI_Finalized(&finalized);
+      if (!finalized && hpcVirtDecoratorInitializedMpi) {
+        MPI_Finalize();
+      }
+    }
+  }
+  virtual std::string name() const override { return "xacc-hpc-virt"; }
+};
 } // namespace quantum
 } // namespace xacc
 
@@ -279,9 +324,9 @@ public:
 
   void Start(BundleContext context) {
     auto c = std::make_shared<xacc::quantum::HPCVirtDecorator>();
-
     context.RegisterService<xacc::AcceleratorDecorator>(c);
     context.RegisterService<xacc::Accelerator>(c);
+    context.RegisterService<xacc::TearDown>(std::make_shared<xacc::quantum::HPCVirtTearDown>());
   }
 
   /**
