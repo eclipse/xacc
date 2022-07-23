@@ -40,12 +40,11 @@ turning on file auto-save by clicking ``File > Auto Save ``.
 Note the Gitpod free account provides 100 hours of use for the month, so if 
 you foresee needing more time, we recommend our nightly docker images.
 
-The XACC nightly docker images also serve an Eclipse Theia IDE (the same IDE Gitpod uses) on port 3000. To get started, run 
+The XACC nightly docker images also serve an [Eclipse Theia IDE](https://theia-ide.org/) on port 3000. To get started, run 
 ```bash
-$ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc
+$ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 ghcr.io/eclipse/xacc/xacc:latest
 ```
-Navigate to ``https://localhost:3000`` in your browser to open the IDE and get started with XACC. These are deployed 
-nightly, with ``xacc-tnqvm-exatn`` (tensor network simulator) and ``xacc-quac`` (pulse-level simulation) variants.
+Navigate to ``https://localhost:3000`` in your browser to open the IDE and get started with XACC. 
 
 
 Build from Source
