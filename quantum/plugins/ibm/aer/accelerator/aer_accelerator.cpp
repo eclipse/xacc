@@ -458,9 +458,9 @@ void AerAccelerator::execute(
     AER::ExperimentResult data;
     stateVec.initialize_creg(circ.num_memory, circ.num_registers);
     stateVec.initialize_qreg(buffer->size());
-    std::cout << "Num op: " << circ.ops.size() << "\n";
+    // std::cout << "Num op: " << circ.ops.size() << "\n";
     stateVec.apply_ops(circ.ops.begin(), circ.ops.end(), data, rng);
-    std::cout << "Result: \n" << data.to_json().dump() << "\n";
+    // std::cout << "Result: \n" << data.to_json().dump() << "\n";
     const double exp_val = stateVec.qreg().expval_pauli(
         measured_bits, std::string(measured_bits.size(), 'Z'));
 

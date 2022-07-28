@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "framework/circuit.hpp"
+#include "noise/noise_model.hpp"
 
 namespace AER {
 
@@ -38,8 +39,9 @@ class Qobj {
   Qobj() = default;
   virtual ~Qobj() = default;
 
-  // JSON deserialization constructor
-  Qobj(const json_t &js);
+  // Deserialization constructor
+  template <typename inputdata_t>
+  Qobj(const inputdata_t &input);
 
   //----------------------------------------------------------------
   // Data
@@ -49,6 +51,7 @@ class Qobj {
   std::vector<Circuit> circuits;  // List of circuits
   json_t header;                  // (optional) passed through to result
   json_t config;                  // (optional) qobj level config data
+  Noise::NoiseModel noise_model;  // (optional) noise model
 };
 
 //============================================================================
@@ -58,30 +61,51 @@ class Qobj {
 // JSON deserialization
 inline void from_json(const json_t &js, Qobj &qobj) { qobj = Qobj(js); }
 
-Qobj::Qobj(const json_t &js) {
+template <typename inputdata_t>
+Qobj::Qobj(const inputdata_t &input) {
   // Check required fields
-  if (JSON::get_value(id, "qobj_id", js) == false) {
+  if (Parser<inputdata_t>::get_value(id, "qobj_id", input) == false) {
     throw std::invalid_argument(R"(Invalid qobj: no "qobj_id" field)");
   };
-  JSON::get_value(type, "type", js);
+    Parser<inputdata_t>::get_value(type, "type", input);
   if (type != "QASM") {
     throw std::invalid_argument(R"(Invalid qobj: "type" != "QASM".)");
   };
-  if (JSON::check_key("experiments", js) == false) {
+  if (Parser<inputdata_t>::check_key("experiments", input) == false) {
     throw std::invalid_argument(R"(Invalid qobj: no "experiments" field.)");
   }
 
-  // Get header and config;
-  JSON::get_value(config, "config", js);
-  JSON::get_value(header, "header", js);
+  // Apply qubit truncation
+  bool truncation = true;
+
+  // Parse config
+  if (Parser<inputdata_t>::get_value(config, "config", input)) {
+    // Check for truncation option
+    Parser<json_t>::get_value(truncation, "enable_truncation", config);
+
+    // Load noise model
+    if (Parser<json_t>::get_value(noise_model, "noise_model", config)) {
+      // If noise model has non-local errors disable trunction
+      if (noise_model.has_nonlocal_quantum_errors()) {
+        truncation = false;
+      }
+    }
+  } else {
+    config = json_t::object();
+  }
+
+  // Parse header
+  if (!Parser<inputdata_t>::get_value(header, "header", input)) {
+    header = json_t::object();
+  }
 
   // Check for fixed simulator seed
   // If simulator seed is set, each experiment will be set to a fixed (but different) seed
   // Otherwise a random seed will be chosen for each experiment
   int_t seed = -1;
   uint_t seed_shift = 0;
-  bool has_simulator_seed = JSON::get_value(seed, "seed_simulator", config);
-  const json_t &circs = js["experiments"];
+  bool has_simulator_seed = Parser<json_t>::get_value(seed, "seed_simulator", config); // config always json
+  const auto& circs = Parser<inputdata_t>::get_list("experiments", input);
   const size_t num_circs = circs.size();
 
   // Check if parameterized qobj
@@ -95,7 +119,7 @@ Qobj::Qobj(const json_t &js) {
   using pos_t = std::pair<uint_t, uint_t>;
   using exp_params_t = std::vector<std::pair<pos_t, std::vector<double>>>;
   std::vector<exp_params_t> param_table;
-  JSON::get_value(param_table, "parameterizations", config);
+  Parser<json_t>::get_value(param_table, "parameterizations", config);
 
   // Validate parameterizations for number of circuis
   if (!param_table.empty() && param_table.size() != num_circs) {
@@ -105,12 +129,14 @@ Qobj::Qobj(const json_t &js) {
 
   // Load circuits
   for (size_t i=0; i<num_circs; i++) {
-    // Get base circuit from qobj
-    Circuit circuit(circs[i], config);
     if (param_table.empty() || param_table[i].empty()) {
+      // Get base circuit from qobj
+      Circuit circuit(static_cast<inputdata_t>(circs[i]), config, truncation);
       // Non parameterized circuit
-      circuits.push_back(circuit);
+      circuits.push_back(std::move(circuit));
     } else {
+      // Get base circuit from qobj without truncation
+      Circuit circuit(static_cast<inputdata_t>(circs[i]), config, false);
       // Load different parameterizations of the initial circuit
       const auto circ_params = param_table[i];
       const size_t num_params = circ_params[0].second.size();
@@ -135,18 +161,25 @@ Qobj::Qobj(const json_t &js) {
           // Update the param
           op.params[param_pos] = params.second[j];
         }
-        circuits.push_back(param_circuit);
+        // Run truncation.
+        // TODO: Truncation should be performed and parameters should be resolved after it.
+        // However, parameters are associated with indices of instructions, which can be changed in truncation.
+        // Therefore, current implementation performs truncation for each parameter set.
+        if (truncation)
+          param_circuit.set_params(true);
+        circuits.push_back(std::move(param_circuit));
       }
     }
   }
   // Override random seed with fixed seed if set
   // We shift the seed for each successive experiment
   // So that results aren't correlated between experiments
-  if (has_simulator_seed) {
-    for (auto& circuit : circuits) {
-      circuit.seed = seed + seed_shift;
-      seed_shift += 2113;  // Shift the seed
-    }
+  if (!has_simulator_seed) {
+    seed = circuits[0].seed;
+  }
+  for (auto& circuit : circuits) {
+    circuit.seed = seed + seed_shift;
+    seed_shift += 2113;  // Shift the seed
   }
 }
 
