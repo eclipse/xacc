@@ -11,20 +11,21 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "aer_accelerator.hpp"
+#include "Accelerator.hpp"
+#include "Utils.hpp"
 #include "aer_noise_model.hpp"
 #include "CommonGates.hpp"
 #include "CountGatesOfTypeVisitor.hpp"
 #include "InstructionIterator.hpp"
 
-#include "controllers/controller.hpp"
+#include "controllers/aer_controller.hpp"
 #include "controllers/controller_execute.hpp"
-#include "controllers/qasm_controller.hpp"
-#include "controllers/statevector_controller.hpp"
 #include "noise/readout_error.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
+#include "simulators/density_matrix/densitymatrix.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 
@@ -44,8 +45,54 @@ std::string integral_to_binary_string(T byte, IS_INTEGRAL(T)) {
   std::bitset<sizeof(T) * 8> bs(byte);
   return bs.to_string();
 }
-std::string hex_string_to_binary_string(std::string hex) {
-  return integral_to_binary_string((int)strtol(hex.c_str(), NULL, 0));
+std::string hex_string_to_binary_string(const std::string &hex) {
+  auto hex_char_to_bin = [](char c) -> std::string {
+    switch (toupper(c)) {
+    case '0':
+      return "0000";
+    case '1':
+      return "0001";
+    case '2':
+      return "0010";
+    case '3':
+      return "0011";
+    case '4':
+      return "0100";
+    case '5':
+      return "0101";
+    case '6':
+      return "0110";
+    case '7':
+      return "0111";
+    case '8':
+      return "1000";
+    case '9':
+      return "1001";
+    case 'A':
+      return "1010";
+    case 'B':
+      return "1011";
+    case 'C':
+      return "1100";
+    case 'D':
+      return "1101";
+    case 'E':
+      return "1110";
+    case 'F':
+      return "1111";
+    }
+    throw std::runtime_error("Invalid Hex character!");
+    return "";
+  };
+
+  // start with '0x'
+  assert(hex.substr(0, 2) == "0x");
+  std::string bin;
+  for (int i = 2; i != hex.length(); ++i) {
+    bin += hex_char_to_bin(hex[i]);
+  }
+
+  return bin;
 }
 
 HeterogeneousMap AerAccelerator::getProperties() {
@@ -74,14 +121,24 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
   }
   if (params.stringExists("sim-type")) {
     if (!xacc::container::contains(
-            std::vector<std::string>{"qasm", "statevector", "pulse", "density_matrix"},
+            std::vector<std::string>{"qasm", "statevector", "pulse",
+                                     "density_matrix", "matrix_product_state"},
             params.getString("sim-type"))) {
       xacc::warning("[Aer] warning, invalid sim-type (" +
                     params.getString("sim-type") +
-                    "), must be qasm or statevector.");
+                    "), must be qasm or statevector or density_matrix or "
+                    "matrix_product_state.");
     } else {
       m_simtype = params.getString("sim-type");
     }
+  }
+
+  // A custom sim method is specified with 'shots';
+  // use qasm sim but set the method in QObj to force the method.
+  // e.g., statevector and density_matrix will not do shots, just returns the
+  // 'state'.
+  if (m_simtype != "qasm" && params.keyExists<int>("shots")) {
+    m_simtype = "qasm";
   }
 
   if (params.stringExists("backend")) {
@@ -182,7 +239,6 @@ double AerAccelerator::calcExpectationValueZFromDensityMatrix(
 void AerAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> program) {
-
   if (m_simtype == "qasm") {
     auto qobj_str = xacc_to_qobj->translate(program);
 
@@ -193,28 +249,44 @@ void AerAccelerator::execute(
     if (m_seed > 0) {
       j["config"]["seed_simulator"] = m_seed;
     }
+
+    if (m_options.stringExists("sim-type")) {
+      const std::string requestedMethod = m_options.getString("sim-type");
+      if (requestedMethod == "statevector") {
+        j["config"]["method"] = "statevector";
+      } else if (requestedMethod == "density_matrix") {
+        j["config"]["method"] = "density_matrix";
+      } else if (requestedMethod == "matrix_product_state") {
+        j["config"]["method"] = "matrix_product_state";
+      } else {
+        j["config"]["method"] = "automatic";
+      }
+    }
+
     // xacc::set_verbose(true);
     // xacc::info("Shots Qobj:\n" + j.dump(2));
-    auto results_json = nlohmann::json::parse(
-        AER::controller_execute_json<AER::Simulator::QasmController>(j.dump()));
-
-    auto results = *results_json["results"].begin();
-
-    auto counts = results["data"]["counts"].get<std::map<std::string, int>>();
+    auto result = AER::controller_execute<AER::Controller>(j);
+    if (result.status != AER::Result::Status::completed) {
+      xacc::error("Failed to complete the simulation! Error: " +
+                  result.message);
+    }
+    assert(result.results.size() == 1);
+    auto results = result.results.front();
+    auto counts =
+        results.data.to_json()["counts"].get<std::map<std::string, int>>();
+    // Process bitStr to be an n-Measure string in msb
+    CountGatesOfTypeVisitor<Measure> cc(program);
+    const int nMeasures = cc.countGates();
     for (auto &kv : counts) {
       std::string hexStr = kv.first;
       int nOccurrences = kv.second;
       auto bitStr = hex_string_to_binary_string(hexStr);
-
-      // Process bitStr to be an n-Measure string in msb
-      std::string actual = "";
-      CountGatesOfTypeVisitor<Measure> cc(program);
-      int nMeasures = cc.countGates();
-      for (int i = 0; i < nMeasures; i++)
-        actual += "0";
-      for (int i = 0; i < nMeasures; i++)
-        actual[actual.length() - 1 - i] = bitStr[bitStr.length() - i - 1];
-
+      std::string actual(nMeasures, '0');
+      for (int i = 0; i < nMeasures; i++) {
+        if (bitStr.length() > i) {
+          actual[actual.length() - 1 - i] = bitStr[bitStr.length() - i - 1];
+        }
+      }
       buffer->appendMeasurement(actual, nOccurrences);
     }
   } else if (m_simtype == "pulse") {
@@ -304,40 +376,65 @@ void AerAccelerator::execute(
     }
     // In "density_matrix" simulation mode, always include Id gates
     // if they are explicitly added to the Composite.
-    auto qobj_str = xacc_to_qobj->translate(tmp, {{"skip-id-gates", false}});
-    nlohmann::json j = nlohmann::json::parse(qobj_str)["qObject"];
-    xacc::info("Qobj:\n" + j.dump());
-    j["config"]["noise_model"] = noise_model;
-    j["config"]["method"] = "density_matrix";
-    auto snapshotInst = nlohmann::json::object();
-    snapshotInst["label"] = "dm_snapshot";
-    snapshotInst["name"] = "snapshot";
-    snapshotInst["snapshot_type"] = "density_matrix";
-    auto& exprJson = *(j["experiments"].begin());
-    exprJson["instructions"].push_back(snapshotInst);
-    // std::cout << "Qobj:\n" << j.dump(2);
-    auto results_json = nlohmann::json::parse(
-        AER::controller_execute_json<AER::Simulator::QasmController>(j.dump()));
-    // std::cout << "Result:\n" << results_json.dump() << "\n";
-    auto results = *results_json["results"].begin();
-    auto dm_mat =
-        (*(results["data"]["snapshots"]["density_matrix"]["dm_snapshot"]
-               .begin()))["value"]
-            .get<std::vector<std::vector<std::pair<double, double>>>>();
+    auto qobj_str = xacc_to_qobj->translate(tmp, {{"skip-id-gates", false}});    
+    nlohmann::json qObjJson = nlohmann::json::parse(qobj_str)["qObject"];
+    qObjJson["config"]["method"] = "density_matrix";
+    qObjJson["config"]["enable_truncation"] = false;
+    qObjJson["config"]["noise_model"] = noise_model;
+    AER::DensityMatrix::State<AER::QV::DensityMatrix<double>> densityMat;
+    AER::RngEngine rng;
+    AER::Qobj qobj(qObjJson);
+    // std::cout << "QObj:\n" << qobj_str << "\n";
+    assert(qobj.circuits.size() == 1);
+    auto circ = qobj.circuits[0];
+    // Output data container
+    AER::ExperimentResult data;
+    densityMat.initialize_creg(circ.num_memory, circ.num_registers);
+    densityMat.initialize_qreg(buffer->size());
+    // std::cout << "Num op: " << circ.ops.size() << "\n";
+    if (!noise_model.empty()) {
+      auto noise = qobj.noise_model;
+      noise.enable_superop_method();
+      auto opt_circ = noise.sample_noise(
+          circ, rng, AER::Noise::NoiseModel::Method::superop);
+      densityMat.apply_ops(opt_circ.ops.begin(), opt_circ.ops.end(), data, rng);
+    } else {
+      densityMat.apply_ops(circ.ops.begin(), circ.ops.end(), data, rng);
+    }
+    // std::cout << "Result: \n" << data.to_json().dump() << "\n";
+    const double exp_val = densityMat.qreg().expval_pauli(
+        measured_bits, std::string(measured_bits.size(), 'Z'));
+
+    auto dmData = densityMat.move_to_matrix(0);
+    const auto length = dmData.size();
+    assert(length == (1ULL << buffer->size()) * (1ULL << buffer->size()));
+    std::complex<double> *dmPtr = dmData.move_to_buffer();
     std::vector<std::pair<double, double>> flattenDm;
-    for (const auto &row : dm_mat) {
-      flattenDm.insert(flattenDm.end(), row.begin(), row.end());
+    flattenDm.reserve(length);
+    for (int i = 0; i < length; ++i) {
+      flattenDm.emplace_back(dmPtr[i].real(), dmPtr[i].imag());
     }
     buffer->addExtraInfo("density_matrix", flattenDm);
-    auto exp_val = calcExpectationValueZFromDensityMatrix(dm_mat, measured_bits);
+
+    ExecutionInfo::DensityMatrixType dm(1ULL << buffer->size());
+    auto *startAddr = dmPtr;
+    for (auto &row : dm) {
+      auto *endAddr = startAddr + (1ULL << buffer->size());
+      row.assign(startAddr, endAddr);
+      startAddr = endAddr;
+    }
+    m_executionInfo = {
+        {ExecutionInfo::DmKey,
+         std::make_shared<ExecutionInfo::DensityMatrixType>(std::move(dm))}};
     buffer->addExtraInfo("exp-val-z", exp_val);
   }
   else {
+    assert(m_simtype == "statevector");
     // statevector
     // remove all measures, don't need them
     auto tmp = xacc::ir::asComposite(program->clone());
     tmp->clear();
-    std::vector<std::size_t> measured_bits;
+    AER::reg_t measured_bits;
     InstructionIterator iter(program);
     while (iter.hasNext()) {
       auto next = iter.next();
@@ -348,30 +445,37 @@ void AerAccelerator::execute(
       }
     }
     auto qobj_str = xacc_to_qobj->translate(tmp);
+    nlohmann::json qObjJson = nlohmann::json::parse(qobj_str)["qObject"];
+    qObjJson["config"]["method"] = "statevector";
+    qObjJson["config"]["enable_truncation"] = false;
+    AER::Statevector::State<AER::QV::QubitVector<double>> stateVec;
+    AER::RngEngine rng;
+    AER::Qobj qobj(qObjJson);
+    // std::cout << "QObj:\n" << qobj_str << "\n";
+    assert(qobj.circuits.size() == 1);
+    auto circ = qobj.circuits[0];
+    // Output data container
+    AER::ExperimentResult data;
+    stateVec.initialize_creg(circ.num_memory, circ.num_registers);
+    stateVec.initialize_qreg(buffer->size());
+    std::cout << "Num op: " << circ.ops.size() << "\n";
+    stateVec.apply_ops(circ.ops.begin(), circ.ops.end(), data, rng);
+    std::cout << "Result: \n" << data.to_json().dump() << "\n";
+    const double exp_val = stateVec.qreg().expval_pauli(
+        measured_bits, std::string(measured_bits.size(), 'Z'));
 
-    nlohmann::json j = nlohmann::json::parse(qobj_str)["qObject"];
-    j["config"]["noise_model"] = noise_model;
-    // xacc::info("StateVec Qobj:\n" + j.dump(2));
-
-    auto results_json = nlohmann::json::parse(
-        AER::controller_execute_json<AER::Simulator::StatevectorController>(
-            j.dump()));
-
-    if (results_json["status"].get<std::string>().find("ERROR") !=
-        std::string::npos) {
-      std::cout << results_json["status"].get<std::string>() << "\n";
-      xacc::error("Aer Error: " + results_json["status"].get<std::string>());
-    }
-
-    auto results = *results_json["results"].begin();
-
-    auto state_vector = results["data"]["statevector"]
-                            .get<std::vector<std::pair<double, double>>>();
-
-    buffer->addExtraInfo("state", state_vector);
-
-    auto exp_val = calcExpectationValueZ(state_vector, measured_bits);
+    auto stateVecData = stateVec.move_to_vector(0);
+    const auto length = stateVecData.size();
+    std::complex<double> *statePtr = stateVecData.move_to_buffer();
+    ExecutionInfo::WaveFuncType wavefn(statePtr, statePtr + length);
+    // std::cout << "HOWDY: " << wavefn.size() << "\n";
+    // for (int i = 0; i < wavefn.size(); ++i) {
+    //   std::cout << wavefn[i] << "\n";
+    // }
     buffer->addExtraInfo("exp-val-z", exp_val);
+    m_executionInfo = {
+        {ExecutionInfo::WaveFuncKey,
+         std::make_shared<ExecutionInfo::WaveFuncType>(std::move(wavefn))}};
   }
 }
 
@@ -389,44 +493,55 @@ void AerAccelerator::execute(
 
 void AerAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer,
                            std::shared_ptr<Instruction> inst) {
-  static AER::Statevector::State<QV::QubitVector<double>> stateVec;
+  static AER::Statevector::State<AER::QV::QubitVector<double>> stateVec;
   static auto provider = xacc::getIRProvider("quantum");
-  static AER::RngEngine rng(time(NULL));
-
-  if (!noiseModelObj) {
-    noiseModelObj = std::make_shared<AER::Noise::NoiseModel>(noise_model);
+  static AER::RngEngine rng;
+  static std::set<AcceleratorBuffer*> knownBuffers;
+  if (!xacc::container::contains(knownBuffers, buffer.get())) {
     stateVec.initialize_qreg(buffer->size());
+    knownBuffers.emplace(buffer.get());
   }
   if (inst->isComposite() || inst->isAnalog()) {
     xacc::error("Only gates are allowed.");
   }
-
-  auto tempComp = provider->createComposite("tmp");
-  tempComp->addInstruction(inst);
-  auto qobj_str = xacc_to_qobj->translate(tempComp);
-  auto qObjJson = nlohmann::json::parse(qobj_str)["qObject"];
-  AER::Qobj qobj(qObjJson);
-  assert(qobj.circuits.size() == 1);
-  auto circ = qobj.circuits[0];
-
-  // Output data container
-  AER::ExperimentData data;
-  data.add_metadata("method", stateVec.name());
-  data.add_metadata("measure_sampling", false);
-  auto noiseCirc = noiseModelObj->sample_noise(circ, rng);
-  stateVec.initialize_creg(circ.num_memory, circ.num_registers);
-  stateVec.apply_ops(noiseCirc.ops, data, rng);
-  stateVec.add_creg_to_data(data);
+  xacc::info("Apply: " + inst->toString());
+  if (inst->name() != "Measure") {
+    auto tempComp = provider->createComposite("tmp");
+    tempComp->addInstruction(inst);
+    auto qobj_str = xacc_to_qobj->translate(tempComp);
+    auto qObjJson = nlohmann::json::parse(qobj_str)["qObject"];
+    qObjJson["config"]["enable_truncation"] = false;
+    AER::Qobj qobj(qObjJson);
+    // std::cout << "QObj:\n" << qobj_str << "\n";
+    assert(qobj.circuits.size() == 1);
+    auto circ = qobj.circuits[0];
+    // Output data container
+    AER::ExperimentResult data;
+    // std::cout << "Num op: " << circ.ops.size() << "\n";
+    stateVec.apply_ops(circ.ops.begin(), circ.ops.end(), data, rng);
+    // std::cout << "Result: \n" << data.to_json().dump() << "\n";
+    // auto wavefn = stateVec.copy_to_vector(0);
+    // std::cout << "HOWDY: " << wavefn.size() << "\n";
+    // for (int i = 0; i < wavefn.size(); ++i) {
+    //   std::cout << wavefn[i] << "\n";
+    // }
+  }
+  //   stateVec.add_creg_to_data(data);
   // If it was a Measure op:
-  if (inst->name() == "Measure") {
-    xacc::info("Experiment data: \n" + data.json().dump() + "\n");
-    auto countData = data.json()["counts"].get<std::map<std::string, int>>();
-    // In this mode, we only measure 1 qubit for 1 shot
-    assert(countData.size() == 1);
-    int zeroCount = countData.find("0x0") == countData.end() ? 0 : 1;
-    int oneCount = countData.find("0x1") == countData.end() ? 0 : 1;
-    assert((zeroCount + oneCount) == 1);
-    buffer->measure(inst->bits()[0], (oneCount > 0 ? 1 : 0));
+  else {
+    AER::reg_t measured_bits{inst->bits()[0]};
+    const auto probs = stateVec.qreg().probabilities(measured_bits);
+    assert(probs.size() == 2);
+    assert(std::abs(1.0 - probs[0] - probs[1]) < 1e-12);
+    // Randomly pick outcome and return pair
+    auto outcome = rng.rand_int(probs);
+    std::cout << "Outcome: " << outcome << "\n";
+    assert(outcome == 0 || outcome == 1);
+    std::cout << "Probs: " << probs[0] << "  " << probs[1] << "\n";
+    std::vector<std::complex<double>> mdiag(2, 0.);
+    mdiag[outcome] = 1. / std::sqrt(probs[outcome]);
+    stateVec.qreg().apply_diagonal_matrix(measured_bits, mdiag);
+    buffer->measure(inst->bits()[0], outcome);
   }
 }
 

@@ -3,7 +3,8 @@ set(LIBRARY_NAME xacc-aer)
 add_subdirectory(py-aer)
 
 file(GLOB SRC
-          accelerator/aer_accelerator.cpp)
+          accelerator/aer_accelerator.cpp
+          src/simulators/statevector/qv_avx2.cpp)
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
@@ -20,7 +21,9 @@ target_link_libraries(${LIBRARY_NAME}
                                xacc-quantum-gate
                                xacc-py-aer-adapter
                         )
-
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mfma -mavx2")
+endif()
 set(_bundle_name xacc_aer)
 set_target_properties(${LIBRARY_NAME}
                       PROPERTIES COMPILE_DEFINITIONS
