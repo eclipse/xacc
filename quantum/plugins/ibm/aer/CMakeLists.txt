@@ -22,9 +22,23 @@ target_link_libraries(${LIBRARY_NAME}
                                xacc-quantum-gate
                                xacc-py-aer-adapter
                         )
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mfma -mavx2")
+if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "AMD64")
+  if(APPLE OR UNIX)
+    if (NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mfma -mavx2")
+    endif()
+  endif()    
 endif()
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+  target_compile_definitions(${LIBRARY_NAME} PUBLIC _OPENMP)
+  target_link_libraries(${LIBRARY_NAME} PUBLIC OpenMP::OpenMP_CXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  message(STATUS "OpenMP found!")
+	message(STATUS "OpenMP_CXX_FLAGS = ${OpenMP_CXX_FLAGS}")
+endif()
+
 set(_bundle_name xacc_aer)
 set_target_properties(${LIBRARY_NAME}
                       PROPERTIES COMPILE_DEFINITIONS

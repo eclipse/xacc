@@ -535,9 +535,9 @@ void AerAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer,
     assert(std::abs(1.0 - probs[0] - probs[1]) < 1e-12);
     // Randomly pick outcome and return pair
     auto outcome = rng.rand_int(probs);
-    std::cout << "Outcome: " << outcome << "\n";
+    // std::cout << "Outcome: " << outcome << "\n";
     assert(outcome == 0 || outcome == 1);
-    std::cout << "Probs: " << probs[0] << "  " << probs[1] << "\n";
+    // std::cout << "Probs: " << probs[0] << "  " << probs[1] << "\n";
     std::vector<std::complex<double>> mdiag(2, 0.);
     mdiag[outcome] = 1. / std::sqrt(probs[outcome]);
     stateVec.qreg().apply_diagonal_matrix(measured_bits, mdiag);
