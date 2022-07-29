@@ -265,7 +265,43 @@ void AerAccelerator::execute(
 
     // xacc::set_verbose(true);
     // xacc::info("Shots Qobj:\n" + j.dump(2));
-    auto result = AER::controller_execute<AER::Controller>(j);
+    // Initialize QOBJ
+    AER::Qobj qobj(j);
+    AER::Controller controller;
+    // Set config
+    controller.set_config(qobj.config);
+    assert(qobj.circuits.size() == 1);
+
+    if (m_options.keyExists<std::vector<std::complex<double>>>(
+            "initial_state")) {
+      const std::vector<std::complex<double>> intial_state =
+          m_options.get<std::vector<std::complex<double>>>("initial_state");
+      if (intial_state.size() != (1ULL << buffer->size())) {
+        xacc::error("Dimension mismatch in 'initial_state', expected size of " +
+                    std::to_string(1ULL << buffer->size()));
+      }
+      const double norm = std::accumulate(
+          intial_state.begin(), intial_state.end(), 0.0,
+          [](double current_norm, const std::complex<double> &val) {
+            return current_norm + std::norm(val);
+          });
+      if (std::abs(norm - 1.0) > 1e-12) {
+        xacc::error("Initial state vector input is not normalized.");
+      }
+      // Add initialize op to set the initial input state
+      AER::Operations::Op op;
+      op.type = AER::Operations::OpType::initialize;
+      op.name = "initialize";
+      for (int q = 0; q < buffer->size(); ++q) {
+        op.qubits.emplace_back(q);
+      }
+      op.params = intial_state;
+      qobj.circuits[0].ops.insert(qobj.circuits[0].ops.begin(), op);
+      qobj.circuits[0].set_params(false);
+    }
+
+    // Run qobj circuits
+    auto result = controller.execute(qobj.circuits, qobj.noise_model, qobj.config);
     if (result.status != AER::Result::Status::completed) {
       xacc::error("Failed to complete the simulation! Error: " +
                   result.message);
@@ -391,6 +427,24 @@ void AerAccelerator::execute(
     AER::ExperimentResult data;
     densityMat.initialize_creg(circ.num_memory, circ.num_registers);
     densityMat.initialize_qreg(buffer->size());
+    if (m_options.keyExists<std::vector<std::complex<double>>>(
+            "initial_state")) {
+      const std::vector<std::complex<double>> intial_state =
+          m_options.get<std::vector<std::complex<double>>>("initial_state");
+      if (intial_state.size() != (1ULL << buffer->size())) {
+        xacc::error("Dimension mismatch in 'initial_state', expected size of " +
+                    std::to_string(1ULL << buffer->size()));
+      }
+      const double norm = std::accumulate(
+          intial_state.begin(), intial_state.end(), 0.0,
+          [](double current_norm, const std::complex<double> &val) {
+            return current_norm + std::norm(val);
+          });
+      if (std::abs(norm - 1.0) > 1e-12) {
+        xacc::error("Initial state vector input is not normalized.");
+      }
+      densityMat.qreg().initialize_from_vector(intial_state);
+    }
     // std::cout << "Num op: " << circ.ops.size() << "\n";
     if (!noise_model.empty()) {
       auto noise = qobj.noise_model;
@@ -458,6 +512,24 @@ void AerAccelerator::execute(
     AER::ExperimentResult data;
     stateVec.initialize_creg(circ.num_memory, circ.num_registers);
     stateVec.initialize_qreg(buffer->size());
+    if (m_options.keyExists<std::vector<std::complex<double>>>(
+            "initial_state")) {
+      const std::vector<std::complex<double>> intial_state =
+          m_options.get<std::vector<std::complex<double>>>("initial_state");
+      if (intial_state.size() != (1ULL << buffer->size())) {
+        xacc::error("Dimension mismatch in 'initial_state', expected size of " +
+                    std::to_string(1ULL << buffer->size()));
+      }
+      const double norm = std::accumulate(
+          intial_state.begin(), intial_state.end(), 0.0,
+          [](double current_norm, const std::complex<double> &val) {
+            return current_norm + std::norm(val);
+          });
+      if (std::abs(norm - 1.0) > 1e-12) {
+        xacc::error("Initial state vector input is not normalized.");
+      }
+      stateVec.qreg().initialize_from_vector(intial_state);
+    }
     // std::cout << "Num op: " << circ.ops.size() << "\n";
     stateVec.apply_ops(circ.ops.begin(), circ.ops.end(), data, rng);
     // std::cout << "Result: \n" << data.to_json().dump() << "\n";

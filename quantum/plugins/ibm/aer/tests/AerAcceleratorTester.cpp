@@ -706,6 +706,94 @@ TEST(AerAcceleratorTester, checkMatrixProductState) {
   EXPECT_NEAR(prob1, 0.5, 0.2);
 }
 
+TEST(AerAcceleratorTester, checkInitialState1) {
+  const std::vector<std::complex<double>> initial_states{0.0, 1.0};
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"sim-type", "statevector"}, {"initial_state", initial_states}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void test(qbit q) {
+      H(q[0]);
+    })",
+                                  accelerator);
+
+  auto program = ir->getComposite("test");
+
+  auto buffer = xacc::qalloc(1);
+  accelerator->execute(buffer, program);
+
+  auto exeInfo = accelerator->getExecutionInfo();
+  EXPECT_GT(exeInfo.size(), 0);
+  auto waveFn =
+      accelerator->getExecutionInfo<xacc::ExecutionInfo::WaveFuncPtrType>(
+          xacc::ExecutionInfo::WaveFuncKey);
+  for (const auto &elem : *waveFn) {
+    std::cout << elem << "\n";
+  }
+  EXPECT_EQ(waveFn->size(), 2);
+  // Expect |-> state: |0> - |1> since we set the initial state to |1>
+  EXPECT_NEAR(std::abs((*waveFn)[0] - 1.0 / std::sqrt(2.0)), 0.0, 1e-9);
+  EXPECT_NEAR(std::abs((*waveFn)[1] + 1.0 / std::sqrt(2.0)), 0.0, 1e-9);
+}
+
+TEST(AerAcceleratorTester, checkInitialState2) {
+  const std::vector<std::complex<double>> initial_states{1.0 / std::sqrt(2.0),
+                                                         -1.0 / std::sqrt(2.0)};
+  const int nbShots = 8192;
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"initial_state", initial_states}, {"shots", nbShots}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void test(qbit q) {
+      H(q[0]);
+      Measure(q[0]);
+    })",
+                                  accelerator);
+
+  auto program = ir->getComposite("test");
+
+  auto buffer = xacc::qalloc(1);
+  accelerator->execute(buffer, program);
+  buffer->print();
+  // H|-> => |1> since we set the initial state to |-> state
+ EXPECT_EQ(buffer->getMeasurementCounts()["1"], nbShots);
+}
+
+TEST(AerAcceleratorTester, checkInitialState3) {
+  const std::vector<std::complex<double>> initial_states{0.0, 1.0};
+  auto accelerator =
+      xacc::getAccelerator("aer", {{"sim-type", "density_matrix"},
+                                   {"initial_state", initial_states}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void test(qbit q) {
+      H(q[0]);
+    })",
+                                  accelerator);
+
+  auto program = ir->getComposite("test");
+
+  auto buffer = xacc::qalloc(1);
+  accelerator->execute(buffer, program);
+
+  auto exeInfo = accelerator->getExecutionInfo();
+  EXPECT_GT(exeInfo.size(), 0);
+  auto dm =
+      accelerator->getExecutionInfo<xacc::ExecutionInfo::DensityMatrixPtrType>(
+          xacc::ExecutionInfo::DmKey);
+  for (const auto &row : *dm) {
+    for (const auto &x : row) {
+      std::cout << x << " ";
+    }
+    std::cout << "\n";
+  }
+  EXPECT_EQ(dm->size(), 2);
+  for (const auto &row : *dm) {
+    EXPECT_EQ(row.size(), 2);
+  }
+  EXPECT_NEAR(std::abs((*dm)[0][0] - 0.5), 0.0, 1e-9);
+  EXPECT_NEAR(std::abs((*dm)[1][1] - 0.5), 0.0, 1e-9);
+  EXPECT_NEAR(std::abs((*dm)[0][1] + 0.5), 0.0, 1e-9);
+  EXPECT_NEAR(std::abs((*dm)[1][0] + 0.5), 0.0, 1e-9);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
 
