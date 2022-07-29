@@ -2,9 +2,15 @@ set(LIBRARY_NAME xacc-aer)
 
 add_subdirectory(py-aer)
 
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+  if (NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+    set(AER_SIMD_SOURCE_FILE src/simulators/statevector/qv_avx2.cpp)
+  endif()
+endif()
+
 file(GLOB SRC
           accelerator/aer_accelerator.cpp
-          src/simulators/statevector/qv_avx2.cpp)
+          ${AER_SIMD_SOURCE_FILE})
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
