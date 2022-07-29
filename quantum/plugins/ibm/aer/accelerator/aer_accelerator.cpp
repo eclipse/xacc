@@ -400,7 +400,7 @@ void AerAccelerator::execute(
     // remove all measures, don't need them
     auto tmp = xacc::ir::asComposite(program->clone());
     tmp->clear();
-    std::vector<std::size_t> measured_bits;
+    AER::reg_t measured_bits;
     InstructionIterator iter(program);
     while (iter.hasNext()) {
       auto next = iter.next();
