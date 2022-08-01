@@ -31,7 +31,7 @@ target_link_libraries(${LIBRARY_NAME}
 if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "AMD64")
   if(APPLE OR UNIX)
     if (NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mfma -mavx2")
+      set_source_files_properties(${AER_SIMD_SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-march=native -mfma -mavx2")
     endif()
   endif()    
 endif()
