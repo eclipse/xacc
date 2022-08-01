@@ -39,8 +39,6 @@ jobs:
         working-directory: build/
         run: export SDKROOT="`xcrun --show-sdk-path`" && cmake --build . --target install
       
-      # - name: Test
-      #   working-directory: build/
-      #   run: export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HOME/.xacc/lib && ctest --output-on-failure
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      - name: Test
+        working-directory: build/
+        run: export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HOME/.xacc/lib && ctest --output-on-failure
