@@ -184,6 +184,7 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
     physical_backend_properties.insert("p10s", p10s);
 
   }
+  AER::Hacks::maybe_load_openmp("");
   initialized = true;
 }
 double AerAccelerator::calcExpectationValueZ(
