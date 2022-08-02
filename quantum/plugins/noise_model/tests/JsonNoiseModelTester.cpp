@@ -263,7 +263,7 @@ TEST(JsonNoiseModelTester, checkIbmNoiseJsonIndexing) {
       })",
                                accelerator)
                      ->getComposite("testHadamard2q");
-  auto buffer = xacc::qalloc(1);
+  auto buffer = xacc::qalloc(2);
   accelerator->execute(buffer, program);
   buffer->print();
   auto densityMatrix =

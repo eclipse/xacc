@@ -19,195 +19,27 @@
 #include <sstream>
 #include <cmath>
 #include <limits>
+#include <string>
 
+#include "framework/avx2_detect.hpp"
 #include "framework/types.hpp"
+
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
+
+#if defined(__linux__) || defined(__APPLE__)
+#include <unistd.h>
+#elif defined(_WIN64) || defined(_WIN32)
+// This is needed because windows.h redefine min()/max() so interferes with
+// std::min/max
+#define NOMINMAX
+#include <windows.h>
+#endif
+
 
 namespace AER {
 namespace Utils {
-
-//------------------------------------------------------------------------------
-// Static Matrices
-//------------------------------------------------------------------------------
-
-class Matrix {
-public:
-  // Single-qubit gates
-  const static cmatrix_t I;     // name: "id"
-  const static cmatrix_t X;     // name: "x"
-  const static cmatrix_t Y;     // name: "y"
-  const static cmatrix_t Z;     // name: "z"
-  const static cmatrix_t H;     // name: "h"
-  const static cmatrix_t S;     // name: "s"
-  const static cmatrix_t SDG;   // name: "sdg"
-  const static cmatrix_t T;     // name: "t"
-  const static cmatrix_t TDG;   // name: "tdg"
-  const static cmatrix_t X90;   // name: "x90"
-
-  // Two-qubit gates
-  const static cmatrix_t CX;    // name: "cx"
-  const static cmatrix_t CZ;    // name: "cz"
-  const static cmatrix_t SWAP;  // name: "swap"
-  const static cmatrix_t CR;    // TODO
-  const static cmatrix_t CR90;  // TODO
-
-  // Identity Matrix
-  static cmatrix_t identity(size_t dim);
-
-  // Single-qubit waltz gates
-  static cmatrix_t u1(double lam);
-  static cmatrix_t u2(double phi, double lam);
-  static cmatrix_t u3(double theta, double phi, double lam);
-
-  // Complex arguments are implemented by taking std::real
-  // of the input
-  static cmatrix_t u1(complex_t lam) {return u1(std::real(lam));}
-  static cmatrix_t u2(complex_t phi, complex_t lam) {
-    return u2(std::real(phi), std::real(lam));
-  }
-  static cmatrix_t u3(complex_t theta, complex_t phi, complex_t lam) {
-    return u3(std::real(theta), std::real(phi), std::real(lam));
-  };
-
-  // Return the matrix for a named matrix string
-  // Allowed names correspond to all the const static single-qubit
-  // and two-qubit gate members
-  static const cmatrix_t from_name(const std::string &name) {
-    return *label_map_.at(name);
-  }
-
-  // Check if the input name string is allowed
-  static bool allowed_name(const std::string &name) {
-    return (label_map_.find(name) != label_map_.end());
-  }
-
-private:
-  // Lookup table that returns a pointer to the static data member
-  const static stringmap_t<const cmatrix_t*> label_map_;
-};
-
-//------------------------------------------------------------------------------
-// Static Vectorized Matrices
-//------------------------------------------------------------------------------
-class VMatrix {
-public:
-  // Single-qubit gates
-  const static cvector_t I;     // name: "id"
-  const static cvector_t X;     // name: "x"
-  const static cvector_t Y;     // name: "y"
-  const static cvector_t Z;     // name: "z"
-  const static cvector_t H;     // name: "h"
-  const static cvector_t S;     // name: "s"
-  const static cvector_t SDG;   // name: "sdg"
-  const static cvector_t T;     // name: "t"
-  const static cvector_t TDG;   // name: "tdg"
-  const static cvector_t X90;   // name: "x90"
-
-  // Two-qubit gates
-  const static cvector_t CX;    // name: "cx"
-  const static cvector_t CZ;    // name: "cz"
-  const static cvector_t SWAP;  // name: "swap"
-  const static cvector_t CR;    // TODO
-  const static cvector_t CR90;  // TODO
-
-  // Identity Matrix
-  static cvector_t identity(size_t dim);
-
-  // Single-qubit waltz gates
-  static cvector_t u1(double lam);
-  static cvector_t u2(double phi, double lam);
-  static cvector_t u3(double theta, double phi, double lam);
-
-  // Complex arguments are implemented by taking std::real
-  // of the input
-  static cvector_t u1(complex_t lam) {return u1(std::real(lam));}
-  static cvector_t u2(complex_t phi, complex_t lam) {
-    return u2(std::real(phi), std::real(lam));
-  }
-  static cvector_t u3(complex_t theta, complex_t phi, complex_t lam) {
-    return u3(std::real(theta), std::real(phi), std::real(lam));
-  };
-
-  // Return the matrix for a named matrix string
-  // Allowed names correspond to all the const static single-qubit
-  // and two-qubit gate members
-  static const cvector_t from_name(const std::string &name) {
-    return *label_map_.at(name);
-  }
-
-  // Check if the input name string is allowed
-  static bool allowed_name(const std::string &name) {
-    return (label_map_.find(name) != label_map_.end());
-  }
-
-
-private:
-  // Lookup table that returns a pointer to the static data member
-  const static stringmap_t<const cvector_t*> label_map_;
-};
-
-
-//------------------------------------------------------------------------------
-// Static Superoperator Matrices
-//------------------------------------------------------------------------------
-
-class SMatrix {
-public:
-  // Single-qubit gates
-  const static cmatrix_t I;     // name: "id"
-  const static cmatrix_t X;     // name: "x"
-  const static cmatrix_t Y;     // name: "y"
-  const static cmatrix_t Z;     // name: "z"
-  const static cmatrix_t H;     // name: "h"
-  const static cmatrix_t S;     // name: "s"
-  const static cmatrix_t SDG;   // name: "sdg"
-  const static cmatrix_t T;     // name: "t"
-  const static cmatrix_t TDG;   // name: "tdg"
-  const static cmatrix_t X90;   // name: "x90"
-
-  // Two-qubit gates
-  const static cmatrix_t CX;    // name: "cx"
-  const static cmatrix_t CZ;    // name: "cz"
-  const static cmatrix_t SWAP;  // name: "swap"
-
-  // Identity Matrix
-  static cmatrix_t identity(size_t dim);
-
-  // Single-qubit waltz gates
-  static cmatrix_t u1(double lam);
-  static cmatrix_t u2(double phi, double lam);
-  static cmatrix_t u3(double theta, double phi, double lam);
-
-  // Complex arguments are implemented by taking std::real
-  // of the input
-  static cmatrix_t u1(complex_t lam) {return u1(std::real(lam));}
-  static cmatrix_t u2(complex_t phi, complex_t lam) {
-    return u2(std::real(phi), std::real(lam));
-  }
-  static cmatrix_t u3(complex_t theta, complex_t phi, complex_t lam) {
-    return u3(std::real(theta), std::real(phi), std::real(lam));
-  };
-
-  // Return superoperator matrix for reset instruction
-  // on specified dim statespace.
-  // The returned matrix is (dim * dim, dim * dim).
-  static cmatrix_t reset(size_t dim);
-
-  // Return the matrix for a named matrix string
-  // Allowed names correspond to all the const static single-qubit
-  // and two-qubit gate members
-  static const cmatrix_t from_name(const std::string &name) {
-    return *label_map_.at(name);
-  }
-
-  // Check if the input name string is allowed
-  static bool allowed_name(const std::string &name) {
-    return (label_map_.find(name) != label_map_.end());
-  }
-
-private:
-  // Lookup table that returns a pointer to the static data member
-  const static stringmap_t<const cmatrix_t*> label_map_;
-};
 
 //------------------------------------------------------------------------------
 // Matrix Functions
@@ -257,6 +89,7 @@ template <class T> matrix<T> partial_trace_b(const matrix<T> &rho, size_t dimB);
 // Tensor product
 template <class T> matrix<T> tensor_product(const matrix<T> &A, const matrix<T> &B);
 template <class T> matrix<T> unitary_superop(const matrix<T> &mat);
+template <class T> matrix<T> kraus_superop(const std::vector<matrix<T>> &kmats);
 
 // concatenate
 // Returns a matrix that is the concatenation of two matrices A, B
@@ -322,6 +155,8 @@ double is_unit_vector(const std::vector<T> &vec);
 // Conjugate a vector
 template <typename T>
 std::vector<std::complex<T>> conjugate(const std::vector<std::complex<T>> &v);
+template <class T>
+Vector<std::complex<T>> conjugate(const Vector<std::complex<T>> &v);
 
 // Compute the Euclidean 2-norm of a vector
 template <typename T>
@@ -337,6 +172,8 @@ inline matrix<T> projector(const std::vector<T> &ket) {return outer_product(ket,
 // Tensor product vector
 template <typename T>
 std::vector<T> tensor_product(const std::vector<T> &v, const std::vector<T> &w);
+template <typename T>
+Vector<T> tensor_product(const Vector<T> &v, const Vector<T> &w);
 
 // Return a new vector formed by multiplying each element of the input vector
 // with a scalar. The product of types T1 * T2 must be valid.
@@ -354,6 +191,7 @@ double &chop_inplace(double &val, double epsilon);
 std::complex<double> &chop_inplace(std::complex<double> &val, double epsilon);
 
 double chop(double val, double epsilon);
+float chop(float val, double epsilon);
 
 // As above for complex first arguments
 template <typename T>
@@ -378,6 +216,9 @@ void combine(std::vector<T> &lhs, const std::vector<T> &rhs);
 // specifies the subsystem dimension and the base of the dit-string labels.
 template <typename T>
 std::map<std::string, T> vec2ket(const std::vector<T> &vec, double epsilon, uint_t base = 2);
+
+template <typename T>
+std::map<std::string, T> vec2ket(const T* const vec, uint_t dim, double epsilon, uint_t base = 2);
 
 //------------------------------------------------------------------------------
 // Bit Conversions
@@ -420,254 +261,9 @@ inline std::string int2hex(uint_t n) {return bin2hex(int2bin(n));}
 // Convert reg to int
 uint_t reg2int(const reg_t &reg, uint_t base);
 
-//==============================================================================
-// Implementations: Static Matrices
-//==============================================================================
-
-const cmatrix_t Matrix::I = make_matrix<complex_t>({{{1, 0}, {0, 0}},
-                                                    {{0, 0}, {1, 0}}});
-
-const cmatrix_t Matrix::X = make_matrix<complex_t>({{{0, 0}, {1, 0}},
-                                                    {{1, 0}, {0, 0}}});
-
-const cmatrix_t Matrix::Y = make_matrix<complex_t>({{{0, 0}, {0, -1}},
-                                                    {{0, 1}, {0, 0}}});
-
-const cmatrix_t Matrix::Z = make_matrix<complex_t>({{{1, 0}, {0, 0}},
-                                                    {{0, 0}, {-1, 0}}});
-
-const cmatrix_t Matrix::S = make_matrix<complex_t>({{{1, 0}, {0, 0}},
-                                                    {{0, 0}, {0, 1}}});
-
-const cmatrix_t Matrix::SDG = make_matrix<complex_t>({{{1, 0}, {0, 0}},
-                                                     {{0, 0}, {0, -1}}});
-const cmatrix_t Matrix::T = make_matrix<complex_t>({{{1, 0}, {0, 0}},
-                                                    {{0, 0}, {1 / std::sqrt(2), 1 / std::sqrt(2)}}});
-
-const cmatrix_t Matrix::TDG = make_matrix<complex_t>({{{1, 0}, {0, 0}},
-                                                      {{0, 0}, {1 / std::sqrt(2), -1 / std::sqrt(2)}}});
-
-const cmatrix_t Matrix::H = make_matrix<complex_t>({{{1 / std::sqrt(2.), 0}, {1 / std::sqrt(2.), 0}},
-                                                    {{1 / std::sqrt(2.), 0}, {-1 / std::sqrt(2.), 0}}});
-
-const cmatrix_t Matrix::X90 = make_matrix<complex_t>({{{1. / std::sqrt(2.), 0}, {0, -1. / std::sqrt(2.)}},
-                                                      {{0, -1. / std::sqrt(2.)}, {1. / std::sqrt(2.), 0}}});
-
-const cmatrix_t Matrix::CX = make_matrix<complex_t>({{{1, 0}, {0, 0}, {0, 0}, {0, 0}},
-                                                     {{0, 0}, {0, 0}, {0, 0}, {1, 0}},
-                                                     {{0, 0}, {0, 0}, {1, 0}, {0, 0}},
-                                                     {{0, 0}, {1, 0}, {0, 0}, {0, 0}}});
-
-const cmatrix_t Matrix::CZ = make_matrix<complex_t>({{{1, 0}, {0, 0}, {0, 0}, {0, 0}},
-                                                     {{0, 0}, {1, 0}, {0, 0}, {0, 0}},
-                                                     {{0, 0}, {0, 0}, {1, 0}, {0, 0}},
-                                                     {{0, 0}, {0, 0}, {0, 0}, {-1, 0}}});
-
-const cmatrix_t Matrix::SWAP = make_matrix<complex_t>({{{1, 0}, {0, 0}, {0, 0}, {0, 0}},
-                                                       {{0, 0}, {0, 0}, {1, 0}, {0, 0}},
-                                                       {{0, 0}, {1, 0}, {0, 0}, {0, 0}},
-                                                       {{0, 0}, {0, 0}, {0, 0}, {1, 0}}});
-
-// TODO const cmatrix_t Matrix::CR = ...
-// TODO const cmatrix_t Matrix::CR90 = ...
-
-// Lookup table
-const stringmap_t<const cmatrix_t*> Matrix::label_map_ = {
-  {"id", &Matrix::I}, {"x", &Matrix::X}, {"y", &Matrix::Y}, {"z", &Matrix::Z},
-  {"h", &Matrix::H}, {"s", &Matrix::S}, {"sdg", &Matrix::SDG},
-  {"t", &Matrix::T}, {"tdg", &Matrix::TDG}, {"x90", &Matrix::X90},
-  {"cx", &Matrix::CX}, {"cz", &Matrix::CZ}, {"swap", &Matrix::SWAP}
-};
-
-cmatrix_t Matrix::identity(size_t dim) {
-  cmatrix_t mat(dim, dim);
-  for (size_t j=0; j<dim; j++)
-    mat(j, j) = {1.0, 0.0};
-  return mat;
-}
-
-
-cmatrix_t Matrix::u1(double lambda) {
-  cmatrix_t mat(2, 2);
-  mat(0, 0) = {1., 0.};
-  mat(1, 1) = std::exp(complex_t(0., lambda));
-  return mat;
-}
-
-
-cmatrix_t Matrix::u2(double phi, double lambda) {
-  cmatrix_t mat(2, 2);
-  const complex_t i(0., 1.);
-  const complex_t invsqrt2(1. / std::sqrt(2), 0.);
-  mat(0, 0) = invsqrt2;
-  mat(0, 1) = -std::exp(i * lambda) * invsqrt2;
-  mat(1, 0) = std::exp(i * phi) * invsqrt2;
-  mat(1, 1) = std::exp(i * (phi + lambda)) * invsqrt2;
-  return mat;
-}
-
-
-cmatrix_t Matrix::u3(double theta, double phi, double lambda) {
-  cmatrix_t mat(2, 2);
-  const complex_t i(0., 1.);
-  mat(0, 0) = std::cos(theta / 2.);
-  mat(0, 1) = -std::exp(i * lambda) * std::sin(theta / 2.);
-  mat(1, 0) = std::exp(i * phi) * std::sin(theta / 2.);
-  mat(1, 1) = std::exp(i * (phi + lambda)) * std::cos(theta / 2.);
-  return mat;
-}
-
-
-//==============================================================================
-// Implementations: Static Matrices
-//==============================================================================
-
-const cvector_t VMatrix::I = vectorize_matrix(Matrix::I);
-
-const cvector_t VMatrix::X = vectorize_matrix(Matrix::X);
-
-const cvector_t VMatrix::Y = vectorize_matrix(Matrix::Y);
-
-const cvector_t VMatrix::Z = vectorize_matrix(Matrix::Z);
-
-const cvector_t VMatrix::S = vectorize_matrix(Matrix::S);
-
-const cvector_t VMatrix::SDG = vectorize_matrix(Matrix::SDG);
-
-const cvector_t VMatrix::T = vectorize_matrix(Matrix::T);
-
-const cvector_t VMatrix::TDG = vectorize_matrix(Matrix::TDG);
-
-const cvector_t VMatrix::H = vectorize_matrix(Matrix::H);
-
-const cvector_t VMatrix::X90 = vectorize_matrix(Matrix::X90);
-
-const cvector_t VMatrix::CX = vectorize_matrix(Matrix::CX);
-
-const cvector_t VMatrix::CZ = vectorize_matrix(Matrix::CZ);
-
-const cvector_t VMatrix::SWAP = vectorize_matrix(Matrix::SWAP);
-
-// TODO const cvector_t VMatrix::CR = ...
-// TODO const cvector_t VMatrix::CR90 = ...
-
-// Lookup table
-const stringmap_t<const cvector_t*> VMatrix::label_map_ = {
-  {"id", &VMatrix::I}, {"x", &VMatrix::X}, {"y", &VMatrix::Y}, {"z", &VMatrix::Z},
-  {"h", &VMatrix::H}, {"s", &VMatrix::S}, {"sdg", &VMatrix::SDG},
-  {"t", &VMatrix::T}, {"tdg", &VMatrix::TDG}, {"x90", &VMatrix::X90},
-  {"cx", &VMatrix::CX}, {"cz", &VMatrix::CZ}, {"swap", &VMatrix::SWAP}
-};
-
-cvector_t VMatrix::identity(size_t dim) {
-  cvector_t mat(dim * dim);
-  for (size_t j=0; j<dim; j++)
-    mat[j + j * dim] = {1.0, 0.0};
-  return mat;
-}
-
-
-cvector_t VMatrix::u1(double lambda) {
-  cvector_t mat(2 * 2);
-  mat[0 + 0 * 2] = {1., 0.};
-  mat[1 + 1 * 2] = std::exp(complex_t(0., lambda));
-  return mat;
-}
-
-
-cvector_t VMatrix::u2(double phi, double lambda) {
-  cvector_t mat(2 * 2);
-  const complex_t i(0., 1.);
-  const complex_t invsqrt2(1. / std::sqrt(2), 0.);
-  mat[0 + 0 * 2] = invsqrt2;
-  mat[0 + 1 * 2] = -std::exp(i * lambda) * invsqrt2;
-  mat[1 + 0 * 2] = std::exp(i * phi) * invsqrt2;
-  mat[1 + 1 * 2] = std::exp(i * (phi + lambda)) * invsqrt2;
-  return mat;
-}
-
-cvector_t VMatrix::u3(double theta, double phi, double lambda) {
-  cvector_t mat(2 * 2);
-  const complex_t i(0., 1.);
-  mat[0 + 0 * 2] = std::cos(theta / 2.);
-  mat[0 + 1 * 2] = -std::exp(i * lambda) * std::sin(theta / 2.);
-  mat[1 + 0 * 2] = std::exp(i * phi) * std::sin(theta / 2.);
-  mat[1 + 1 * 2] = std::exp(i * (phi + lambda)) * std::cos(theta / 2.);
-  return mat;
-}
-
-//==============================================================================
-// Implementations: Static Matrices
-//==============================================================================
-
-const cmatrix_t SMatrix::I = unitary_superop(Matrix::I);
-
-const cmatrix_t SMatrix::X = unitary_superop(Matrix::X);
-
-const cmatrix_t SMatrix::Y = unitary_superop(Matrix::Y);
-
-const cmatrix_t SMatrix::Z = unitary_superop(Matrix::Z);
-
-const cmatrix_t SMatrix::S = unitary_superop(Matrix::S);
-
-const cmatrix_t SMatrix::SDG = unitary_superop(Matrix::SDG);
-
-const cmatrix_t SMatrix::T = unitary_superop(Matrix::T);
-
-const cmatrix_t SMatrix::TDG = unitary_superop(Matrix::TDG);
-
-const cmatrix_t SMatrix::H = unitary_superop(Matrix::H);
-
-const cmatrix_t SMatrix::X90 = unitary_superop(Matrix::X90);
-
-const cmatrix_t SMatrix::CX = unitary_superop(Matrix::CX);
-
-const cmatrix_t SMatrix::CZ = unitary_superop(Matrix::CZ);
-
-const cmatrix_t SMatrix::SWAP = unitary_superop(Matrix::SWAP);
-
-// Lookup table
-const stringmap_t<const cmatrix_t*> SMatrix::label_map_ = {
-  {"id", &SMatrix::I}, {"x", &SMatrix::X}, {"y", &SMatrix::Y}, {"z", &SMatrix::Z},
-  {"h", &SMatrix::H}, {"s", &SMatrix::S}, {"sdg", &SMatrix::SDG},
-  {"t", &SMatrix::T}, {"tdg", &SMatrix::TDG}, {"x90", &SMatrix::X90},
-  {"cx", &SMatrix::CX}, {"cz", &SMatrix::CZ}, {"swap", &SMatrix::SWAP}
-};
-
-cmatrix_t SMatrix::identity(size_t dim) {
-  return Matrix::identity(dim * dim);
-}
-
-
-cmatrix_t SMatrix::u1(double lambda) {
-  cmatrix_t mat(4, 4);
-  mat(0, 0) = {1., 0.};
-  mat(1, 1) = std::exp(complex_t(0., lambda));
-  mat(2, 2) = std::exp(complex_t(0., -lambda));
-  mat(3, 3) = {1., 0.};
-  return mat;
-}
-
-
-cmatrix_t SMatrix::u2(double phi, double lambda) {
-  return tensor_product(Matrix::u2(-phi, -lambda),
-                        Matrix::u2(phi, lambda));
-}
-
-
-cmatrix_t SMatrix::u3(double theta, double phi, double lambda) {
-  return tensor_product(Matrix::u3(theta, -phi, -lambda),
-                        Matrix::u3(theta, phi, lambda));
-}
-
-
-cmatrix_t SMatrix::reset(size_t dim) {
-  cmatrix_t mat(dim * dim, dim * dim);
-  for (size_t j=0; j < dim; j++) {
-    mat(0, j * (dim + 1)) = 1.;
-  }
-  return mat;
-}
+// Count number of 1's in bitstring representation of an integer
+const uint_t zer = 0U;
+const uint_t one = 1U;
 
 
 //==============================================================================
@@ -940,6 +536,16 @@ template <class T> matrix<T> unitary_superop(const matrix<T> &mat) {
   return tensor_product(conjugate(mat), mat);
 }
 
+template <class T> matrix<T> kraus_superop(const std::vector<matrix<T>> &kmats) {
+  if (kmats.empty())
+    return matrix<T>();
+  matrix<T> mat = unitary_superop(kmats[0]);
+  for (size_t i = 1; i < kmats.size(); ++i) {
+    mat += unitary_superop(kmats[i]);
+  }
+  return mat;
+}
+
 template <class T>
 matrix<T> concatenate (const matrix<T> &A, const matrix<T> &B, uint_t axis) {
   if (axis != 0 && axis!= 1) {
@@ -1176,9 +782,10 @@ bool is_symmetrix(const matrix<T> &mat, double threshold) {
 
 template <class T>
 bool is_cptp_kraus(const std::vector<matrix<T>> &mats, double threshold) {
-  matrix<T> cptp(mats[0].size());
+  const auto dim = mats[0].GetRows();
+  matrix<T> cptp(dim, dim);
   for (const auto &mat : mats) {
-    cptp = cptp + dagger(mat) * mat;
+    cptp += dagger(mat) * mat;
   }
   return is_identity(cptp, threshold);
 }
@@ -1201,9 +808,17 @@ std::vector<std::complex<T>> conjugate(const std::vector<std::complex<T>> &v) {
 }
 
 template <typename T>
+Vector<std::complex<T>> conjugate(const Vector<std::complex<T>> &v) {
+  Vector<std::complex<T>> ret(v.size(), false);
+  std::transform(v.data(), v.data() + v.size(), ret.data(),
+                [] (const std::complex<T> &c) -> std::complex<T> { return std::conj(c); });
+  return ret;
+}
+
+template <typename T>
 double norm(const std::vector<T> &vec) {
   double val = 0.0;
-  for (const auto v : vec) {
+  for (const auto &v : vec) {
     val += std::real(v * std::conj(v));
   }
   return std::sqrt(val);
@@ -1229,6 +844,18 @@ std::vector<T> tensor_product(const std::vector<T> &vec1,
   for (const auto &a : vec1)
     for (const auto &b : vec2) {
         ret.push_back(a * b);
+  }
+  return ret;
+}
+
+template <typename T>
+Vector<T> tensor_product(const Vector<T> &vec1, const Vector<T> &vec2) {
+  const auto SZ1 = vec1.size();
+  const auto SZ2 = vec2.size();
+  Vector<T> ret(SZ1 * SZ2, false);
+  for (size_t i = 0; i < SZ1; ++i)
+    for (size_t j = 0; j < SZ2; ++j) {
+        ret[SZ2 * i + j] = vec1[i] * vec2[j];
   }
   return ret;
 }
@@ -1280,6 +907,9 @@ double chop(double val, double epsilon) {
   return (std::abs(val) < epsilon) ? 0. : val;
 }
 
+float chop(float val, double epsilon) {
+  return (std::abs(val) < epsilon) ? 0. : val;
+}
 
 template <typename T>
 std::complex<T> chop(std::complex<T> val, double epsilon) {
@@ -1343,6 +973,33 @@ std::map<std::string, T> vec2ket(const std::vector<T> &vec, double epsilon, uint
   return ketmap;
 }
 
+template <typename T>
+std::map<std::string, T> vec2ket(const T* const vec, uint_t dim, double epsilon, uint_t base){
+  bool hex_output = false;
+  if (base == 16) {
+    hex_output = true;
+    base = 2; // If hexadecimal strings we convert to bin first
+  }
+
+  double n = std::log(dim) / std::log(base);
+  uint_t nint = std::trunc(n);
+  if (std::abs(nint - n) > 1e-5) {
+    std::stringstream ss;
+    ss << "vec2ket (vector dimension " << dim << " is not of size " << base << "^n)";
+    throw std::invalid_argument(ss.str());
+  }
+
+  std::map<std::string, T> ketmap;
+  for (size_t k = 0; k < dim; ++k) {
+    T val = chop(vec[k], epsilon);
+    if (std::abs(val) > epsilon) {
+      std::string key = (hex_output) ? Utils::int2hex(k)
+                                     : Utils::int2string(k, base, nint);
+      ketmap.insert({key, val});
+    }
+  }
+  return ketmap;
+}
 
 //==============================================================================
 // Implementations: Bit conversions
@@ -1437,7 +1094,7 @@ std::string hex2bin(std::string str, bool prefix) {
 
   // We go via long integer conversion, so we process 64-bit chunks at
   // a time
-  const size_t block = 8;
+  const size_t block = 16;
   const size_t len = str.size();
   const size_t chunks = len / block;
   const size_t remain = len % block;
@@ -1446,7 +1103,9 @@ std::string hex2bin(std::string str, bool prefix) {
   std::string bin = (prefix) ? "0b" : "";
 
   // Start with remain
-  bin += int2string(std::stoull(str.substr(0, remain), nullptr, 16), 2);
+  if (remain != 0)
+      bin += int2string(std::stoull(str.substr(0, remain), nullptr, 16), 2);
+
   for (size_t j=0; j < chunks; ++j) {
     std::string part = int2string(std::stoull(str.substr(remain + j * block, block), nullptr, 16), 2, 64);
     bin += part;
@@ -1486,17 +1145,20 @@ std::string bin2hex(std::string str, bool prefix) {
 
   // Add > 64 bit chunks
   if (chunks > 0) {
+    std::string part;
     // Add last 64-bit chunk
-    std::stringstream ss;
-    ss << std::hex << std::stoull(str.substr(remain, bin_block), nullptr, 2);
-    std::string part = ss.str();
-    if (remain > 0) {
-      part.insert(0, hex_block - part.size(), '0'); // pad out zeros
+    {
+      std::stringstream ss;
+      ss << std::hex << std::stoull(str.substr(remain, bin_block), nullptr, 2);
+      part = ss.str();
+      if (remain > 0) {
+        part.insert(0, hex_block - part.size(), '0'); // pad out zeros
+      }
+      hex += part;
     }
-    hex += part;
     // Add any additional chunks
     for (size_t j=1; j < chunks; ++j) {
-      ss = std::stringstream(); // clear string stream
+      std::stringstream ss; // clear string stream
       ss << std::hex << std::stoull(str.substr(remain + j * bin_block, bin_block), nullptr, 2);
       part = ss.str();
       part.insert(0, hex_block - part.size(), '0');
@@ -1538,6 +1200,139 @@ std::string int2string(uint_t n, uint_t base) {
 std::string int2string(uint_t n, uint_t base, uint_t minlen) {
   std::string tmp = int2string(n, base);
   return padleft_inplace(tmp, '0', minlen);
+}
+
+#ifdef _MSC_VER
+  #ifdef _WIN64
+    #define POPCNT __popcnt64
+  #else
+    #define POPCNT __popcnt
+  #endif
+  #define INTRINSIC_PARITY 1
+  inline bool _intrinsic_parity(uint_t x)
+  {
+    return (POPCNT(x) & one);
+  }
+  inline uint_t _instrinsic_weight(uint_t x)
+  {
+    return (POPCNT(x));
+  }
+#endif
+#ifdef __GNUC__
+  #define INTRINSIC_PARITY 1
+  inline bool _intrinsic_parity(uint_t x)
+  {
+    return (__builtin_popcountll(x) & one);
+  }
+  inline uint_t _instrinsic_weight(uint_t x)
+  {
+    return (__builtin_popcountll(x));
+  }
+#endif
+#ifdef _CLANG_
+  #if __has__builtin(__builtin_popcount)
+  #define INTRINSIC_PARITY 1
+    inline bool _intrinsic_parity(uint_t x)
+    {
+      return (__builtin_popcountll(x) & one);
+    }
+    inline uint_t _instrinsic_weight(uint_t x)
+    {
+      return (__builtin_popcountll(x));
+    }
+  #endif
+#endif
+  // Implementation from http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
+  static bool _naive_parity(uint_t x)
+  {
+    uint_t c; // c accumulates the total bits set in x
+    for (c = 0; x; c++)
+    {
+      x &= (x - 1); // clear the least significant bit set
+    }
+    return (c&one);
+  }
+  static uint_t _naive_weight(uint_t x)
+  {
+    auto count = x;
+    count = (count & 0x5555555555555555) + ((count >> 1) & 0x5555555555555555);
+    count = (count & 0x3333333333333333) + ((count >> 2) & 0x3333333333333333);
+    count = (count & 0x0f0f0f0f0f0f0f0f) + ((count >> 4) & 0x0f0f0f0f0f0f0f0f);
+    count = (count & 0x00ff00ff00ff00ff) + ((count >> 8) & 0x00ff00ff00ff00ff);
+    count = (count & 0x0000ffff0000ffff) + ((count >> 16) & 0x0000ffff0000ffff);
+    count = (count & 0x00000000ffffffff) + ((count >> 32) & 0x00000000ffffffff);
+    return count;
+  }
+
+#ifdef INTRINSIC_PARITY
+  bool (*hamming_parity)(uint_t) = is_avx2_supported() ? &_intrinsic_parity : &_naive_parity;
+  uint_t (*popcount)(uint_t) = is_avx2_supported() ? &_instrinsic_weight : &_naive_weight;
+#else
+  bool (*hamming_parity)(uint_t) = &_naive_parity;
+  uint_t (*popcount)(uint_t) = &_naive_weight;
+#endif
+
+
+size_t get_system_memory_mb() 
+{
+  size_t total_physical_memory = 0;
+#if defined(__linux__) || defined(__APPLE__)
+  size_t pages = (size_t)sysconf(_SC_PHYS_PAGES);
+  size_t page_size = (size_t)sysconf(_SC_PAGE_SIZE);
+  total_physical_memory = pages * page_size;
+#elif defined(_WIN64) || defined(_WIN32)
+  MEMORYSTATUSEX status;
+  status.dwLength = sizeof(status);
+  GlobalMemoryStatusEx(&status);
+  total_physical_memory = status.ullTotalPhys;
+#endif
+  return total_physical_memory >> 20;
+}
+
+//apply OpenMP parallel loop to lambda function if enabled
+template<typename Lambda>
+void apply_omp_parallel_for(bool enabled, int_t i_begin, int_t i_end, Lambda& func, int nthreads = 0)
+{
+  if(enabled){
+    if(nthreads > 0){
+#pragma omp parallel for num_threads(nthreads)
+      for(int_t i=i_begin;i<i_end;i++)
+        func(i);
+    }
+    else{
+#pragma omp parallel for
+      for(int_t i=i_begin;i<i_end;i++)
+        func(i);
+    }
+  }
+  else{
+    for(int_t i=i_begin;i<i_end;i++)
+      func(i);
+  }
+}
+
+//apply OpenMP parallel loop to lambda function and return reduced double if enabled
+template<typename Lambda>
+double apply_omp_parallel_for_reduction(bool enabled, int_t i_begin, int_t i_end, Lambda& func, int nthreads = 0)
+{
+  double val = 0.0;
+  if(enabled){
+    if(nthreads > 0){
+#pragma omp parallel for reduction(+:val) num_threads(nthreads)
+      for(int_t i=i_begin;i<i_end;i++)
+        val += func(i);
+    }
+    else{
+#pragma omp parallel for reduction(+:val)
+      for(int_t i=i_begin;i<i_end;i++)
+        val += func(i);
+    }
+  }
+  else{
+    for(int_t i=i_begin;i<i_end;i++)
+      val += func(i);
+  }
+  return val;
 }
 
 

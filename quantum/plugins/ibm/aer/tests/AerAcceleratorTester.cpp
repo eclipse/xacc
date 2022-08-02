@@ -11,6 +11,7 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 
+#include "Accelerator.hpp"
 #include "xacc.hpp"
 #include <gtest/gtest.h>
 #include "xacc_observable.hpp"
@@ -99,7 +100,6 @@ TEST(AerAcceleratorTester, checkDeuteron) {
   }
 }
 TEST(AerAcceleratorTester, checkDeuteronVqeH2) {
-  // Use Qpp accelerator
   auto accelerator =
       xacc::getAccelerator("aer", {std::make_pair("sim-type", "statevector")});
 
@@ -134,6 +134,44 @@ TEST(AerAcceleratorTester, checkDeuteronVqeH2) {
 
   // Expected result: -1.74886
   EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-4);
+}
+
+TEST(AerAcceleratorTester, testDeuteronVqeH3) {
+  auto accelerator = xacc::getAccelerator("aer", {{"sim-type", "statevector"}});
+
+  // Create the N=3 deuteron Hamiltonian
+  auto H_N_3 = xacc::quantum::getObservable(
+      "pauli",
+      std::string("5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1 + "
+                  "9.625 - 9.625 Z2 - 3.91 X1 X2 - 3.91 Y1 Y2"));
+
+  auto optimizer = xacc::getOptimizer("nlopt");
+
+  // JIT map Quil QASM Ansatz to IR
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz_h3
+        .parameters t0, t1
+        .qbit q
+        X(q[0]);
+        exp_i_theta(q, t1, {{"pauli", "X0 Y1 - Y0 X1"}});
+        exp_i_theta(q, t0, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
+    )");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz_h3");
+
+  // Get the VQE Algorithm and initialize it
+  auto vqe = xacc::getAlgorithm("vqe");
+  vqe->initialize({std::make_pair("ansatz", ansatz),
+                   std::make_pair("observable", H_N_3),
+                   std::make_pair("accelerator", accelerator),
+                   std::make_pair("optimizer", optimizer)});
+
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(3);
+  vqe->execute(buffer);
+
+  // Expected result: -2.04482
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -2.04482, 1e-4);
 }
 
 TEST(AerAcceleratorTester, checkNoise) {
@@ -287,15 +325,29 @@ TEST(AerAcceleratorTester, checkApply) {
                                   accelerator);
 
   auto program = ir->getComposite("bell");
+  const int NB_TESTS = 1000;
+  int result_00 = 0;
+  int result_11 = 0;
 
-  auto buffer = xacc::qalloc(2);
-  for (size_t i = 0; i < program->nInstructions(); ++i) {
-    auto curInst = program->getInstruction(i);
-    accelerator->apply(buffer, curInst);
+  for (int i = 0; i < NB_TESTS; ++i) {
+    auto buffer = xacc::qalloc(2);
+    for (size_t i = 0; i < program->nInstructions(); ++i) {
+      auto curInst = program->getInstruction(i);
+      accelerator->apply(buffer, curInst);
+    }
+    const bool resultQ0 = (*buffer)[0];
+    const bool resultQ1 = (*buffer)[1];
+    EXPECT_EQ(resultQ0, resultQ1);
+    if (resultQ0) {
+      ++result_00;
+    } else {
+      ++result_11;
+    }
   }
-  const bool resultQ0 = (*buffer)[0];
-  const bool resultQ1 = (*buffer)[1];
-  EXPECT_EQ(resultQ0, resultQ1);
+  std::cout << "HOWDY " << result_00 << "--" << result_11 << "\n";
+  EXPECT_EQ(result_00 + result_11, NB_TESTS);
+  EXPECT_NEAR((double)result_00 / NB_TESTS, 0.5, 0.1);
+  EXPECT_NEAR((double)result_11 / NB_TESTS, 0.5, 0.1);
 }
 
 TEST(AerAcceleratorTester, checkConditional) {
@@ -478,6 +530,268 @@ TEST(AerAcceleratorTester, checkRandomSeed) {
   // The result will be deterministic since we seed the simulator
   EXPECT_EQ(buffer->getMeasurementCounts()["00"], 4073);
   EXPECT_EQ(buffer->getMeasurementCounts()["11"], 4119);
+}
+
+TEST(AerAcceleratorTester, testExecutionInfoStateVec) {
+  auto accelerator =
+      xacc::getAccelerator("aer", {std::make_pair("sim-type", "statevector")});
+
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit test_bell_exe
+        .qbit q
+        H(q[0]);
+        CNOT(q[0],q[1]);
+    )");
+  auto bell = xacc::getCompiled("test_bell_exe");
+
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(2);
+  accelerator->execute(buffer, bell);
+
+  auto exeInfo = accelerator->getExecutionInfo();
+  EXPECT_GT(exeInfo.size(), 0);
+  auto waveFn =
+      accelerator->getExecutionInfo<xacc::ExecutionInfo::WaveFuncPtrType>(
+          xacc::ExecutionInfo::WaveFuncKey);
+  for (const auto &elem : *waveFn) {
+    std::cout << elem << "\n";
+  }
+  // 2 qubits => 4 elements
+  EXPECT_EQ(waveFn->size(), 4);
+  EXPECT_NEAR(std::abs((*waveFn)[0] - 1.0 / std::sqrt(2.0)), 0.0, 1e-9);
+  EXPECT_NEAR(std::abs((*waveFn)[3] - 1.0 / std::sqrt(2.0)), 0.0, 1e-9);
+}
+
+TEST(AerAcceleratorTester, testExecutionInfoDensityMat) {
+  auto accelerator = xacc::getAccelerator(
+      "aer", {std::make_pair("sim-type", "density_matrix")});
+
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit test_bell_exe
+        .qbit q
+        H(q[0]);
+        CNOT(q[0],q[1]);
+    )");
+  auto bell = xacc::getCompiled("test_bell_exe");
+
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(2);
+  accelerator->execute(buffer, bell);
+
+  auto exeInfo = accelerator->getExecutionInfo();
+  EXPECT_GT(exeInfo.size(), 0);
+  auto dm =
+      accelerator->getExecutionInfo<xacc::ExecutionInfo::DensityMatrixPtrType>(
+          xacc::ExecutionInfo::DmKey);
+  for (const auto &row : *dm) {
+    for (const auto &x : row) {
+      std::cout << x << " ";
+    }
+    std::cout << "\n";
+  }
+  // 2 qubits => 4 x 4 matrix
+  EXPECT_EQ(dm->size(), 4);
+  for (const auto &row : *dm) {
+    EXPECT_EQ(row.size(), 4);
+  }
+  EXPECT_NEAR(std::abs((*dm)[0][0] - 0.5), 0.0, 1e-9);
+  EXPECT_NEAR(std::abs((*dm)[3][3] - 0.5), 0.0, 1e-9);
+}
+
+TEST(AerAcceleratorTester, checkDeuteronVqeH2DensityMatrix) {
+  auto accelerator =
+      xacc::getAccelerator("aer", {{"sim-type", "density_matrix"}});
+
+  // Create the N=2 deuteron Hamiltonian
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
+
+  auto optimizer = xacc::getOptimizer("nlopt");
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz
+        .parameters theta
+        .qbit q
+        X(q[0]);
+        Ry(q[1], theta);
+        CNOT(q[1],q[0]);
+    )");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz");
+
+  // Get the VQE Algorithm and initialize it
+  auto vqe = xacc::getAlgorithm("vqe");
+  vqe->initialize({std::make_pair("ansatz", ansatz),
+                   std::make_pair("observable", H_N_2),
+                   std::make_pair("accelerator", accelerator),
+                   std::make_pair("optimizer", optimizer)});
+
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(2);
+  vqe->execute(buffer);
+
+  // Expected result: -1.74886
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-4);
+}
+
+TEST(AerAcceleratorTester, testDeuteronVqeH3DensityMatrix) {
+  auto accelerator = xacc::getAccelerator("aer", {{"sim-type", "density_matrix"}});
+
+  // Create the N=3 deuteron Hamiltonian
+  auto H_N_3 = xacc::quantum::getObservable(
+      "pauli",
+      std::string("5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1 + "
+                  "9.625 - 9.625 Z2 - 3.91 X1 X2 - 3.91 Y1 Y2"));
+
+  auto optimizer = xacc::getOptimizer("nlopt");
+
+  // JIT map Quil QASM Ansatz to IR
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz_h3
+        .parameters t0, t1
+        .qbit q
+        X(q[0]);
+        exp_i_theta(q, t1, {{"pauli", "X0 Y1 - Y0 X1"}});
+        exp_i_theta(q, t0, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
+    )");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz_h3");
+
+  // Get the VQE Algorithm and initialize it
+  auto vqe = xacc::getAlgorithm("vqe");
+  vqe->initialize({std::make_pair("ansatz", ansatz),
+                   std::make_pair("observable", H_N_3),
+                   std::make_pair("accelerator", accelerator),
+                   std::make_pair("optimizer", optimizer)});
+
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(3);
+  vqe->execute(buffer);
+
+  // Expected result: -2.04482
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -2.04482, 1e-4);
+}
+
+TEST(AerAcceleratorTester, checkMatrixProductState) {
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+            H(q[0]);
+            for (int i = 0; i < 99; i++) {
+                CNOT(q[i], q[i + 1]);
+            }
+            for (int i = 0; i < 100; i++) {
+                Measure(q[i]);
+            }
+        })");
+
+  auto program = ir->getComposite("test1");
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"sim-type", "matrix_product_state"}, {"shots", 1024}});
+  // Use a large enough qubit register to check memory constraint 
+  // We can run with MPS!
+  auto qreg = xacc::qalloc(100);
+  accelerator->execute(qreg, program);
+  qreg->print();
+  // We expect to create a entangle state (1000 qubits): |000000 ... 00> +
+  // |111.... 111>
+  const auto prob0 =
+      qreg->computeMeasurementProbability(std::string(qreg->size(), '0'));
+  const auto prob1 =
+      qreg->computeMeasurementProbability(std::string(qreg->size(), '1'));
+  EXPECT_NEAR(prob0 + prob1, 1.0, 1e-12);
+  EXPECT_NEAR(prob0, 0.5, 0.2);
+  EXPECT_NEAR(prob1, 0.5, 0.2);
+}
+
+TEST(AerAcceleratorTester, checkInitialState1) {
+  const std::vector<std::complex<double>> initial_states{0.0, 1.0};
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"sim-type", "statevector"}, {"initial_state", initial_states}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void test(qbit q) {
+      H(q[0]);
+    })",
+                                  accelerator);
+
+  auto program = ir->getComposite("test");
+
+  auto buffer = xacc::qalloc(1);
+  accelerator->execute(buffer, program);
+
+  auto exeInfo = accelerator->getExecutionInfo();
+  EXPECT_GT(exeInfo.size(), 0);
+  auto waveFn =
+      accelerator->getExecutionInfo<xacc::ExecutionInfo::WaveFuncPtrType>(
+          xacc::ExecutionInfo::WaveFuncKey);
+  for (const auto &elem : *waveFn) {
+    std::cout << elem << "\n";
+  }
+  EXPECT_EQ(waveFn->size(), 2);
+  // Expect |-> state: |0> - |1> since we set the initial state to |1>
+  EXPECT_NEAR(std::abs((*waveFn)[0] - 1.0 / std::sqrt(2.0)), 0.0, 1e-9);
+  EXPECT_NEAR(std::abs((*waveFn)[1] + 1.0 / std::sqrt(2.0)), 0.0, 1e-9);
+}
+
+TEST(AerAcceleratorTester, checkInitialState2) {
+  const std::vector<std::complex<double>> initial_states{1.0 / std::sqrt(2.0),
+                                                         -1.0 / std::sqrt(2.0)};
+  const int nbShots = 8192;
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"initial_state", initial_states}, {"shots", nbShots}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void test(qbit q) {
+      H(q[0]);
+      Measure(q[0]);
+    })",
+                                  accelerator);
+
+  auto program = ir->getComposite("test");
+
+  auto buffer = xacc::qalloc(1);
+  accelerator->execute(buffer, program);
+  buffer->print();
+  // H|-> => |1> since we set the initial state to |-> state
+ EXPECT_EQ(buffer->getMeasurementCounts()["1"], nbShots);
+}
+
+TEST(AerAcceleratorTester, checkInitialState3) {
+  const std::vector<std::complex<double>> initial_states{0.0, 1.0};
+  auto accelerator =
+      xacc::getAccelerator("aer", {{"sim-type", "density_matrix"},
+                                   {"initial_state", initial_states}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void test(qbit q) {
+      H(q[0]);
+    })",
+                                  accelerator);
+
+  auto program = ir->getComposite("test");
+
+  auto buffer = xacc::qalloc(1);
+  accelerator->execute(buffer, program);
+
+  auto exeInfo = accelerator->getExecutionInfo();
+  EXPECT_GT(exeInfo.size(), 0);
+  auto dm =
+      accelerator->getExecutionInfo<xacc::ExecutionInfo::DensityMatrixPtrType>(
+          xacc::ExecutionInfo::DmKey);
+  for (const auto &row : *dm) {
+    for (const auto &x : row) {
+      std::cout << x << " ";
+    }
+    std::cout << "\n";
+  }
+  EXPECT_EQ(dm->size(), 2);
+  for (const auto &row : *dm) {
+    EXPECT_EQ(row.size(), 2);
+  }
+  EXPECT_NEAR(std::abs((*dm)[0][0] - 0.5), 0.0, 1e-9);
+  EXPECT_NEAR(std::abs((*dm)[1][1] - 0.5), 0.0, 1e-9);
+  EXPECT_NEAR(std::abs((*dm)[0][1] + 0.5), 0.0, 1e-9);
+  EXPECT_NEAR(std::abs((*dm)[1][0] + 0.5), 0.0, 1e-9);
 }
 
 int main(int argc, char **argv) {

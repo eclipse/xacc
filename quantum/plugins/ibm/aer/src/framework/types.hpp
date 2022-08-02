@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "framework/matrix.hpp" // matrix class
+#include "framework/linalg/vector.hpp" // AER::Vector class
 #include "framework/stl_ostream.hpp" 
 
 
@@ -39,14 +40,19 @@ namespace AER {
   using int_t = int_fast64_t;
   using uint_t = uint_fast64_t; 
   using complex_t = std::complex<double>;
+  using complexf_t = std::complex<float>;
   using cvector_t = std::vector<complex_t>;
+  using cvectorf_t = std::vector<complexf_t>;
   using cmatrix_t = matrix<complex_t>;
+  using cmatrixf_t = matrix<complexf_t>;
   using rvector_t = std::vector<double>;
   using rmatrix_t = matrix<double>;
   using reg_t = std::vector<uint_t>;
   using stringset_t = std::unordered_set<std::string>;
   template <typename T>
   using stringmap_t = std::unordered_map<std::string, T>;
+  using mps_container_t = std::pair<std::vector<std::pair<cmatrix_t, cmatrix_t>>, 
+			                              std::vector<rvector_t>>;
 }
 
 

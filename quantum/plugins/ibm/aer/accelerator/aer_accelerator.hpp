@@ -62,6 +62,12 @@ public:
   bool isInitialized() const { return initialized; }
   std::string getNativeCode(std::shared_ptr<CompositeInstruction> program,
                             const HeterogeneousMap &config = {}) override;
+
+  // ExecutionInfo implementation:
+  virtual xacc::HeterogeneousMap getExecutionInfo() const override {
+    return m_executionInfo;
+  }
+
 private:
   static double calcExpectationValueZ(
       const std::vector<std::pair<double, double>> &in_stateVec,
@@ -82,6 +88,7 @@ private:
   HeterogeneousMap physical_backend_properties;
   // No seed
   int m_seed = -1;
+  HeterogeneousMap m_executionInfo;
 };
 } // namespace quantum
 } // namespace xacc

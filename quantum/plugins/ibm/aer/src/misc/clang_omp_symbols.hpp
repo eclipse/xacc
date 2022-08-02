@@ -19,7 +19,7 @@
  * This is some sort of "black magic" to solve a problem we have with OpenMP libraries on Mac.
  * The problem is actually in the library itself, but it's out of our control, so we had to
  * fix it this way.
- * Symbol signatures are taken from: https://github.com/llvm/llvm-project/blob/master/openmp/runtime/src/kmp.h
+ * Symbol signatures are taken from: https://github.com/llvm/llvm-project/blob/main/openmp/runtime/src/kmp.h
  */
 
 #include <dlfcn.h>
@@ -218,6 +218,11 @@ extern "C" {
     void __KAI_KMPC_CONVENTION omp_set_nested(int foo){
         _hook_omp_set_nested(foo);
     }
+    using omp_set_max_active_levels_t = void(*)(int);
+    omp_set_max_active_levels_t _hook_omp_set_max_active_levels;
+    void __KAI_KMPC_CONVENTION omp_set_max_active_levels(int foo){
+        _hook_omp_set_max_active_levels(foo);
+    }
     using omp_get_num_procs_t = int(*)(void);
     omp_get_num_procs_t _hook_omp_get_num_procs;
     int __KAI_KMPC_CONVENTION omp_get_num_procs(void) {
@@ -325,6 +330,7 @@ void populate_hooks(void * handle){
     _hook_omp_get_num_threads = reinterpret_cast<decltype(&omp_get_num_threads)>(dlsym(handle, "omp_get_num_threads"));
     _hook_omp_get_thread_num = reinterpret_cast<decltype(&omp_get_thread_num)>(dlsym(handle, "omp_get_thread_num"));
     _hook_omp_set_nested = reinterpret_cast<decltype(&omp_set_nested)>(dlsym(handle, "omp_set_nested"));
+    _hook_omp_set_max_active_levels = reinterpret_cast<decltype(&omp_set_max_active_levels)>(dlsym(handle, "omp_set_max_active_levels"));
     _hook_omp_get_num_procs = reinterpret_cast<decltype(&omp_get_num_procs)>(dlsym(handle, "omp_get_num_procs"));
 }
 
