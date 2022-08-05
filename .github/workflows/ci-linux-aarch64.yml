@@ -3,8 +3,6 @@ name: "Linux CI (Arm)"
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
   build:
@@ -20,25 +18,11 @@ jobs:
         with:
           arch: aarch64
           distro: ubuntu20.04
-          # Set an output parameter `uname` for use in subsequent steps
           run: |
             uname -a
             echo ::set-output name=uname::$(uname -a)
-
-      - name: Create Build Environment
-        run: cmake -E make_directory build
-      
-      - name: Install dependencies
-        run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends ninja-build libssl-dev libcurl4-openssl-dev python3 libpython3-dev python3-pip libblas-dev liblapack-dev
-      
-      - name: Configure
-        working-directory: build/
-        run: cmake -GNinja $GITHUB_WORKSPACE -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE
-    
-      - name: Build
-        working-directory: build/
-        run: cmake --build . --target install
-      
-      - name: Test
-        working-directory: build/
-        run: ctest --output-on-failure
+            sudo apt-get -y update && sudo apt-get install -y --no-install-recommends gcc g++ cmake ninja-build libssl-dev libcurl4-openssl-dev python3 libpython3-dev python3-pip libblas-dev liblapack-dev 
+            git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build
+            cmake -GNinja .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE
+            cmake --build . --target install
+            ctest --output-on-failure
