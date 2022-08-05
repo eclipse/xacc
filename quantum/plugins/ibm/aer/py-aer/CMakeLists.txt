@@ -6,7 +6,11 @@ configure_file(aer_python_adapter.in.cpp
 file(GLOB SRC ${CMAKE_BINARY_DIR}/quantum/plugins/ibm/aer/py-aer/aer_python_adapter.cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -O2 -g -pipe -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wformat -fexceptions --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=native -D_GNU_SOURCE -fPIC -fwrapv")
+if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64") 
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -O2 -g -pipe -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wformat -fexceptions --param=ssp-buffer-size=4 -grecord-gcc-switches -mtune=native -D_GNU_SOURCE -fPIC -fwrapv")
+else()
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -O2 -g -pipe -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wformat -fexceptions --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=native -D_GNU_SOURCE -fPIC -fwrapv")
+endif()
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 if(Python_FOUND)
