@@ -30,7 +30,7 @@ add_compile_flags_if_supported(-Wno-deprecated-copy)
 add_subdirectory(cppmicroservices)
 
 # Fix for bug #161
-install(FILES "${CMAKE_BINARY_DIR}/tpls/cppmicroservices/CMakeFiles/Export/share/cppmicroservices4/cmake/CppMicroServicesTargets-release.cmake" DESTINATION share/cppmicroservices4/cmake)
+install(FILES "${CMAKE_BINARY_DIR}/tpls/cppmicroservices/CMakeFiles/Export/share/cppmicroservices4/cmake/CppMicroServicesTargets-release.cmake" DESTINATION share/cppmicroservices4/cmake OPTIONAL)
 
 set(USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
 set(BUILD_CPR_TESTS OFF CACHE BOOL "" FORCE)
