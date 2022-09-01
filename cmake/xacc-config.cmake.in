@@ -39,6 +39,9 @@ set(CppMicroServicesConfig_DIR "${XACC_ROOT}/share/cppmicroservices4/cmake")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${XACC_ROOT}/share/xacc")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CppMicroServicesConfig_DIR}")
 include(CppMicroServicesConfig)
+set_target_properties(usResourceCompiler PROPERTIES
+  IMPORTED_LOCATION "${XACC_ROOT}/bin/usResourceCompiler4"
+)
 
 macro(xacc_configure_library_rpath LIBNAME)
   if(APPLE)
