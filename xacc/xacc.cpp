@@ -15,6 +15,7 @@
 #include "IRProvider.hpp"
 #include "CLIParser.hpp"
 #include <memory>
+#include <mutex>
 #include <signal.h>
 #include <cstdlib>
 #include <iostream>
@@ -43,6 +44,8 @@ bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser;
 int argc = 0;
 char **argv = NULL;
+// Global mutex to guard concurrent access to the compilation_database and allocated_buffers maps.
+std::mutex g_xacc_mutex;
 std::map<std::string, std::shared_ptr<CompositeInstruction>>
     compilation_database{};
 std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocated_buffers{};
@@ -182,6 +185,7 @@ qbit qalloc(const int n) {
   std::stringstream ss;
   ss << "qreg_" << q;
   q->setName(ss.str());
+  std::scoped_lock lock(g_xacc_mutex);
   allocated_buffers.insert({ss.str(), q});
   return q;
 }
@@ -190,11 +194,13 @@ qbit qalloc() {
   std::stringstream ss;
   ss << "qreg_" << q;
   q->setName(ss.str());
+  std::scoped_lock lock(g_xacc_mutex);
   allocated_buffers.insert({ss.str(), q});
   return q;
 }
 
 void storeBuffer(std::shared_ptr<AcceleratorBuffer> buffer) {
+  std::scoped_lock lock(g_xacc_mutex);
   auto name = buffer->name();
   if (allocated_buffers.count(name)) {
     // error("Invalid buffer name to store: " + name);
@@ -206,6 +212,7 @@ void storeBuffer(std::shared_ptr<AcceleratorBuffer> buffer) {
 
 void storeBuffer(const std::string name,
                  std::shared_ptr<AcceleratorBuffer> buffer) {
+  std::scoped_lock lock(g_xacc_mutex);
   if (allocated_buffers.count(name)) {
     error("Invalid buffer name to store: " + name);
   }
@@ -220,12 +227,14 @@ void storeBuffer(const std::string name,
 }
 
 std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string &name) {
+  std::scoped_lock lock(g_xacc_mutex);
   if (!allocated_buffers.count(name)) {
     error("Invalid buffer name: " + name);
   }
   return allocated_buffers[name];
 }
 bool hasBuffer(const std::string &name) {
+  std::scoped_lock lock(g_xacc_mutex);
   return allocated_buffers.count(name);
 }
 std::shared_ptr<AcceleratorBuffer>
@@ -234,6 +243,7 @@ getClassicalRegHostBuffer(const std::string &cRegName) {
     return getBuffer(cRegName);
   }
 
+  std::scoped_lock lock(g_xacc_mutex);
   for (auto &[bufferName, allocated_buffer] : allocated_buffers) {
     if (xacc::container::contains(allocated_buffer->getClassicalRegs(),
                                   cRegName)) {
@@ -675,6 +685,7 @@ const std::string getRootDirectory() { return xacc::getRootPathString(); }
 
 void appendCompiled(std::shared_ptr<CompositeInstruction> composite,
                     bool _override) {
+  std::scoped_lock lock(g_xacc_mutex);
   if (!_override) {
     if (compilation_database.count(composite->name())) {
       xacc::error("Invalid CompositeInstruction name, already in compilation "
@@ -686,10 +697,12 @@ void appendCompiled(std::shared_ptr<CompositeInstruction> composite,
   compilation_database[composite->name()] = composite;
 }
 bool hasCompiled(const std::string name) {
+  std::scoped_lock lock(g_xacc_mutex);
   return compilation_database.count(name);
 }
 
 std::shared_ptr<CompositeInstruction> getCompiled(const std::string name) {
+  std::scoped_lock lock(g_xacc_mutex);
   if (!compilation_database.count(name)) {
     xacc::error(
         "Invalid CompositeInstruction requested. Not in compilation database " +
