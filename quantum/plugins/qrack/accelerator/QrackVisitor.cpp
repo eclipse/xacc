@@ -56,15 +56,13 @@ namespace quantum {
     }
 
     std::map<bitCapInt, int> QrackVisitor::measure_shots() {
-        bitLenInt bitCount = m_measureBits.size();
-        bitCapInt* qPowers = new bitCapInt[bitCount];
+        const bitLenInt bitCount = m_measureBits.size();
+        std::vector<bitCapInt> qPowers(bitCount);
         for (bitLenInt i = 0; i < bitCount; i++) {
             qPowers[i] = Qrack::pow2(m_measureBits[i]);
         }
 
-        std::map<bitCapInt, int> result = m_qReg->MultiShotMeasureMask(qPowers, bitCount, m_shots);
-
-        delete[] qPowers;
+        std::map<bitCapInt, int> result = m_qReg->MultiShotMeasureMask(qPowers, m_shots);
 
         return result;
     }
