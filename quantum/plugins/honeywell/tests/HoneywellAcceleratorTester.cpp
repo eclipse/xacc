@@ -15,7 +15,7 @@
 
 TEST(HoneywellAcceleratorTester, checkSimple) {
   xacc::set_verbose(true);
-  auto accelerator = xacc::getAccelerator("honeywell:HQS-LT-S1-APIVAL");
+  auto accelerator = xacc::getAccelerator("honeywell:H1-1SC");
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto ir = xasmCompiler->compile(R"(__qpu__ void bell(qbit q) {
       H(q[0]);
@@ -35,7 +35,7 @@ TEST(HoneywellAcceleratorTester, checkSimple) {
 
 TEST(HoneywellAcceleratorTester, checkConditionalTeleport) {
   xacc::set_verbose(true);
-  auto accelerator = xacc::getAccelerator("honeywell:HQS-LT-S1-APIVAL");
+  auto accelerator = xacc::getAccelerator("honeywell:H1-1SC");
   auto buffer = xacc::qalloc(3);  
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto ir = xasmCompiler->compile(R"(__qpu__ void teleport(qbit q) {
@@ -70,7 +70,7 @@ TEST(HoneywellAcceleratorTester, checkConditionalTeleport) {
 
 TEST(HoneywellAcceleratorTester, checkConditionalIQPE) {
   xacc::set_verbose(true);
-  auto accelerator = xacc::getAccelerator("honeywell:HQS-LT-S1-APIVAL");
+  auto accelerator = xacc::getAccelerator("honeywell:H1-1SC");
   auto buffer = xacc::qalloc(3);  
   auto xasmCompiler = xacc::getCompiler("xasm");
   // Make sure we can validate it.

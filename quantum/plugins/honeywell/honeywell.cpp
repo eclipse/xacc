@@ -36,7 +36,7 @@ std::string hex_string_to_binary_string(std::string hex) {
 }
 
 std::pair<bool, std::string> need_refresh(std::vector<int> old_key_time) {
-  std::time_t t = std::time(0);  // get time now
+  std::time_t t = std::time(0); // get time now
   std::tm *now2 = std::localtime(&t);
 
   double hours = 0.0;
@@ -72,10 +72,10 @@ std::pair<bool, std::string> need_refresh(std::vector<int> old_key_time) {
 
   // Refresh if it has been close to an hour since
   // the token was generated.
-  return std::make_pair(
-      hours > .95, fmt::format("{}_{}_{}_{}_{}_{}", (now2->tm_year + 1900),
-                               (now2->tm_mon + 1), now2->tm_mday, now2->tm_hour,
-                               now2->tm_min, now2->tm_sec));
+  return std::make_pair(hours > .95,
+                        fmt::format("{}_{}_{}_{}_{}_{}", (now2->tm_year + 1900),
+                                    (now2->tm_mon + 1), now2->tm_mday,
+                                    now2->tm_hour, now2->tm_min, now2->tm_sec));
 }
 
 void HoneywellAccelerator::refresh_tokens(bool force_refresh) {
@@ -117,6 +117,14 @@ void HoneywellAccelerator::initialize(const HeterogeneousMap &params) {
 
     if (params.keyExists<int>("shots")) {
       shots = params.get<int>("shots");
+    }
+
+    if (params.stringExists("job-name")) {
+      job_name = params.getString("job-name");
+    }
+
+    if (params.stringExists("job-id")) {
+      job_id = params.getString("job-id");
     }
 
     // Query avalable backends:
@@ -195,6 +203,9 @@ void HoneywellAccelerator::execute(
   j["priority"] = "normal";
   j["count"] = shots;
   j["options"] = nullptr;
+  if (!job_name.empty()) {
+    j["name"] = job_name;
+  }
 
   // Check if we should refresh
   refresh_tokens();
@@ -205,46 +216,56 @@ void HoneywellAccelerator::execute(
       {"Connection", "keep-alive"},
       {"Accept", "*/*"}};
 
-  auto response = post(url, "job", j.dump(), headers);
-  auto response_json = nlohmann::json::parse(response);
-  auto job_id = response_json["job"].get<std::string>();
-
-  xacc::info("Honeywell job-id: " + job_id);
-
-  // Job has started, so watch for status == COMPLETED
-  int dots = 1;
   std::string get_job_status = "";
   nlohmann::json get_job_status_json;
-  while (true) {
+
+  // if job_id was provided, check status and return
+  if (!job_id.empty()) {
+
     get_job_status = get(url, "job/" + job_id, headers);
     get_job_status_json = nlohmann::json::parse(get_job_status);
 
-    if (get_job_status_json["status"].get<std::string>().find("failed") !=
-        std::string::npos) {
-      xacc::error("Honeywell job failed: " + get_job_status_json.dump(4));
-    }
-    if (get_job_status_json["status"].get<std::string>() == "completed") {
-      break;
-    }
+  } else {
 
-    if (dots > 4)
-      dots = 1;
-    std::stringstream ss;
-    ss << "\033[0;32m"
-       << "Honeywell Job "
-       << "\033[0;36m" << job_id << "\033[0;32m"
-       << " Status: " << get_job_status_json["status"].get<std::string>();
-    for (int i = 0; i < dots; i++)
-      ss << '.';
-    dots++;
-    std::cout << '\r' << ss.str() << std::setw(20) << std::setfill(' ')
-              << std::flush;
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    auto response = post(url, "job", j.dump(), headers);
+    auto response_json = nlohmann::json::parse(response);
+    job_id = response_json["job"].get<std::string>();
+
+    xacc::info("Honeywell job-id: " + job_id);
+
+    // Job has started, so watch for status == COMPLETED
+    int dots = 1;
+    while (true) {
+      get_job_status = get(url, "job/" + job_id, headers);
+      get_job_status_json = nlohmann::json::parse(get_job_status);
+
+      if (get_job_status_json["status"].get<std::string>().find("failed") !=
+          std::string::npos) {
+        xacc::error("Honeywell job failed: " + get_job_status_json.dump(4));
+      }
+      if (get_job_status_json["status"].get<std::string>() == "completed") {
+        break;
+      }
+
+      if (dots > 4)
+        dots = 1;
+      std::stringstream ss;
+      ss << "\033[0;32m"
+         << "Honeywell Job "
+         << "\033[0;36m" << job_id << "\033[0;32m"
+         << " Status: " << get_job_status_json["status"].get<std::string>();
+      for (int i = 0; i < dots; i++)
+        ss << '.';
+      dots++;
+      std::cout << '\r' << ss.str() << std::setw(20) << std::setfill(' ')
+                << std::flush;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
   }
 
   std::cout << "\033[0m"
             << "\n";
-            
+
   xacc::info("\nHoneywell job result json:\n" + get_job_status);
   auto results =
       get_job_status_json["results"].begin()->get<std::vector<std::string>>();
@@ -274,9 +295,8 @@ void HoneywellAccelerator::searchAPIKey(std::string &key) {
   if (xacc::fileExists(hwConfig)) {
     findApiKeyInFile(key, hwConfig);
   } else {
-    xacc::error(
-        "Cannot find Honeywell Config file with credentials "
-        "(~/.honeywell_config).");
+    xacc::error("Cannot find Honeywell Config file with credentials "
+                "(~/.honeywell_config).");
   }
 }
 
@@ -339,10 +359,10 @@ const std::string RestClient::post(const std::string &remoteUrl,
   return r.text;
 }
 
-const std::string RestClient::get(
-    const std::string &remoteUrl, const std::string &path,
-    std::map<std::string, std::string> headers,
-    std::map<std::string, std::string> extraParams) {
+const std::string
+RestClient::get(const std::string &remoteUrl, const std::string &path,
+                std::map<std::string, std::string> headers,
+                std::map<std::string, std::string> extraParams) {
   if (headers.empty()) {
     headers.insert(std::make_pair("Content-type", "application/json"));
     // headers.insert(std::make_pair("Connection", "keep-alive"));
@@ -374,9 +394,10 @@ const std::string RestClient::get(
   return r.text;
 }
 
-std::string HoneywellAccelerator::post(
-    const std::string &_url, const std::string &path,
-    const std::string &postStr, std::map<std::string, std::string> headers) {
+std::string
+HoneywellAccelerator::post(const std::string &_url, const std::string &path,
+                           const std::string &postStr,
+                           std::map<std::string, std::string> headers) {
   std::string postResponse;
   int retries = 10;
   std::exception ex;
@@ -411,10 +432,10 @@ std::string HoneywellAccelerator::post(
   return postResponse;
 }
 
-std::string HoneywellAccelerator::get(
-    const std::string &_url, const std::string &path,
-    std::map<std::string, std::string> headers,
-    std::map<std::string, std::string> extraParams) {
+std::string
+HoneywellAccelerator::get(const std::string &_url, const std::string &path,
+                          std::map<std::string, std::string> headers,
+                          std::map<std::string, std::string> extraParams) {
   std::string getResponse;
   int retries = 10;
   std::exception ex;
@@ -453,8 +474,8 @@ std::string HoneywellAccelerator::get(
   return getResponse;
 }
 
-std::map<std::string, std::string> HoneywellAccelerator::generateRequestHeader()
-    const {
+std::map<std::string, std::string>
+HoneywellAccelerator::generateRequestHeader() const {
   std::map<std::string, std::string> headers{
       {"Authorization", api_key},
       {"Content-Type", "application/json"},
@@ -498,8 +519,8 @@ std::string HoneywellAccelerator::getNativeCode(
   auto qasm = qasm_compiler->translate(circuit);
   return qasm;
 }
-}  // namespace quantum
-}  // namespace xacc
+} // namespace quantum
+} // namespace xacc
 
 using namespace cppmicroservices;
 
@@ -508,7 +529,7 @@ namespace {
 /**
  */
 class US_ABI_LOCAL HoneywellActivator : public BundleActivator {
- public:
+public:
   HoneywellActivator() {}
 
   /**
@@ -523,6 +544,6 @@ class US_ABI_LOCAL HoneywellActivator : public BundleActivator {
   void Stop(BundleContext /*context*/) {}
 };
 
-}  // namespace
+} // namespace
 
 CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(HoneywellActivator)
