@@ -16,6 +16,7 @@
 #include "InstructionIterator.hpp"
 #include "Accelerator.hpp"
 #include <bitset>
+#include <string>
 #include <type_traits>
 
 namespace xacc {
@@ -109,6 +110,8 @@ private:
   std::string time_str;
   std::string refresh_key;
   std::string email;
+  std::string job_name;
+  std::string job_id;
 
   int shots = 1024;
   std::string backend = "";
