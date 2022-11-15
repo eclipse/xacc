@@ -123,8 +123,8 @@ void HoneywellAccelerator::initialize(const HeterogeneousMap &params) {
       job_name = params.getString("job-name");
     }
 
-    if (params.stringExists("job-id")) {
-      job_id = params.getString("job-id");
+    if (params.stringExists("retrieve-job-id")) {
+      retrieve_job_id = params.getString("job-id");
     }
 
     // Query avalable backends:
@@ -219,17 +219,17 @@ void HoneywellAccelerator::execute(
   std::string get_job_status = "";
   nlohmann::json get_job_status_json;
 
-  // if job_id was provided, check status and return
-  if (!job_id.empty()) {
+  // if retrieve_job_id was provided, check status and return
+  if (!retrieve_job_id.empty()) {
 
-    get_job_status = get(url, "job/" + job_id, headers);
+    get_job_status = get(url, "job/" + retrieve_job_id, headers);
     get_job_status_json = nlohmann::json::parse(get_job_status);
 
   } else {
 
     auto response = post(url, "job", j.dump(), headers);
     auto response_json = nlohmann::json::parse(response);
-    job_id = response_json["job"].get<std::string>();
+    auto job_id = response_json["job"].get<std::string>();
 
     xacc::info("Honeywell job-id: " + job_id);
 

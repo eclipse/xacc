@@ -111,7 +111,7 @@ private:
   std::string refresh_key;
   std::string email;
   std::string job_name;
-  std::string job_id;
+  std::string retrieve_job_id;
 
   int shots = 1024;
   std::string backend = "";
