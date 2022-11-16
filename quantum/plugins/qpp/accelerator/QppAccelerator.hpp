@@ -42,7 +42,7 @@ public:
 
     // Accelerator interface impls
     virtual void initialize(const HeterogeneousMap& params = {}) override;
-    virtual void updateConfiguration(const HeterogeneousMap& config) override {initialize(config);};
+    virtual void updateConfiguration(const HeterogeneousMap& config) override;
     virtual const std::vector<std::string> configurationKeys() override { return {}; }
     virtual HeterogeneousMap getProperties() override { return {{"shots", m_shots}}; }
     virtual BitOrder getBitOrder() override {return BitOrder::LSB;}

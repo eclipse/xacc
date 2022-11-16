@@ -81,59 +81,37 @@ namespace {
         return result;
     }
 
-    void generateMeasureBitString(std::shared_ptr<xacc::AcceleratorBuffer> in_buffer, const std::vector<size_t>& in_bits, const KetVectorType& in_stateVec, int in_shotCount, xacc::quantum::randomEngine& in_rng, bool in_multiThread = false)
+    void generateMeasureBitString(std::shared_ptr<xacc::AcceleratorBuffer> in_buffer, const std::vector<size_t>& in_bits, const KetVectorType& in_stateVec, int in_shotCount, xacc::quantum::randomEngine& in_rng)
     {
-        if (!in_multiThread)
-        {
-            // Sequential execution
-            for (int i = 0; i < in_shotCount; ++i)
-            {
-                std::string bitString;
-                auto stateVecCopy = in_stateVec;
-                for (const auto& bit : in_bits)    
-                {
-                    bitString.append(std::to_string(applyMeasureOp(stateVecCopy, bit, in_rng)));
-                }
+      const std::vector<double> sorted_random_vals = [&]() {
+        std::vector<double> rs;
+        rs.reserve(in_shotCount);
+        for (uint64_t i = 0; i < in_shotCount; ++i) {
+          rs.emplace_back(in_rng.randProb());
+        }
+        std::sort(rs.begin(), rs.end());
+        return rs;
+      }();
 
-                in_buffer->appendMeasurement(bitString);
-            }
+      const auto generateBitString =
+          [&in_bits](uint64_t wave_func_idx) -> std::string {
+        std::string bit_string;
+        bit_string.reserve(in_bits.size());
+        for (const auto &bit : in_bits) {
+          bit_string.push_back((wave_func_idx & (1ULL << bit)) ? '1' : '0');
         }
-        else
-        {
-            // Parallel execution: divide the shot counts to threads.
-            std::vector<std::string> bitStringArray(in_shotCount);
-            std::vector<std::thread> threads(getNumberOfThreads());
-            std::mutex critical;
-            for(int t = 0; t < getNumberOfThreads(); ++t)
-            {
-                threads[t] = std::thread(std::bind([&](int beginIdx, int endIdx, int threadIdx) {
-                    for(int i = beginIdx; i < endIdx; ++i)
-                    {
-                        std::string bitString;
-                        auto stateVecCopy = in_stateVec;
-                        for (const auto& bit : in_bits)    
-                        {
-                            bitString.append(std::to_string(applyMeasureOp(stateVecCopy, bit, in_rng)));
-                        }
-                        bitStringArray[i] = bitString;
-                    }
-                    {
-                        // Add measurement bitstring to the buffer:
-                        std::lock_guard<std::mutex> lock(critical);
-                        for(int i = beginIdx; i < endIdx; ++i)
-                        {
-                            in_buffer->appendMeasurement(bitStringArray[i]);
-                        }
-                    }
-                }, 
-                t * in_shotCount / getNumberOfThreads(), 
-                (t+1) == getNumberOfThreads() ? in_shotCount: (t+1) * in_shotCount/getNumberOfThreads(), 
-                t));
-            }
-            std::for_each(threads.begin(),threads.end(),[](std::thread& x){
-                x.join();
-            });
+        return bit_string;
+      };
+      uint64_t m = 0;
+      double csum = 0.0;
+      std::vector<uint64_t> bitstrings;
+      for (uint64_t k = 0; k < in_stateVec.size(); ++k) {
+        csum += std::norm(in_stateVec[k]);
+        while (sorted_random_vals[m] < csum && m < in_shotCount) {
+          in_buffer->appendMeasurement(generateBitString(k));
+          ++m;
         }
+      }
     }
 
     // Helper to determine if shot count distribution can be simulated by 
@@ -248,6 +226,29 @@ namespace quantum {
         }
     }
 
+    void QppAccelerator::updateConfiguration(const HeterogeneousMap &params) {
+      // Similar to initialize but not default initialize params.
+      if (params.keyExists<int>("shots")) {
+        m_shots = params.get<int>("shots");
+      }
+      if (params.keyExists<int>("seed")) {
+        const auto seed = params.get<int>("seed");
+        m_rng = randomEngine(seed);
+      }
+
+      if (params.keyExists<bool>("vqe-mode")) {
+        m_vqeMode = params.get<bool>("vqe-mode");
+        if (m_vqeMode) {
+          xacc::info("Enable VQE Mode.");
+        }
+      }
+
+      if (params.keyExists<std::vector<std::pair<int, int>>>("connectivity")) {
+        m_connectivity =
+            params.get<std::vector<std::pair<int, int>>>("connectivity");
+      }
+    }
+
     void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction)
     {
         const auto runCircuit = [&](bool shotsMode){
@@ -323,9 +324,7 @@ namespace quantum {
                 }
                 else
                 {
-                    // Try multi-threaded execution if there are many shots.
-                    const bool multiThreadEnabled = (m_shots > 1024);
-                    generateMeasureBitString(buffer, measureBitIdxs, stateVec, m_shots, m_rng, multiThreadEnabled);
+                    generateMeasureBitString(buffer, measureBitIdxs, stateVec, m_shots, m_rng);
                 }
             }
             // Note: must save the state-vector before finalizing the visitor.
