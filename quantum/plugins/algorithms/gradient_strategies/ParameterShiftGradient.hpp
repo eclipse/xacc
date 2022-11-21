@@ -32,6 +32,7 @@ protected:
   std::function<std::shared_ptr<CompositeInstruction>(std::vector<double>)>
       kernel_evaluator;
   double shiftScalar = 0.5;
+  std::vector<double> shiftConstants;
 
 public:
   bool initialize(const HeterogeneousMap parameters) override {
@@ -89,26 +90,23 @@ public:
     auto evaledInsts = evaled->getInstructions();
     for (int i = 0; i < circuit->nInstructions(); i++) {
       auto circInst = circInsts[i];
-      if (circInst->isParameterized()) {
-        if (circInst->getParameter(0).isVariable()) {
-          auto param = circInst->getParameter(0).as<std::string>();
+      if (circInst->isParameterized() &&
+          circInst->getParameter(0).isVariable()) {
+        auto param = circInst->getParameter(0).as<std::string>();
 
-          // get coefficient
-          double coeff = 1.0;
-          std::string var;
-          if (param.find('*') != std::string::npos) {
-            coeff = std::stod(param.substr(0, param.find('*') - 1));
-            var = param.substr(param.find('*') + 1);
-          } else {
-            var = param;
-          }
-          auto paramValue =
-              evaledInsts[i]->getParameter(0).as<double>() / coeff;
-          for (int idx = 0; idx < x.size(); idx++) {
-            if (std::fabs(x[idx] - paramValue) < 1.0e-4) {
-              paramIdx[idx].push_back({i, coeff});
-              break;
-            }
+        // get coefficient
+        double coeff = 1.0;
+        std::string var = param;
+        if (param.find('*') != std::string::npos) {
+          coeff = std::stod(param.substr(0, param.find('*') - 1));
+          var = param.substr(param.find('*') + 1);
+        }
+
+        auto paramValue = evaledInsts[i]->getParameter(0).as<double>() / coeff;
+        for (int idx = 0; idx < x.size(); idx++) {
+          if (std::fabs(x[idx] - paramValue) < 1.0e-4) {
+            paramIdx[idx].push_back({i, coeff});
+            break;
           }
         }
       }
@@ -150,10 +148,10 @@ public:
           auto evaledClone =
               std::dynamic_pointer_cast<CompositeInstruction>(evaled->clone());
           for (auto idx : idxs) {
+            shiftConstants.push_back(idx.second);
             auto gate = evaledClone->getInstructions()[idx.first]->clone();
-            auto shifted =
-                gate->getParameter(0).as<double>() +
-                sign * xacc::constants::pi * idx.second * shiftScalar;
+            auto shifted = gate->getParameter(0).as<double>() +
+                           sign * xacc::constants::pi * shiftScalar;
             gate->setParameter(0, shifted);
             evaledClone->replaceInstruction(idx.first, gate);
           }
@@ -210,7 +208,9 @@ public:
       }
 
       // gradient is (<+> - <->) / 2
-      dx[gradTerm] = (plusGradElement - minusGradElement) / 2.0;
+
+      dx[gradTerm] =
+          (plusGradElement - minusGradElement) * shiftConstants[gradTerm] / 2.0;
       shift += 2 * nInstructionsElement[gradTerm];
     }
 
@@ -226,7 +226,6 @@ public:
 
     return;
   }
-
 
   std::vector<double>
   compute(const int n,
