@@ -107,7 +107,7 @@ namespace {
       std::vector<uint64_t> bitstrings;
       for (uint64_t k = 0; k < in_stateVec.size(); ++k) {
         csum += std::norm(in_stateVec[k]);
-        while (sorted_random_vals[m] < csum && m < in_shotCount) {
+        while (m < in_shotCount && sorted_random_vals[m] < csum) {
           in_buffer->appendMeasurement(generateBitString(k));
           ++m;
         }
