@@ -1,6 +1,6 @@
 [submodule "tpls/cpr"]
 	path = tpls/cpr
-	url = https://github.com/ornl-qci/cpr.git
+	url = https://github.com/libcpr/cpr.git
 [submodule "tpls/boost-cmake"]
 	path = tpls/boost-cmake
 	url = https://github.com/ornl-qci/boost-cmake

@@ -13,7 +13,7 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 project(xacc VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 message(STATUS "C++ version ${CXX_STANDARD} configured.")
 
 option(XACC_BUILD_TESTS "Build test programs" OFF)
@@ -104,6 +104,10 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_INSTALL_PREFIX}. Override with -DCMAKE_INSTALL_PREFIX=...${ColorReset}")
+macro(set_cache_variable VAR_NAME VAR_DESCRIPTION)
+  set(${VAR_NAME} ${${VAR_NAME}} CACHE INTERNAL ${VAR_DESCRIPTION})
+  message(STATUS "Set ${VAR_NAME} to ${${VAR_NAME}}.")
+endmacro()
 
 if(XACC_BUILD_TESTS)
   enable_testing()
@@ -120,11 +124,6 @@ if(XACC_BUILD_TESTS)
     target_include_directories(${_TEST_NAME}Tester PRIVATE ${GTEST_INCLUDE_DIRS})
     add_test(NAME xacc_${_TEST_NAME}Tester COMMAND sh -c "mpiexec -np 2 ./${_TEST_NAME}Tester")
     target_link_libraries(${_TEST_NAME}Tester ${GTEST_LIBRARIES} xacc)
-  endmacro()
-
-  macro(set_cache_variable VAR_NAME VAR_DESCRIPTION)
-    set(${VAR_NAME} ${${VAR_NAME}} CACHE INTERNAL ${VAR_DESCRIPTION})
-    message(STATUS "Set ${VAR_NAME} to ${${VAR_NAME}}.")
   endmacro()
 endif()
 

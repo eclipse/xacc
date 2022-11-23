@@ -1152,7 +1152,7 @@ RestClient::get(const std::string &remoteUrl, const std::string &path,
 
   cpr::Parameters cprParams;
   for (auto &kv : extraParams) {
-    cprParams.AddParameter({kv.first, kv.second});
+    cprParams.Add({kv.first, kv.second});
   }
 
   if (verbose)
