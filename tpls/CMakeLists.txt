@@ -39,7 +39,7 @@ set(BUILD_SHARED_LIBS FALSE)
 add_subdirectory(cpr)
 
 # Googletest
-
+set(BUILD_SHARED_LIBS TRUE)
 include(FetchContent)
 FetchContent_Declare(
     googletest
