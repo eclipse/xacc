@@ -39,35 +39,21 @@ class Psi4Observable(xacc.Observable):
         g = inputParams['geometry']
         basis = inputParams['basis']
         moleculeGeom = psi4.geometry(g)
-        psi4.set_options({'basis':basis,
+        options = {'basis':basis,
                           'scf_type':'pk',
                           'mp2_type':'conv',
                           'e_convergence': 1e-8,
-                          'd_convergence': 1e-8})
+                          'd_convergence': 1e-8}
+        if moleculeGeom.multiplicity() > 1:
+            options['reference'] = 'rohf'
+        psi4.set_options(options)
         scf_e, scf_wfn = psi4.energy('scf', return_wfn=True)
         E_nucl = moleculeGeom.nuclear_repulsion_energy()
 
         # Get MO coefficients from SCF wavefunction
         # ==> ERIs <==
         # Create instance of MintsHelper class:
-
         mints = psi4.core.MintsHelper(scf_wfn.basisset())
-
-
-
-        nbf = mints.nbf()           # number of basis functions
-        nso = 2 * nbf               # number of spin orbitals
-        nalpha = scf_wfn.nalpha()   # number of alpha electrons
-        nbeta = scf_wfn.nbeta()     # number of beta electrons
-        nocc = nalpha + nbeta       # number of occupied orbitals
-        nvirt = 2 * nbf - nocc      # number of virtual orbitals
-        list_occ_alpha = np.asarray(scf_wfn.occupation_a())
-        list_occ_beta = np.asarray(scf_wfn.occupation_b())
-
-        # Get orbital energies
-        eps_a = np.asarray(scf_wfn.epsilon_a())
-        eps_b = np.asarray(scf_wfn.epsilon_b())
-        eps = np.append(eps_a, eps_b)
 
         # Get orbital coefficients:
         Ca = np.asarray(scf_wfn.Ca())
@@ -100,14 +86,11 @@ class Psi4Observable(xacc.Observable):
 
         # Antisymmetrize:
         # <pr||qs> = <pr | qs> - <pr | sq>
-        gao = tmp - tmp.transpose(0, 1, 3, 2)
-        gmo = np.einsum('pQRS, pP -> PQRS',
-                        np.einsum('pqRS, qQ -> pQRS',
-                                  np.einsum('pqrS, rR -> pqRS',
-                                            np.einsum('pqrs, sS -> pqrS', gao, C), C), C), C)
-
-        # -------- 0-body term:
-        Hamiltonian_0body = E_nucl
+        gmo = tmp - tmp.transpose(0, 1, 3, 2)
+        gmo = np.einsum('pqrs, sS -> pqrS', gmo, C)
+        gmo = np.einsum('pqrS, rR -> pqRS', gmo, C)
+        gmo = np.einsum('pqRS, qQ -> pQRS', gmo, C)
+        gmo = np.einsum('pQRS, pP -> PQRS', gmo, C)
 
         # -------- 1-body term:
         #   Ca*
@@ -115,14 +98,6 @@ class Psi4Observable(xacc.Observable):
         T = np.asarray(mints.ao_kinetic())
         V = np.asarray(mints.ao_potential())
         H_core_ao = T + V
-
-
-
-        # -- check  which one more efficient (matmul vs einsum)
-        #   H_core_mo = np.matmul(Ca.T,np.matmul(H_core_ao,Ca)))
-        H_core_mo = np.einsum('ij, jk, kl -> il', Ca.T, H_core_ao, Ca)
-        H_core_mo_alpha = H_core_mo
-        H_core_mo_beta = H_core_mo
 
         # ---- this version breaks is we permuted  SCF eigvecs
         # Hamiltonian_1body = np.block([

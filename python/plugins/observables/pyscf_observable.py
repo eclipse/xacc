@@ -45,30 +45,14 @@ class PySCFObservable(xacc.Observable):
             mol.build()
         else:
             mol.build(verbose=logger.QUIET)
-        scf_wfn = scf.RHF(mol) # needs to be changed for open-shells
+        if 'spin' in inputParams and inputParams['spin'] != 0:
+          mol.spin = inputParams['spin']
+          scf_wfn = scf.ROHF(mol)
+        else:
+          scf_wfn = scf.RHF(mol) # needs to be changed for open-shells
         scf_wfn.conv_tol = 1e-8
         scf_wfn.kernel() # runs RHF calculations
-        scf_e = scf_wfn.e_tot
         E_nucl = mol.energy_nuc()
-
-        # Get MO coefficients from SCF wavefunction
-        # ==> ERIs <==
-        # Create instance of MintsHelper class:
-
-        nbf = mol.nao           # number of basis functions
-        nso = 2 * nbf               # number of spin orbitals
-        # Assuming RHF for now, easy to generalize later
-        nalpha = (scf_wfn.mo_occ == 2).sum()
-        nbeta = (scf_wfn.mo_occ == 2).sum()
-        nocc = nalpha + nbeta       # number of occupied orbitals
-        nvirt = 2 * nbf - nocc      # number of virtual orbitals
-        list_occ_alpha = scf_wfn.mo_occ
-        list_occ_beta = scf_wfn.mo_occ
-
-        # Get orbital energies
-        eps_a = scf_wfn.mo_energy
-        eps_b = scf_wfn.mo_energy
-        eps = np.append(eps_a, eps_b)
 
         # Get orbital coefficients:
         Ca = scf_wfn.mo_coeff
@@ -116,15 +100,6 @@ class PySCFObservable(xacc.Observable):
         T = mol.intor_symmetric('int1e_kin')
         V = mol.intor_symmetric('int1e_nuc')
         H_core_ao = T + V
-
-
-
-        # -- check  which one more efficient (matmul vs einsum)
-        #   H_core_mo = np.matmul(Ca.T,np.matmul(H_core_ao,Ca)))
-        # 
-        H_core_mo = np.einsum('ij, jk, kl -> il', Ca.T, H_core_ao, Ca)
-        H_core_mo_alpha = H_core_mo
-        H_core_mo_beta = H_core_mo
 
         # ---- this version breaks is we permuted  SCF eigvecs
         # Hamiltonian_1body = np.block([
