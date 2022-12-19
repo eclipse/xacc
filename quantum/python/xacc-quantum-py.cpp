@@ -143,6 +143,16 @@ void bind_quantum(py::module &m) {
            }
            return mat;
       })
+      .def("to_sparse_matrix", [](PauliOperator& op) {
+          auto mat_el = op.to_sparse_matrix();
+          std::vector<std::tuple<std::uint64_t, std::uint64_t, std::complex<double>>> triplets(mat_el.size());
+          int counter = 0;
+          for (auto el : mat_el) {
+               std::tuple<std::uint64_t, std::uint64_t, std::complex<double>> triplet{el.row(), el.col(), el.coeff()};
+               triplets[counter++] = triplet;
+          }
+           return triplets;
+      })
       .def(
           "__iter__",
           [](PauliOperator &op) {
