@@ -16,6 +16,9 @@
 
 namespace xacc {
 namespace quantum {
+
+const std::vector<std::string> CHEM_OBS_PLUGINS = {"pyscf", "psi4"};
+
 std::shared_ptr<Observable> getObservable();
 std::shared_ptr<Observable> getObservable(const std::string type);
 std::shared_ptr<Observable> getObservable(const std::string type,

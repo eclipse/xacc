@@ -23,28 +23,18 @@
 namespace xacc {
 namespace quantum {
 
+// Because of antisymmetry, fermionic modes don't live in disjoint spaces
+// so I think it's simpler to just concatenate two terms and multiply the
+// coefficients, unless two identical operators are adjacent.
+// otherwise, the anticommutator is taken care of by normalOrder()
+// below and by ObservableTransform::transform()
 FermionTerm &FermionTerm::operator*=(const FermionTerm &v) noexcept {
-  coeff() *= std::get<0>(v);
   auto otherOps = std::get<1>(v);
-  for (auto &kv : otherOps) {
-    auto site = kv.first;
-    auto c_or_a = kv.second;
-    Operators o = ops();
-    for (auto oo : o ) {
-      if (oo.first == site) {
-        if (oo.second == c_or_a) {
-          ops().clear();
-        } else {
-          ops().push_back({site, c_or_a});
-        }
-        break;
-      }
-      else {
-        ops().push_back({site, c_or_a});
-        break;
-      }
-    }
-    // This means, we have a op on same qubit in both
+  if(ops().back() == otherOps.front()) {
+    ops().clear();
+  } else {
+    coeff() *= std::get<0>(v);
+    ops().insert(ops().end(), otherOps.begin(), otherOps.end());
   }
 
   return *this;
@@ -299,6 +289,52 @@ double FermionOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
                                     const HeterogeneousMap &extra_data) {
   auto transform = xacc::getService<ObservableTransform>("jw");
   return transform->transform(xacc::as_shared_ptr(this))->postProcess(buffer, postProcessTask, extra_data);
+}
+
+std::shared_ptr<Observable> FermionOperator::normalOrder() {
+
+  auto normalOrdered = std::make_shared<FermionOperator>();
+  for (auto &kv : terms) {
+
+    auto ops = kv.second.ops();
+    auto coeff = kv.second.coeff();
+    for(int i = 1; i < ops.size(); i++) {
+      for(int j = i; j > 0; j--) {
+
+        // check if two adjacent operators are annihilation and creation
+        if(ops[j].second && !ops[j - 1].second) {
+
+          // if so, evaluate the anticommutator (only 1 if both in the same site)
+          auto antiCommutator = (ops[j].first == ops[j - 1].first) ? 1 : 0;
+          // then swap and change sign
+          std::swap(ops[j], ops[j - 1]);
+          coeff *= -1;
+
+          // if anticommutator = 1, remove the two operators in question
+          if(antiCommutator) {
+            Operators newOps(ops.begin(), ops.begin() + j - 1);
+            newOps.insert(newOps.end(), ops.begin() + j + 1, ops.end());
+            auto orderedTerm = FermionOperator(newOps, -1.0 * coeff).normalOrder();
+            normalOrdered->operator+=(*std::dynamic_pointer_cast<FermionOperator>(orderedTerm));
+          }
+
+        // if the operators are the same, the term is zero
+        // and return whatever is left
+        } else if (ops[j] == ops[j - 1]) {
+          return normalOrdered;
+
+        // if the same action, order indices
+        } else if (ops[j].second == ops[j - 1].second && ops[j].first > ops[j - 1].first) {
+          std::swap(ops[j], ops[j - 1]);
+          coeff *= -1;
+        }
+      }
+    }
+
+    normalOrdered->operator+=(FermionOperator(ops, coeff));
+  }
+
+  return normalOrdered;
 }
 
 } // namespace quantum
