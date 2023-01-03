@@ -193,6 +193,8 @@ public:
   virtual double postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
                              const std::string &postProcessTask,
                              const HeterogeneousMap &extra_data) override;
+
+  std::shared_ptr<Observable> normalOrder() override;
 };
 
 } // namespace quantum

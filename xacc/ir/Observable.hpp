@@ -83,6 +83,12 @@ public:
     return 0.0;
   }
 
+  virtual std::shared_ptr<Observable> normalOrder() {
+    XACCLogger::instance()->error("Observable '" + name() +
+                                  "' doesn't normal order.");
+    return nullptr;
+  }
+
   // Some pre-defined tasks (Observable sub-classes can have custom tasks)
   struct PostProcessingTask {
     static inline const std::string EXP_VAL_CALC = "exp-val";
