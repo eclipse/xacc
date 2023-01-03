@@ -10,7 +10,11 @@ jobs:
     name: "aarch64 CI"
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      
+      # Declares the repository safe and not under dubious ownership.
+      - name: Add repository to git safe directories
+        run: git config --global --add safe.directory $GITHUB_WORKSPACE
 
       - uses: uraimo/run-on-arch-action@v2
         name: Run commands
