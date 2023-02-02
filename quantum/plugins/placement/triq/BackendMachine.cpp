@@ -59,7 +59,10 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
   const auto twoQubitFidelityAvg = [&]() {
     std::vector<std::pair<size_t, size_t>> processedPairs;
     std::vector<std::tuple<size_t, size_t, double>> avgData;
-    for (const auto &[q1, q2, fidelity] : twoQubitFidelity) {
+    for (const auto &fidelity_data : twoQubitFidelity) {
+      const auto q1 = std::get<0>(fidelity_data);
+      const auto q2 = std::get<1>(fidelity_data);
+      const auto fidelity = std::get<2>(fidelity_data);
       if (!xacc::container::contains(processedPairs, std::make_pair(q1, q2))) {
         assert(
             !xacc::container::contains(processedPairs, std::make_pair(q2, q1)));
