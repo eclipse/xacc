@@ -7,9 +7,6 @@
 [submodule "tpls/cppmicroservices"]
 	path = tpls/cppmicroservices
 	url = https://github.com/ornl-qci/cppmicroservices
-[submodule "quantum/plugins/ibm/accelerator/qiskit-terra"]
-	path = quantum/plugins/ibm/accelerator/qiskit-terra
-	url = https://github.com/amccaskey/qiskit-terra
 [submodule "quantum/plugins/dwave/embedding/minorminer"]
 	path = quantum/plugins/dwave/embedding/minorminer
 	url = https://github.com/dwavesystems/minorminer
