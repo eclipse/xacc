@@ -157,9 +157,21 @@ ENDIF()
 # Find LAPACK (optional)
 find_package(LAPACK)
 
-# Header-only dependencies:
+# Dependencies:
+option(XACC_DEPS_EXTERNAL "Try find external dependencies (system installation) rather than tpls" OFF)
+ 
 set(SPDLOG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/tpls/spdlog/include)
-
+if (XACC_DEPS_EXTERNAL) 
+  find_package(spdlog) 
+  if (spdlog_FOUND) 
+    get_target_property(SPDLOG_TARGET_INC_DIR spdlog::spdlog_header_only INTERFACE_INCLUDE_DIRECTORIES)
+    if (EXISTS ${SPDLOG_TARGET_INC_DIR}/spdlog/spdlog.h) 
+    # Found a seemingly valid spdlog installation, use it when XACC_DEPS_EXTERNAL is set
+    message("spdlog: Found system installation at ${SPDLOG_TARGET_INC_DIR}".)
+    set(SPDLOG_INCLUDE_DIR "${SPDLOG_TARGET_INC_DIR}")
+    endif()
+  endif()
+endif()
 
 add_subdirectory(xacc)
 add_subdirectory(quantum)
