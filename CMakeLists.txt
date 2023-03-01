@@ -157,6 +157,10 @@ ENDIF()
 # Find LAPACK (optional)
 find_package(LAPACK)
 
+# Header-only dependencies:
+set(SPDLOG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/tpls/spdlog/include)
+
+
 add_subdirectory(xacc)
 add_subdirectory(quantum)
 
@@ -209,7 +213,7 @@ install(FILES "${CMAKE_SOURCE_DIR}/tpls/mpark-variant/variant.hpp" DESTINATION i
 install(FILES "${CMAKE_SOURCE_DIR}/tpls/taocpp/operators.hpp" DESTINATION include/xacc/)
 install(FILES "${CMAKE_SOURCE_DIR}/tpls/nlohmann/json.hpp" DESTINATION include/xacc/)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include)
+install(DIRECTORY "${SPDLOG_INCLUDE_DIR}" DESTINATION include)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/exprtk" DESTINATION include)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/eigen" DESTINATION include)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/rapidjson" DESTINATION include)
