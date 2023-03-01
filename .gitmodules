@@ -28,3 +28,6 @@
 [submodule "tpls/pybind11"]
 	path = tpls/pybind11
 	url = https://github.com/pybind/pybind11.git
+[submodule "tpls/spdlog"]
+	path = tpls/spdlog
+	url = https://github.com/gabime/spdlog.git

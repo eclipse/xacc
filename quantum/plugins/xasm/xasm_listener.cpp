@@ -437,7 +437,13 @@ void XASMListener::enterBufferList(xasmParser::BufferListContext *ctx) {
         if (inIfStmt)
           if_stmt->replaceVariable(name, newVar);
       } else {
-        function->addVariable(newVar);
+        if (!xacc::container::contains(function->getVariables(), newVar)) {
+          // Only added the one that is not present yet
+          // e.g., same indexed variable (theta[0]) used in more than one locations.
+          // FIXME: the order of these variables might only be correct if users
+          // use them in the correct order in the circuit, like theta[0], then theta[1], ...
+          function->addVariable(newVar);
+        }
         if (inForLoop)
           for_function->addVariable(newVar);
         if (inIfStmt)

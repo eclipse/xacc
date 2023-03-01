@@ -73,7 +73,7 @@ TEST(FermionOperatorTester,checkSimple) {
   EXPECT_TRUE(op == op);
 
   std::cout << "HI: " << (op*op).toString() << "\n";
-  EXPECT_TRUE(op*op == FermionOperator());
+  EXPECT_TRUE(op*op == FermionOperator(Operators{{3,1},{2,0},{3,1},{2,0}}, 4.84));
 
   auto op2 = op + op;
 
@@ -126,7 +126,6 @@ TEST(FermionOperatorTester, checkSciNot) {
 
 
 TEST(FermionOperatorTester, checkMult) {
-    FermionOperator op3("(-0.5,0)  3^ 2^ 0 1 + (0.5,-0)  1^ 0^ 2 3 + (0.5,-0)  0^ 1^ 3 2 + (0.5,0)  2^ 3^ 0 1 + (0.5,0)  3^ 3^ 1 1 + (-0.5,0)  1^ 1^ 3 3 + (-0.5,0)  1^ 0^ 3 2 + (-0.5,0)  2^ 3^ 1 0"), op4("(0.708024, 0)");
     FermionOperator op1("3^ 2^ 3 2"), op2("0^ 3 1^ 2");
 
     for (auto b : op1.getTerms()){std::cout << "First " << b.second.id() << "\n";}
@@ -143,11 +142,13 @@ TEST(FermionOperatorTester, checkMult) {
       std::cout << k.first << " " << k.second << "\n";
     }
 
-    //auto mult = op1.getTerms().second * op2.getTerms().second;
-
     std::cout << "Print op =" << (op1*op2).toString() << "\n\n";
+    EXPECT_TRUE((op1*op2) == FermionOperator("3^ 2^ 3 2 0^ 3 1^ 2"));
 
-    std::cout << op3.toString() << "\n";
+    FermionOperator op3("(0, 1)3^ 2^ 3 2"), op4("(0, 1) 0^ 1 1^ 0");
+    std::cout << "Print op =" << (op3*op4).toString() << "\n\n";
+    EXPECT_TRUE((op3 * op4) == FermionOperator("3^ 2^ 3 2 0^ 1 1^ 0"));
+
 }
 
 TEST(FermionOperatorTester, checkHermitianConjugate) {
@@ -169,6 +170,40 @@ TEST(FermionOperatorTester, checkNormalize) {
 
 }
 
+TEST(FermionOperatorTester, normalOrder) {
+
+  FermionOperator op1("(1, 0) 1 0^");
+  std::cout << op1.normalOrder()->toString() << "\n";
+  EXPECT_TRUE(*std::dynamic_pointer_cast<FermionOperator>(op1.normalOrder()) == FermionOperator("(-1, 0) 0^ 1"));
+
+  FermionOperator op2("(1, 0) 1^ 0");
+  std::cout << op2.normalOrder()->toString() << "\n";
+  EXPECT_TRUE(*std::dynamic_pointer_cast<FermionOperator>(op2.normalOrder()) == op2);
+
+  FermionOperator op3("(1, 0) 0^ 1");
+  std::cout << op3.normalOrder()->toString() << "\n";
+  EXPECT_TRUE(*std::dynamic_pointer_cast<FermionOperator>(op3.normalOrder()) == op3);
+
+  FermionOperator op4("(1, 0) 0 1^");
+  std::cout << op4.normalOrder()->toString() << "\n";
+  EXPECT_TRUE(*std::dynamic_pointer_cast<FermionOperator>(op4.normalOrder()) == (-1.0 * op2));
+
+  FermionOperator op5("(1, 0) 1^ 0 0^ 1");
+  std::cout << op5.normalOrder()->toString() << "\n";
+  EXPECT_TRUE(*std::dynamic_pointer_cast<FermionOperator>(op5.normalOrder()) == FermionOperator("1^ 1 + 1^ 0^ 1 0"));
+
+  FermionOperator op6("(1, 0) 0 1 2^ 3^");
+  std::cout << op6.normalOrder()->toString() << "\n";
+  EXPECT_TRUE(*std::dynamic_pointer_cast<FermionOperator>(op6.normalOrder()) == FermionOperator("3^ 2^ 1 0"));
+
+  FermionOperator op7("(1, 0) 0 1 2^ 3^ 0^");
+  std::cout << op7.normalOrder()->toString() << "\n";
+  EXPECT_TRUE(*std::dynamic_pointer_cast<FermionOperator>(op7.normalOrder()) == FermionOperator("3^ 2^ 1 + 3^ 2^ 0^ 1 0"));
+
+  FermionOperator op8("(1, 0) 0 0^ 4^ 0 1^ 2 0^");
+  std::cout << op8.normalOrder()->toString() << "\n";
+  EXPECT_TRUE(*std::dynamic_pointer_cast<FermionOperator>(op8.normalOrder()) == FermionOperator("4^ 1^ 2 + 4^ 1^ 0^ 2 0"));
+}
 
 int main(int argc, char** argv) {
     xacc::Initialize(argc,argv);

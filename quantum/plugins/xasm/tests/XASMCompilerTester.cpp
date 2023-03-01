@@ -358,6 +358,27 @@ TEST(XASMCompilerTester, checkCallingPreviousKernel) {
   std::cout << bell->toString() << "\n";
 }
 
+TEST(XASMCompilerTester, checkRepeatedVectorArg) {
+  auto compiler = xacc::getCompiler("xasm");
+  // Testing indexed arguments ganged together.
+  auto IR =
+      compiler->compile(R"(__qpu__ void ansatz(qbit q, std::vector<double> x) {
+  Ry(q[0], x[0]);
+  Ry(q[1], x[0]);
+  Rx(q[0], x[1]);
+  Rx(q[1], x[1]);
+  Measure(q[0]);
+  Measure(q[1]);
+})");
+  EXPECT_EQ(1, IR->getComposites().size());
+  std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
+  // Check that we can expand with 2 arg values.
+  // i.e., the compiler properly registered two arguments 
+  // when some are repeated.
+  std::cout << "KERNEL\n"
+            << IR->getComposites()[0]->operator()({1.0, 2.0})->toString() << "\n";
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);

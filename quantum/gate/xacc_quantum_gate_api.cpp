@@ -13,6 +13,7 @@
 #include "xacc_quantum_gate_api.hpp"
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
+#include "Utils.hpp"
 #include "xacc.hpp"
 #include <xacc_service.hpp>
 
@@ -53,6 +54,9 @@ std::shared_ptr<Observable> getObservable(const std::string type,
                                           const HeterogeneousMap &options) {
   auto observable = getObservable(type);
   observable->fromOptions(options);
+  if(xacc::container::contains(CHEM_OBS_PLUGINS, type)) {
+    observable = std::make_shared<FermionOperator>(observable->toString());
+  }
   return observable;
 }
 std::shared_ptr<Observable> getObservable(const std::string type,
