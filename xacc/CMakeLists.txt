@@ -74,7 +74,7 @@ message(
                                     algorithm
                                     optimizer
                                     ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
-                                    ${CMAKE_SOURCE_DIR}/tpls/nlohmann
+                                    ${NLOHMANN_INCLUDE_DIR}
                                     ${SPDLOG_INCLUDE_DIR})
 
   # linking against MPI libraries found by cmake
@@ -108,7 +108,7 @@ else()
                                     algorithm
                                     optimizer
                                     ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
-                                    ${CMAKE_SOURCE_DIR}/tpls/nlohmann
+                                    ${NLOHMANN_INCLUDE_DIR}
                                     ${SPDLOG_INCLUDE_DIR})
 
   # linking against MPI libraries found by cmake

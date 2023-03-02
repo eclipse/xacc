@@ -24,7 +24,7 @@
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
-#include "json.hpp"
+#include "Json.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 

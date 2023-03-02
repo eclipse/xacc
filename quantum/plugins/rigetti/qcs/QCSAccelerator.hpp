@@ -20,7 +20,7 @@
 #include "IRTransformation.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include "json.hpp"
+#include "Json.hpp"
 using json = nlohmann::json;
 
 #include <dlfcn.h>

@@ -14,7 +14,7 @@
 #define QUANTUM_GATE_ACCELERATORS_IBMACCELERATOR_QOBJECT_HPP_
 
 #include "variant.hpp"
-#include "json.hpp"
+#include "Json.hpp"
 
 // #include <optional>
 #include <stdexcept>

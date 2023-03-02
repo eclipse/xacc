@@ -28,3 +28,6 @@
 [submodule "tpls/spdlog"]
 	path = tpls/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "tpls/nlohmann"]
+	path = tpls/nlohmann
+	url = https://github.com/nlohmann/json.git

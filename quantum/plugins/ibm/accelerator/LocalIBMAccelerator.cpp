@@ -12,7 +12,7 @@
  *******************************************************************************/
 #include "LocalIBMAccelerator.hpp"
 #include "xacc.hpp"
-#include "json.hpp"
+#include "Json.hpp"
 
 #include "simulator.hpp"
 #include <regex>

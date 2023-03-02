@@ -14,7 +14,7 @@
 #include <cctype>
 #include <fstream>
 #include "xacc.hpp"
-#include "json.hpp"
+#include "Json.hpp"
 
 #include "ionq_program.hpp"
 #include "ionq_program_visitor.hpp"
