@@ -188,6 +188,13 @@ if (XACC_DEPS_EXTERNAL)
 endif()
 
 set(EIGEN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/tpls/eigen)
+if (XACC_DEPS_EXTERNAL) 
+  find_package(Eigen3) 
+  if (Eigen3_FOUND) 
+    message(STATUS "${BoldGreen}Eigen3: Found system installation (version ${EIGEN3_VERSION_STRING}) config at ${Eigen3_DIR}; include directory: ${EIGEN3_INCLUDE_DIR}.${ColorReset}")
+    set(EIGEN_INCLUDE_DIR ${EIGEN3_INCLUDE_DIR})
+  endif()
+endif()
 
 add_subdirectory(xacc)
 add_subdirectory(quantum)

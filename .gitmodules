@@ -31,3 +31,6 @@
 [submodule "tpls/nlohmann"]
 	path = tpls/nlohmann
 	url = https://github.com/nlohmann/json.git
+[submodule "tpls/eigen"]
+	path = tpls/eigen
+	url = https://gitlab.com/libeigen/eigen.git
