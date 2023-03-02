@@ -32,11 +32,22 @@ add_subdirectory(cppmicroservices)
 # Fix for bug #161
 install(FILES "${CMAKE_BINARY_DIR}/tpls/cppmicroservices/CMakeFiles/Export/share/cppmicroservices4/cmake/CppMicroServicesTargets-release.cmake" DESTINATION share/cppmicroservices4/cmake OPTIONAL)
 
-set(CPR_USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
-set(CPR_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
-set(BUILD_SHARED_LIBS FALSE)
-add_subdirectory(cpr)
+if (XACC_DEPS_EXTERNAL) 
+  find_package(cpr) 
+  if (cpr_FOUND) 
+    set(XACC_USE_EXTERNAL_CPR TRUE)
+    set (XACC_USE_EXTERNAL_CPR ${XACC_USE_EXTERNAL_CPR} PARENT_SCOPE)
+    message(STATUS "${BoldGreen}cpr: Found system installation config at ${cpr_DIR}${ColorReset}")
+  endif()
+endif()  
+
+if (NOT XACC_USE_EXTERNAL_CPR)
+    set(CPR_USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
+    set(CPR_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+    set(BUILD_SHARED_LIBS FALSE)
+    add_subdirectory(cpr)
+endif()
 
 # Googletest
 set(BUILD_SHARED_LIBS TRUE)

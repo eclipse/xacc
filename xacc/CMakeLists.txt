@@ -47,7 +47,9 @@ add_library(xacc SHARED
             service/xacc_service.cpp
             accelerator/remote/RemoteAccelerator.cpp)
 
-add_dependencies(xacc cpr)
+if (NOT XACC_USE_EXTERNAL_CPR)
+  add_dependencies(xacc cpr)
+endif()
 
 if(MPI_FOUND)
   include_directories(${MPI_CXX_HEADER_DIR})
