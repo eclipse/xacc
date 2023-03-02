@@ -11,6 +11,6 @@
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 include_directories(${CMAKE_BINARY_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
+include_directories(${EIGEN_INCLUDE_DIR})
 add_xacc_test(RDM)
 target_link_libraries(RDMTester xacc CppMicroServices xacc-fermion)

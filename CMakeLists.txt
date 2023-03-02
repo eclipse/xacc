@@ -187,6 +187,8 @@ if (XACC_DEPS_EXTERNAL)
   endif()
 endif()
 
+set(EIGEN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/tpls/eigen)
+
 add_subdirectory(xacc)
 add_subdirectory(quantum)
 
@@ -241,7 +243,7 @@ install(FILES "${NLOHMANN_INCLUDE_DIR}/nlohmann/json.hpp" DESTINATION include/xa
 
 install(DIRECTORY "${SPDLOG_INCLUDE_DIR}" DESTINATION include)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/exprtk" DESTINATION include)
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/eigen" DESTINATION include)
+install(DIRECTORY "${EIGEN_INCLUDE_DIR}" DESTINATION include)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/rapidjson" DESTINATION include)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/pybind11" DESTINATION include)
 

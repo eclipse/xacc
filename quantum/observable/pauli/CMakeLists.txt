@@ -30,7 +30,7 @@ target_include_directories(${LIBRARY_NAME}
                             ${CMAKE_CURRENT_SOURCE_DIR}
                             ${CMAKE_CURRENT_SOURCE_DIR}/generated
                             ${CMAKE_SOURCE_DIR}/tpls/taocpp
-                            ${CMAKE_SOURCE_DIR}/tpls/eigen
+                            ${EIGEN_INCLUDE_DIR}
                             ${CMAKE_BINARY_DIR})
 
 add_dependencies(${LIBRARY_NAME} antlr4_shared)

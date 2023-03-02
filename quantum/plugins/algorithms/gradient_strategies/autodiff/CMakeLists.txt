@@ -9,7 +9,7 @@ usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-target_include_directories(${LIBRARY_NAME} PUBLIC . ${CMAKE_SOURCE_DIR}/tpls/autodiff ${CMAKE_SOURCE_DIR}/tpls/eigen)
+target_include_directories(${LIBRARY_NAME} PUBLIC . ${CMAKE_SOURCE_DIR}/tpls/autodiff ${EIGEN_INCLUDE_DIR})
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate)
 
 find_package(OpenMP)

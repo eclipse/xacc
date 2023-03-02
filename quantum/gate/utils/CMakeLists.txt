@@ -10,7 +10,7 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation 
 # *******************************************************************************/
-include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
+include_directories(${EIGEN_INCLUDE_DIR})
 
 # Gather tests
 if(XACC_BUILD_TESTS)
