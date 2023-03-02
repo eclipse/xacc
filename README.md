@@ -79,6 +79,13 @@ $ make -j$(sysctl -n hw.physicalcpu) install
 [if built with tests, run them]
 $ ctest --output-on-failure
 ```
+
+CMake options:
+
+* `XACC_DEPS_EXTERNAL`: [Optional, default = `OFF`] XACC to search externally for its third-party dependencies. When turning on, XACC will try to use `find_package` to locate its required dependencies before falling back to using the builtin submodules in `tpls`.
+
+	**Note**: when turning on this flag, it is your responsibility to manage the compatibility of those `tpls`. For example, XACC compilation may fail if the externally-installed library version is incompatible with the builtin one.
+
 See full documentation for all CMake optional arguments.
 
 Your installation will be in `$HOME/.xacc`. If you built with the Python API,
