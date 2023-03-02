@@ -366,9 +366,9 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   Eigen::VectorXcd data =
       Eigen::Map<Eigen::VectorXcd>(data_vec.data(), data_vec.size());
-
+  // Note: use Jacobi SVD to workaround this Eigen bug: https://gitlab.com/libeigen/eigen/-/issues/1723
   Eigen::VectorXcd choi_vec =
-      basis_matrix.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV)
+      basis_matrix.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV)
           .solve(data);
   Eigen::MatrixXcd choi = Eigen::Map<Eigen::MatrixXcd>(
       choi_vec.data(), std::pow(2, 2 * nQ), std::pow(2, 2 * nQ));
