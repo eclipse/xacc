@@ -1,6 +1,6 @@
 #include "NoiseModel.hpp"
 #include "xacc_plugin.hpp"
-#include "json.hpp"
+#include "Json.hpp"
 #include "xacc.hpp"
 #include <Eigen/Dense>
 #include "CommonGates.hpp"

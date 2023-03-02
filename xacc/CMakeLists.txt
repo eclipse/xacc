@@ -47,7 +47,15 @@ add_library(xacc SHARED
             service/xacc_service.cpp
             accelerator/remote/RemoteAccelerator.cpp)
 
-add_dependencies(xacc cpr)
+if (XACC_USE_EXTERNAL_CPR)
+  # External CPR must be accompanied by CURL.
+  find_package(CURL REQUIRED)
+  set_target_properties(xacc PROPERTIES
+    INTERFACE_LINK_LIBRARIES "CURL::libcurl"
+  )
+else()
+  add_dependencies(xacc cpr)
+endif()
 
 if(MPI_FOUND)
   include_directories(${MPI_CXX_HEADER_DIR})
@@ -61,7 +69,6 @@ message(
                              PRIVATE ${CMAKE_BINARY_DIR}
                                      ${CPR_INCLUDE_DIRS}
                                      ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                     ${CMAKE_SOURCE_DIR}/tpls/spdlog
                                      ${CMAKE_SOURCE_DIR}/tpls/cxxopts
                                      ${LIBUNWIND_INCLUDE_DIRS}
                              PUBLIC .
@@ -75,7 +82,8 @@ message(
                                     algorithm
                                     optimizer
                                     ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
-                                    ${CMAKE_SOURCE_DIR}/tpls/nlohmann)
+                                    ${NLOHMANN_INCLUDE_DIR}
+                                    ${SPDLOG_INCLUDE_DIR})
 
   # linking against MPI libraries found by cmake
   if(MPI_FOUND)
@@ -96,7 +104,6 @@ else()
                              PRIVATE ${CMAKE_BINARY_DIR}
                                      ${CPR_INCLUDE_DIRS}
                                      ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                     ${CMAKE_SOURCE_DIR}/tpls/spdlog
                                      ${CMAKE_SOURCE_DIR}/tpls/cxxopts
                              PUBLIC .
                                     ir
@@ -109,7 +116,8 @@ else()
                                     algorithm
                                     optimizer
                                     ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
-                                    ${CMAKE_SOURCE_DIR}/tpls/nlohmann)
+                                    ${NLOHMANN_INCLUDE_DIR}
+                                    ${SPDLOG_INCLUDE_DIR})
 
   # linking against MPI libraries found by cmake
   if(MPI_FOUND)

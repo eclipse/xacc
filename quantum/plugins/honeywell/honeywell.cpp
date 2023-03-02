@@ -24,7 +24,7 @@
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
-#include "json.hpp"
+#include "Json.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 
@@ -376,7 +376,7 @@ RestClient::get(const std::string &remoteUrl, const std::string &path,
 
   cpr::Parameters cprParams;
   for (auto &kv : extraParams) {
-    cprParams.AddParameter({kv.first, kv.second});
+    cprParams.Add({kv.first, kv.second});
   }
 
   auto r = cpr::Get(cpr::Url{remoteUrl + path}, cprHeaders, cprParams,

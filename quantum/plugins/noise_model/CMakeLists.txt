@@ -4,7 +4,7 @@ usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-target_include_directories(${LIBRARY_NAME} PUBLIC . ${CMAKE_SOURCE_DIR}/tpls/nlohmann ${CMAKE_SOURCE_DIR}/tpls/eigen)
+target_include_directories(${LIBRARY_NAME} PUBLIC . ${EIGEN_INCLUDE_DIR})
 
 set(_bundle_name xacc_json_noise_model)
 set_target_properties(${LIBRARY_NAME}

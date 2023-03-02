@@ -12,7 +12,6 @@
  *******************************************************************************/
 #include "Utils.hpp"
 #include <unistd.h>
-#include "spdlog/spdlog.h"
 #include "RuntimeOptions.hpp"
 
 #include <iostream>
@@ -21,6 +20,7 @@
 #include <iomanip>
 #include <dirent.h>
 #include "xacc_config.hpp"
+#include "Logger.hpp"
 
 #ifdef HAS_LIBUNWIND
 #include <libunwind.h>

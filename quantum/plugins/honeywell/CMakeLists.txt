@@ -19,9 +19,7 @@ usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-target_include_directories(
-  ${LIBRARY_NAME} 
-  PUBLIC . ../.. ${CMAKE_SOURCE_DIR}/tpls/spdlog)
+target_include_directories(${LIBRARY_NAME} PUBLIC .)
 
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc cpr)
 

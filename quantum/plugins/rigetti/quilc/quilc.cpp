@@ -16,7 +16,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <cpr/cpr.h>
-#include "json.hpp"
+#include "Json.hpp"
 #include <regex>
 #include <string>
 

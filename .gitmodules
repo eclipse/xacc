@@ -1,15 +1,12 @@
 [submodule "tpls/cpr"]
 	path = tpls/cpr
-	url = https://github.com/ornl-qci/cpr.git
+	url = https://github.com/libcpr/cpr.git
 [submodule "tpls/boost-cmake"]
 	path = tpls/boost-cmake
 	url = https://github.com/ornl-qci/boost-cmake
 [submodule "tpls/cppmicroservices"]
 	path = tpls/cppmicroservices
 	url = https://github.com/ornl-qci/cppmicroservices
-[submodule "quantum/plugins/ibm/accelerator/qiskit-terra"]
-	path = quantum/plugins/ibm/accelerator/qiskit-terra
-	url = https://github.com/amccaskey/qiskit-terra
 [submodule "quantum/plugins/dwave/embedding/minorminer"]
 	path = quantum/plugins/dwave/embedding/minorminer
 	url = https://github.com/dwavesystems/minorminer
@@ -28,3 +25,12 @@
 [submodule "tpls/pybind11"]
 	path = tpls/pybind11
 	url = https://github.com/pybind/pybind11.git
+[submodule "tpls/spdlog"]
+	path = tpls/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "tpls/nlohmann"]
+	path = tpls/nlohmann
+	url = https://github.com/nlohmann/json.git
+[submodule "tpls/eigen"]
+	path = tpls/eigen
+	url = https://gitlab.com/libeigen/eigen.git

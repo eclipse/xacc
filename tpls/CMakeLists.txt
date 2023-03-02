@@ -32,14 +32,34 @@ add_subdirectory(cppmicroservices)
 # Fix for bug #161
 install(FILES "${CMAKE_BINARY_DIR}/tpls/cppmicroservices/CMakeFiles/Export/share/cppmicroservices4/cmake/CppMicroServicesTargets-release.cmake" DESTINATION share/cppmicroservices4/cmake OPTIONAL)
 
-set(USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
-set(BUILD_CPR_TESTS OFF CACHE BOOL "" FORCE)
-set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
-set(BUILD_SHARED_LIBS FALSE)
-add_subdirectory(cpr)
+if (XACC_DEPS_EXTERNAL) 
+  find_package(cpr) 
+  if (cpr_FOUND) 
+    set(XACC_USE_EXTERNAL_CPR TRUE)
+    set (XACC_USE_EXTERNAL_CPR ${XACC_USE_EXTERNAL_CPR} PARENT_SCOPE)
+    message(STATUS "${BoldGreen}cpr: Found system installation config at ${cpr_DIR}${ColorReset}")
+  endif()
+endif()  
 
+if (NOT XACC_USE_EXTERNAL_CPR)
+    set(CPR_USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
+    set(CPR_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+    set(BUILD_SHARED_LIBS FALSE)
+    add_subdirectory(cpr)
+endif()
+
+# Googletest
 set(BUILD_SHARED_LIBS TRUE)
-add_subdirectory(cpr/opt/googletest)
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY "https://github.com/google/googletest"
+    GIT_TAG        release-1.12.1
+)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
 if(APPLE)
    set_target_properties(gtest PROPERTIES INSTALL_RPATH "@loader_path")
    set_target_properties(gtest_main PROPERTIES INSTALL_RPATH "@loader_path")
@@ -52,7 +72,7 @@ set(GTEST_FOUND TRUE)
 set(GTEST_LIBRARIES gtest)
 set(GTEST_MAIN_LIBRARIES gtest_main)
 set(GTEST_BOTH_LIBRARIES gtest gtest_main)
-set(GTEST_INCLUDE_DIRS ${gtest_SOURCE_DIR}/include)
+set(GTEST_INCLUDE_DIRS ${googletest_SOURCE_DIR}/googletest/include)
 
 set_property(TARGET gtest PROPERTY FOLDER "tests/gtest")
 set_property(TARGET gtest_main PROPERTY FOLDER "tests/gtest")
@@ -63,23 +83,7 @@ set_cache_variable(GTEST_MAIN_LIBRARIES "Location of libgtest-main")
 set_cache_variable(GTEST_BOTH_LIBRARIES "Location of both gtest libraries")
 set_cache_variable(GTEST_INCLUDE_DIRS "Location of gtest include files")
 
-include_directories(${GTEST_INCLUDE_DIRS})
-
-install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/cpr/opt/googletest/include/gtest" DESTINATION include/gtest )
-if (APPLE)
-   set(GTEST_LIB_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tpls/cpr/opt/googletest/") 
-   set_target_properties(gtest PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${GTEST_LIB_OUTPUT_DIR}
-                                          LIBRARY_OUTPUT_DIRECTORY_DEBUG ${GTEST_LIB_OUTPUT_DIR}
-                                          LIBRARY_OUTPUT_DIRECTORY_RELEASE ${GTEST_LIB_OUTPUT_DIR})
-   set_target_properties(gtest_main PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${GTEST_LIB_OUTPUT_DIR}
-                                               LIBRARY_OUTPUT_DIRECTORY_DEBUG ${GTEST_LIB_OUTPUT_DIR}
-                                               LIBRARY_OUTPUT_DIRECTORY_RELEASE ${GTEST_LIB_OUTPUT_DIR})
-   install(FILES ${CMAKE_BINARY_DIR}/tpls/cpr/opt/googletest/libgtest.dylib DESTINATION lib)
-   install(FILES ${CMAKE_BINARY_DIR}/tpls/cpr/opt/googletest/libgtest_main.dylib DESTINATION lib)
-else()
-   install(FILES ${CMAKE_BINARY_DIR}/tpls/cpr/opt/googletest/libgtest.so DESTINATION lib)
-   install(FILES ${CMAKE_BINARY_DIR}/tpls/cpr/opt/googletest/libgtest_main.so DESTINATION lib)
-endif()
+install(DIRECTORY "${googletest_SOURCE_DIR}/googletest/include/gtest" DESTINATION include/gtest )
 
 set(BUILD_SHARED_LIBS FALSE)
 set(BOOST_LIBS_OPTIONAL graph CACHE STRING "" FORCE)

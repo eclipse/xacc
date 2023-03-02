@@ -13,7 +13,7 @@ target_include_directories(${LIBRARY_NAME}
                              PUBLIC .
                                     ./accelerator
                                     ./accelerator/src/include
-                                    ${CMAKE_SOURCE_DIR}/tpls/eigen)
+                                    ${EIGEN_INCLUDE_DIR})
 target_link_libraries(${LIBRARY_NAME}
                         PUBLIC xacc
                                xacc-quantum-gate

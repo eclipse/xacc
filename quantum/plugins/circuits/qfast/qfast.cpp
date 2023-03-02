@@ -19,7 +19,7 @@
 #include <unsupported/Eigen/NumericalDiff>
 #include <numeric>
 #include <random>
-#include "json.hpp"
+#include "Json.hpp"
 #include "xacc_config.hpp"
 #include <fstream>
 

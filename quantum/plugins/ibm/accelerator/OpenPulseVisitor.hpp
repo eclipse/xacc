@@ -16,11 +16,11 @@
 #include <memory>
 #include "AllGateVisitor.hpp"
 #include "Pulse.hpp"
-#include "json.hpp"
+#include "Json.hpp"
 #include "xacc_service.hpp"
 #include "PulseQObject.hpp"
 
-using nlohmann::json;
+using json = nlohmann::json;
 
 namespace xacc {
 namespace quantum {
