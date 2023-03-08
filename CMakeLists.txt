@@ -60,6 +60,7 @@ set(CMAKE_SKIP_INSTALL_RPATH OFF)
 set(CMAKE_SKIP_RPATH OFF)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 
 LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
 
@@ -160,7 +161,7 @@ find_package(LAPACK)
 # Dependencies:
 option(XACC_DEPS_EXTERNAL "Try find external dependencies (system installation) rather than tpls" OFF)
  
-set(SPDLOG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/tpls/spdlog/include)
+set(SPDLOG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/tpls/spdlog/include/)
 if (XACC_DEPS_EXTERNAL) 
   find_package(spdlog) 
   if (spdlog_FOUND) 
@@ -248,7 +249,7 @@ install(FILES "${CMAKE_SOURCE_DIR}/tpls/mpark-variant/variant.hpp" DESTINATION i
 install(FILES "${CMAKE_SOURCE_DIR}/tpls/taocpp/operators.hpp" DESTINATION include/xacc/)
 install(FILES "${NLOHMANN_INCLUDE_DIR}/nlohmann/json.hpp" DESTINATION include/xacc/)
 
-install(DIRECTORY "${SPDLOG_INCLUDE_DIR}" DESTINATION include)
+install(DIRECTORY "${SPDLOG_INCLUDE_DIR}" DESTINATION include/spdlog/)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/exprtk" DESTINATION include)
 install(DIRECTORY "${EIGEN_INCLUDE_DIR}" DESTINATION include)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/rapidjson" DESTINATION include)
