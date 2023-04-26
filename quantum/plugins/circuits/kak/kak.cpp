@@ -6,6 +6,7 @@
 #include <unsupported/Eigen/KroneckerProduct>
 #include <unsupported/Eigen/MatrixFunctions>
 #include "PauliOperator.hpp"
+#include "GateFusion.hpp"
 
 namespace {
 constexpr std::complex<double> I{0.0, 1.0};
@@ -601,6 +602,49 @@ bool KAK::expand(const HeterogeneousMap &parameters) {
   }
 
   auto composite = result->toGates(bits[0], bits[1]);
+  const auto validateDecompose =
+      [](std::shared_ptr<CompositeInstruction> composite,
+         const Eigen::Matrix4cd &in_target) {
+        auto totalU = GateFuser::fuseGates(composite, 2);
+        const auto flipKronOrder = [](const Eigen::Matrix4cd &in_mat) {
+          Eigen::Matrix4cd result = Eigen::Matrix4cd::Zero();
+          const std::vector<size_t> order{0, 2, 1, 3};
+          for (size_t i = 0; i < in_mat.rows(); ++i) {
+            for (size_t j = 0; j < in_mat.cols(); ++j) {
+              result(order[i], order[j]) = in_mat(i, j);
+            }
+          }
+          return result;
+        };
+        totalU = flipKronOrder(totalU);
+        // Find index of the largest element:
+        size_t colIdx = 0;
+        size_t rowIdx = 0;
+        double maxVal = std::abs(totalU(0, 0));
+        for (size_t i = 0; i < totalU.rows(); ++i) {
+          for (size_t j = 0; j < totalU.cols(); ++j) {
+            if (std::abs(totalU(i, j)) > maxVal) {
+              maxVal = std::abs(totalU(i, j));
+              colIdx = j;
+              rowIdx = i;
+            }
+          }
+        }
+
+        const std::complex<double> globalFactor =
+            in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+        totalU = globalFactor * totalU;
+        const bool isOkay = allClose(totalU, in_target);
+        if (!isOkay) {
+          std::cout << "Composite:\n"
+                    << composite->toString() << "\nhas unitary matrix\n"
+                    << totalU
+                    << "\n which is not equivalent to the target unitary:\n"
+                    << in_target << "\n";
+        }
+        return isOkay;
+      };
+  assert(validateDecompose(composite, unitary));
   addInstructions(composite->getInstructions());
   return true;
 }
@@ -728,6 +772,29 @@ KAK::KakDecomposition::toGates(size_t in_bit1, size_t in_bit2) const {
       if (std::abs(z) > TOL) {
         trivialParityInteraction(composite, bit1, bit2, z);
       }
+
+      const auto validateGateSequence = [&](const Eigen::Matrix4cd &in_target) {
+        auto totalU = GateFuser::fuseGates(composite, 2);
+        // Find index of the largest element:
+        size_t colIdx = 0;
+        size_t rowIdx = 0;
+        double maxVal = std::abs(totalU(0, 0));
+        for (size_t i = 0; i < totalU.rows(); ++i) {
+          for (size_t j = 0; j < totalU.cols(); ++j) {
+            if (std::abs(totalU(i, j)) > maxVal) {
+              maxVal = std::abs(totalU(i, j));
+              colIdx = j;
+              rowIdx = i;
+            }
+          }
+        }
+
+        const std::complex<double> globalFactor =
+            in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+        totalU = globalFactor * totalU;
+        return allClose(totalU, in_target);
+      };
+      assert(validateGateSequence(interactionMatrixExp(x, y, z)));
       return composite;
     }
     // Full decomposition is required
