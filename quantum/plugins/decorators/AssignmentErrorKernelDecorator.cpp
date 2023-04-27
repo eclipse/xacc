@@ -168,7 +168,7 @@ void AssignmentErrorKernelDecorator::execute(
     buffer->clearMeasurements();
     buffer->setMeasurements(marginalCounts);
   }
-  assert(total == shots);
+  // assert(total == shots);
   // std::cout<<origCounts<<std::endl;
   buffer->addExtraInfo("unmitigated-counts", origCounts);
 

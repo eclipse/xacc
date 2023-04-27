@@ -567,6 +567,28 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
         std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
     }
 
+    // Case 7: H-CNOT-H == CZ
+    {
+        auto compiler = xacc::getService<xacc::Compiler>("xasm");
+        auto program = compiler->compile(
+            R"(__qpu__ void test10(qbit q) {
+                H(q[1]);
+                CX(q[0], q[1]);
+                H(q[1]);
+            })")->getComposites()[0];
+
+        auto optimizer =
+            xacc::getService<IRTransformation>("circuit-optimizer");
+        const auto nbInstructionsBefore = program->nInstructions();
+        std::cout << "ORIGINAL CIRCUIT:\n" << program->toString() << "\n";
+        optimizer->apply(program, nullptr);
+        // Simplified to a single CZ gate
+        EXPECT_EQ(nbInstructionsBefore, 3);
+        EXPECT_EQ(program->nInstructions(), 1);
+        EXPECT_EQ(program->getInstruction(0)->name(), "CZ");
+        std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
+    }
+
     // TODO: Add more complex test cases, e.g. combinations of multiple patterns.
 }
 

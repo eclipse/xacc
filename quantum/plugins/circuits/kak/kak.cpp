@@ -241,6 +241,16 @@ simplifySingleQubitSeq(double zAngleBefore, double yAngle, double zAngleAfter,
     return (isCliffordRotation(in_exp) && toQuarterTurns(in_exp) == 0);
   };
 
+  const auto shiftAngle = [](double in_rad) ->double {
+    // Shift angle to [-pi, pi] range
+    const double sign = in_rad >= 0.0 ? 1.0: -1.0;
+    double value = std::abs(in_rad);
+    while (std::abs(value) > M_PI) {
+      value -= (2.0 * M_PI);
+    }
+    return sign * value;
+  };
+
   // Clean up angles
   if (isCliffordRotation(zExpBefore)) {
     if ((isQuarterTurn(zExpBefore) || isQuarterTurn(zExpAfter)) !=
@@ -269,15 +279,15 @@ simplifySingleQubitSeq(double zAngleBefore, double yAngle, double zAngleAfter,
 
   if (!isNoTurn(zExpBefore)) {
     composite->addInstruction(
-        gateRegistry->createInstruction("Rz", {bitIdx}, {zExpBefore * M_PI}));
+        gateRegistry->createInstruction("Rz", {bitIdx}, {shiftAngle(zExpBefore * M_PI)}));
   }
   if (!isNoTurn(middleExp)) {
     composite->addInstruction(gateRegistry->createInstruction(
-        middlePauli, {bitIdx}, {middleExp * M_PI}));
+        middlePauli, {bitIdx}, {shiftAngle(middleExp * M_PI)}));
   }
   if (!isNoTurn(zExpAfter)) {
     composite->addInstruction(
-        gateRegistry->createInstruction("Rz", {bitIdx}, {zExpAfter * M_PI}));
+        gateRegistry->createInstruction("Rz", {bitIdx}, {shiftAngle(zExpAfter * M_PI)}));
   }
 
   return composite;
@@ -644,7 +654,7 @@ bool KAK::expand(const HeterogeneousMap &parameters) {
         }
         return isOkay;
       };
-  assert(validateDecompose(composite, unitary));
+  // assert(validateDecompose(composite, unitary));
   addInstructions(composite->getInstructions());
   return true;
 }

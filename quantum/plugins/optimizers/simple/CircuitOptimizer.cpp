@@ -346,14 +346,14 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
     const auto nextGateName = nextNode.getString("name");
 
     if (nextGateName == "CNOT") {
-      // We try to match against this gate pattern:
-      // H --------- H
-      //       |
-      //       |
-      // H-----+-----H
       const auto cnotInst = io_program->getInstruction(nextNode.get<std::size_t>("id") - 1);
       const auto cnotNeighborNodes = graphView->getNeighborList(nextNode.get<std::size_t>("id"));
       if (cnotNeighborNodes.size() == 2) {
+        // We try to match against this gate pattern:
+        // H --------- H
+        //       |
+        //       |
+        // H-----+-----H
         if (container::contains(hadamardNodeIds, cnotNeighborNodes[0]) && container::contains(hadamardNodeIds, cnotNeighborNodes[1])) {
           // Try to find the remaining left leg
           std::size_t remainingHadamardNodeId = 0;
@@ -372,6 +372,38 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
             matchedHadamardNodeIds.emplace(remainingHadamardNodeId);
             matchedHadamardNodeIds.emplace(cnotNeighborNodes[0]);
             matchedHadamardNodeIds.emplace(cnotNeighborNodes[1]);
+          }
+        } else if (qubitIndex == cnotInst->bits()[1] &&
+                   (container::contains(hadamardNodeIds,
+                                        cnotNeighborNodes[0]) ||
+                    container::contains(hadamardNodeIds,
+                                        cnotNeighborNodes[1]))) {
+          const auto targetQubit = cnotInst->bits()[1];
+          auto rhs_hadamard_op = [&]() {
+            if (container::contains(hadamardNodeIds, cnotNeighborNodes[0])) {
+              return io_program->getInstruction(cnotNeighborNodes[0] - 1);
+            } else {
+              return io_program->getInstruction(cnotNeighborNodes[1] - 1);
+            }
+          }();
+          assert(rhs_hadamard_op->name() == "H");
+          // We try to match against this gate pattern (equivalent to a CZ)
+          // ------------- 
+          //       |
+          //       |
+          // H-----+-----H
+          if (rhs_hadamard_op->bits()[0] == cnotInst->bits()[1]) {
+            // Found the pattern
+            matchedHadamardNodeIds.emplace(hadamardNode);
+            const auto rhs_hadamard_node_id =
+                container::contains(hadamardNodeIds, cnotNeighborNodes[0])
+                    ? cnotNeighborNodes[0]
+                    : cnotNeighborNodes[1];
+            matchedHadamardNodeIds.emplace(rhs_hadamard_node_id);
+            // We've found the complete pattern.
+            matchedReductionPatterns.emplace_back(std::vector<std::size_t>(
+                {hadamardNode, nextNode.get<std::size_t>("id"),
+                 (std::size_t)rhs_hadamard_node_id}));
           }
         }
       }
@@ -498,23 +530,50 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   for (const auto& matchedPattern : matchedReductionPatterns) {
     if (matchedPattern.size() == 3) {
-      // First pattern: H - P - H => P_dagger - H - P_dagger; or vice-versa
-      const auto phaseGate = io_program->getInstruction(matchedPattern[1] - 1);
-      if(isPiOver2(getNormalizedRotationAngle(ipToDouble(phaseGate->getParameter(0))))) {
-        io_program->replaceInstruction(matchedPattern[0] - 1,
-          gateRegistry->createInstruction("Rz", phaseGate->bits(), { -M_PI_2 }));
-        io_program->replaceInstruction(matchedPattern[1] - 1,
-          gateRegistry->createInstruction("H", phaseGate->bits()));
-        io_program->replaceInstruction(matchedPattern[2] - 1,
-          gateRegistry->createInstruction("Rz", phaseGate->bits(), { -M_PI_2 }));
-      }
-      else {
-        io_program->replaceInstruction(matchedPattern[0] - 1,
-          gateRegistry->createInstruction("Rz", phaseGate->bits(), { M_PI_2 }));
-        io_program->replaceInstruction(matchedPattern[1] - 1,
-          gateRegistry->createInstruction("H", phaseGate->bits()));
-        io_program->replaceInstruction(matchedPattern[2] - 1,
-          gateRegistry->createInstruction("Rz", phaseGate->bits(), { M_PI_2 }));
+      // Check for this pattern
+      // ------------- 
+      //       |
+      //       |
+      // H-----+-----H
+      if (io_program->getInstruction(matchedPattern[1] - 1)->name() == "CNOT") {
+        // This will become a CZ
+        assert(
+            io_program->getInstruction(matchedPattern[0] - 1)->name() == "H" &&
+            io_program->getInstruction(matchedPattern[2] - 1)->name() == "H");
+        // Replace CNOT with CZ and remove the two Hadamard gates
+        io_program->replaceInstruction(
+            matchedPattern[1] - 1,
+            gateRegistry->createInstruction(
+                "CZ",
+                io_program->getInstruction(matchedPattern[1] - 1)->bits()));
+        io_program->getInstruction(matchedPattern[0] - 1)->disable();
+        io_program->getInstruction(matchedPattern[2] - 1)->disable();
+      } else {
+        // First pattern: H - P - H => P_dagger - H - P_dagger; or vice-versa
+        const auto phaseGate =
+            io_program->getInstruction(matchedPattern[1] - 1);
+        if (isPiOver2(getNormalizedRotationAngle(
+                ipToDouble(phaseGate->getParameter(0))))) {
+          io_program->replaceInstruction(
+              matchedPattern[0] - 1, gateRegistry->createInstruction(
+                                         "Rz", phaseGate->bits(), {-M_PI_2}));
+          io_program->replaceInstruction(
+              matchedPattern[1] - 1,
+              gateRegistry->createInstruction("H", phaseGate->bits()));
+          io_program->replaceInstruction(
+              matchedPattern[2] - 1, gateRegistry->createInstruction(
+                                         "Rz", phaseGate->bits(), {-M_PI_2}));
+        } else {
+          io_program->replaceInstruction(
+              matchedPattern[0] - 1, gateRegistry->createInstruction(
+                                         "Rz", phaseGate->bits(), {M_PI_2}));
+          io_program->replaceInstruction(
+              matchedPattern[1] - 1,
+              gateRegistry->createInstruction("H", phaseGate->bits()));
+          io_program->replaceInstruction(
+              matchedPattern[2] - 1, gateRegistry->createInstruction(
+                                         "Rz", phaseGate->bits(), {M_PI_2}));
+        }
       }
     } else if (matchedPattern.size() == 5 && container::contains(hadamardNodeIds, matchedPattern[0]) && container::contains(hadamardNodeIds, matchedPattern[1])) {
       // Pattern: H - H - CNOT - H - H pattern
