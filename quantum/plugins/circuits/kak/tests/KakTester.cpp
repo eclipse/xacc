@@ -47,6 +47,20 @@ TEST(KakTester, checkSimple)
   }
 }
 
+TEST(KakTester, checkCZ) 
+{
+  Eigen::Matrix4cd unitaryMat;
+  unitaryMat << 1, 0, 0, 0, 
+                0, 1, 0, 0, 
+                0, 0, 1, 0, 
+                0, 0, 0, - 1;
+  auto tmp = xacc::getService<Instruction>("kak");
+  auto kak = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
+  const bool expandOk = kak->expand({std::make_pair("unitary", unitaryMat)});
+  std::cout << kak->toString() << "\n";
+  EXPECT_TRUE(expandOk);
+}
+
 // Decompose CNOT
 TEST(KakTester, checkCNOT) 
 {

@@ -52,6 +52,9 @@ private:
     // Generates gate sequence:
     std::shared_ptr<CompositeInstruction> toGates(size_t in_bit1, size_t in_bit2) const;
     Eigen::MatrixXcd toMat() const;
+    // Check whether the interation component angle (i.e., exp(i*angle*XX) (or YY, or ZZ))
+    // is trivial, i.e., can be performed with a whole CZ.
+    static bool isTrivialAngle(double angle, double tol =1e-6);
   };
     
   std::optional<KakDecomposition> kakDecomposition(const InputMatrix& in_matrix) const;

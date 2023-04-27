@@ -45,6 +45,14 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
     return;
   }
 
+  // Should we run an inlining pass (qelib.inc) over the AST during mapping?
+  // Default = on
+  const bool inline_enabled = [&]() {
+    if (options.keyExists<bool>("no-inline")) {
+      return !options.get<bool>("no-inline");
+    }
+    return true;
+  }();
   // First get total number of qubits on device
   std::set<int> qbitIdxs;
   auto connectivity = qpu->getConnectivity();
@@ -76,14 +84,16 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
   try {
     prog = parser::parse_string(src);
     transformations::desugar(*prog);
-    transformations::Inliner::config c;
-    // Make sure we treat map all control pauli 
-    // ops and swaps as CNOT gates
-    c.overrides.erase("cx");
-    c.overrides.erase("cy");
-    c.overrides.erase("cz");
-    c.overrides.erase("swap");
-    transformations::inline_ast(*prog, c);
+    if (inline_enabled) {
+      transformations::Inliner::config c;
+      // Make sure we treat map all control pauli
+      // ops and swaps as CNOT gates
+      c.overrides.erase("cx");
+      c.overrides.erase("cy");
+      c.overrides.erase("cz");
+      c.overrides.erase("swap");
+      transformations::inline_ast(*prog, c);
+    }
   } catch (std::exception &e) {
     std::stringstream ss;
     ss << e.what();

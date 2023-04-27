@@ -6,6 +6,7 @@
 #include <unsupported/Eigen/KroneckerProduct>
 #include <unsupported/Eigen/MatrixFunctions>
 #include "PauliOperator.hpp"
+#include "GateFusion.hpp"
 
 namespace {
 constexpr std::complex<double> I{0.0, 1.0};
@@ -20,8 +21,8 @@ const Eigen::MatrixXcd &KAK_MAGIC() {
   static Eigen::MatrixXcd KAK_MAGIC(4, 4);
   static bool init = false;
   if (!init) {
-    KAK_MAGIC << 1, 0, 0, I, 0, I, 1, 0, 0, I, -1, 0, 1, 0, 0, -I;
-    KAK_MAGIC = KAK_MAGIC * std::sqrt(0.5);
+    KAK_MAGIC << 1.0, 0.0, 0.0, I, 0.0, I, 1.0, 0, 0, I, -1.0, 0, 1.0, 0, 0, -I;
+    KAK_MAGIC = KAK_MAGIC * M_SQRT1_2;
     init = true;
   }
 
@@ -43,6 +44,17 @@ const Eigen::MatrixXcd &KAK_GAMMA() {
   }
 
   return KAK_GAMMA;
+}
+
+const Eigen::MatrixXcd &YY() {
+  static Eigen::MatrixXcd YY(4, 4);
+  static bool init = false;
+  if (!init) {
+    YY << 0, 0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0;
+    init = true;
+  }
+
+  return YY;
 }
 
 // Splits i = 0...length into approximate equivalence classes
@@ -229,6 +241,16 @@ simplifySingleQubitSeq(double zAngleBefore, double yAngle, double zAngleAfter,
     return (isCliffordRotation(in_exp) && toQuarterTurns(in_exp) == 0);
   };
 
+  const auto shiftAngle = [](double in_rad) ->double {
+    // Shift angle to [-pi, pi] range
+    const double sign = in_rad >= 0.0 ? 1.0: -1.0;
+    double value = std::abs(in_rad);
+    while (std::abs(value) > M_PI) {
+      value -= (2.0 * M_PI);
+    }
+    return sign * value;
+  };
+
   // Clean up angles
   if (isCliffordRotation(zExpBefore)) {
     if ((isQuarterTurn(zExpBefore) || isQuarterTurn(zExpAfter)) !=
@@ -257,15 +279,15 @@ simplifySingleQubitSeq(double zAngleBefore, double yAngle, double zAngleAfter,
 
   if (!isNoTurn(zExpBefore)) {
     composite->addInstruction(
-        gateRegistry->createInstruction("Rz", {bitIdx}, {zExpBefore * M_PI}));
+        gateRegistry->createInstruction("Rz", {bitIdx}, {shiftAngle(zExpBefore * M_PI)}));
   }
   if (!isNoTurn(middleExp)) {
     composite->addInstruction(gateRegistry->createInstruction(
-        middlePauli, {bitIdx}, {middleExp * M_PI}));
+        middlePauli, {bitIdx}, {shiftAngle(middleExp * M_PI)}));
   }
   if (!isNoTurn(zExpAfter)) {
     composite->addInstruction(
-        gateRegistry->createInstruction("Rz", {bitIdx}, {zExpAfter * M_PI}));
+        gateRegistry->createInstruction("Rz", {bitIdx}, {shiftAngle(zExpAfter * M_PI)}));
   }
 
   return composite;
@@ -484,6 +506,51 @@ singleQubitGateGen(const Eigen::Matrix2cd &in_mat, size_t in_bitIdx) {
   assert(validateSimplifiedSequence(composite, in_mat));
   return composite;
 }
+
+// Gamma function to convert u to the magic basis.
+// See Definition IV.1 in Shende et al. "Minimal Universal Two-Qubit CNOT-based
+// Circuits." https://arxiv.org/abs/quant-ph/0308033
+inline Eigen::MatrixXcd _gamma(const Eigen::MatrixXcd &u) {
+  return u * YY() * u.transpose() * YY();
+}
+
+// Converts a unitary matrix to a special unitary matrix.
+// All unitary matrices u have |det(u)| = 1.
+// Also for all d dimensional unitary matrix u, and scalar s:
+//     det(u * s) = det(u) * s^(d)
+// To find a special unitary matrix from u:
+//     u * det(u)^{-1/d}
+inline Eigen::MatrixXcd to_special(const Eigen::MatrixXcd &u) {
+  return u * (std::pow(u.determinant(), (-1.0 / u.rows())));
+}
+// Returns the min number of CNOT/CZ gates required by a two-qubit unitary.
+// See Proposition III.1, III.2, III.3 in Shende et al. "Recognizing Small-
+// Circuit Structure in Two-Qubit Operators and Timing Hamiltonians to
+// Compute Controlled-Not Gates".  https://arxiv.org/abs/quant-ph/0308045
+int calcNumTwoQubitOpsRequired(const Eigen::MatrixXcd &u, double atol = 1e-8) {
+  if (u.rows() != 4 || u.cols() != 4) {
+    throw std::invalid_argument("Expected unitary of 4 x 4 unitary matrix");
+  }
+  auto g = _gamma(to_special(u));
+  //  see Fadeev-LeVerrier formula
+  auto a3 = -g.trace();
+  // no need to check a2 = 6, as a3 = +-4 only happens if the eigenvalues are
+  // either all +1 or -1, which unambiguously implies that a2 = 6
+  if (std::abs(a3 - 4.0) < atol || std::abs(a3 + 4.0) < atol) {
+    return 0;
+  }
+  // see Fadeev-LeVerrier formula
+  auto a2 = (a3 * a3 - (g * g).trace()) / 2.0;
+  if (std::abs(a3) < atol && std::abs(a2 - 2.0) < atol) {
+    return 1;
+  }
+
+  if (std::abs(a3.imag()) < atol) {
+    return 2;
+  }
+  return 3;
+}
+
 } // namespace
 
 using namespace xacc;
@@ -545,12 +612,56 @@ bool KAK::expand(const HeterogeneousMap &parameters) {
   }
 
   auto composite = result->toGates(bits[0], bits[1]);
+  const auto validateDecompose =
+      [](std::shared_ptr<CompositeInstruction> composite,
+         const Eigen::Matrix4cd &in_target) {
+        auto totalU = GateFuser::fuseGates(composite, 2);
+        const auto flipKronOrder = [](const Eigen::Matrix4cd &in_mat) {
+          Eigen::Matrix4cd result = Eigen::Matrix4cd::Zero();
+          const std::vector<size_t> order{0, 2, 1, 3};
+          for (size_t i = 0; i < in_mat.rows(); ++i) {
+            for (size_t j = 0; j < in_mat.cols(); ++j) {
+              result(order[i], order[j]) = in_mat(i, j);
+            }
+          }
+          return result;
+        };
+        totalU = flipKronOrder(totalU);
+        // Find index of the largest element:
+        size_t colIdx = 0;
+        size_t rowIdx = 0;
+        double maxVal = std::abs(totalU(0, 0));
+        for (size_t i = 0; i < totalU.rows(); ++i) {
+          for (size_t j = 0; j < totalU.cols(); ++j) {
+            if (std::abs(totalU(i, j)) > maxVal) {
+              maxVal = std::abs(totalU(i, j));
+              colIdx = j;
+              rowIdx = i;
+            }
+          }
+        }
+
+        const std::complex<double> globalFactor =
+            in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+        totalU = globalFactor * totalU;
+        const bool isOkay = allClose(totalU, in_target);
+        if (!isOkay) {
+          std::cout << "Composite:\n"
+                    << composite->toString() << "\nhas unitary matrix\n"
+                    << totalU
+                    << "\n which is not equivalent to the target unitary:\n"
+                    << in_target << "\n";
+        }
+        return isOkay;
+      };
+  // assert(validateDecompose(composite, unitary));
   addInstructions(composite->getInstructions());
   return true;
 }
 
 std::optional<KAK::KakDecomposition>
 KAK::kakDecomposition(const InputMatrix &in_matrix) const {
+  // std::cout << "Expect: " << calcNumTwoQubitOpsRequired(in_matrix) << "\n";
   assert(isUnitary(in_matrix));
   Eigen::MatrixXcd mInMagicBasis = KAK_MAGIC_DAG() * in_matrix * KAK_MAGIC();
   auto [left, diag, right] = bidiagonalizeUnitary(mInMagicBasis);
@@ -615,12 +726,87 @@ Eigen::MatrixXcd KAK::KakDecomposition::toMat() const {
   return total;
 }
 
+bool KAK::KakDecomposition::isTrivialAngle(double angle, double tol) {
+  // 0 or +/- Pi/4
+  return std::abs(angle) < tol || std::abs(std::abs(angle) - M_PI_4) < tol;
+}
+
 std::shared_ptr<CompositeInstruction>
 KAK::KakDecomposition::toGates(size_t in_bit1, size_t in_bit2) const {
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   const auto generateInteractionComposite = [&](size_t bit1, size_t bit2,
                                                 double x, double y, double z) {
     const double TOL = 1e-8;
+    if (KAK::KakDecomposition::isTrivialAngle(x) &&
+        KAK::KakDecomposition::isTrivialAngle(y) &&
+        KAK::KakDecomposition::isTrivialAngle(z)) {
+      auto composite = gateRegistry->createComposite(
+          "__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));
+      
+      // Create a trivial ZZ interaction framed by the given operation.
+      const auto trivialParityInteraction = [&gateRegistry](
+                                                std::shared_ptr<
+                                                    CompositeInstruction> &comp,
+                                                size_t q0, size_t q1,
+                                                double rads) {
+        assert(KAK::KakDecomposition::isTrivialAngle(rads));
+        comp->addInstruction(gateRegistry->createInstruction("CZ", {q1, q0}));
+        const double hAngle = -2.0 * rads;
+        comp->addInstruction(
+            gateRegistry->createInstruction("Rz", {q0}, {hAngle}));
+        comp->addInstruction(
+            gateRegistry->createInstruction("Rz", {q1}, {hAngle}));
+      };
+      if (std::abs(x) > TOL) {
+        composite->addInstruction(
+            gateRegistry->createInstruction("Ry", {bit1}, {-M_PI_2}));
+        composite->addInstruction(
+            gateRegistry->createInstruction("Ry", {bit2}, {-M_PI_2}));
+        trivialParityInteraction(composite, bit1, bit2, x);
+        composite->addInstruction(
+            gateRegistry->createInstruction("Ry", {bit1}, {M_PI_2}));
+        composite->addInstruction(
+            gateRegistry->createInstruction("Ry", {bit2}, {M_PI_2}));
+      }
+      if (std::abs(y) > TOL) {
+        composite->addInstruction(
+            gateRegistry->createInstruction("Rx", {bit1}, {M_PI_2}));
+        composite->addInstruction(
+            gateRegistry->createInstruction("Rx", {bit2}, {M_PI_2}));
+        trivialParityInteraction(composite, bit1, bit2, y);
+        composite->addInstruction(
+            gateRegistry->createInstruction("Rx", {bit1}, {-M_PI_2}));
+        composite->addInstruction(
+            gateRegistry->createInstruction("Rx", {bit2}, {-M_PI_2}));
+      }
+      if (std::abs(z) > TOL) {
+        trivialParityInteraction(composite, bit1, bit2, z);
+      }
+
+      const auto validateGateSequence = [&](const Eigen::Matrix4cd &in_target) {
+        auto totalU = GateFuser::fuseGates(composite, 2);
+        // Find index of the largest element:
+        size_t colIdx = 0;
+        size_t rowIdx = 0;
+        double maxVal = std::abs(totalU(0, 0));
+        for (size_t i = 0; i < totalU.rows(); ++i) {
+          for (size_t j = 0; j < totalU.cols(); ++j) {
+            if (std::abs(totalU(i, j)) > maxVal) {
+              maxVal = std::abs(totalU(i, j));
+              colIdx = j;
+              rowIdx = i;
+            }
+          }
+        }
+
+        const std::complex<double> globalFactor =
+            in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+        totalU = globalFactor * totalU;
+        return allClose(totalU, in_target);
+      };
+      assert(validateGateSequence(interactionMatrixExp(x, y, z)));
+      return composite;
+    }
     // Full decomposition is required
     if (std::abs(z) >= TOL) {
       const double xAngle = M_PI * (x * -2 / M_PI + 0.5);

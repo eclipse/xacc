@@ -130,6 +130,29 @@ TEST(Staq_MappingTester, checkSwapShortSwap) {
   std::cout << program->toString() << "\n";
 }
 
+TEST(Staq_MappingTester, checkNoInline) {
+  auto qpu = std::make_shared<AcceleratorWithConnectivity>(
+      std::vector<std::pair<int, int>>{{0, 1}});
+  auto x = xacc::qalloc(2);
+  x->setName("x");
+  xacc::storeBuffer(x);
+
+  auto irt = xacc::getIRTransformation("swap-shortest-path");
+  auto compiler = xacc::getCompiler("xasm");
+  auto program = compiler
+                     ->compile(R"(__qpu__ void test_simple_swap(qreg x) {
+      CZ(x[0], x[1]);
+      Measure(x[0]);
+      Measure(x[1]);
+  })")
+                     ->getComposite("test_simple_swap");
+  std::cout << "BEFORE:\n" << program->toString() << "\n";
+  irt->apply(program, qpu, {{"no-inline", true}});
+  std::cout << "AFTER:\n" << program->toString() << "\n";
+  EXPECT_EQ(program->nInstructions(), 3);
+  EXPECT_EQ(program->getInstruction(0)->name(), "CZ");
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);
