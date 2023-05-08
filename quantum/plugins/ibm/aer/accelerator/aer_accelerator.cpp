@@ -110,8 +110,14 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
   noise_model.clear();
   m_simtype = "qasm";
   connectivity.clear();
-
-  xacc_to_qobj = xacc::getCompiler("qobj");
+  if (params.stringExists("qobj-compiler") &&
+      (xacc::hasService<xacc::Compiler>(params.getString("qobj-compiler")) ||
+       xacc::hasContributedService<xacc::Compiler>(
+           params.getString("qobj-compiler")))) {
+    xacc_to_qobj = xacc::getCompiler(params.getString("qobj-compiler"));
+  } else {
+    xacc_to_qobj = xacc::getCompiler("qobj");
+  }
   if (params.keyExists<int>("shots")) {
     m_shots = params.get<int>("shots");
   }
