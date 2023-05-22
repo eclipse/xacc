@@ -104,6 +104,8 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_INSTALL_PREFIX}. Override with -DCMAKE_INSTALL_PREFIX=...${ColorReset}")
+set(CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
+
 macro(set_cache_variable VAR_NAME VAR_DESCRIPTION)
   set(${VAR_NAME} ${${VAR_NAME}} CACHE INTERNAL ${VAR_DESCRIPTION})
   message(STATUS "Set ${VAR_NAME} to ${${VAR_NAME}}.")
@@ -160,7 +162,7 @@ find_package(LAPACK)
 # Dependencies:
 option(XACC_DEPS_EXTERNAL "Try find external dependencies (system installation) rather than tpls" OFF)
  
-set(SPDLOG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/tpls/spdlog/include)
+set(SPDLOG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/tpls/spdlog/include/)
 if (XACC_DEPS_EXTERNAL) 
   find_package(spdlog) 
   if (spdlog_FOUND) 
@@ -248,7 +250,7 @@ install(FILES "${CMAKE_SOURCE_DIR}/tpls/mpark-variant/variant.hpp" DESTINATION i
 install(FILES "${CMAKE_SOURCE_DIR}/tpls/taocpp/operators.hpp" DESTINATION include/xacc/)
 install(FILES "${NLOHMANN_INCLUDE_DIR}/nlohmann/json.hpp" DESTINATION include/xacc/)
 
-install(DIRECTORY "${SPDLOG_INCLUDE_DIR}" DESTINATION include)
+install(DIRECTORY "${SPDLOG_INCLUDE_DIR}" DESTINATION include/spdlog/)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/exprtk" DESTINATION include)
 install(DIRECTORY "${EIGEN_INCLUDE_DIR}" DESTINATION include)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/rapidjson" DESTINATION include)
