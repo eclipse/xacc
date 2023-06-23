@@ -118,5 +118,5 @@ jobs:
       run: cmake --build . --target install
     
     - name: Test
-        working-directory: build/
-        run: ctest --output-on-failure
+      working-directory: build/
+      run: ctest --output-on-failure
