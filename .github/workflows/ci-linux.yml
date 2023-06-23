@@ -79,3 +79,44 @@ jobs:
     - name: Build
       working-directory: build/
       run: cmake --build . --target install
+
+  check-distros:
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          # RHEL
+          - "almalinux:9"
+        build_type: [Release]
+
+    runs-on: ubuntu-latest
+    container:
+      image: ${{matrix.image}}
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    # Declares the repository safe and not under dubious ownership.
+    - name: Add repository to git safe directories
+      run: git config --global --add safe.directory $GITHUB_WORKSPACE
+
+    - name: Install dependencies
+      run: |
+        dnf -y update && dnf install -y yum-utils && dnf config-manager --set-enabled crb && dnf install -y epel-release
+        yum groupinstall -y 'Development Tools'
+        yum install -y libcurl-devel.x86_64 openssl-devel.x86_64 cmake.x86_64 python3-devel.x86_64 lapack-devel.x86_64 libunwind-devel.x86_64 ninja-build.x86_64
+    
+    - name: Create Build Environment
+      run: cmake -E make_directory build
+
+    - name: Configure
+      working-directory: build/
+      run: cmake -GNinja $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE
+    
+    - name: Build
+      working-directory: build/
+      run: cmake --build . --target install
+    
+    - name: Test
+        working-directory: build/
+        run: ctest --output-on-failure
