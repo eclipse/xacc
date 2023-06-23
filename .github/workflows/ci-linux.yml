@@ -95,7 +95,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Install dependencies
       run: |
         dnf -y update && dnf install -y yum-utils && dnf config-manager --set-enabled crb && dnf install -y epel-release
@@ -106,6 +106,10 @@ jobs:
     - name: Add repository to git safe directories
       run: git config --global --add safe.directory $GITHUB_WORKSPACE
     
+    - name: Pull sub modules
+      run: git submodule update --init --recursive
+      working-directory: $GITHUB_WORKSPACE
+
     - name: Create Build Environment
       run: cmake -E make_directory build
 
