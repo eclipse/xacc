@@ -95,6 +95,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: recursive
 
     - name: Install dependencies
       run: |
@@ -105,10 +107,6 @@ jobs:
     # Declares the repository safe and not under dubious ownership.
     - name: Add repository to git safe directories
       run: git config --global --add safe.directory $GITHUB_WORKSPACE
-    
-    - name: Pull sub modules
-      run: git submodule update --init --recursive
-      working-directory: $GITHUB_WORKSPACE
 
     - name: Create Build Environment
       run: cmake -E make_directory build
