@@ -9,6 +9,7 @@
 #
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
+#   Daniel Claudino - Azure plugin test
 # *******************************************************************************/
 add_executable(bell_quil_ibm_local bell_quil_ibm_local.cpp)
 target_link_libraries(bell_quil_ibm_local PRIVATE xacc)
@@ -33,3 +34,6 @@ target_link_libraries(circuit_with_classical_control PRIVATE xacc)
 
 add_executable(optimal_control_goat optimal_control_goat.cpp)
 target_link_libraries(optimal_control_goat PRIVATE xacc)
+
+add_executable(bell_azure bell_azure.cpp)
+target_link_libraries(bell_azure PRIVATE xacc)

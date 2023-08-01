@@ -9,6 +9,7 @@
 #
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
+#   Daniel Claudino - Azure plugin
 # *******************************************************************************/
 add_subdirectory(compiler)
 add_subdirectory(plugins)
@@ -62,4 +63,42 @@ file(GLOB PYDECORATORS benchmark/chemistry/*.py benchmark/qpt/*.py
                        plugins/mitiq/*.py
                        plugins/pyzx/*.py
                        plugins/optimizers/*.py)
+
+if(XACC_AZURE_PLUGIN)
+
+   if(Python_FOUND)
+      # check if azure-quantum[qiskit] plugin is installed
+      execute_process(COMMAND ${Python_EXECUTABLE} -c "import azure.quantum.qiskit" RESULT_VARIABLE AZURE_QUANTUM_EXISTS)
+
+      if(AZURE_QUANTUM_EXISTS EQUAL "1")
+         message(STATUS "${BoldGreen}Installing Azure Quantum with the Qiskit plugin.${ColorReset}")
+         execute_process(COMMAND ${Python_EXECUTABLE} -m pip install azure-quantum[qiskit])
+         # for the time being we have to downgrade the qiskit install because they just removed
+         # a class that azure uses for the Quantinuum cost estimate
+         execute_process(COMMAND ${Python_EXECUTABLE} -m pip install qiskit==0.43.3)
+      endif()
+
+      # check if pyqir is installed
+      execute_process(COMMAND ${Python_EXECUTABLE} -c "import pyqir" RESULT_VARIABLE PYQIR_EXISTS)
+      
+      if(PYQIR_EXISTS EQUAL "1")
+         message(STATUS "${BoldGreen}Installing PyQIR.${ColorReset}")
+         execute_process(COMMAND ${Python_EXECUTABLE} -m pip install pyqir)
+      endif()
+
+      # check if multipledispatch is installed
+      execute_process(COMMAND ${Python_EXECUTABLE} -c "import multipledispatch" RESULT_VARIABLE MULTIPLE_DISPATCH_EXISTS)
+      
+      if(MULTIPLE_DISPATCH_EXISTS EQUAL "1")
+         message(STATUS "${BoldGreen}Installing Multiple Dispatch.${ColorReset}")
+         execute_process(COMMAND ${Python_EXECUTABLE} -m pip install multipledispatch)
+      endif()
+
+   else()
+      message(STATUS "${BoldYellow}Python interpreter or development headers not found. Cannot install Azure Quantum plugin.${ColorReset}")
+   endif()
+
+   file(GLOB PYDECORATORS plugins/azure/*.py)
+
+endif()
 install(FILES ${PYDECORATORS} DESTINATION ${CMAKE_INSTALL_PREFIX}/py-plugins)
