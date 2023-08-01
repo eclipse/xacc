@@ -681,6 +681,39 @@ By default, it selects initialization parameters that are commonly best for a wi
 |    zero_threshold           | Norm threshold for clamping probability amplitudes to 0                |    double   | 1e-14/1e-30 float/double |
 +-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
 
+Azure
++++++
+The `Azure <https://learn.microsoft.com/en-us/azure/quantum/overview-azure-quantum>`_ accelerator plugin provides an interface to the Microsoft Azure Quantum cloud platform.
+
+Users need to provide their Azure Quantum credentials via the ``$HOME/.azure_config`` with the following content:
+
+.. code:: bash
+
+   location: [location]
+   Resource ID: [Azure_resource_ID]
+
+.. code:: cpp
+
+   auto azure = xacc::getAccelerator("azure", {{"backend", "quantinuum.sim.h1-2e"}, {"shots", 500}});
+
+.. code:: python
+
+   azure = xacc.getAccelerator("azure", {"backend": "quantinuum.sim.h1-2e", "shots": 500})
+
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|  Initialization Parameter   |                  Parameter Description                                 |    type     |         default          |
++=============================+========================================================================+=============+==========================+
+|    backend                  | Name of target backend                                                 |    str      | Must be provided         |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    shots                    | Number of shots/samples                                                |    int      | 1024                     |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    visitor                  | Data format/structure to map XACC instructions to                      |    str      | pyqir                    |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    error-budget             | Error threshold for QEC. Only for the microsoft.estimator backend      |    double   | 0.005                    |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    get-cost                 | Get HQC (cost) esimate for jobs on Quantinuum backends.                |    bool     | false                    |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+
 Algorithms
 ----------
 XACC exposes hybrid quantum-classical Algorithm implementations for the variational quantum eigensolver (VQE), data-driven
