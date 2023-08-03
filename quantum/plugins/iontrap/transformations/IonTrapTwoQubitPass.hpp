@@ -24,10 +24,11 @@ namespace xacc {
 namespace quantum {
 
 typedef std::map<std::pair<std::size_t, std::size_t>, std::pair<double, double>> IonTrapMSPhaseMap;
+class IonTrapTwoQubitPassVisitor;
 
 class IonTrapTwoQubitPass : public IRTransformation {
 public:
-    IonTrapTwoQubitPass() {}
+    IonTrapTwoQubitPass();
     void apply(std::shared_ptr<CompositeInstruction> program,
                const std::shared_ptr<Accelerator> accelerator,
                const HeterogeneousMap &options = {}) override;
