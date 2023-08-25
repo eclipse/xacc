@@ -192,7 +192,7 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
     if (options.keyExists<double>("mlpack-cmaes-lower-bound")) {
       lower = options.get<double>("mlpack-cmaes-lower-bound");
     }
-    CMAES<> optimizer(lambda, upper, lower, 1, maxiter, tol);
+    CMAES<> optimizer(lambda, lower, upper, 1, maxiter, tol);
     results = optimizer.Optimize(f, coordinates);
 #else
     xacc::error("Cannot run mlpack cmaes algorithm, lapack not found.");
