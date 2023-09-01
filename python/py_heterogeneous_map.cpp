@@ -1,4 +1,5 @@
 #include "py_heterogeneous_map.hpp"
+#include "heterogeneous.hpp"
 
 void bind_heterogeneous_map(py::module &m) {
   py::class_<xacc::HeterogeneousMap>(m, "HeterogeneousMap", "")
@@ -101,7 +102,8 @@ void bind_heterogeneous_map(py::module &m) {
                    m.keyExists<std::shared_ptr<Eigen::MatrixXcd>>(key) ||
                    m.pointerLikeExists<CompositeInstruction>(key);
           },
-          "");
+          "")
+      .def("size", &HeterogeneousMap::size);
 
   py::class_<PyHeterogeneousMapTypes>(
       m, "PyHeterogeneousMap",

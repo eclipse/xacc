@@ -39,15 +39,7 @@ class AzureAccelerator(xacc.Accelerator):
         self.credentials_file = None
         self.error_budget = 0.005 # this is only for the estimator
 
-        # retrieve credentials
-        self.get_credentials()
-
-        # instantiate provider
-        from azure.quantum.qiskit import AzureQuantumProvider
-        self.provider = AzureQuantumProvider(resource_id=self.resource_id,
-                              location=self.location)
-
-    def get_credentials(self):
+    def _get_credentials(self):
         """Gets Azure Quantum account credentials.
 
         It looks for a file named .azure_config (notice the ".") in $HOME
@@ -56,22 +48,22 @@ class AzureAccelerator(xacc.Accelerator):
         location: [location]
         Resource ID: [Azure resource ID]
         """
-
         from os import environ
         filename = environ["HOME"] + "/.azure_config"
         try:
-            lines = open(filename, "r").readlines()
+            f = open(filename, "r")
         except:
             xacc.error("File with credentials does not exist or is not $HOME/.azure_config")
         else:
-            for line in lines:
+            for line in f.readlines():
                 if line[:8] == 'location':
                     self.location = line[9:].strip().replace(" ", "").lower()
                 if line[:11] == 'Resource ID':
                     self.resource_id = line[12:].strip()
+            f.close()
         return
 
-    def initialize(self, options):
+    def initialize(self, options = {}):
         """Checks for required and optional parameters.
         The only required parameter is the name of the desired backend.
 
@@ -79,9 +71,28 @@ class AzureAccelerator(xacc.Accelerator):
             options (dict): options for Accelerator execution.
 
         """
+        # retrieve credentials
+        self._get_credentials()
+
+        # this is in case we don't pass options
+        # if initialized is called from the getAccelerator wrapper,
+        # options if a HeterogeneousMap, else it is a dict, 
+        # so we resolve it here
+        if type(options) is dict:
+            if not options:
+                return
+        else: 
+            if not options.size():
+                return
+
+        # instantiate provider
+        from azure.quantum.qiskit import AzureQuantumProvider
+        self.provider = AzureQuantumProvider(resource_id=self.resource_id,
+                              location=self.location)
 
         if 'backend' in options:
-            self.backend = options['backend']
+            self.backend = options['backend']            
+            return
             if self.backend not in [b.name() for b in self.provider.backends()]:
                 xacc.error("Backend not available.")
                 
@@ -154,7 +165,6 @@ class AzureAccelerator(xacc.Accelerator):
             input_params = kwargs,
             metadata={}
         )
-
 
     def execute(self, buffer, program):
         """Execute quantum program on target backend.
