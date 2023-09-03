@@ -45,8 +45,8 @@ public:
 
   const std::string name() const override { return "hpc-virtualization"; }
   const std::string description() const override { return ""; }
-
-  ~HPCVirtDecorator() override { }
+  void finalize();
+  ~HPCVirtDecorator() override {};
 
 private:
   template <typename T>
