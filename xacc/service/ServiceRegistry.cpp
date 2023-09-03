@@ -58,7 +58,12 @@ void ServiceRegistry::initialize(const std::string rootPath) {
         while ((ent2 = readdir(dir2)) != NULL) {
           if (std::string(ent2->d_name).find("lib") != std::string::npos) {
             //   std::cout << "INSTALLING: " << path << "/" << std::string(ent2->d_name) << "\n";
+            try{
             context.InstallBundles(path + "/" + std::string(ent2->d_name));
+            } catch (std::exception& e) {
+              XACCLogger::instance()->error("Error installing bundle: " + path + "/" + std::string(ent2->d_name));
+            }
+            
           }
         }
         closedir(dir2);
@@ -79,7 +84,7 @@ void ServiceRegistry::initialize(const std::string rootPath) {
       try {
         b.Start();
       } catch (std::exception &e) {
-        xacc::error("Could not load " + b.GetSymbolicName() + ", error message: " + e.what());
+        xacc::warning("Could not load " + b.GetSymbolicName() + ", error message: " + e.what());
       }
     }
 
