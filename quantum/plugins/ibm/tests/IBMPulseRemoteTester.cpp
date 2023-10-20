@@ -126,6 +126,96 @@ TEST(IBMPulseRemoteTester, checkCnotPulse) {
 }
 #endif
 
+// Check manipulations with phase and frequency
+TEST(IBMPulseRemoteTester, sendPhaseFrequencyPulse) {
+  xacc::set_verbose(true);
+  auto acc = xacc::getAccelerator("ibm:ibmq_armonk", {{"mode", "pulse"}});
+  auto buffer = xacc::qalloc(1);
+  auto provider = xacc::getService<xacc::IRProvider>("quantum");
+  std::string jjson("{"
+                    "\"pulse_library\": ["
+                     "{\"name\": \"pulse1\", \"samples\": ["
+                       "[0.004,0.009],[0.004,0.009],[0.004,0.009],[0.004,0.009],[0.004,0.009],[0.004,0.009],"
+                       "[0.029,0.05],[0.029,0.05],[0.029,0.05],[0.029,0.05],[0.029,0.05],[0.029,0.05],"
+                       "[0.135,0.18],[0.135,0.18],[0.135,0.18],[0.135,0.18],[0.135,0.18],[0.135,0.18],"
+                       "[0.41,0.365],[0.41,0.365],[0.41,0.365],[0.41,0.365],[0.41,0.365],[0.41,0.365],"
+                       "[0.8,0.355],[0.8,0.355],[0.8,0.355],[0.8,0.355],[0.8,0.355],[0.8,0.355],"
+                       "[0.8,0.355],[0.8,0.355],"
+                       "[0.8,-0.355],[0.8,-0.355],"
+                       "[0.8,-0.355],[0.8,-0.355],[0.8,-0.355],[0.8,-0.355],[0.8,-0.355],[0.8,-0.355],"
+                       "[0.41,-0.365],[0.41,-0.365],[0.41,-0.365],[0.41,-0.365],[0.41,-0.365],[0.41,-0.365],"
+                       "[0.135,-0.18],[0.135,-0.18],[0.135,-0.18],[0.135,-0.18],[0.135,-0.18],[0.135,-0.18],"
+                       "[0.029,-0.05],[0.029,-0.05],[0.029,-0.05],[0.029,-0.05],[0.029,-0.05],[0.029,-0.05],"
+                       "[0.004,-0.009],[0.004,-0.009],[0.004,-0.009],[0.004,-0.009],[0.004,-0.009],[0.004,-0.009]]},"
+                     "{\"name\": \"pulse2\", \"samples\": ["
+                       "[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],"
+                       "[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],"
+                       "[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],"
+                       "[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],"
+                       "[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],"
+                       "[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],"
+                       "[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],"
+                       "[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],"
+                       "[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],"
+                       "[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0],[0.1,0.0]"
+                       "]}"
+                                        "]"
+                    ","
+                    "\"cmd_def\":["
+                    "{\"name\":\"test_phase\",\"qubits\":[0],\"sequence\":["
+                              "{\"name\":\"setp\",\"ch\":\"d0\",\"t0\":0,\"phase\":1.57}"
+                              ","
+                              "{\"name\":\"pulse2\",\"ch\":\"d0\",\"t0\":0}"
+                              ","
+                              "{\"name\":\"shiftp\",\"ch\":\"d0\",\"t0\":0,\"phase\":0.1}"
+                              ","
+                              "{\"name\":\"pulse1\",\"ch\":\"d0\",\"t0\":0}"
+                    "]}"
+                    ","
+                    "{\"name\":\"test_freq\",\"qubits\":[0],\"sequence\":["
+                              "{\"name\":\"setf\",\"ch\":\"d0\",\"t0\":0,\"frequency\":5.1}"
+                              ","
+                              "{\"name\":\"pulse1\",\"ch\":\"d0\",\"t0\":0}"
+                              ","
+                              "{\"name\":\"shiftf\",\"ch\":\"d0\",\"t0\":0,\"frequency\":-0.21}"
+                              ","
+                              "{\"name\":\"pulse2\",\"ch\":\"d0\",\"t0\":0}"
+                    "]}"
+                    ","
+                    "{\"name\":\"id2\",\"qubits\":[0],\"sequence\":[{\"name\":\"setf\",\"ch\":\"d0\",\"t0\":0,\"frequency\":5}]}"
+                     "] "
+                    "}");
+
+  acc->contributeInstructions(jjson);
+  {
+    // ibmq_armonk does not support setp/shiftp pulse operations.
+    // test only contributeInstructions()
+      auto cr = xacc::getContributedService<xacc::Instruction>("pulse::test_phase_0");
+      auto cr_comp = std::dynamic_pointer_cast<xacc::CompositeInstruction>(cr);
+
+      EXPECT_EQ(cr_comp->getInstructions().size(), 4);
+      std::string checkNames[] = {"setp", "pulse1", "shiftp", "pulse2"};
+      for( int nI = 0; nI < 4; ++nI ) {
+          EXPECT_EQ(cr_comp->getInstruction(nI)->name(), checkNames[nI] );
+      }
+  }
+
+  auto cr = xacc::getContributedService<xacc::Instruction>("pulse::test_freq_0");
+  auto cr_comp = std::dynamic_pointer_cast<xacc::CompositeInstruction>(cr);
+
+  EXPECT_EQ(cr_comp->getInstructions().size(), 4);
+  std::string checkNames[] = {"setf", "pulse1", "shiftf", "pulse2"};
+  for( int nI = 0; nI < 4; ++nI ) {
+      EXPECT_EQ(cr_comp->getInstruction(nI)->name(), checkNames[nI] );
+  }
+
+  auto f = provider->createComposite("tmp");
+  auto m0 = provider->createInstruction("Measure", {0});
+  f->addInstructions({ cr_comp, m0 });
+  acc->execute(buffer, f);
+  buffer->print();
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);
