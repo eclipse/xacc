@@ -41,9 +41,9 @@ void IonQAccelerator::initialize(const HeterogeneousMap &params) {
     headers.insert({"Authorization", "apiKey " + apiKey});
     headers.insert({"Content-Type", "application/json"});
 
-    auto calibrations = restClient->get(url, "/calibrations", headers);
-    auto j = nlohmann::json::parse(calibrations);
-    m_connectivity = j["calibrations"][0]["connectivity"].get<std::vector<std::pair<int,int>>>();
+    auto characterizations = restClient->get(url, "/characterizations/backends/qpu.harmony", headers);
+    auto j = nlohmann::json::parse(characterizations);
+    m_connectivity = j["characterizations"][0]["connectivity"].get<std::vector<std::pair<int,int>>>();
     
     remoteUrl = url;
     postPath = "/jobs";
@@ -144,8 +144,9 @@ void IonQAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   // End the color log
   std::cout << "\033[0m" << "\n";
 
-  std::map<std::string, double> histogram =
-      j["data"]["histogram"].get<std::map<std::string, double>>();
+  auto results = handleExceptionRestClientGet(url, "/jobs/" + jobId + "/results", headers);
+
+   std::map<std::string, double> histogram = json::parse(results);
 
   int n = buffer->size();
   auto getBitStrForInt = [&](std::uint64_t i) {
