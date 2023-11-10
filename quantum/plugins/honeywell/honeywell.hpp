@@ -116,7 +116,7 @@ private:
   int shots = 1024;
   std::string backend = "";
   bool initialized = false;
-  static inline const std::string url = "https://qapi.honeywell.com/v1/";
+  static inline const std::string url = "https://qapi.quantinuum.com/v1/";
   // List of backend names:
   std::vector<std::string> available_backends;
   std::string post(const std::string &_url, const std::string &path,

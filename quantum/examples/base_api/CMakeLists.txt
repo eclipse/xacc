@@ -37,3 +37,6 @@ target_link_libraries(optimal_control_goat PRIVATE xacc)
 
 add_executable(bell_azure bell_azure.cpp)
 target_link_libraries(bell_azure PRIVATE xacc)
+
+add_executable(bell_ionq bell_ionq.cpp)
+target_link_libraries(bell_ionq PRIVATE xacc)
