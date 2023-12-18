@@ -5,12 +5,26 @@ Copyright (C) 2018-2021 Oak Ridge National Laboratory (UT-Battelle) **/
 
 #include "MPIProxy.hpp"
 
-#include "mpi.h"
 
 #include <cstdlib>
 
 #include <iostream>
 #include <algorithm>
+
+template <>
+MPI_Datatype MPIDataTypeResolver<int>::getMPIDatatype() {
+    return MPI_INT;
+}
+
+template <>
+MPI_Datatype MPIDataTypeResolver<double>::getMPIDatatype() {
+    return MPI_DOUBLE;
+}
+
+template <>
+MPI_Datatype MPIDataTypeResolver<char>::getMPIDatatype() {
+    return MPI_CHAR;
+}
 
 namespace xacc {
 
