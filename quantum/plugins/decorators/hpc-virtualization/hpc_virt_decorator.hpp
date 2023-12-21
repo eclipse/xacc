@@ -27,7 +27,7 @@ class HPCVirtDecorator : public AcceleratorDecorator {
 protected:
 
   bool isVqeMode;
-  int n_virtual_qpus = 1, shots = -1;
+  int n_virtual_qpus = 1, shots;
   // The MPI communicator for each QPU
   std::shared_ptr<ProcessGroup> qpuComm;
 

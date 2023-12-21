@@ -54,6 +54,7 @@ void HPCVirtDecorator::initialize(const HeterogeneousMap &params) {
     n_virtual_qpus = params.get<int>("n-virtual-qpus");
   }
 
+  shots = -1;
   if (params.keyExists<int>("shots")) {
     shots = params.get<int>("shots");
     if (shots < 1) {
@@ -61,12 +62,18 @@ void HPCVirtDecorator::initialize(const HeterogeneousMap &params) {
     }
   }
 
-  isVqeMode = (shots < 1);
   if (params.keyExists<bool>("vqe-mode")) {
     isVqeMode = params.get<bool>("vqe-mode");
-    if (isVqeMode) {
-      xacc::info("Enable VQE Mode.");
-    }
+  } else {
+    isVqeMode = (shots < 1);
+  }
+
+  if (shots >= 1 && isVqeMode || shots < 1 && !isVqeMode) {
+    xacc::error("Please choose between shot-based simulation or VQE mode.");
+  } else if (shots >= 1 && isVqeMode)  {
+    xacc::info("Shot-based simulation takes precedence over VQE mode. Running shot-based simulation..");
+  } else {
+    xacc::info("Enable VQE mode.");
   }
 }
 
@@ -346,14 +353,12 @@ void HPCVirtDecorator::execute(
   }
 
   // get binary from decimal
-  const auto getBinary = [=](int n){
+  const auto getBinary = [=](int decimal){
     std::string s;
-    while (n != 0) {
-      s += (n % 2 == 0 ? "0" : "1" );
-      n /= 2;
-    }
-    //s += std::string(buffer->size() - s.size(), '0');
-    std::reverse(s.begin(), s.end());
+    do {
+      s += (decimal % 2 == 0 ? "0" : "1" );
+      decimal /= 2;
+    } while (decimal != 0);
     return s;
   };
 
@@ -377,11 +382,15 @@ void HPCVirtDecorator::execute(
       for (int b = 0; b < nChildBitStrings; b++) {
 
         auto counts = globalCounts[b + countShift];
-        if (counts == 0) std::cout << "GOTCHA\n";
         auto bitStringDecimal = globalBitStrings[b + countShift];
-        auto nBits = name.length() / 2;
         auto bitString = getBinary(bitStringDecimal);
-        //auto bitString = getBinary(bitStringDecimal, nBits);
+        // check if we need to pad zeros
+        auto nMeasuredBits = std::count_if(name.begin(), name.end(),
+            [](char c){ return std::string("XYZ").find(c) != std::string::npos; });
+        if (nMeasuredBits > bitString.size()) {
+          bitString += std::string(nMeasuredBits - bitString.size(), '0');
+        }
+        std::reverse(bitString.begin(), bitString.end());
         child->appendMeasurement(bitString, counts);
 
       }
