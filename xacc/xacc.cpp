@@ -30,10 +30,6 @@
 #include <sys/stat.h>
 #include "TearDown.hpp"
 
-#ifdef MPI_ENABLED
-#include "mpi.h"
-#endif
-
 using namespace cxxopts;
 
 namespace xacc {
@@ -51,11 +47,6 @@ std::map<std::string, std::shared_ptr<CompositeInstruction>>
 std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocated_buffers{};
 
 std::string rootPathString = "";
-
-#ifdef MPI_ENABLED
-int isMPIInitialized;
-#endif
-
 void set_verbose(bool v) { verbose = v; }
 
 int getArgc() { return argc; }
@@ -116,18 +107,6 @@ void Initialize(int arc, char **arv) {
     XACCLogger::instance()->dumpQueue();
   }
 
-  // Initializing MPI here
-#ifdef MPI_ENABLED
-  int provided;
-  MPI_Initialized(&isMPIInitialized);
-  if (!isMPIInitialized) {
-    MPI_Init_thread(0, NULL, MPI_THREAD_MULTIPLE, &provided);
-    if (provided != MPI_THREAD_MULTIPLE) {
-      xacc::warning("MPI_THREAD_MULTIPLE not provided.");
-    }
-    isMPIInitialized = 1;
-  }
-#endif
 }
 
 void setIsPyApi() { isPyApi = true; }
@@ -869,12 +848,6 @@ void Finalize() {
     compilation_database.clear();
     allocated_buffers.clear();
     xacc::ServiceAPI_Finalize();
-    // This replaces the HPC virtualization TearDown
-#ifdef MPI_ENABLED
-    if (isMPIInitialized) {
-      MPI_Finalize();
-    }
-#endif
   }
 }
 

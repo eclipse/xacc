@@ -14,7 +14,7 @@
 #ifndef XACC_HPC_VIRT_DECORATOR_HPP_
 #define XACC_HPC_VIRT_DECORATOR_HPP_
 
-#include "mpi.h"
+//#include "mpi.h"
 #include "xacc.hpp"
 #include "MPIProxy.hpp"
 #include "AcceleratorDecorator.hpp"
@@ -26,7 +26,8 @@ namespace quantum {
 class HPCVirtDecorator : public AcceleratorDecorator {
 protected:
 
-  int n_virtual_qpus = 1;
+  bool isVqeMode;
+  int n_virtual_qpus = 1, shots;
   // The MPI communicator for each QPU
   std::shared_ptr<ProcessGroup> qpuComm;
 
@@ -45,31 +46,30 @@ public:
 
   const std::string name() const override { return "hpc-virtualization"; }
   const std::string description() const override { return ""; }
+  void finalize();
 
-  ~HPCVirtDecorator() override { }
+  ~HPCVirtDecorator() override { };
 
 private:
-  template <typename T>
-  std::vector<std::vector<T>> split_vector(const std::vector<T> &vec,
-                                           size_t n) {
-    std::vector<std::vector<T>> outVec;
 
-    size_t length = vec.size() / n;
-    size_t remain = vec.size() % n;
+template <typename T>
+std::vector<std::vector<T>> split_vector(const std::vector<T>& inputVector, size_t numSegments) {
+    std::vector<std::vector<T>> result;
 
-    size_t begin = 0;
-    size_t end = 0;
+    size_t inputSize = inputVector.size();
+    size_t segmentSize = (inputSize + numSegments - 1) / numSegments; // Ceiling division
 
-    for (size_t i = 0; i < std::min(n, vec.size()); ++i) {
-      end += (remain > 0) ? (length + !!(remain--)) : length;
+    auto begin = inputVector.begin();
+    auto end = inputVector.end();
 
-      outVec.push_back(std::vector<T>(vec.begin() + begin, vec.begin() + end));
-
-      begin = end;
+    for (size_t i = 0; i < numSegments; ++i) {
+        auto segmentEnd = std::next(begin, std::min(segmentSize, static_cast<size_t>(std::distance(begin, end))));
+        result.emplace_back(begin, segmentEnd);
+        begin = segmentEnd;
     }
 
-    return outVec;
-  }
+    return result;
+}
 };
 
 } // namespace quantum

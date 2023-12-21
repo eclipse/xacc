@@ -173,13 +173,13 @@ std::shared_ptr<xacc::Observable> getH(const int nq) {
 TEST(HpcVirtTester, checkH2) {
   const int n_virt_qpus = 2;
   const int n_layers = 10;
-  const std::string acc = "qpp";
+  const std::string acc = "qsim";
   xacc::set_verbose(true);
   xacc::ScopeTimer timer("mpi_timing", false);
   auto accelerator = xacc::getAccelerator(acc);
   accelerator = xacc::getAcceleratorDecorator(
       "hpc-virtualization", accelerator,
-      {{"vqe-mode", false}, {"n-virtual-qpus", n_virt_qpus}});
+      {{"vqe-mode", true}, {"n-virtual-qpus", n_virt_qpus}});
   auto buffer = xacc::qalloc(2);
   auto observable = xacc::quantum::getObservable(
       "pauli", std::string("-0.349833 - 0.388748 Z0 - 0.388748 Z1 + 0.181771 "
@@ -222,7 +222,7 @@ TEST(HpcVirtTester, checkMcVQE) {
   auto accelerator = xacc::getAccelerator(acc);
   accelerator = xacc::getAcceleratorDecorator(
       "hpc-virtualization", accelerator,
-      {{"vqe-mode", false}, {"n-virtual-qpus", n_virt_qpus}});
+      {{"vqe-mode", true}, {"n-virtual-qpus", n_virt_qpus}});
   auto buffer = xacc::qalloc(nq);
 
   auto ansatz = getCircuit(nq);
@@ -255,7 +255,7 @@ TEST(HpcVirtTester, checkMcVQE) {
 }
 
 TEST(HpcVirtTester, checkGradients) {
-  auto accelerator = xacc::getAccelerator("qpp");
+  auto accelerator = xacc::getAccelerator("qsim");
   accelerator = xacc::getAcceleratorDecorator("hpc-virtualization", accelerator,
                                               {{"n-virtual-qpus", 2}});
   auto buffer = xacc::qalloc(3);
