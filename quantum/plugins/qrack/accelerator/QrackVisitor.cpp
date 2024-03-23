@@ -89,7 +89,7 @@ namespace quantum {
         for (auto it = measureDist.begin(); it != measureDist.end(); it++) {
             std::string bitString = "";
             for (int i = 0; i < m_measureBits.size(); i++) {
-                bitString.append((Qrack::pow2(i) & it->first) ? "1" : "0"); 
+                bitString.append(bi_compare_0((Qrack::pow2(i) & it->first)) ? "1" : "0"); 
             }
             for (int j = 0; j < it->second; j++) {
                 m_buffer->appendMeasurement(bitString);
