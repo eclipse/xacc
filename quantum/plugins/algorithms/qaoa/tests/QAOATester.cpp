@@ -51,7 +51,7 @@ TEST(QAOATester, checkStandardParamterizedScheme) {
   auto acc = xacc::getAccelerator("qpp");
   auto buffer = xacc::qalloc(2);
 
-  auto optimizer = xacc::getOptimizer("nlopt");
+  auto optimizer = xacc::getOptimizer("nlopt", std::make_pair("nlopt-optimizer", "nelder-mead"));
   auto qaoa = xacc::getService<Algorithm>("QAOA");
   // Create deuteron Hamiltonian
   auto H_N_2 = xacc::quantum::getObservable(

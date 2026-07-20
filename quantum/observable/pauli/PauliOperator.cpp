@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 UT-Battelle, LLC.
+ * Copyright (c) 2024 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -9,23 +9,20 @@
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
+ *   Daniel Claudino - measurement basis rotations, regex parser
  *******************************************************************************/
 #include "PauliOperator.hpp"
+#include "CompositeInstruction.hpp"
 #include "IRProvider.hpp"
-#include <cmath>
-#include <regex>
-#include <set>
-#include <iostream>
-#include "Observable.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-
 #include <Eigen/Core>
-
-#include "PauliOperatorLexer.h"
-#include "PauliListenerImpl.hpp"
-
-#include <armadillo>
+#include <Eigen/Sparse>
+#include <complex>
+#include <unsupported/Eigen/KroneckerProduct>
+#include <regex>
+#include <iomanip>
+#include "PauliOperatorParser.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -33,17 +30,17 @@ namespace quantum {
 std::vector<SparseTriplet> PauliOperator::to_sparse_matrix() {
   auto n_qubits = nQubits();
   auto n_hilbert = std::pow(2, n_qubits);
-  using SparseMatrix = arma::SpMat<std::complex<double>>;
+  using SparseMatrix = Eigen::SparseMatrix<std::complex<double>>;
 
-  SparseMatrix x(2, 2), y(2, 2), z(2, 2);
-  x(0, 1) = 1.0;
-  x(1, 0) = 1.0;
-  y(0, 1) = std::complex<double>(0, -1);
-  y(1, 0) = std::complex<double>(0, 1);
-  z(0, 0) = 1.;
-  z(1, 1) = -1.;
-
-  SparseMatrix i = arma::speye<SparseMatrix>(2, 2);
+  SparseMatrix x(2, 2), y(2, 2), z(2, 2), i(2, 2);
+  x.insert(0, 1) = 1.0;
+  x.insert(1, 0) = 1.0;
+  y.insert(0, 1) = std::complex<double>(0, -1);
+  y.insert(1, 0) = std::complex<double>(0, 1);
+  z.insert(0, 0) = 1.;
+  z.insert(1, 1) = -1.;
+  i.insert(0, 0) = 1.0;
+  i.insert(1, 1) = 1.0;
 
   std::map<std::string, SparseMatrix> mat_map{
       {"I", i}, {"X", x}, {"Y", y}, {"Z", z}};
@@ -51,7 +48,7 @@ std::vector<SparseTriplet> PauliOperator::to_sparse_matrix() {
   auto kron_ops = [](std::vector<SparseMatrix> &ops) {
     auto first = ops[0];
     for (int i = 1; i < ops.size(); i++) {
-      first = arma::kron(first, ops[i]);
+      first = Eigen::kroneckerProduct(first, ops[i]).eval();
     }
     return first;
   };
@@ -65,15 +62,23 @@ std::vector<SparseTriplet> PauliOperator::to_sparse_matrix() {
 
     if (term.second.ops().empty()) {
       // this was I term
-      auto id = arma::speye<SparseMatrix>(n_hilbert, n_hilbert);
+      SparseMatrix id(n_hilbert, n_hilbert);
+      id.reserve(Eigen::VectorXi::Constant(n_hilbert, 1));
+      for (std::size_t j = 0; j < n_hilbert; j++) {
+        id.insert(j, j) = 1.0;
+      }
       sparse_mats.push_back(id);
     } else {
       for (auto &pauli : term.second.ops()) {
         if (pauli.first > tensor_factor) {
 
-          auto id_qbits = pauli.first - tensor_factor;
-          auto id = arma::speye<SparseMatrix>((int)std::pow(2, id_qbits),
-                                              (int)std::pow(2, id_qbits));
+          //auto id_qbits = pauli.first - tensor_factor;
+          auto dim = (int)std::pow(2, pauli.first - tensor_factor);
+          SparseMatrix id(dim, dim);
+          id.reserve(Eigen::VectorXi::Constant(dim, 1));
+          for (std::size_t j = 0; j < dim; j++) {
+            id.insert(j, j) = 1.0;
+          }
           sparse_mats.push_back(id);
         }
 
@@ -81,9 +86,8 @@ std::vector<SparseTriplet> PauliOperator::to_sparse_matrix() {
         tensor_factor = pauli.first + 1;
       }
 
-      for (int i = tensor_factor; i < n_qubits; i++) {
-        auto id = arma::speye<SparseMatrix>(2, 2);
-        sparse_mats.push_back(id);
+      for (int j = tensor_factor; j < n_qubits; j++) {
+        sparse_mats.push_back(i);
       }
     }
 
@@ -92,21 +96,11 @@ std::vector<SparseTriplet> PauliOperator::to_sparse_matrix() {
     total += sp_matrix;
   }
 
-  //   arma::vec eigval;
-  //   arma::mat eigvec;
-
-  //   arma::sp_mat test(total.n_rows, total.n_cols);
-  //   for (auto i = total.begin(); i != total.end(); ++i) {
-  //     test(i.row(), i.col()) = (*i).real();
-  //   }
-
-  //   arma::eigs_sym(eigval, eigvec, test, 1);
-
-  //   std::cout << "EIGS:\n" << eigval << "\n";
-
   std::vector<SparseTriplet> trips;
-  for (auto iter = total.begin(); iter != total.end(); ++iter) {
-    trips.emplace_back(iter.row(), iter.col(), *iter);
+  for (int k = 0; k < total.outerSize(); ++k) {
+    for (SparseMatrix::InnerIterator it(total, k); it; ++it) {
+      trips.emplace_back(it.row(), it.col(), it.value());
+    }
   }
   return trips;
 }
@@ -181,13 +175,14 @@ std::complex<double> PauliOperator::coefficient() {
   }
   return terms.begin()->second.coeff();
 }
+
 std::vector<std::shared_ptr<CompositeInstruction>>
 PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
 
+  auto basisRotations = getMeasurementBasisRotations();
   // Create a new GateQIR to hold the spin based terms
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   std::vector<std::shared_ptr<CompositeInstruction>> observed;
-  int counter = 0;
   auto pi = xacc::constants::pi;
 
   // If the incoming function has instructions that have
@@ -201,13 +196,15 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
     buf_name = function->getInstruction(0)->getBufferNames()[0];
   }
 
-  // Populate GateQIR now...
-  for (auto &inst : terms) {
+  assert(basisRotations.size() == terms.size());
 
-    Term spinInst = inst.second;
+  auto it1 = basisRotations.begin();
+  auto it2 = terms.begin();
+  for (; it1 != basisRotations.end() && it2 != terms.end(); ++it1, ++it2) {
+    Term spinInst = (*it2).second;
 
     auto gateFunction =
-        gateRegistry->createComposite(inst.first, function->getVariables());
+        gateRegistry->createComposite((*it2).first, function->getVariables());
 
     gateFunction->setCoefficient(spinInst.coeff());
 
@@ -219,56 +216,12 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
       gateFunction->addArgument(arg, 0);
     }
 
-    // Loop over all terms in the Spin Instruction
-    // and create instructions to run on the Gate QPU.
-    std::vector<std::shared_ptr<xacc::Instruction>> measurements;
-    auto termsMap = spinInst.ops();
-
-    std::vector<std::pair<int, std::string>> terms;
-    for (auto &kv : termsMap) {
-      if (kv.second != "I" && !kv.second.empty()) {
-        terms.push_back({kv.first, kv.second});
-      }
-    }
-
-    for (int i = terms.size() - 1; i >= 0; i--) {
-      auto qbit = terms[i].first;
-      int t = qbit;
-      std::size_t tt = t;
-      auto gateName = terms[i].second;
-      auto meas = gateRegistry->createInstruction("Measure",
-                                                  std::vector<std::size_t>{tt});
-      if (!buf_name.empty())
-        meas->setBufferNames({buf_name});
-      xacc::InstructionParameter classicalIdx(qbit);
-      meas->setParameter(0, classicalIdx);
-      measurements.push_back(meas);
-
-      if (gateName == "X") {
-        auto hadamard =
-            gateRegistry->createInstruction("H", std::vector<std::size_t>{tt});
-        if (!buf_name.empty())
-          hadamard->setBufferNames({buf_name});
-        gateFunction->addInstruction(hadamard);
-      } else if (gateName == "Y") {
-        auto rx =
-            gateRegistry->createInstruction("Rx", std::vector<std::size_t>{tt});
-        if (!buf_name.empty())
-          rx->setBufferNames({buf_name});
-        InstructionParameter p(pi / 2.0);
-        rx->setParameter(0, p);
-        gateFunction->addInstruction(rx);
-      }
-    }
-
-    if (!spinInst.isIdentity()) {
-      for (auto m : measurements) {
-        gateFunction->addInstruction(m);
-      }
+    for (auto& rot : (*it1)->getInstructions()) {
+      rot->setBufferNames({buf_name});
+      gateFunction->addInstruction(rot);
     }
 
     observed.push_back(gateFunction);
-    counter++;
   }
   return observed;
 }
@@ -605,28 +558,108 @@ const std::string PauliOperator::toString() {
 }
 
 void PauliOperator::fromString(const std::string str) {
-  using namespace antlr4;
-  using namespace pauli;
 
-  ANTLRInputStream input(str);
-  PauliOperatorLexer lexer(&input);
-  lexer.removeErrorListeners();
-  lexer.addErrorListener(new PauliOperatorErrorListener());
+  std::smatch match;
+  std::string::const_iterator searchStart(str.cbegin());
+  std::complex<double> coefficient;
+  bool minus = 0;
 
-  CommonTokenStream tokens(&lexer);
-  PauliOperatorParser parser(&tokens);
-  parser.removeErrorListeners();
-  parser.addErrorListener(new PauliOperatorErrorListener());
+  PauliOperatorParser parser;
+  while (std::regex_search(searchStart, str.cend(), match, parser.matchPattern)) {
 
-  // Walk the Abstract Syntax Tree
-  tree::ParseTree *tree = parser.pauliSrc();
+    std::string pauliString;
+    std::map<int, std::string> pauliMap;
 
-  PauliListenerImpl listener;
-  tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
+    PauliOperatorParser::MatchType type = parser.getMatchType(match);
+    switch (type) {
+      case PauliOperatorParser::MatchType::SIGN: {
+        std::string sign(match[1].str());
+        PauliOperatorParser::removeWhiteSpaces(sign);
+        minus = (sign == "-");
+        searchStart = match.suffix().first;
+        continue;
+      }
 
-  clear();
+      case PauliOperatorParser::MatchType::COMPLEX_AND_P:
+        coefficient = std::complex<double>{std::stod(match[2].str()), std::stod(match[3].str())};
+        if (minus) coefficient *= -1.0;
+        pauliString = match[4].str();
+        PauliOperatorParser::removeWhiteSpaces(pauliString);
+        parser.parsePauliString(pauliString, pauliMap);
+        break;
 
-  operator+=(listener.getOperator());
+      case PauliOperatorParser::MatchType::REAL_AND_P:
+        coefficient = std::stod(match[5].str());
+        if (minus) coefficient *= -1.0;
+        pauliString = match[6].str();
+        PauliOperatorParser::removeWhiteSpaces(pauliString);
+        parser.parsePauliString(pauliString, pauliMap);
+        break;
+
+      case PauliOperatorParser::MatchType::P_ONLY:
+        coefficient = minus ? -1.0 : 1.0;
+        pauliString = match[7].str();
+        PauliOperatorParser::removeWhiteSpaces(pauliString);
+        parser.parsePauliString(pauliString, pauliMap);
+        break;
+
+      case PauliOperatorParser::MatchType::IDENTITY_ONLY:
+        coefficient = minus ? -1.0 : 1.0;
+        break;
+
+      case PauliOperatorParser::MatchType::REAL_AND_I:
+        coefficient = std::stod(match[9].str());
+        if (minus) coefficient *= -1.0;
+        break;
+
+      case PauliOperatorParser::MatchType::COMPLEX_AND_I:
+        coefficient = std::complex<double>{std::stod(match[11].str()), std::stod(match[12].str())};
+        if (minus) coefficient *= -1.0;
+        break;
+
+      case PauliOperatorParser::MatchType::REAL_ONLY:
+        coefficient = std::stod(match[14].str());
+        if (minus) coefficient *= -1.0;
+        break;
+
+      case PauliOperatorParser::MatchType::COMPLEX_ONLY:
+        coefficient = std::complex<double>{std::stod(match[15].str()), std::stod(match[16].str())};
+        if (minus) coefficient *= -1.0;
+        break;
+
+      case PauliOperatorParser::MatchType::UNKNOWN:
+        default:
+          xacc::error("String contains unknown patterns.");
+          break;
+    }
+
+    if (std::abs(coefficient) < 1.0e-12) {
+      searchStart = match.suffix().first;
+      continue;
+    }
+
+    if (pauliString.empty()) {
+
+      if (!terms.insert({"I", coefficient}).second) {
+        terms.at("I").coeff() += coefficient;
+      }
+      if (std::abs(terms.at("I").coeff()) < 1e-12) {
+        terms.erase("I");
+      }
+
+    } else {
+
+      if (!terms.insert({pauliString, Term(coefficient, pauliMap)}).second) {
+        terms.at(pauliString).coeff() += coefficient;
+      }
+      if (std::abs(terms.at(pauliString).coeff()) < 1e-12) {
+        terms.erase(pauliString);
+      }
+
+    }
+
+    searchStart = match.suffix().first;
+  }
 }
 
 bool PauliOperator::contains(PauliOperator &op) {
@@ -1139,6 +1172,76 @@ double PauliOperator::postProcess(std::shared_ptr<AcceleratorBuffer> buffer,
   xacc::error("Unknown post-processing task: " + postProcessTask);
   return 0.0;
 }
+
+std::vector<std::shared_ptr<CompositeInstruction>> PauliOperator::getMeasurementBasisRotations() {
+
+  // the idea is that, for something like VQE, we only need to know
+  // the qubits that need to be measure in the X or Y basis
+  // so we map the index of the qubit, to the corresponding 
+  // rotation operators, then later add measure to all qubits
+  std::vector<std::shared_ptr<CompositeInstruction>> basisRotations;
+
+  auto pi = xacc::constants::pi;
+  // Create a new GateQIR to hold the spin based terms
+  auto gateRegistry = xacc::getService<IRProvider>("quantum");
+
+  // If the incoming function has instructions that have
+  // their buffer_names set, then we need to set the
+  // new measurement instructions buffer names to be the same.
+  // Here we assume that all instructions have the same buffer name
+  std::string buf_name = "";
+
+  // Populate GateQIR now...
+  for (auto &inst : terms) {
+
+    Term spinInst = inst.second;
+
+    // Loop over all terms in the Spin Instruction
+    // and create instructions to run on the Gate QPU.
+    auto termsMap = spinInst.ops();
+
+    std::vector<std::pair<int, std::string>> terms;
+    for (auto &kv : termsMap) {
+      if (kv.second != "I" && !kv.second.empty()) {
+        terms.push_back({kv.first, kv.second});
+      }
+    }
+
+    auto rotationGates = gateRegistry->createComposite(inst.first);
+    rotationGates->setCoefficient(spinInst.coeff());
+    std::vector<std::size_t> measureIdxs;
+    for (int i = terms.size() - 1; i >= 0; i--) {
+
+      std::size_t qbit = terms[i].first;
+      measureIdxs.push_back(qbit);
+      auto gateName = terms[i].second;
+
+      if (gateName == "X") {
+        auto hadamard =
+            gateRegistry->createInstruction("H", {qbit});
+        if (!buf_name.empty())
+          hadamard->setBufferNames({buf_name});
+        rotationGates->addInstruction(hadamard);
+      } else if (gateName == "Y") {
+        auto rx =
+            gateRegistry->createInstruction("Rx", {qbit}, {pi / 2.0});
+        if (!buf_name.empty())
+          rx->setBufferNames({buf_name});
+        rotationGates->addInstruction(rx);
+      }
+
+    }
+      for(auto& mb : measureIdxs) {
+        auto meas = gateRegistry->createInstruction("Measure", {mb});
+        if (!buf_name.empty())
+          meas->setBufferNames({buf_name});
+        rotationGates->addInstruction(meas);
+      }
+      basisRotations.push_back(rotationGates);
+  }
+  return basisRotations;
+}
+
 } // namespace quantum
 } // namespace xacc
 

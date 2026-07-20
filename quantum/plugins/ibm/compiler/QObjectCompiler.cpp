@@ -40,7 +40,7 @@ std::shared_ptr<IR> QObjectCompiler::compile(const std::string &src,
   auto ir = provider->createIR();
   auto json = nlohmann::json::parse(jsonstr);
   xacc::ibm::QObjectRoot qobj;
-  nlohmann::from_json(json, qobj);
+  json.get_to(qobj);
 
   auto experiments = qobj.get_q_object().get_experiments();
   for (auto &e : experiments) {
@@ -108,7 +108,7 @@ QObjectCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function)
 
   auto uniqueBits = function->uniqueBits();
   // The number of qubits required for an experiment is the number of *physical* qubits,
-  // i.e. the max index of qubit used in the circuit.  
+  // i.e. the max index of qubit used in the circuit.
   auto nbRequiredBits = function->nPhysicalBits();
   auto visitor =
       std::make_shared<QObjectExperimentVisitor>(function->name(), nbRequiredBits);
@@ -152,8 +152,7 @@ QObjectCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function)
   root.set_q_object(qobj);
 
   // Create the JSON String to send
-  nlohmann::json j;
-  nlohmann::to_json(j, root);
+  nlohmann::json j = root;
   return j.dump();
 }
 
@@ -220,8 +219,7 @@ QObjectCompiler::translate(std::shared_ptr<CompositeInstruction> function,
   root.set_q_object(qobj);
 
   // Create the JSON String to send
-  nlohmann::json j;
-  nlohmann::to_json(j, root);
+  nlohmann::json j = root;
   return j.dump();
 }
 } // namespace quantum

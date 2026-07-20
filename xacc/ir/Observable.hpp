@@ -49,6 +49,8 @@ public:
     }
   }
 
+  virtual std::vector<std::shared_ptr<CompositeInstruction>> getMeasurementBasisRotations() = 0;
+
   virtual const std::string toString() = 0;
   virtual void fromString(const std::string str) = 0;
   virtual const int nBits() = 0;

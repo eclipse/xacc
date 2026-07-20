@@ -99,6 +99,8 @@ TEST(AerAcceleratorTester, checkDeuteron) {
     EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResults[i], 1e-6);
   }
 }
+
+#ifndef QIREE_BUILD
 TEST(AerAcceleratorTester, checkDeuteronVqeH2) {
   auto accelerator =
       xacc::getAccelerator("aer", {std::make_pair("sim-type", "statevector")});
@@ -256,6 +258,8 @@ MEASURE 1 [1]
               nbShots);
   }
 }
+#endif
+
 
 TEST(AerAcceleratorTester, checkNoiseJson) {
   // Single-qubit noise model Json (IBMQ armonk)
@@ -600,6 +604,7 @@ TEST(AerAcceleratorTester, testExecutionInfoDensityMat) {
   EXPECT_NEAR(std::abs((*dm)[3][3] - 0.5), 0.0, 1e-9);
 }
 
+#ifndef QIREE_BUILD
 TEST(AerAcceleratorTester, checkDeuteronVqeH2DensityMatrix) {
   auto accelerator =
       xacc::getAccelerator("aer", {{"sim-type", "density_matrix"}});
@@ -674,6 +679,7 @@ TEST(AerAcceleratorTester, testDeuteronVqeH3DensityMatrix) {
   // Expected result: -2.04482
   EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -2.04482, 1e-4);
 }
+#endif
 
 TEST(AerAcceleratorTester, checkMatrixProductState) {
   auto xasmCompiler = xacc::getCompiler("xasm");

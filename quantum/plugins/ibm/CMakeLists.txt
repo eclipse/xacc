@@ -25,31 +25,32 @@ file(GLOB SRC
           compiler/OQASMCompiler.cpp
           compiler/QObjectCompiler.cpp
           compiler/OQASMToXACCListener.cpp
-          compiler/generated/*.cpp
-          accelerator/OpenPulseVisitor.cpp)
-
+          compiler/generated/*.cpp)
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-  target_include_directories(${LIBRARY_NAME}
-                             PUBLIC accelerator
-                                    compiler
-                                    common
-                                    compiler/generated
-                                    accelerator/json
-                                    ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
-                                    ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
-                                    #${CMAKE_SOURCE_DIR}/tpls/exprtk
-                                    
-  target_link_libraries(${LIBRARY_NAME}
-                        PUBLIC xacc
-                               xacc-quantum-gate
-                               ${ANTLR_LIB}
-                               CppMicroServices PRIVATE cpr)
+target_include_directories(${LIBRARY_NAME}
+                            PUBLIC accelerator
+                                  compiler
+                                  common
+                                  compiler/generated
+                                  accelerator/json
+                                  ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
+                                  ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
+target_link_libraries(${LIBRARY_NAME}
+  PUBLIC
+    xacc
+    xacc-quantum-gate
+    ${ANTLR_LIB}
+    CppMicroServices
+)
 
+if(XACC_REMOTE_ACCELERATORS)
+  target_link_libraries(${LIBRARY_NAME} PRIVATE cpr::cpr)
+endif()
 
 set(_bundle_name xacc_ibm)
 set_target_properties(${LIBRARY_NAME}

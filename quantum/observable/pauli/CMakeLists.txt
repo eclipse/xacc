@@ -13,8 +13,8 @@
 set (PACKAGE_NAME "PauliOperator Parser")
 set (LIBRARY_NAME xacc-pauli)
 
-file (GLOB_RECURSE HEADERS *.hpp generated/*.hpp)
-file (GLOB SRC *.cpp generated/*.cpp)
+file (GLOB_RECURSE HEADERS *.hpp)
+file (GLOB SRC *.cpp)
 
 # Set up dependencies to resources to track changes
 usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
@@ -25,16 +25,11 @@ usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 target_include_directories(${LIBRARY_NAME}
                             PUBLIC
-                            . ${CMAKE_SOURCE_DIR}/tpls/armadillo
-                            ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
+                            .
                             ${CMAKE_CURRENT_SOURCE_DIR}
-                            ${CMAKE_CURRENT_SOURCE_DIR}/generated
                             ${CMAKE_SOURCE_DIR}/tpls/taocpp
                             ${EIGEN_INCLUDE_DIR}
                             ${CMAKE_BINARY_DIR})
-
-add_dependencies(${LIBRARY_NAME} antlr4_shared)
-
 
 set(_bundle_name xacc_pauli)
 set_target_properties(${LIBRARY_NAME}

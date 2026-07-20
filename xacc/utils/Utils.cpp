@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "Utils.hpp"
 #include <unistd.h>
+#include <sys/stat.h>
 #include "RuntimeOptions.hpp"
 
 #include <iostream>

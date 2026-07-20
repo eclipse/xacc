@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_optimizer_gsl",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC GNU Scientific Library Optimizers",
+  "bundle.description" : ""
+}

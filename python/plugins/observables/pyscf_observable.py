@@ -13,6 +13,15 @@ class PySCFObservable(xacc.Observable):
         xacc.Observable.__init__(self)
         self.observable = None
         self.asPauli = None
+        self.index_map = None
+
+    def _build_index_map(self, n_bits):
+        if self.index_map is None:
+            self.index_map = {}
+            for i in range(n_bits // 2):
+                self.index_map[i] = 2 * i
+                self.index_map[i + n_bits // 2] = 2 * i + 1
+        return
 
     def toString(self):
         return self.observable.toString()
@@ -33,7 +42,7 @@ class PySCFObservable(xacc.Observable):
         return self.asPauli.__iter__()
 
     def fromOptions(self, inputParams):
-        import numpy as np, sys, io, os
+        import numpy as np, sys
         from pyscf import gto, scf, dft, tddft
         from pyscf.lib import logger
 
@@ -41,25 +50,48 @@ class PySCFObservable(xacc.Observable):
         sys.argv = ['']
         mol.atom = inputParams['geometry']
         mol.basis = inputParams['basis']
+
+        if 'charge' in inputParams:
+            mol.charge = inputParams['charge']
+
+        if 'spin' in inputParams:
+            mol.spin = inputParams['spin']
+
         if 'verbose' in inputParams and inputParams['verbose']:
             mol.build()
         else:
             mol.build(verbose=logger.QUIET)
-        if 'spin' in inputParams and inputParams['spin'] != 0:
-          mol.spin = inputParams['spin']
-          scf_wfn = scf.ROHF(mol)
+
+        is_restricted_ref = True
+        if 'reference' in inputParams:
+            if inputParams['reference'] == 'ROHF' or inputParams['reference'] == 'rohf':
+                scf_wfn = scf.ROHF(mol)
+            elif inputParams['reference'] == 'UHF' or inputParams['reference'] == 'uhf':
+                scf_wfn = scf.UHF(mol)
+                is_restricted_ref = False
+            elif inputParams['reference'] == 'RHF' or inputParams['reference'] == 'rhf':
+                if mol.spin != 0:
+                    xacc.error('Spin needs to be zero for RHF.')
+                scf_wfn = scf.RHF(mol)
         else:
-          scf_wfn = scf.RHF(mol) # needs to be changed for open-shells
+            if mol.spin != 0:
+                xacc.error('Spin needs to be zero for RHF.')
+            scf_wfn = scf.RHF(mol)
+
         scf_wfn.conv_tol = 1e-8
-        scf_wfn.kernel() # runs RHF calculations
+        scf_wfn.kernel()
         E_nucl = mol.energy_nuc()
 
         # Get orbital coefficients:
-        Ca = scf_wfn.mo_coeff
-        Cb = scf_wfn.mo_coeff
+        if is_restricted_ref:
+            Ca = scf_wfn.mo_coeff
+            Cb = scf_wfn.mo_coeff
+        else:
+            Ca = scf_wfn.mo_coeff[0, :, :]
+            Cb = scf_wfn.mo_coeff[1, :, :]
         C = np.block([
-            [Ca,np.zeros_like(Cb)],
-            [np.zeros_like(Ca),Cb]
+            [Ca, np.zeros_like(Cb)],
+            [np.zeros_like(Ca), Cb]
         ])
 
         # Get the two electron integrals using MintsHelper
@@ -109,7 +141,8 @@ class PySCFObservable(xacc.Observable):
         # --- th is version is  safer than above (H_1b is permutted correctly if eigvecs are permutted)
         Hamiltonian_1body_ao = np.block([[H_core_ao, np.zeros_like(H_core_ao)],
                                          [np.zeros_like(H_core_ao), H_core_ao]])
-        Hamiltonian_1body = np.einsum('ij, jk, kl -> il', C.T, Hamiltonian_1body_ao, C)
+        Hamiltonian_1body = np.einsum(
+            'ij, jk, kl -> il', C.T, Hamiltonian_1body_ao, C)
         Hamiltonian_2body = gmo
 
         if 'frozen-spin-orbitals' in inputParams and 'active-spin-orbitals' in inputParams:
@@ -137,11 +170,16 @@ class PySCFObservable(xacc.Observable):
 
         f_str = str(Hamiltonian_fc_0body)
 
-        pos_or_neg = lambda x : ' + ' if x > 0. else ' - '
+        def pos_or_neg(x): return ' + ' if x > 0. else ' - '
+
+        alternate_spins = False
+        if 'alternate-spins' in inputParams:
+            alternate_spins = inputParams['alternate-spins']
+            if alternate_spins:
+                self._build_index_map(n_active)
 
         # --- 1-body frozen-core:
         Hamiltonian_fc_1body = np.zeros((n_active, n_active))
-        Hamiltonian_fc_1body_tmp = np.zeros((n_active, n_active))
         for p in range(n_active):
 
             ip = MSO_active_list[p]
@@ -150,19 +188,24 @@ class PySCFObservable(xacc.Observable):
 
                 iq = MSO_active_list[q]
                 Hamiltonian_fc_1body[p, q] = Hamiltonian_1body[ip, iq]
-                #Hamiltonian_fc_1body_tmp[p,q] =  Hamiltonian_1body[ip,iq]
 
                 for a in range(n_frozen):
 
                     ia = MSO_frozen_list[a]
                     Hamiltonian_fc_1body[p, q] += gmo[ia, ip, ia, iq]
-                if abs(Hamiltonian_fc_1body[p,q]) > 1e-12:
-                    f_str += pos_or_neg(Hamiltonian_fc_1body[p,q]) + str(abs(Hamiltonian_fc_1body[p,q])) + ' ' + str(p) + '^ ' + str(q)
 
+                if abs(Hamiltonian_fc_1body[p, q]) > 1e-12:
+                    f_str += pos_or_neg(Hamiltonian_fc_1body[p, q]) + str(
+                        abs(Hamiltonian_fc_1body[p, q])) + ' '
+                    if alternate_spins:
+                        f_str += str(self.index_map[p]) + '^ ' + str(self.index_map[q])
+                    else:
+                        f_str += str(p) + '^ ' + str(q)
 
         # ------- 2-body frozen-core:
 
-        Hamiltonian_fc_2body = np.zeros((n_active, n_active, n_active, n_active))
+        Hamiltonian_fc_2body = np.zeros(
+            (n_active, n_active, n_active, n_active))
         for p in range(n_active):
 
             ip = MSO_active_list[p]
@@ -179,7 +222,7 @@ class PySCFObservable(xacc.Observable):
 
                         iss = MSO_active_list[ss]
                         #Hamiltonian_fc_2body[p,q,r,ss]= 0.25* gmo[ip,iq,ir,iss]
-                        Hamiltonian_fc_2body[p, q, r,ss] = gmo[ip, iq, ir, iss]
+                        Hamiltonian_fc_2body[p, q, r, ss] = gmo[ip, iq, ir, iss]
                         #Hamiltonian_fc_2body[p,q,r,ss]= 0.25* gmo[ip,iq,iss,ir]
 
         # checking whether to reduce Hamiltonian
@@ -190,15 +233,16 @@ class PySCFObservable(xacc.Observable):
         if reduce_hamiltonian:
 
             if Hamiltonian_fc_1body.shape[0] != 4:
-                raise NotImplementedError("Reduction only implemented for Hamiltonians with 4 spin orbitals / 2 spatial orbitals.")
+                raise NotImplementedError(
+                    "Reduction only implemented for Hamiltonians with 4 spin orbitals / 2 spatial orbitals.")
 
             # Gather pieces of the Hamiltonian
-            h11 = Hamiltonian_fc_1body[0,0]
-            h22 = Hamiltonian_fc_1body[1,1]
-            J11 = Hamiltonian_fc_2body[0,2,0,2]
-            J12 = Hamiltonian_fc_2body[1,2,1,2]
-            J22 = Hamiltonian_fc_2body[1,3,1,3]
-            K12 = Hamiltonian_fc_2body[0,2,1,3]
+            h11 = Hamiltonian_fc_1body[0, 0]
+            h22 = Hamiltonian_fc_1body[1, 1]
+            J11 = Hamiltonian_fc_2body[0, 2, 0, 2]
+            J12 = Hamiltonian_fc_2body[1, 2, 1, 2]
+            J22 = Hamiltonian_fc_2body[1, 3, 1, 3]
+            K12 = Hamiltonian_fc_2body[0, 2, 1, 3]
             e1 = h11 + J11
             e2 = h22 + 2 * J12 - K12
 
@@ -213,7 +257,8 @@ class PySCFObservable(xacc.Observable):
             # <10|H|01> = K12 = g4
 
             from numpy import linalg
-            M = np.array([[1, 1, 1, 1], [1, -1, 1, -1], [1, 1, -1, -1], [1, -1, -1, 1]])
+            M = np.array([[1, 1, 1, 1], [1, -1, 1, -1],
+                          [1, 1, -1, -1], [1, -1, -1, 1]])
             Minv = linalg.inv(M)
 
             b = np.zeros(4)
@@ -235,7 +280,8 @@ class PySCFObservable(xacc.Observable):
 
         else:
 
-            Hamiltonian_fc_2body_tmp = 0.25 * Hamiltonian_fc_2body.transpose(0, 1, 3, 2)
+            Hamiltonian_fc_2body_tmp = 0.25 * \
+                Hamiltonian_fc_2body.transpose(0, 1, 3, 2)
             for p in range(n_active):
                 ip = MSO_active_list[p]
                 for q in range(n_active):
@@ -243,7 +289,15 @@ class PySCFObservable(xacc.Observable):
                     for r in range(n_active):
                         ir = MSO_active_list[r]
                         for ss in range(n_active):
-                            if abs(Hamiltonian_fc_2body_tmp[p,q,r,ss]) > 1e-12:
-                                f_str += pos_or_neg(Hamiltonian_fc_2body_tmp[p,q,r,ss]) + str(abs(Hamiltonian_fc_2body_tmp[p,q,r,ss])) + ' ' + str(p) + '^ ' + str(q) + '^ ' + str(r) + ' ' + str(ss)
+                            if abs(Hamiltonian_fc_2body_tmp[p, q, r, ss]) > 1e-12:
+                                f_str += pos_or_neg(Hamiltonian_fc_2body_tmp[p, q, r, ss]) + str(
+                                    abs(Hamiltonian_fc_2body_tmp[p, q, r, ss])) + ' '
+                                if alternate_spins:
+                                    f_str += str(self.index_map[p]) + '^ ' 
+                                    f_str += str(self.index_map[q]) + '^ ' 
+                                    f_str += str(self.index_map[r]) + ' ' 
+                                    f_str += str(self.index_map[ss])
+                                else:
+                                    f_str += str(p) + '^ ' + str(q) + '^ ' + str(r) + ' ' + str(ss)
             self.observable = xacc.getObservable('fermion', f_str)
             self.asPauli = xacc.transformToPauli('jw', self.observable)

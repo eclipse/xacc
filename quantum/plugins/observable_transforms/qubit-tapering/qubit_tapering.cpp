@@ -1,6 +1,9 @@
 #include "qubit_tapering.hpp"
 
-#include <armadillo>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <unsupported/Eigen/KroneckerProduct>
+
 #include <iomanip>
 
 #include "FermionOperator.hpp"
@@ -17,8 +20,7 @@ bool ptr_is_a(std::shared_ptr<Observable> ptr) {
 }
 std::shared_ptr<xacc::Observable> QubitTapering::transform(
     std::shared_ptr<xacc::Observable> Hptr_input) {
-
-  // First we pre-process the observable to a PauliOperator
+ // First we pre-process the observable to a PauliOperator
   auto obs_str = Hptr_input->toString();
   auto fermi_to_pauli = xacc::getService<xacc::ObservableTransform>("jw");
   std::shared_ptr<xacc::Observable> Hptr;
@@ -274,27 +276,28 @@ const double QubitTapering::computeGroundStateEnergy(PauliOperator &op,
                                                      const int n) {
   auto n_qubits = op.nQubits();
   auto n_hilbert = std::pow(2, n_qubits);
-  using SparseMatrix = arma::SpMat<std::complex<double>>;
+  using SparseMatrix = Eigen::SparseMatrix<std::complex<double>>;
 
   SparseMatrix x(2, 2), y(2, 2), z(2, 2);
-  x(0, 1) = 1.0;
-  x(1, 0) = 1.0;
-  y(0, 1) = std::complex<double>(0, -1);
-  y(1, 0) = std::complex<double>(0, 1);
-  z(0, 0) = 1.;
-  z(1, 1) = -1.;
+  x.coeffRef(0, 1) = 1.0;
+  x.coeffRef(1, 0) = 1.0;
+  y.coeffRef(0, 1) = std::complex<double>(0, -1);
+  y.coeffRef(1, 0) = std::complex<double>(0, 1);
+  z.coeffRef(0, 0) = 1.0;
+  z.coeffRef(1, 1) = -1.0;
 
-  SparseMatrix i = arma::speye<SparseMatrix>(2, 2);
+  SparseMatrix i = SparseMatrix(2, 2);
+  i.setIdentity();
 
   std::map<std::string, SparseMatrix> mat_map{
       {"I", i}, {"X", x}, {"Y", y}, {"Z", z}};
 
-  auto kron_ops = [](std::vector<SparseMatrix> &ops) {
-    auto first = ops[0];
-    for (int i = 1; i < ops.size(); i++) {
-      first = arma::kron(first, ops[i]);
+  auto kron_ops = [](const std::vector<SparseMatrix> &ops) {
+    SparseMatrix result = ops[0];
+    for (size_t i = 1; i < ops.size(); ++i) {
+      result = Eigen::kroneckerProduct(result, ops[i]).eval();
     }
-    return first;
+    return result;
   };
 
   SparseMatrix total(n_hilbert, n_hilbert);
@@ -306,14 +309,15 @@ const double QubitTapering::computeGroundStateEnergy(PauliOperator &op,
 
     if (term.second.ops().empty()) {
       // this was I term
-      auto id = arma::speye<SparseMatrix>(n_hilbert, n_hilbert);
+      SparseMatrix id(n_hilbert, n_hilbert);
+      id.setIdentity();
       sparse_mats.push_back(id);
     } else {
       for (auto &pauli : term.second.ops()) {
         if (pauli.first > tensor_factor) {
-          auto id_qbits = pauli.first - tensor_factor;
-          auto id = arma::speye<SparseMatrix>((int)std::pow(2, id_qbits),
-                                              (int)std::pow(2, id_qbits));
+          int id_qbits = pauli.first - tensor_factor;
+          SparseMatrix id((int)std::pow(2, id_qbits), (int)std::pow(2, id_qbits));
+          id.setIdentity();
           sparse_mats.push_back(id);
         }
 
@@ -322,7 +326,8 @@ const double QubitTapering::computeGroundStateEnergy(PauliOperator &op,
       }
 
       for (int i = tensor_factor; i < n_qubits; i++) {
-        auto id = arma::speye<SparseMatrix>(2, 2);
+        SparseMatrix id(2, 2);
+        id.setIdentity();
         sparse_mats.push_back(id);
       }
     }
@@ -331,18 +336,13 @@ const double QubitTapering::computeGroundStateEnergy(PauliOperator &op,
     sp_matrix *= coeff;
     total += sp_matrix;
   }
+  Eigen::VectorXd eigval;
+  Eigen::MatrixXd eigvec;
 
-  arma::vec eigval;
-  arma::mat eigvec;
+  Eigen::SparseMatrix<double> real_total = total.real();
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(real_total);
 
-  arma::sp_mat test(total.n_rows, total.n_cols);
-  for (auto i = total.begin(); i != total.end(); ++i) {
-    test(i.row(), i.col()) = (*i).real();
-  }
-
-  arma::eigs_sym(eigval, eigvec, test, 1);
-
-  double reducedEnergy = eigval(0);
+  double reducedEnergy = solver.eigenvalues()[0];
   return reducedEnergy;
 }
 
@@ -422,9 +422,7 @@ Eigen::MatrixXi QubitTapering::gauss(Eigen::MatrixXi &A,
 
         if (k > ip) {
           for (int j = i; j < m; j++) {
-            auto tmp = A(k, j);
-            A(k, j) = A(ip, j);
-            A(ip, j) = tmp;
+            std::swap(A(k, j), A(ip, j));
           }
         }
 

@@ -11,6 +11,8 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include <gtest/gtest.h>
+#include <memory>
+#include <vector>
 
 #include "xacc.hpp"
 #include "Algorithm.hpp"
@@ -55,6 +57,9 @@ public:
                       const std::string &postProcessTask,
                       const HeterogeneousMap &extra_data) override {
     return 0.0;
+  }
+  std::vector<std::shared_ptr<CompositeInstruction>> getMeasurementBasisRotations() override {
+    return {};
   }
 };
 

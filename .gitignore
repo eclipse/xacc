@@ -28,6 +28,9 @@
 *.out
 *.app
 /build/
+/build-*/
+/install/
+/install-*/
 /plugins/
 /.cproject
 /.project

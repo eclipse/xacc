@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_optimizer_scipy",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Scipy Optimizer",
+  "bundle.description" : ""
+}

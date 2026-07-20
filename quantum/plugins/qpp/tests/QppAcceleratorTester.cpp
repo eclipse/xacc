@@ -84,6 +84,7 @@ TEST(QppAcceleratorTester, testDeuteron)
     }
 }
 
+#ifndef QIREE_BUILD
 TEST(QppAcceleratorTester, testDeuteronVqeH2)
 {
     // Use Qpp accelerator
@@ -215,7 +216,7 @@ MEASURE 1 [1]
         EXPECT_EQ(buffer->getMeasurementCounts()["11"] + buffer->getMeasurementCounts()["00"], nbShots);
     }
 }
-
+#endif
 // Port DDCL test suite to QPP
 /*TEST(QppAcceleratorTester, testDDCL)
 {
@@ -454,6 +455,7 @@ TEST(QppAcceleratorTester, testFsim)
     }
 }
 
+#ifndef QIREE_BUILD
 TEST(QppAcceleratorTester, testDeuteronVqeH3Shots)
 {
     // Use Qpp accelerator
@@ -538,6 +540,7 @@ TEST(QppAcceleratorTester, testVqeMode)
     // Expected result: -1.74886
     EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-4);
 }
+#endif
 
 TEST(QppAcceleratorTester, testExecutionInfo)
 {
@@ -662,6 +665,7 @@ TEST(QppAcceleratorTester, testFtqcApply)
     EXPECT_TRUE(nb00 > 100 && nb11 > 100);
 }
 
+#ifndef QIREE_BUILD
 TEST(QppAcceleratorTester, testMultiControlledGateNativeSim)
 {
   auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
@@ -752,6 +756,7 @@ TEST(QppAcceleratorTester, testMultiControlledGateNativeSim)
     }
   }
 }
+#endif
 
 TEST(QppAcceleratorTester, checkRandomSeed) {
   auto xasmCompiler = xacc::getCompiler("xasm");

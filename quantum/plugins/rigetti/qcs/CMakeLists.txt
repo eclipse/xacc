@@ -18,7 +18,7 @@ if(Python_FOUND)
     PUBLIC .. ${XACC_ROOT}/include ${EIGEN_INCLUDE_DIR}
            ${CMAKE_SOURCE_DIR}/tpls/pybind11/include ${Python_INCLUDE_DIRS})
 
-  target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate cpr
+  target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate cpr::cpr
                                                Python::Python)
 
   set(_bundle_name xacc_rigetti_qcs)

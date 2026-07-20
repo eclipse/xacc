@@ -11,14 +11,12 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "py_observable.hpp"
-//#include "Observable.hpp"
+#include "Observable.hpp"
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
-//#include "Utils.hpp"
 #include "xacc_service.hpp"
 #include "py_heterogeneous_map.hpp"
 #include "ObservableTransform.hpp"
-//#include <memory>
 
 using namespace xacc::quantum;
 
@@ -46,7 +44,8 @@ void bind_observable(py::module &m) {
                xacc::Observable::fromString,
            "")
       .def("postProcess", &xacc::Observable::postProcess,
-           "Post-process the execution results.");
+           "Post-process the execution results.")
+      .def("getBasisRotations", &xacc::Observable::getMeasurementBasisRotations);
 
   m.def("getObservable",
         [](const std::string &type,

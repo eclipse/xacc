@@ -14,7 +14,9 @@
 
 #include <Utils.hpp>
 #include <iomanip>
+#include <memory>
 
+#include "CompositeInstruction.hpp"
 #include "FermionListenerImpl.hpp"
 #include "FermionOperatorLexer.h"
 #include "ObservableTransform.hpp"
@@ -335,6 +337,11 @@ std::shared_ptr<Observable> FermionOperator::normalOrder() {
   }
 
   return normalOrdered;
+}
+
+std::vector<std::shared_ptr<CompositeInstruction>> FermionOperator::getMeasurementBasisRotations() {
+  auto transform = xacc::getService<ObservableTransform>("jw");
+  return transform->transform(xacc::as_shared_ptr(this))->getMeasurementBasisRotations();
 }
 
 } // namespace quantum

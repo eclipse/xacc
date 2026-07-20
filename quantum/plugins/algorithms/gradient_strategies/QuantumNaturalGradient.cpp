@@ -9,6 +9,7 @@
  *
  * Contributors:
  *   Thien Nguyen - initial API and implementation
+ *   Daniel Claudino - Removed Armadillo
  *******************************************************************************/
 
 #include "QuantumNaturalGradient.hpp"
@@ -138,11 +139,11 @@ void QuantumNaturalGradient::compute(std::vector<double>& out_dx, std::vector<st
     m_gradientStrategy->compute(rawDx, baseResults);
     // Solve the natural gradient equation:
     const auto gMat = constructMetricTensorMatrix(metricTensorResults);
-    arma::dvec gradients(rawDx); 
-    arma::dvec newGrads = arma::solve(gMat, gradients);
+    Eigen::Map<Eigen::VectorXd> gradients(rawDx.data(), rawDx.size());
+    Eigen::VectorXd newGrads = gMat.completeOrthogonalDecomposition().solve(gradients);
     // std::cout << "Regular gradients:\n" << gradients << "\n";
     // std::cout << "Natural gradients:\n" << newGrads << "\n";
-    out_dx = arma::conv_to<std::vector<double>>::from(newGrads); 
+    out_dx = std::vector<double>(newGrads.data(), newGrads.data() + newGrads.size());
 }
 
 ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(ParametrizedCircuitLayer& io_layer, 
@@ -217,15 +218,15 @@ ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(Parametr
     return obsComp;
 }
 
-arma::dmat QuantumNaturalGradient::constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results)
+Eigen::MatrixXd QuantumNaturalGradient::constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results)
 {   
-    arma::dmat gMat(m_nbParams, m_nbParams, arma::fill::zeros);
+    Eigen::MatrixXd gMat = Eigen::MatrixXd::Zero(m_nbParams, m_nbParams);
     size_t blockIdx = 0;
     for (auto& layer : m_layers)
     {
         const auto nbParamsInBlock = layer.paramInds.size();
         // Constructs the block diagonal matrices
-        arma::dmat blockMat(nbParamsInBlock, nbParamsInBlock, arma::fill::zeros);
+        Eigen::MatrixXd blockMat = Eigen::MatrixXd::Zero(nbParamsInBlock, nbParamsInBlock);
 
         for (size_t i = 0; i < nbParamsInBlock; ++i)
         {

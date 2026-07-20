@@ -1,63 +1,27 @@
-# *******************************************************************************
-# Copyright (c) 2019 UT-Battelle, LLC.
-# All rights reserved. This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v1.0
-# and Eclipse Distribution License v.10 which accompany this distribution.
-# The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
-# and the Eclipse Distribution License is available at
-# https://eclipse.org/org/documents/edl-v10.php
-#
-# Contributors:
-#   Alexander J. McCaskey - initial API and implementation
-# *******************************************************************************/
-set (LIBRARY_NAME xacc-circuit-optimizers)
+add_subdirectory(nlopt-optimizers)
+add_subdirectory(mlpack)
 
-file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC simple/*.cpp OptimizersActivator.cpp pulse/*.cpp gate_merge/*.cpp lnn_transform/*.cpp)
+if(XACC_BUILD_GSL)
+add_subdirectory(gsl)
+endif()
+if(XACC_BUILD_SCIPY)
+  execute_process(COMMAND ${Python_EXECUTABLE} -c "import scipy" RESULT_VARIABLE SCIPY_EXISTS)
+  if(SCIPY_EXISTS EQUAL "1")
+  # if not, check we have pip
+  execute_process(COMMAND ${Python_EXECUTABLE} -c "import pip" RESULT_VARIABLE PIP_EXISTS)
 
-# Set up dependencies to resources to track changes
-usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
-# Generate bundle initialization code
-usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
-
-add_library(${LIBRARY_NAME} SHARED ${SRC})
-
-set(_bundle_name xacc_circuit_optimizers)
-
-set_target_properties(${LIBRARY_NAME} PROPERTIES
-  # This is required for every bundle
-  COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
-  # This is for convenience, used by other CMake functions
-  US_BUNDLE_NAME ${_bundle_name}
-  )
-
-# Embed meta-data from a manifest.json file
-usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_SOURCE_DIR}
-  FILES
-    manifest.json
-  )
-
-target_include_directories(${LIBRARY_NAME} PUBLIC simple pulse gate_merge lnn_transform ${EIGEN_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/tpls/exprtk)
-target_link_libraries(${LIBRARY_NAME} xacc xacc-quantum-gate)
-
-if(APPLE)
-   set_target_properties(${LIBRARY_NAME} PROPERTIES INSTALL_RPATH "@loader_path/../lib;@loader_path")
-   set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+  if(PIP_EXISTS EQUAL "0")
+    # we have pip, so just install scipy
+    message(STATUS "${BoldGreen}Installing Scipy.${ColorReset}")
+    execute_process(COMMAND ${Python_EXECUTABLE} -m pip install scipy)
+  else()
+    # we dont have pip, so warn the user
+    message(STATUS "${BoldYellow}Scipy not found, but can't install via pip. Ensure you install scipy module if you would like to use the Scipy optimizer.${ColorReset}")
+  endif()
 else()
-   set_target_properties(${LIBRARY_NAME} PROPERTIES INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN")
-   set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-shared")
+  message(STATUS "${BoldGreen}Found Scipy.${ColorReset}")
 endif()
-
-install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
-
-# Gather tests
-if(XACC_BUILD_TESTS)
-  add_subdirectory(simple/tests)
-  add_subdirectory(pulse/tests)
-  add_subdirectory(gate_merge/tests)
-  add_subdirectory(lnn_transform/tests)
+  add_subdirectory(scipy)
+else()
+  message(STATUS "${BoldYellow}XACC will not build the Scipy optimizer. You can turn it on with -DXACC_BUILD_SCIPY=ON${ColorReset}")
 endif()
-
-add_subdirectory(qsearch)

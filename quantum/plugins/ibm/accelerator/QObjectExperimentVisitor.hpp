@@ -65,9 +65,7 @@ public:
   }
 
   const std::string toString() override {
-    experiment = getExperiment();
-    nlohmann::json json;
-    nlohmann::to_json(json, experiment);
+    nlohmann::json json = getExperiment();
     return json.dump();
   }
 
@@ -106,7 +104,7 @@ public:
       experiment.set_config(config);
       experiment.set_header(header);
       //   xacc::info("Adding insts " + std::to_string(instructions.to))
-      
+
       // Note: the experiment was constructed in terms of { u1, u2, u3, cx} gate set.
       // U + CX gate set
       if (gateSet == GateSet::U_CX) {
@@ -126,7 +124,7 @@ public:
             // Copy the instruction and only update the name + params.
             // This is to make sure information about Bfunc (conditional) etc.
             // is copied to the decomposed gate sequence.
-            
+
             // Note: this decomposition is adapted from Qiskit Terra,
             // see qiskit/circuit/library/standard_gates/equivalence_library.py
             const auto u2_params = inst.get_params();

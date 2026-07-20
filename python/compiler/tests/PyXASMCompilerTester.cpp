@@ -84,6 +84,7 @@ class custom_range : public xacc::quantum::Circuit {
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
 }
 
+#ifndef QIREE_BUILD
 TEST(PyXASMCompilerTester, checkUCCSD) {
 auto compiler = xacc::getCompiler("pyxasm");
   auto IR = compiler -> compile(R"(def ansatz_vqe(buffer, args):
@@ -93,6 +94,7 @@ auto compiler = xacc::getCompiler("pyxasm");
   std::cout << IR->getComposites()[0]->toString() << "\n";
 
 }
+#endif
 
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);

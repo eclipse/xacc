@@ -68,6 +68,7 @@ TEST(IRUtilsTester, checkSimple) {
   EXPECT_TRUE(result.validate(testCircs));
 }
 
+#ifndef QIREE_BUILD
 TEST(IRUtilsTester, checkObservable) {
   {
     auto H_N_2 = xacc::quantum::getObservable(
@@ -115,6 +116,7 @@ TEST(IRUtilsTester, checkObservable) {
     EXPECT_TRUE(result.validate(fsToExe));
   }
 }
+#endif
 
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);

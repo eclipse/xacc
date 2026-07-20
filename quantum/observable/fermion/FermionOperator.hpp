@@ -195,6 +195,19 @@ public:
                              const HeterogeneousMap &extra_data) override;
 
   std::shared_ptr<Observable> normalOrder() override;
+  
+  std::vector<std::shared_ptr<CompositeInstruction>> getMeasurementBasisRotations() override;
+ 
+  std::vector<std::shared_ptr<Observable>> getSubTerms() override {
+    std::vector<std::shared_ptr<Observable>> ret;
+    for (auto &term : getTerms()) {
+      ret.emplace_back(
+          new FermionOperator(term.second.ops(), term.second.coeff()));
+    }
+    return ret;
+  }
+
+  
 };
 
 } // namespace quantum

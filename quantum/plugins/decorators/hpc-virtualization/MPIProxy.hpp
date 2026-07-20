@@ -9,6 +9,13 @@ Copyright (C) 2018-2021 Oak Ridge National Laboratory (UT-Battelle) **/
 #include <vector>
 #include <memory>
 #include <cassert>
+#include "mpi.h"
+
+template <typename T>
+class MPIDataTypeResolver {
+public:
+    MPI_Datatype getMPIDatatype();
+};
 
 namespace xacc {
 
@@ -141,6 +148,49 @@ public:
      Note that the (non-negative) my_subgroup value may differ between
      different MPI processes, thus putting them into disjoint subgroups. **/
  std::shared_ptr<ProcessGroup> split(int my_subgroup) const;
+
+
+ // some useful wrappers
+
+ // I could move this to a single function, but don't
+ // want to abuse template specialization here
+ // this broadcasts a single element (int/char/double)
+ template<typename T>
+ void broadcast(T element) {
+
+  MPIDataTypeResolver<T> resolver;
+  MPI_Datatype mpiType = resolver.getMPIDatatype();
+  MPI_Bcast(&element, 1, mpiType, 0,
+              this->getMPICommProxy().getRef<MPI_Comm>());
+ }
+
+ // this broadcasts a vector
+ template<typename T>
+ void broadcast(std::vector<T> &vec) {
+
+  MPIDataTypeResolver<T> resolver;
+  MPI_Datatype mpiType = resolver.getMPIDatatype();
+  MPI_Bcast(vec.data(), vec.size(), mpiType, 0,
+              this->getMPICommProxy().getRef<MPI_Comm>());
+ };
+
+
+ // this Allgatherv's the content of local vectors
+ // into a global vector
+ template<typename T>
+ void allGatherv(std::vector<T> &local,
+     std::vector<T> &global,
+		 std::vector<int> &nLocalData,
+		 std::vector<int> &shift) {
+
+  MPIDataTypeResolver<T> resolver;
+  MPI_Datatype mpiType = resolver.getMPIDatatype();
+  MPI_Allgatherv(local.data(), local.size(), mpiType,
+	     global.data(), nLocalData.data(),
+	     shift.data(), mpiType,
+	     this->getMPICommProxy().getRef<MPI_Comm>());
+
+ }
 
 protected:
 

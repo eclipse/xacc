@@ -35,6 +35,11 @@ target_include_directories(
   PUBLIC . range exp hwe qft uccsd ucc1 ucc3 aswap qfast kak
   ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
 
+if(QIREE_MINIMAL_BUILD)
+  list(REMOVE_ITEM SRC kak/kak.cpp qfast/qfast.cpp aswap/aswap.cpp)
+  list(REMOVE_ITEM INCLUDE_DIRS kak qfast aswap)
+endif()
+
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE xacc-quantum-gate xacc-pauli xacc-fermion)
 
 set(_bundle_name xacc_generators)
@@ -73,10 +78,17 @@ if(XACC_BUILD_TESTS)
   add_subdirectory(ucc3/tests)
   add_subdirectory(aswap/tests)
   add_subdirectory(qfast/tests)
-  add_subdirectory(kak/tests)
+  if(NOT QIREE_MINIMAL_BUILD)
+    add_subdirectory(kak/tests)
+  endif()
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
-add_subdirectory(py-qsearch)
-add_subdirectory(py-qfactor)
+if(XACC_BUILD_QSEARCH)
+  add_subdirectory(py-qsearch)
+endif()
+
+if(XACC_BUILD_QFACTOR)
+  add_subdirectory(py-qfactor)
+endif()

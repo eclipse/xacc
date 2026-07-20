@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 UT-Battelle, LLC.
+ * Copyright (c) 2024 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
+ *   Daniel Claudino - Enabled access to noisy simulation
  *******************************************************************************/
 #include "ionq_accelerator.hpp"
 #include <cctype>
@@ -22,6 +23,8 @@
 #include <regex>
 #include <thread>
 
+#include <iostream>
+
 namespace xacc {
 namespace quantum {
 
@@ -29,6 +32,21 @@ HeterogeneousMap IonQAccelerator::getProperties() {
   HeterogeneousMap m;
 
   return m;
+}
+
+void IonQAccelerator::updateConfiguration(const HeterogeneousMap &config) {
+  if (config.keyExists<int>("shots")) {
+    shots = config.get<int>("shots");
+  }
+  if (config.stringExists("backend")) {
+    backend = config.getString("backend");
+    if (backend.find("simulator") != std::string::npos ||
+        backend.find("sim") != std::string::npos &&
+            backend.find(".") != std::string::npos) {
+      noise_model = backend.substr(backend.find(".") + 1);
+      backend = "simulator";
+    }
+  }
 }
 
 void IonQAccelerator::initialize(const HeterogeneousMap &params) {
@@ -41,16 +59,18 @@ void IonQAccelerator::initialize(const HeterogeneousMap &params) {
     headers.insert({"Authorization", "apiKey " + apiKey});
     headers.insert({"Content-Type", "application/json"});
 
-    auto calibrations = restClient->get(url, "/calibrations", headers);
-    auto j = nlohmann::json::parse(calibrations);
-    m_connectivity = j["calibrations"][0]["connectivity"].get<std::vector<std::pair<int,int>>>();
-    
+    auto characterizations = restClient->get(url, "/jobs", headers);
+    auto j = nlohmann::json::parse(characterizations);
+    // std::cout << j.dump(1) << std::endl;
+    // m_connectivity =
+    // j["characterizations"][0]["connectivity"].get<std::vector<std::pair<int,int>>>();
+
     remoteUrl = url;
     postPath = "/jobs";
   }
 }
 
-// Note: IonQ don't support batching. 
+// Note: IonQ don't support batching.
 void IonQAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> circuits) {
@@ -59,7 +79,6 @@ void IonQAccelerator::execute(
         std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size());
     // Run each circuit
     RemoteAccelerator::execute(tmpBuffer, f);
-    // tmpBuffer->print();
     buffer->appendChild(f->name(), tmpBuffer);
   }
 }
@@ -71,6 +90,9 @@ const std::string IonQAccelerator::processInput(
   xacc::ionq::IonQProgram prog;
   prog.set_shots(shots);
   prog.set_target(backend);
+  if (!noise_model.empty()) {
+    prog.set_noise_model(noise_model);
+  }
 
   auto visitor = std::make_shared<IonQProgramVisitor>();
 
@@ -142,10 +164,12 @@ void IonQAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
   // End the color log
-  std::cout << "\033[0m" << "\n";
+  std::cout << "\033[0m"
+            << "\n";
 
-  std::map<std::string, double> histogram =
-      j["data"]["histogram"].get<std::map<std::string, double>>();
+  auto results =
+      handleExceptionRestClientGet(url, "/jobs/" + jobId + "/results", headers);
+  std::map<std::string, double> histogram = json::parse(results);
 
   int n = buffer->size();
   auto getBitStrForInt = [&](std::uint64_t i) {

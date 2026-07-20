@@ -21,111 +21,80 @@ install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 configure_file("${CMAKE_SOURCE_DIR}/xacc/xacc_version.in"
                "${CMAKE_BINARY_DIR}/xacc/xacc_version")
 install(FILES "${CMAKE_BINARY_DIR}/xacc/xacc_version" DESTINATION include/xacc)
-     
+
 find_package(Libunwind)
 
-file(GLOB
-     HEADERS
-     xacc.hpp
-     ir/*.hpp
-     compiler/Compiler.hpp
-     accelerator/*.hpp
-     accelerator/remote/*.hpp
-     utils/*.hpp
-     service/*.hpp
-     algorithm/*.hpp
-     optimizer/*.hpp)
+file(GLOB HEADERS
+  xacc.hpp
+  ir/*.hpp
+  compiler/Compiler.hpp
+  accelerator/*.hpp
+  utils/*.hpp
+  service/*.hpp
+  algorithm/*.hpp
+  optimizer/*.hpp
+)
 
-add_library(xacc SHARED
-            xacc.cpp
-            accelerator/AcceleratorBuffer.cpp
-            utils/Utils.cpp
-            utils/CLIParser.cpp
-            utils/heterogeneous.cpp
-            ir/IRBuilder.cpp
-            service/ServiceRegistry.cpp
-            service/xacc_service.cpp
-            accelerator/remote/RemoteAccelerator.cpp)
+file(GLOB SOURCES
+    xacc.cpp
+    accelerator/AcceleratorBuffer.cpp
+    utils/Utils.cpp
+    utils/CLIParser.cpp
+    utils/heterogeneous.cpp
+    ir/IRBuilder.cpp
+    service/ServiceRegistry.cpp
+    service/xacc_service.cpp)
 
-if (XACC_USE_EXTERNAL_CPR)
-  # External CPR must be accompanied by CURL.
-  find_package(CURL REQUIRED)
-  set_target_properties(xacc PROPERTIES
-    INTERFACE_LINK_LIBRARIES "CURL::libcurl"
+if(XACC_REMOTE_ACCELERATORS)
+  list(APPEND HEADERS accelerator/remote/RemoteAccelerator.hpp)
+  list(APPEND SOURCES accelerator/remote/RemoteAccelerator.cpp)
+endif()
+
+add_library(xacc SHARED ${SOURCES})
+
+target_include_directories(xacc
+  PRIVATE
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
+    ${CMAKE_SOURCE_DIR}/tpls/cxxopts
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ir
+    compiler
+    program
+    accelerator
+    utils
+    service
+    algorithm
+    optimizer
+    ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
+    ${NLOHMANN_INCLUDE_DIR}
+)
+target_link_libraries(xacc
+  PUBLIC
+    CppMicroServices
+    spdlog::spdlog
+)
+
+if(LIBUNWIND_FOUND)
+  message(STATUS "${BoldGreen}Building xacc with libunwind support.${ColorReset}")
+  target_compile_definitions(xacc PUBLIC "-DHAS_LIBUNWIND")
+  target_include_directories(xacc PRIVATE ${LIBUNWIND_INCLUDE_DIRS})
+  target_link_libraries(xacc
+    PUBLIC
+      ${LIBUNWIND_LIBRARIES}
+      ${LIBUNWINDX86_LIBRARIES}
   )
-else()
-  add_dependencies(xacc cpr)
 endif()
 
 if(MPI_FOUND)
   include_directories(${MPI_CXX_HEADER_DIR})
+  target_link_libraries(xacc PUBLIC ${MPI_CXX_LIBRARIES})
 endif()
 
-if(LIBUNWIND_FOUND)
-message(
-    STATUS "${BoldGreen}Building xacc with libunwind support.${ColorReset}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_LIBUNWIND")
-  target_include_directories(xacc
-                             PRIVATE ${CMAKE_BINARY_DIR}
-                                     ${CPR_INCLUDE_DIRS}
-                                     ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                     ${CMAKE_SOURCE_DIR}/tpls/cxxopts
-                                     ${LIBUNWIND_INCLUDE_DIRS}
-                             PUBLIC .
-                                    ir
-                                    compiler
-                                    program
-                                    accelerator
-                                    accelerator/remote
-                                    utils
-                                    service
-                                    algorithm
-                                    optimizer
-                                    ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
-                                    ${NLOHMANN_INCLUDE_DIR}
-                                    ${SPDLOG_INCLUDE_DIR})
-
-  # linking against MPI libraries found by cmake
-  if(MPI_FOUND)
-    target_link_libraries(xacc
-                        PUBLIC CppMicroServices ${MPI_CXX_LIBRARIES}
-                        PRIVATE cpr ${LIBUNWIND_LIBRARIES}
-                                ${LIBUNWINDX86_LIBRARIES})
-  else()
-    target_link_libraries(xacc
-                        PUBLIC CppMicroServices
-                        PRIVATE cpr ${LIBUNWIND_LIBRARIES}
-                                ${LIBUNWINDX86_LIBRARIES})
-  endif()
-
-else()
-
-  target_include_directories(xacc
-                             PRIVATE ${CMAKE_BINARY_DIR}
-                                     ${CPR_INCLUDE_DIRS}
-                                     ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                     ${CMAKE_SOURCE_DIR}/tpls/cxxopts
-                             PUBLIC .
-                                    ir
-                                    compiler
-                                    program
-                                    accelerator
-                                    accelerator/remote
-                                    utils
-                                    service
-                                    algorithm
-                                    optimizer
-                                    ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
-                                    ${NLOHMANN_INCLUDE_DIR}
-                                    ${SPDLOG_INCLUDE_DIR})
-
-  # linking against MPI libraries found by cmake
-  if(MPI_FOUND)
-    target_link_libraries(xacc PUBLIC CppMicroServices ${MPI_CXX_LIBRARIES} PRIVATE cpr)
-  else()
-    target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr)
-  endif()
-
+if(XACC_REMOTE_ACCELERATORS)
+  target_link_libraries(xacc PRIVATE cpr::cpr)
+  target_include_directories(xacc PUBLIC accelerator/remote)
 endif()
 
 target_compile_features(xacc
@@ -151,7 +120,6 @@ endif()
 install(FILES ${HEADERS} DESTINATION include/xacc)
 install(TARGETS xacc DESTINATION lib)
 
-add_subdirectory(optimizer)
 add_subdirectory(utils/exprtk_parsing)
 add_subdirectory(ir/graph-impl)
 add_subdirectory(utils/ini_config_parsing)

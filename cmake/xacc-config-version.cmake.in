@@ -1,0 +1,8 @@
+set(PACKAGE_VERSION "@MAJOR_VERSION@.@MINOR_VERSION@.@PATCH_VERSION@")
+# The quotes for the right operand are intentional here: if CMake executes this
+# file without ${PACKAGE_FIND_VERSION} set, then if() will still get three
+# operands. Without the quotes, if() will only get two operands in that case,
+# throwing an error.
+if(${PACKAGE_VERSION} VERSION_GREATER_EQUAL "${PACKAGE_FIND_VERSION}")
+    set(PACKAGE_VERSION_COMPATIBLE 1)
+endif()

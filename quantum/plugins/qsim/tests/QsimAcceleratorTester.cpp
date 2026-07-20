@@ -280,6 +280,7 @@ TEST(QsimAcceleratorTester, testConditional) {
   EXPECT_EQ(resultCount, nbTests);
 }
 
+#ifndef QIREE_BUILD
 TEST(QsimAcceleratorTester, testMultiControlledGateNativeSim) {
   auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
   auto x = std::make_shared<xacc::quantum::X>(0);
@@ -369,6 +370,7 @@ TEST(QsimAcceleratorTester, testMultiControlledGateNativeSim) {
     }
   }
 }
+#endif
 
 TEST(QsimAcceleratorTester, checkRandomSeed) {
   auto accelerator =

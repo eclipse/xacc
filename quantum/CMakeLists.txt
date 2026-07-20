@@ -11,7 +11,9 @@
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 add_subdirectory(gate)
-add_subdirectory(annealing)
+if (XACC_BUILD_ANNEALING)
+  add_subdirectory(annealing)
+endif()
 add_subdirectory(provider)
 add_subdirectory(observable)
 add_subdirectory(plugins)

@@ -37,7 +37,7 @@ jobs:
       
       - name: Configure
         working-directory: build/
-        run: export SDKROOT="`xcrun --show-sdk-path`" && cmake -GNinja $GITHUB_WORKSPACE -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE
+        run: export SDKROOT="`xcrun --show-sdk-path`" && cmake -GNinja $GITHUB_WORKSPACE -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE -DCMAKE_PREFIX_PATH=$(brew --prefix libomp)
       
       - name: Build
         working-directory: build/

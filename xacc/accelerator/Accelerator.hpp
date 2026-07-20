@@ -100,7 +100,15 @@ public:
                        const std::vector<std::shared_ptr<CompositeInstruction>>
                            CompositeInstructions) = 0;
 
+  virtual void
+  execute(std::shared_ptr<AcceleratorBuffer> buffer,
+          const std::shared_ptr<CompositeInstruction> baseCircuit,
+          const std::vector<std::shared_ptr<CompositeInstruction>> basisRotations) {
+    return;
+  }
+
   virtual void cancel(){};
+  virtual void retrieve(const std::string jobId, std::shared_ptr<xacc::AcceleratorBuffer> buffer){};
 
   virtual std::vector<std::pair<int, int>> getConnectivity() {
     return std::vector<std::pair<int, int>>{};

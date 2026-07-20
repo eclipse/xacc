@@ -6,7 +6,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 # L-BFGS++ will require Eigen, XACC provides it
 target_include_directories(${LIBRARY_NAME} PUBLIC . 
-                                    ${XACC_ROOT}/include/eigen ${XACC_ROOT}/include/armadillo)
+                                    ${XACC_ROOT}/include/eigen)
 
 # _bundle_name must be == manifest.json bundle.symbolic_name !!!
 set(_bundle_name xacc_qubit_tapering)

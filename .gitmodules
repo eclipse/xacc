@@ -6,12 +6,12 @@
 	url = https://github.com/ornl-qci/boost-cmake
 [submodule "tpls/cppmicroservices"]
 	path = tpls/cppmicroservices
-	url = https://github.com/ornl-qci/cppmicroservices
+	url = https://github.com/ORNL-QCI/CppMicroServices.git
 [submodule "quantum/plugins/dwave/embedding/minorminer"]
 	path = quantum/plugins/dwave/embedding/minorminer
 	url = https://github.com/dwavesystems/minorminer
-[submodule "xacc/optimizer/nlopt-optimizers/nlopt"]
-	path = xacc/optimizer/nlopt-optimizers/nlopt
+[submodule "tpls/nlopt"]
+	path = tpls/nlopt
 	url = https://github.com/stevengj/nlopt
 [submodule "quantum/plugins/dwave/tpls/legacy-sapi-clients"]
 	path = quantum/plugins/dwave/tpls/legacy-sapi-clients
@@ -21,7 +21,7 @@
 	url = https://github.com/ORNL-QCI/TriQ.git
 [submodule "tpls/qsim"]
 	path = tpls/qsim
-	url = https://github.com/ORNL-QCI/qsim.git
+	url = https://github.com/quantumlib/qsim.git
 [submodule "tpls/pybind11"]
 	path = tpls/pybind11
 	url = https://github.com/pybind/pybind11.git
@@ -34,3 +34,6 @@
 [submodule "tpls/eigen"]
 	path = tpls/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+[submodule "tpls/qiskit-aer"]
+	path = tpls/qiskit-aer
+	url = https://github.com/Qiskit/qiskit-aer.git

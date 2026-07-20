@@ -1,4 +1,6 @@
-add_subdirectory(minor_graph_embedding)
+if(XACC_BUILD_ANNEALING)
+    add_subdirectory(minor_graph_embedding)
+endif()
 
 # Note: TriQ depends on Z3 library. 
 # Users need to install Z3, e.g.

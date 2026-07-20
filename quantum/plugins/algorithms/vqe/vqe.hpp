@@ -26,7 +26,8 @@ protected:
   Accelerator * accelerator;
   std::vector<double> initial_params;
   std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
-
+  mutable std::vector<std::shared_ptr<CompositeInstruction>> basisRotations;
+  bool cacheMeasurements;
   HeterogeneousMap parameters;
 
 public:

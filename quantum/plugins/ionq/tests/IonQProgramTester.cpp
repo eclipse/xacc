@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 UT-Battelle, LLC.
+ * Copyright (c) 2024 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
+ *   Daniel Claudino - Enabled access to noisy simulation
  *******************************************************************************/
 #include "ionq_program.hpp"
 #include <gtest/gtest.h>
@@ -20,7 +21,7 @@ TEST(IonQProgramTester, checkFromJson) {
     "lang": "json",
     "target": "qpu",
     "shots": 1000,
-    "body": {
+    "input": {
         "qubits": 2,
         "circuit": [
             {
@@ -37,6 +38,9 @@ TEST(IonQProgramTester, checkFromJson) {
                 "target": 1
             }
         ]
+    },
+    "noise": {
+        "model": "ideal"
     }
 })json";
   using json = nlohmann::json;
@@ -44,7 +48,8 @@ TEST(IonQProgramTester, checkFromJson) {
   auto j = json::parse(str);
   from_json(j, root);
 
-  std::cout << "HELLO: " << root.get_target() << "\n";
+  std::cout << "HELLO: " << root.get_target() << "\nNoise model: " << root.get_noise_model() << "\n";
+
 
   json jj;
 

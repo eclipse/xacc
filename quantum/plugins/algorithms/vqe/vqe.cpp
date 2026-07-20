@@ -18,9 +18,7 @@
 #include "xacc_service.hpp"
 #include "AcceleratorDecorator.hpp"
 
-#include <memory>
 #include <iomanip>
-#include <string>
 
 using namespace xacc;
 
@@ -55,8 +53,6 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
     gradientStrategy =
         parameters.get<std::shared_ptr<AlgorithmGradientStrategy>>(
             "gradient_strategy");
-    // gradientStrategy->initialize({std::make_pair("observable",
-    // xacc::as_shared_ptr(observable))});
   }
 
   if (parameters.stringExists("gradient_strategy") &&
@@ -82,6 +78,11 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
     gradientStrategy = xacc::getService<AlgorithmGradientStrategy>("autodiff");
     gradientStrategy->initialize(parameters);
   }
+
+  cacheMeasurements = false;
+  if (parameters.keyExists<bool>("cache-measurement-basis")) {
+    cacheMeasurements = parameters.get<bool>("cache-measurement-basis");
+  }
   return true;
 }
 
@@ -98,10 +99,12 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   std::vector<std::shared_ptr<AcceleratorBuffer>> min_child_buffers;
 
-  // auto kernels = observable->observe(xacc::as_shared_ptr(kernel));
   // Cache of energy values during iterations.
   std::vector<double> energies;
   double last_energy = std::numeric_limits<double>::max();
+
+  if (cacheMeasurements && basisRotations.empty())
+    basisRotations = observable->getMeasurementBasisRotations();
 
   // Here we just need to make a lambda kernel
   // to optimize that makes calls to the targeted QPU.
@@ -110,35 +113,53 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         std::vector<double> coefficients;
         std::vector<std::string> kernelNames;
         std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
+        double identityCoeff = 0.0;
+        int nInstructionsEnergy, nInstructionsGradient = 0;
 
         // call CompositeInstruction::operator()()
         auto evaled = kernel->operator()(x);
-        // observe
-        auto kernels = observable->observe(evaled);
 
-        double identityCoeff = 0.0;
-        int nInstructionsEnergy = kernels.size(), nInstructionsGradient = 0;
-        for (auto &f : kernels) {
-          kernelNames.push_back(f->name());
-          std::complex<double> coeff = f->getCoefficient();
+        // only deal with the measurement basis instead of entire circuits
+        if (cacheMeasurements) {
 
-          int nFunctionInstructions;
-          if (f->getInstruction(0)->isComposite()) {
-            nFunctionInstructions =
-                kernel->nInstructions() + f->nInstructions() - 1;
-          } else {
-            nFunctionInstructions = f->nInstructions();
+          nInstructionsEnergy = basisRotations.size() - 1;
+          for (auto it = basisRotations.begin(); it != basisRotations.end();) {
+
+            kernelNames.push_back((*it)->name());
+            std::complex<double> coeff = (*it)->getCoefficient();
+            if ((*it)->name() == "I") {
+              identityCoeff += std::real(coeff);
+              it = basisRotations.erase(it);
+            }
+            coefficients.push_back(std::real(coeff));
+            ++it;
           }
 
-          if (nFunctionInstructions > kernel->nInstructions()) {
-            fsToExec.push_back(f);
-            coefficients.push_back(std::real(coeff));
-          } else {
-            identityCoeff += std::real(coeff);
-            coefficients.push_back(std::real(coeff));
+        } else {
+
+          // observe
+          auto kernels = observable->observe(evaled);
+          for (auto &f : kernels) {
+            kernelNames.push_back(f->name());
+            std::complex<double> coeff = f->getCoefficient();
+
+            int nFunctionInstructions;
+            if (f->getInstruction(0)->isComposite()) {
+              nFunctionInstructions =
+                  kernel->nInstructions() + f->nInstructions() - 1;
+            } else {
+              nFunctionInstructions = f->nInstructions();
+            }
+
+            if (nFunctionInstructions > kernel->nInstructions()) {
+              fsToExec.push_back(f);
+              coefficients.push_back(std::real(coeff));
+            } else {
+              identityCoeff += std::real(coeff);
+              coefficients.push_back(std::real(coeff));
+            }
           }
         }
-
         // Retrieve instructions for gradient, if a pointer of type
         // AlgorithmGradientStrategy is given
         if (gradientStrategy) {
@@ -158,7 +179,11 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         }
 
         auto tmpBuffer = xacc::qalloc(buffer->size());
-        accelerator->execute(tmpBuffer, fsToExec);
+        if (cacheMeasurements) {
+          accelerator->execute(tmpBuffer, evaled, basisRotations);
+        } else {
+          accelerator->execute(tmpBuffer, fsToExec);
+        }
         auto buffers = tmpBuffer->getChildren();
 
         // Tag any gradient buffers;
@@ -170,7 +195,6 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         for (auto &[k, v] : tmp_buffer_extra_info) {
           buffer->addExtraInfo(k, v);
         }
-
         // Create buffer child for the Identity term
         auto idBuffer = xacc::qalloc(buffer->size());
         idBuffer->addExtraInfo("coefficient", identityCoeff);
@@ -181,7 +205,6 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         if (accelerator->name() == "ro-error")
           idBuffer->addExtraInfo("ro-fixed-exp-val-z", 1.0);
         buffer->appendChild("I", idBuffer);
-
         // Add information about the variational parameters to the child
         // buffers.
         // Other energy (observable-related) information will be populated by
@@ -189,7 +212,6 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         for (auto &childBuffer : buffers) {
           childBuffer->addExtraInfo("parameters", x);
         }
-
         // Special key to indicate that the buffer was processed by a
         // HPC virtualization decorator.
         const std::string aggregate_key =
@@ -216,7 +238,6 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
             return observable->postProcess(tmpBuffer);
           }
         }();
-
         // Compute the variance as well as populate any variance-related
         // information to the child buffers
         const double variance = [&]() {
@@ -233,7 +254,6 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
                 tmpBuffer, Observable::PostProcessingTask::VARIANCE_CALC);
           }
         }();
-
         if (gradientStrategy) {
           // gradient-based optimization
           // If gradientStrategy is numerical, pass the energy
@@ -257,7 +277,6 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         for (auto &b : buffers) {
           buffer->appendChild(b->name(), b);
         }
-
         std::stringstream ss;
         ss << "E(" << (!x.empty() ? std::to_string(x[0]) : "");
         for (int i = 1; i < x.size(); i++)
@@ -275,7 +294,6 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
           last_energy = energy;
         }
-
         return energy;
       },
       kernel->nVariables());
@@ -314,31 +332,66 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   std::vector<double> coefficients;
   std::vector<std::string> kernelNames;
   std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
-
   double identityCoeff = 0.0;
-  auto evaled = xacc::as_shared_ptr(kernel)->operator()(x);
-  auto kernels = observable->observe(evaled);
-  for (auto &f : kernels) {
-    kernelNames.push_back(f->name());
-    std::complex<double> coeff = f->getCoefficient();
+  int nInstructionsEnergy, nInstructionsGradient = 0;
 
-    int nFunctionInstructions = 0;
-    if (f->getInstruction(0)->isComposite()) {
-      nFunctionInstructions = kernel->nInstructions() + f->nInstructions() - 1;
-    } else {
-      nFunctionInstructions = f->nInstructions();
+  // call CompositeInstruction::operator()()
+  auto evaled = kernel->operator()(x);
+
+  // if we want to only deal with the measurement basis instead of entire
+  // circuits
+  if (cacheMeasurements) {
+
+    if (basisRotations.empty()) {
+      basisRotations = observable->getMeasurementBasisRotations();
     }
 
-    if (nFunctionInstructions > kernel->nInstructions()) {
-      fsToExec.push_back(f);
+    nInstructionsEnergy = basisRotations.size() - 1;
+    for (auto it = basisRotations.begin(); it != basisRotations.end();) {
+
+      kernelNames.push_back((*it)->name());
+      std::complex<double> coeff = (*it)->getCoefficient();
+      if ((*it)->name() == "I") {
+        identityCoeff += std::real(coeff);
+        it = basisRotations.erase(it);
+      }
       coefficients.push_back(std::real(coeff));
-    } else {
-      identityCoeff += std::real(coeff);
+      ++it;
+    }
+
+  } else {
+
+    // observe
+    auto kernels = observable->observe(evaled);
+    for (auto &f : kernels) {
+      kernelNames.push_back(f->name());
+      std::complex<double> coeff = f->getCoefficient();
+
+      int nFunctionInstructions;
+      if (f->getInstruction(0)->isComposite()) {
+        nFunctionInstructions =
+            kernel->nInstructions() + f->nInstructions() - 1;
+      } else {
+        nFunctionInstructions = f->nInstructions();
+      }
+
+      if (nFunctionInstructions > kernel->nInstructions()) {
+        fsToExec.push_back(f);
+        coefficients.push_back(std::real(coeff));
+      } else {
+        identityCoeff += std::real(coeff);
+        coefficients.push_back(std::real(coeff));
+      }
     }
   }
 
   auto tmpBuffer = xacc::qalloc(buffer->size());
-  accelerator->execute(tmpBuffer, fsToExec);
+  if (cacheMeasurements) {
+    accelerator->execute(tmpBuffer, evaled, basisRotations);
+  } else {
+    accelerator->execute(tmpBuffer, fsToExec);
+  }
+
   auto buffers = tmpBuffer->getChildren();
   for (auto &b : buffers) {
     b->addExtraInfo("parameters", x);

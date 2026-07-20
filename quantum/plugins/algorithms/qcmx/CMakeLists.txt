@@ -10,6 +10,7 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
+include(CheckCXXSymbolExists)
 set(LIBRARY_NAME xacc-algorithm-qcmx)
 
 file(GLOB SRC *.cpp)

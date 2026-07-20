@@ -253,6 +253,7 @@ TEST(XASMCompilerTester, checkIfStmt) {
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
 }
 
+#ifndef QIREE_BUILD
 TEST(XASMCompilerTester, checkApplyAll) {
   auto compiler = xacc::getCompiler("xasm");
   auto IR = compiler->compile(R"([&](qbit q) {
@@ -285,6 +286,7 @@ TEST(XASMCompilerTester, checkApplyAll) {
   EXPECT_EQ(1, IR->getComposites().size());
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
 }
+#endif
 
 TEST(XASMCompilerTester, checkGateOnAll) {
 

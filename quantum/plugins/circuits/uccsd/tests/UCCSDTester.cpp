@@ -27,6 +27,7 @@ TEST(UCCSDTester,checkUCCSD) {
 
 }
 
+#ifndef QIREE_BUILD
 TEST(UCCSDTester,checkSingletAdaptedUCCSD) {
 
   auto tmp = xacc::getService<Instruction>("uccsd");//std::make_shared<QFT>();
@@ -48,7 +49,7 @@ TEST(UCCSDTester,checkQubitPool) {
 	std::cout << uccsd->toString() << "\n";
 	
 }
-
+#endif
 
 int main(int argc, char** argv) {
     xacc::Initialize();

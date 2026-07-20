@@ -11,6 +11,7 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "QsimAccelerator.hpp"
+#include "xacc.hpp"
 #include "xacc_plugin.hpp"
 #include "IRUtils.hpp"
 #include <cassert>
@@ -272,6 +273,56 @@ void QsimAccelerator::execute(
       buffer->appendChild(obsCircuits[i]->name(), tmpBuffer);
     }
   }
+}
+
+void QsimAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
+          const std::shared_ptr<CompositeInstruction> baseCircuit,
+          const std::vector<std::shared_ptr<CompositeInstruction>> basisRotations) {
+
+  constexpr int MAX_NUMBER_CIRCUITS_TO_ANALYZE = 100;
+  if (!m_vqeMode || basisRotations.size() <= 1 ||
+      basisRotations.size() > MAX_NUMBER_CIRCUITS_TO_ANALYZE) {
+    auto provider = getIRProvider("quantum");
+    // Cannot run VQE mode, just run each composite independently.
+    for (auto &b : basisRotations) {
+      auto f = provider->createComposite(b->name(), baseCircuit->getVariables());
+      auto tmpBuffer =
+          std::make_shared<xacc::AcceleratorBuffer>(b->name(), buffer->size());
+      execute(tmpBuffer, f);
+      buffer->appendChild(f->name(), tmpBuffer);
+    }
+  } else {
+    xacc::info("Running VQE mode");
+    QsimCircuitVisitor visitor(buffer->size());
+    // Walk the base IR tree, and visit each node
+    InstructionIterator it(baseCircuit);
+    while (it.hasNext()) {
+      auto nextInst = it.next();
+      if (nextInst->isEnabled() && !nextInst->isComposite()) {
+        nextInst->accept(&visitor);
+      }
+    }
+
+    // Run the base circuit:
+    auto circuit = visitor.getQsimCircuit();
+    StateSpace stateSpace(m_numThreads);
+    State state = stateSpace.Create(circuit.num_qubits);
+    stateSpace.SetStateZero(state);
+
+    const bool runOk = Runner::Run(m_qsimParam, Factory(m_numThreads), circuit, state);
+    assert(runOk);
+
+    // Now we have a wavefunction that represents execution of the ansatz.
+    // Run the observable sub-circuits (change of basis + measurements)
+    for (int i = 0; i < basisRotations.size(); ++i) {
+      auto tmpBuffer = std::make_shared<xacc::AcceleratorBuffer>(
+          basisRotations[i]->name(), buffer->size());
+      const double e = getExpectationValueZ(basisRotations[i], stateSpace, state);
+      tmpBuffer->addExtraInfo("exp-val-z", e);
+      buffer->appendChild(basisRotations[i]->name(), tmpBuffer);
+    }
+  }
+
 }
 
 double QsimAccelerator::getExpectationValueZ(

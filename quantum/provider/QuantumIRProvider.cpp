@@ -15,8 +15,10 @@
 #include "GateIR.hpp"
 #include "Circuit.hpp"
 
-#include "DWIR.hpp"
-#include "AnnealingProgram.hpp"
+#ifdef ANNEALING_ENABLED
+  #include "DWIR.hpp"
+  #include "AnnealingProgram.hpp"
+#endif
 
 #include "CompositeInstruction.hpp"
 #include "xacc_service.hpp"
@@ -131,9 +133,13 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
   // FIXME, update to handle D-Wave...
   if (type == "circuit") {
   return std::make_shared<xacc::quantum::Circuit>(name,variables);
-  } else if (type == "anneal") {
+  } 
+#ifdef ANNEALING_ENABLED
+  else if (type == "anneal") {
     return std::make_shared<xacc::quantum::AnnealingProgram>(name,variables);
-  } else {
+  } 
+#endif  
+  else {
       xacc::error("Invalid Composite type, can be circuit or anneal");
       return nullptr;
   }
@@ -142,9 +148,15 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
 std::shared_ptr<IR> QuantumIRProvider::createIR(const std::string type) {
 if (type == "circuit") {
   return std::make_shared<GateIR>();
-} else if (type == "anneal") {
+} 
+
+#ifdef ANNEALING_ENABLED
+else if (type == "anneal") {
     return std::make_shared<DWIR>();
-} else {
+}
+#endif
+
+else {
     xacc::error("Invalid IR type, can be circuit or anneal");
     return nullptr;
 }

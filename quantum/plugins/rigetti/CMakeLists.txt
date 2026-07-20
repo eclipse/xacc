@@ -70,5 +70,7 @@ endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
-add_subdirectory(qcs)
-add_subdirectory(quilc)
+if(XACC_REMOTE_ACCELERATORS)
+  add_subdirectory(qcs)
+  add_subdirectory(quilc)
+endif()

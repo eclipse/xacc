@@ -115,6 +115,7 @@ CX(q[1],q[0]);
     std::cout << function2->toString() << "\n";
 }
 
+#ifndef QIREE_BUILD
 TEST(XACCAPITester, checkXasmBug) {
       xacc::qasm(R"(.compiler xasm
 .circuit ansatz3
@@ -132,6 +133,8 @@ exp_i_theta(q, s, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
 
     std::cout << function3->toString() << "\n";
 }
+#endif
+
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);

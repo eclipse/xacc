@@ -15,7 +15,9 @@
 
 #include "AlgorithmGradientStrategy.hpp"
 #include "Compiler.hpp"
-#include "RemoteAccelerator.hpp"
+#ifndef REMOTE_DISABLED
+  #include "RemoteAccelerator.hpp"
+#endif
 #include "IRProvider.hpp"
 
 #include "Algorithm.hpp"
@@ -138,9 +140,11 @@ getClassicalRegHostBuffer(const std::string &cRegName);
 void setAccelerator(const std::string &acceleratorName);
 std::shared_ptr<Accelerator>
 getAccelerator(const std::string &name, const HeterogeneousMap &params = {});
+#ifndef REMOTE_DISABLED
 std::shared_ptr<Accelerator>
 getAccelerator(const std::string &name, std::shared_ptr<Client> client,
                const HeterogeneousMap &params = {});
+#endif
 std::shared_ptr<Accelerator> getAccelerator();
 std::shared_ptr<Accelerator>
 getAcceleratorDecorator(const std::string &decorator,

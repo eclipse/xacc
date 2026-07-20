@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_quantinuum",
+  "bundle.activator" : true,
+  "bundle.name" : "Quantinuum ion trap accelerator",
+  "bundle.description" : ""
+}

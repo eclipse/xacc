@@ -9,12 +9,13 @@
  *
  * Contributors:
  *   Thien Nguyen - initial API and implementation
+ *   Daniel Claudino - Removed Armadillo
  *******************************************************************************/
 #pragma once
 #include "AlgorithmGradientStrategy.hpp"
 #include "CompositeInstruction.hpp"
 #include "PauliOperator.hpp"
-#include <armadillo>
+#include <Eigen/Dense>
 
 using namespace xacc;
 
@@ -56,7 +57,7 @@ private:
     ObservedKernels constructMetricTensorSubCircuit(ParametrizedCircuitLayer& io_layer, 
                                                     const std::vector<std::string>& in_varNames, 
                                                     const std::vector<double>& in_varVals) const; 
-    arma::dmat constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results);
+    Eigen::MatrixXd constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results);
 
 private:
     // The *regular* gradient strategy service whose gradients will

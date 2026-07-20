@@ -42,7 +42,11 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
 
 target_include_directories(${LIBRARY_NAME} PRIVATE . generated
                                   ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src)
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate xacc-quantum-annealing ${ANTLR_LIB})
+if(XACC_BUILD_ANNEALING)
+  target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate xacc-quantum-annealing ${ANTLR_LIB})
+else()
+  target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate ${ANTLR_LIB})
+endif()
 
 if(APPLE)
    set_target_properties(${LIBRARY_NAME} PROPERTIES INSTALL_RPATH "@loader_path/../lib")

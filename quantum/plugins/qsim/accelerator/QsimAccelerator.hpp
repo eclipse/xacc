@@ -319,6 +319,9 @@ public:
   virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                        const std::vector<std::shared_ptr<CompositeInstruction>>
                            compositeInstructions) override;
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+          const std::shared_ptr<CompositeInstruction> baseCircuit,
+          const std::vector<std::shared_ptr<CompositeInstruction>> basisRotations) override;
   virtual void apply(std::shared_ptr<AcceleratorBuffer> buffer,
                      std::shared_ptr<Instruction> inst) override;
 

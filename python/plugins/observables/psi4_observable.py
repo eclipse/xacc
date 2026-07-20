@@ -13,6 +13,15 @@ class Psi4Observable(xacc.Observable):
         xacc.Observable.__init__(self)
         self.observable = None
         self.asPauli = None
+        self.index_map = None
+
+    def _build_index_map(self, n_bits):
+        if self.index_map is None:
+            self.index_map = {}
+            for i in range(n_bits // 2):
+                self.index_map[i] = 2 * i
+                self.index_map[i + n_bits // 2] = 2 * i + 1
+        return
 
     def toString(self):
         return self.observable.toString()
@@ -44,8 +53,16 @@ class Psi4Observable(xacc.Observable):
                           'mp2_type':'conv',
                           'e_convergence': 1e-8,
                           'd_convergence': 1e-8}
-        if moleculeGeom.multiplicity() > 1:
-            options['reference'] = 'rohf'
+
+        if 'reference' in inputParams:
+            options['reference'] = inputParams['reference'].lower()
+
+        if options['reference'] == 'uhf':
+            is_restricted_ref = False
+
+        if moleculeGeom.multiplicity() > 1 and options['reference'] == 'rhf':
+            xacc.error('Spin multiplicity needs to be one for RHF.')
+
         psi4.set_options(options)
         scf_e, scf_wfn = psi4.energy('scf', return_wfn=True)
         E_nucl = moleculeGeom.nuclear_repulsion_energy()
@@ -137,6 +154,12 @@ class Psi4Observable(xacc.Observable):
 
         pos_or_neg = lambda x : ' + ' if x > 0. else ' - '
 
+        alternate_spins = False
+        if 'alternate-spins' in inputParams:
+            alternate_spins = inputParams['alternate-spins']
+            if alternate_spins:
+                self._build_index_map(n_active)
+
         # --- 1-body frozen-core:
         Hamiltonian_fc_1body = np.zeros((n_active, n_active))
         Hamiltonian_fc_1body_tmp = np.zeros((n_active, n_active))
@@ -155,7 +178,12 @@ class Psi4Observable(xacc.Observable):
                     ia = MSO_frozen_list[a]
                     Hamiltonian_fc_1body[p, q] += gmo[ia, ip, ia, iq]
                 if abs(Hamiltonian_fc_1body[p,q]) > 1e-12:
-                    f_str += pos_or_neg(Hamiltonian_fc_1body[p,q]) + str(abs(Hamiltonian_fc_1body[p,q])) + ' ' + str(p) + '^ ' + str(q)
+                    f_str += pos_or_neg(Hamiltonian_fc_1body[p, q]) + str(
+                        abs(Hamiltonian_fc_1body[p, q])) + ' '
+                    if alternate_spins:
+                        f_str += str(self.index_map[p]) + '^ ' + str(self.index_map[q])
+                    else:
+                        f_str += str(p) + '^ ' + str(q)
 
 
         # ------- 2-body frozen-core:
@@ -242,7 +270,15 @@ class Psi4Observable(xacc.Observable):
                     for r in range(n_active):
                         ir = MSO_active_list[r]
                         for ss in range(n_active):
-                            if abs(Hamiltonian_fc_2body_tmp[p,q,r,ss]) > 1e-12:
-                                f_str += pos_or_neg(Hamiltonian_fc_2body_tmp[p,q,r,ss]) + str(abs(Hamiltonian_fc_2body_tmp[p,q,r,ss])) + ' ' + str(p) + '^ ' + str(q) + '^ ' + str(r) + ' ' + str(ss)
+                            if abs(Hamiltonian_fc_2body_tmp[p, q, r, ss]) > 1e-12:
+                                f_str += pos_or_neg(Hamiltonian_fc_2body_tmp[p, q, r, ss]) + str(
+                                    abs(Hamiltonian_fc_2body_tmp[p, q, r, ss])) + ' '
+                                if alternate_spins:
+                                    f_str += str(self.index_map[p]) + '^ ' 
+                                    f_str += str(self.index_map[q]) + '^ ' 
+                                    f_str += str(self.index_map[r]) + ' ' 
+                                    f_str += str(self.index_map[ss])
+                                else:
+                                    f_str += str(p) + '^ ' + str(q) + '^ ' + str(r) + ' ' + str(ss)
             self.observable = xacc.getObservable('fermion', f_str)
             self.asPauli = xacc.transformToPauli('jw', self.observable)

@@ -18,8 +18,11 @@
 #include "PauliOperator.hpp"
 #include "Circuit.hpp"
 #include <memory>
-#include <armadillo>
 #include <cassert>
+#include <Eigen/Dense>
+#include <unsupported/Eigen/MatrixFunctions>
+
+using MatrixXcd = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>;
 
 namespace {
 const std::complex<double> I{0.0, 1.0};
@@ -101,11 +104,10 @@ std::vector<std::string> generatePauliPermutation(int in_nbQubits) {
   return opsList;
 };
 
-arma::cx_mat createSMatrix(const std::vector<std::string> &in_pauliOps,
+Eigen::MatrixXcd createSMatrix(const std::vector<std::string> &in_pauliOps,
                            const std::vector<double> &in_tomoExp) {
   const auto sMatDim = in_pauliOps.size();
-  arma::cx_mat S_Mat(sMatDim, sMatDim, arma::fill::zeros);
-  arma::cx_vec b_Vec(sMatDim, arma::fill::zeros);
+  Eigen::MatrixXcd S_Mat = Eigen::MatrixXcd::Zero(sMatDim, sMatDim);
 
   const auto calcSmatEntry = [&](int in_row,
                                  int in_col) -> std::complex<double> {
@@ -144,9 +146,6 @@ using namespace xacc;
 namespace xacc {
 namespace algorithm {
 bool QITE::initialize(const HeterogeneousMap &parameters) {
-  static std::stringstream nullStream;
-  // Prevents Armadillo from writing expected 'approx. solution' warnings.
-  arma::set_cerr_stream(nullStream);
   bool initializeOk = true;
   if (!parameters.pointerLikeExists<Accelerator>("accelerator")) {
     std::cout << "'accelerator' is required.\n";
@@ -325,8 +324,8 @@ QITE::internalCalcAOps(const std::vector<std::string> &pauliOps,
   // Calculate S matrix and b vector
   // i.e. set up the linear equation Sa = b
   const auto sMatDim = pauliOps.size();
-  arma::cx_mat S_Mat(sMatDim, sMatDim, arma::fill::zeros);
-  arma::cx_vec b_Vec(sMatDim, arma::fill::zeros);
+  Eigen::MatrixXcd S_Mat = Eigen::MatrixXcd::Zero(sMatDim, sMatDim);
+  Eigen::VectorXcd b_Vec = Eigen::VectorXcd::Zero(sMatDim);
 
   const auto calcSmatEntry = [&](const std::vector<double> &in_tomoExp,
                                  int in_row,
@@ -373,15 +372,16 @@ QITE::internalCalcAOps(const std::vector<std::string> &pauliOps,
     b = I * b - I * std::conj(b);
     // Set b_Vec
     b_Vec(i) = std::abs(b) > 1e-12 ? b : 0.0;
+    b_Vec(i) = std::abs(b) > 1e-12 ? b : 0.0;
   }
 
-  auto lhs = S_Mat + S_Mat.st();
+  Eigen::MatrixXcd lhs = S_Mat + S_Mat.transpose();
   auto rhs = -b_Vec;
-  arma::cx_vec a_Vec = arma::solve(lhs, rhs);
+  Eigen::VectorXcd a_Vec = lhs.completeOrthogonalDecomposition().solve(rhs);
 
   // Now, we have the decomposition of A observable in the basis of
   // all possible Pauli combinations.
-  assert(a_Vec.n_elem == pauliOps.size());
+  assert(a_Vec.size() == pauliOps.size());
   const std::string aObsStr = [&]() {
     std::stringstream s;
     s.precision(12);
@@ -542,26 +542,26 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     // This serves two purposes:
     // (1) Validate the convergence (e.g. Trotter step size) before running via
     // gates. (2) Derive the circuit analytically for running. exp(-dtH)
-    const auto expMinusHamTerm = [](const arma::cx_mat &in_hMat,
-                                    const arma::cx_vec &in_psi, double in_dt) {
-      assert(in_hMat.n_rows == in_hMat.n_cols);
-      assert(in_hMat.n_rows == in_psi.n_elem);
-      arma::cx_mat hMatExp = arma::expmat(-in_dt * in_hMat);
-      arma::cx_vec result = hMatExp * in_psi;
-      const double norm = arma::norm(result, 2);
+    const auto expMinusHamTerm = [](const Eigen::MatrixXcd &in_hMat,
+                                    const Eigen::VectorXcd &in_psi, double in_dt) {
+      assert(in_hMat.rows() == in_hMat.cols());
+      assert(in_hMat.rows() == in_psi.size());
+      Eigen::MatrixXcd hMatExp = (-in_dt * in_hMat).exp();
+      Eigen::VectorXcd result = hMatExp * in_psi;
+      const double norm = result.norm();
       result = result / norm;
       return std::make_pair(result, norm);
     };
 
     const auto getTomographyExpVec = [](int in_nbQubits,
-                                        const arma::cx_vec &in_psi,
-                                        const arma::cx_vec &in_delta) {
+                                        const Eigen::VectorXcd &in_psi,
+                                        const Eigen::VectorXcd &in_delta) {
       const auto pauliOps = generatePauliPermutation(in_nbQubits);
       std::vector<std::complex<double>> sigmaExpectation(pauliOps.size());
       std::vector<std::complex<double>> bVec(pauliOps.size());
 
       sigmaExpectation[0] = 1.0;
-      bVec[0] = arma::cdot(in_delta, in_psi);
+      bVec[0] = in_delta.dot(in_psi);
 
       for (int i = 1; i < pauliOps.size(); ++i) {
         auto tomoObservable = std::make_shared<xacc::quantum::PauliOperator>();
@@ -569,33 +569,30 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         tomoObservable->fromString(pauliObsStr);
         assert(tomoObservable->getSubTerms().size() == 1);
         assert(tomoObservable->getNonIdentitySubTerms().size() == 1);
-        arma::cx_mat hMat(1 << in_nbQubits, 1 << in_nbQubits,
-                          arma::fill::zeros);
+        Eigen::MatrixXcd hMat = Eigen::MatrixXcd::Zero(1 << in_nbQubits, 1 << in_nbQubits);
         const auto hamMat = tomoObservable->toDenseMatrix(in_nbQubits);
-        for (int i = 0; i < hMat.n_rows; ++i) {
-          for (int j = 0; j < hMat.n_cols; ++j) {
-            const int index = i * hMat.n_rows + j;
+        for (int i = 0; i < hMat.rows(); ++i) {
+          for (int j = 0; j < hMat.cols(); ++j) {
+            const int index = i * hMat.rows() + j;
             hMat(i, j) = hamMat[index];
           }
         }
 
-        arma::cx_vec pauliApplied = hMat * in_psi;
-        sigmaExpectation[i] = arma::cdot(in_psi, pauliApplied);
-        bVec[i] = arma::cdot(in_delta, pauliApplied);
+        Eigen::VectorXcd pauliApplied = hMat * in_psi;
+        sigmaExpectation[i] = in_psi.dot(pauliApplied);
+        bVec[i] = in_delta.dot(pauliApplied);
       }
 
       return std::make_pair(sigmaExpectation, bVec);
     };
 
     // Initial state
-    arma::cx_vec psiVec(1 << buffer->size(), arma::fill::zeros);
+    Eigen::VectorXcd psiVec = Eigen::VectorXcd::Zero(1 << buffer->size());
     psiVec(m_initialState) = 1.0;
-    arma::cx_mat hMat(1 << buffer->size(), 1 << buffer->size(),
-                      arma::fill::zeros);
+    Eigen::MatrixXcd hMat = Eigen::MatrixXcd::Zero(1 << buffer->size(), 1 << buffer->size());
     auto identityTerm = m_observable->getIdentitySubTerm();
     if (identityTerm) {
-      arma::cx_mat idTerm(1 << buffer->size(), 1 << buffer->size(),
-                          arma::fill::eye);
+      Eigen::MatrixXcd idTerm = Eigen::MatrixXcd::Identity(1 << buffer->size(), 1 << buffer->size());
       hMat += identityTerm->coefficient() * idTerm;
     }
 
@@ -604,9 +601,9 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           std::dynamic_pointer_cast<xacc::quantum::PauliOperator>(hamTerm);
       const auto hamMat = pauliCast->toDenseMatrix(buffer->size());
 
-      for (int i = 0; i < hMat.n_rows; ++i) {
-        for (int j = 0; j < hMat.n_cols; ++j) {
-          const int index = i * hMat.n_rows + j;
+      for (int i = 0; i < hMat.rows(); ++i) {
+        for (int j = 0; j < hMat.cols(); ++j) {
+          const int index = i * hMat.rows() + j;
           hMat(i, j) += hamMat[index];
         }
       }
@@ -615,7 +612,7 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     // Time stepping:
     for (int i = 0; i < m_nbSteps; ++i) {
       double normAfter = 0.0;
-      arma::cx_vec dPsiVec(1 << buffer->size(), arma::fill::zeros);
+      Eigen::VectorXcd dPsiVec = Eigen::VectorXcd::Zero(1 << buffer->size());
       std::tie(dPsiVec, normAfter) = expMinusHamTerm(hMat, psiVec, m_dBeta);
       // Eq. 8, SI of https://arxiv.org/pdf/1901.07653.pdf
       dPsiVec = dPsiVec - psiVec;
@@ -628,16 +625,16 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         pauliExpValues.emplace_back(val.real());
       }
 
-      arma::cx_mat sMat = createSMatrix(
+      Eigen::MatrixXcd sMat = createSMatrix(
           generatePauliPermutation(buffer->size()), pauliExpValues);
-      arma::cx_vec b_Vec(bVec.size(), arma::fill::zeros);
+      Eigen::VectorXcd b_Vec = Eigen::VectorXcd::Zero(bVec.size());
       for (int i = 0; i < bVec.size(); ++i) {
         b_Vec(i) = -I * bVec[i] + I * std::conj(bVec[i]);
       }
 
-      auto lhs = sMat + sMat.st();
+      auto lhs = sMat + sMat.transpose();
       auto rhs = b_Vec;
-      arma::cx_vec a_Vec = arma::solve(lhs, rhs);
+      Eigen::VectorXcd a_Vec = lhs.completeOrthogonalDecomposition().solve(rhs);
       const auto pauliOps = generatePauliPermutation(buffer->size());
       const std::string aObsStr = [&]() {
         std::stringstream s;
@@ -655,22 +652,20 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           std::make_shared<xacc::quantum::PauliOperator>();
       updatedAham->fromString(aObsStr);
       const auto aHamMat = updatedAham->toDenseMatrix(buffer->size());
-      arma::cx_mat aMat(1 << buffer->size(), 1 << buffer->size(),
-                        arma::fill::zeros);
+      Eigen::MatrixXcd aMat = Eigen::MatrixXcd::Zero(1 << buffer->size(), 1 << buffer->size());
 
-      for (int i = 0; i < aMat.n_rows; ++i) {
-        for (int j = 0; j < aMat.n_cols; ++j) {
-          const int index = i * aMat.n_rows + j;
+      for (int i = 0; i < aMat.rows(); ++i) {
+        for (int j = 0; j < aMat.cols(); ++j) {
+          const int index = i * aMat.rows() + j;
           aMat(i, j) = aHamMat[index];
         }
       }
 
       // Evolve exp(-iAt)
-      arma::cx_mat aMatExp = arma::expmat(-I * aMat);
-      arma::cx_mat psiUpdate = aMatExp * psiVec;
+      Eigen::MatrixXcd aMatExp = (-I * aMat).exp();
+      Eigen::MatrixXcd psiUpdate = aMatExp * psiVec;
       psiVec = psiUpdate;
-      const std::complex<double> energyRaw =
-          arma::cdot(psiUpdate, hMat * psiUpdate);
+      const std::complex<double> energyRaw = (psiUpdate.array() * (hMat * psiUpdate).array()).sum();
       std::cout << "Energy = " << energyRaw << "\n";
       m_energyAtStep.emplace_back(energyRaw.real());
       // First step: add the approximate operator info to the buffer.
@@ -767,8 +762,8 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double> &normVec) const {
       arange(1UL, m_energyAtStep.size() + 1, 2UL);
   const auto n = lanczosSteps.size();
   // H and S matrices (Eq. 60)
-  arma::mat H(n, n, arma::fill::zeros);
-  arma::mat S(n, n, arma::fill::zeros);
+  Eigen::MatrixXcd H = Eigen::MatrixXcd::Zero(n, n);
+  Eigen::MatrixXcd S = Eigen::MatrixXcd::Zero(n, n);
   int j = 0;
   int k = 0;
   // Iterate over l and l'
@@ -786,13 +781,13 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double> &normVec) const {
     j++;
   }
 
-  const auto matFieldSampling = [](const arma::mat &in_H, const arma::mat &in_S,
+  const auto matFieldSampling = [](const Eigen::MatrixXcd &in_H, const Eigen::MatrixXcd &in_S,
                                    const std::vector<size_t> in_indexVec) {
-    arma::mat H(in_indexVec.size(), in_indexVec.size(), arma::fill::zeros);
-    arma::mat S(in_indexVec.size(), in_indexVec.size(), arma::fill::zeros);
-    assert(in_S.n_cols == in_H.n_cols && in_S.n_rows == in_H.n_rows);
-    for (size_t i = 0; i < in_H.n_rows; ++i) {
-      for (size_t j = 0; j < in_H.n_cols; ++j) {
+    Eigen::MatrixXcd H = Eigen::MatrixXcd::Zero(in_indexVec.size(), in_indexVec.size());
+    Eigen::MatrixXcd S = Eigen::MatrixXcd::Zero(in_indexVec.size(), in_indexVec.size());
+    assert(in_S.cols() == in_H.cols() && in_S.rows() == in_H.rows());
+    for (size_t i = 0; i < in_H.rows(); ++i) {
+      for (size_t j = 0; j < in_H.cols(); ++j) {
         if (xacc::container::contains(in_indexVec, i) &&
             xacc::container::contains(in_indexVec, j)) {
           const size_t rowIdx = std::distance(
@@ -813,13 +808,13 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double> &normVec) const {
   // Regularize/stabilize H and S matrices with s and epsilon stabilization
   // parameters. Returns the stabilized (H, S) matrices.
   const auto regularizeMatrices =
-      [&](double s, double eps) -> std::pair<arma::mat, arma::mat> {
+      [&](double s, double eps) -> std::pair<Eigen::MatrixXcd, Eigen::MatrixXcd> {
     std::vector<size_t> indexVec{0};
     size_t ii = 0;
     size_t jj = 0;
-    while (ii < H.n_rows && jj < (H.n_rows - 1)) {
-      for (jj = ii + 1; jj < H.n_rows; ++jj) {
-        if (S(ii, jj) < s) {
+    while (ii < H.rows() && jj < (H.rows() - 1)) {
+      for (jj = ii + 1; jj < H.rows(); ++jj) {
+        if (std::abs(S(ii, jj)) < s) {
           indexVec.emplace_back(jj);
           break;
         }
@@ -827,8 +822,8 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double> &normVec) const {
 
       ii = indexVec.back();
     }
-    if (!xacc::container::contains(indexVec, H.n_rows - 1)) {
-      indexVec.emplace_back(H.n_rows - 1);
+    if (!xacc::container::contains(indexVec, H.rows() - 1)) {
+      indexVec.emplace_back(H.rows() - 1);
     }
 
     auto [Hnew, Snew] = matFieldSampling(H, S, indexVec);
@@ -836,46 +831,45 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double> &normVec) const {
     // Handles an edge case where Hnew and Snew are just single-element
     // matrices; just returns those matrices.
     if (indexVec.size() == 1) {
-      assert(Hnew.n_elem == 1 && Snew.n_elem == 1);
+      assert(Hnew.size() == 1 && Snew.size() == 1);
       // Just returns these matrices,
       // no need to regularize any further.
       return std::make_pair(Hnew, Snew);
     }
 
     // Truncates eigenvalues if less than epsilon
-    arma::vec sigma;
-    arma::mat V;
-    arma::eig_sym(sigma, V, Snew);
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXcd> eig(Snew);
+    Eigen::VectorXd sigma = eig.eigenvalues();
+    Eigen::MatrixXcd V = eig.eigenvectors();
     std::vector<size_t> indexVecEig;
 
-    for (size_t i = 0; i < sigma.n_elem; ++i) {
-      if (sigma[i] > eps) {
+    for (size_t i = 0; i < sigma.size(); ++i) {
+      if (sigma(i) > eps) {
         indexVecEig.emplace_back(i);
       }
     }
 
-    const auto eigenTransform = [](const arma::mat &in_mat,
-                                   const arma::mat &in_eigenMat) {
+    const auto eigenTransform = [](const Eigen::MatrixXcd &in_mat,
+                                   const Eigen::MatrixXcd &in_eigenMat) {
       // Performs V_T * Matrix * V;
       // where V is the eigenvector matrix.
-      arma::mat result = in_eigenMat.t() * in_mat;
+      Eigen::MatrixXcd result = in_eigenMat.transpose() * in_mat;
       result = result * in_eigenMat;
       return result;
     };
-    const arma::mat Snew2 = eigenTransform(Snew, V);
-    const arma::mat Hnew2 = eigenTransform(Hnew, V);
+    const Eigen::MatrixXcd Snew2 = eigenTransform(Snew, V);
+    const Eigen::MatrixXcd Hnew2 = eigenTransform(Hnew, V);
     auto [Hnew3, Snew3] = matFieldSampling(Hnew2, Snew2, indexVecEig);
     return std::make_pair(Hnew3, Snew3);
   };
 
   auto [Hreg, Sreg] = regularizeMatrices(m_sLim, m_epsLim);
 
-  arma::cx_vec eigval;
-  arma::cx_mat eigvec;
   // Solves the generalized eigen val
-  arma::eig_pair(eigval, eigvec, Hreg, Sreg);
+  Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXcd> gen_eig(Hreg, Sreg);
+  Eigen::VectorXcd eigval = gen_eig.eigenvalues();
   std::vector<double> energies;
-  for (size_t i = 0; i < eigval.n_elem; ++i) {
+  for (size_t i = 0; i < eigval.size(); ++i) {
     // Energy values should be real
     assert(std::abs(eigval(i).imag()) < 1e-9);
     energies.emplace_back(eigval(i).real());

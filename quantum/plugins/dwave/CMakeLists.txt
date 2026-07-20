@@ -21,7 +21,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-security")
 # dwave_sapi uses std::random_shuffle which is deprecated since C++17
-set_property(TARGET dwave_sapi PROPERTY CXX_STANDARD 11)
+set_property(TARGET dwave_sapi PROPERTY CXX_STANDARD 14)
 file(GLOB SRC
           accelerator/DWave.cpp
           DWaveActivator.cpp

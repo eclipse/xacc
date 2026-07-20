@@ -117,6 +117,7 @@ TEST(HeterogeneousMapTester, checkSimple) {
   m4.print<int, double>(std::cout);
 }
 
+#ifndef QIREE_BUILD
 TEST(HeterogeneousMapTester, checkVQE) {
   using namespace xacc;
   class TestObservable : public xacc::Observable {
@@ -137,6 +138,9 @@ TEST(HeterogeneousMapTester, checkVQE) {
                        const HeterogeneousMap &extra_data) override {
       return 0.0;
     }
+    std::vector<std::shared_ptr<CompositeInstruction>> getMeasurementBasisRotations() override {
+      return {};
+    }
   };
 
   std::shared_ptr<Observable> observable = std::make_shared<TestObservable>();
@@ -150,7 +154,7 @@ TEST(HeterogeneousMapTester, checkVQE) {
 
   vqe->initialize(options);
 }
-
+#endif
 TEST(HeterogeneousMapTester, checkMerge) {
   xacc::HeterogeneousMap c;
   c.insert("intkey", 1);

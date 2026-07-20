@@ -21,6 +21,22 @@
 
 using namespace rapidjson;
 
+std::string intToBinary(int num, const int nBits) {
+
+    std::string binary;
+    while (num > 0) {
+        binary.insert(0, 1, (num & 1) ? '1' : '0');
+        num >>= 1;
+    }
+
+    // Pad with leading zeros to ensure minimum bit width
+    if (binary.size() < nBits) {
+        binary.insert(0, nBits - binary.size(), '0');
+    }
+
+    return binary;
+}
+
 namespace xacc {
 
 bool CheckEqualVisitor::operator()(const int &i) const {
@@ -752,6 +768,27 @@ void AcceleratorBuffer::load(std::istream &stream) {
       appendChild(c["name"].GetString(), childBuffer);
     }
   }
+}
+
+void AcceleratorBuffer::setSample(const int sample) {
+
+  auto bitString = intToBinary(sample, size());
+  appendMeasurement(bitString);
+  _samples.push_back(sample);
+}
+
+void AcceleratorBuffer::setSamples(const std::vector<int> samples) {
+  for (auto s : samples) {
+    setSample(s);
+  }
+}
+
+int AcceleratorBuffer::getSample(const int index) {
+  return _samples[index];
+}
+
+std::vector<int> AcceleratorBuffer::getSamples() {
+  return _samples;
 }
 
 } // namespace xacc

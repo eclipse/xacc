@@ -118,6 +118,7 @@ public:
 class AcceleratorBuffer {
 
 protected:
+  std::vector<int> _samples;
   std::map<std::string, int> bitStringToCounts;
   std::string bufferId;
   int nBits;
@@ -267,6 +268,11 @@ public:
   const ExtraInfo operator[](const std::string &key) {
     return getInformation(key);
   }
+
+  void setSample(const int sample);
+  void setSamples(const std::vector<int> samples);
+  int getSample(const int index);
+  std::vector<int> getSamples();
 
   virtual ~AcceleratorBuffer() {}
 };

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 UT-Battelle, LLC.
+ * Copyright (c) 2024 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
+ *   Daniel Claudino - Enabled access to noisy simulation
  *******************************************************************************/
 #ifndef QUANTUM_GATE_ACCELERATORS_IONQACCELERATOR_HPP_
 #define QUANTUM_GATE_ACCELERATORS_IONQACCELERATOR_HPP_
@@ -28,14 +29,7 @@ public:
                const std::vector<std::shared_ptr<CompositeInstruction>>
                    circuits) override;
   void initialize(const HeterogeneousMap &params = {}) override;
-  void updateConfiguration(const HeterogeneousMap &config) override {
-    if (config.keyExists<int>("shots")) {
-      shots = config.get<int>("shots");
-    }
-    if (config.stringExists("backend")) {
-      backend = config.getString("backend");
-    }
-  }
+  void updateConfiguration(const HeterogeneousMap &config) override;
 
   const std::vector<std::string> configurationKeys() override {
     return {"shots", "backend"};
@@ -74,6 +68,7 @@ private:
 
   int shots = 1024;
   std::string backend = "simulator";
+  std::string noise_model;
   std::vector<std::pair<int,int>> m_connectivity;
 
   bool jobIsRunning = false;

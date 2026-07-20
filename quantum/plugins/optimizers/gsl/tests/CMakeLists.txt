@@ -1,0 +1,2 @@
+add_xacc_test(GSLOptimizer)
+target_link_libraries(GSLOptimizerTester xacc)

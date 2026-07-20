@@ -21,6 +21,7 @@
 #include <pybind11/functional.h>
 #include <vector>
 
+#include "Observable.hpp"
 #include "xacc.hpp"
 
 namespace py = pybind11;
@@ -64,6 +65,10 @@ public:
                      const HeterogeneousMap &extra_data) override {
     PYBIND11_OVERLOAD_PURE(double, xacc::Observable, postProcess, buffer,
                            postProcessTask, extra_data);
+  }
+
+  std::vector<std::shared_ptr<CompositeInstruction>> getMeasurementBasisRotations() override {
+    PYBIND11_OVERLOAD_PURE(std::vector<std::shared_ptr<CompositeInstruction>>, xacc::Observable, getBasisRotations);
   }
 
 };

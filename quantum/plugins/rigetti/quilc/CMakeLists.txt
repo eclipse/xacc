@@ -23,7 +23,7 @@ target_include_directories(
   ${LIBRARY_NAME}
   PUBLIC .)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE cpr)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE cpr::cpr)
 
 set(_bundle_name xacc_quilc)
 set_target_properties(${LIBRARY_NAME}

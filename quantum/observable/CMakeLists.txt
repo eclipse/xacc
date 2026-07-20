@@ -1,3 +1,5 @@
 add_subdirectory(pauli)
 add_subdirectory(fermion)
+if(NOT QIREE_MINIMAL_BUILD)
 add_subdirectory(transforms)
+endif(NOT QIREE_MINIMAL_BUILD)

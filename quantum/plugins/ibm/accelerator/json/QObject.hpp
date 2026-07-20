@@ -16,11 +16,14 @@
 #include "variant.hpp"
 #include "Json.hpp"
 
-// #include <optional>
+#include <cstdint>
 #include <stdexcept>
+#include <memory>
+#include <sstream>
 #include <regex>
 #include <unordered_map>
 #include <optional>
+#include <vector>
 #ifndef NLOHMANN_OPT_HELPER
 #define NLOHMANN_OPT_HELPER
 namespace nlohmann {

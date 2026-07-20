@@ -158,7 +158,8 @@ void bind_quantum(py::module &m) {
           [](PauliOperator &op) {
             return py::make_iterator(op.begin(), op.end());
           },
-          py::keep_alive<0, 1>());
+          py::keep_alive<0, 1>())
+      .def("commutator", &PauliOperator::commutator);
 
   py::class_<FermionTerm>(k, "FermionTerm")
       .def("coeff", &FermionTerm::coeff)
@@ -184,6 +185,8 @@ void bind_quantum(py::module &m) {
       .def(py::self += py::self)
       .def(py::self *= py::self)
       .def(py::self *= double())
+      .def(py::self * double())
+      .def(double() * py::self)
       .def(py::self * py::self)
       .def(py::self *= std::complex<double>())
       .def(py::self -= py::self)
@@ -192,7 +195,9 @@ void bind_quantum(py::module &m) {
       .def("__repr__", &FermionOperator::toString)
       .def("fromString", &FermionOperator::fromString)
       .def("commutator", &FermionOperator::commutator)
-      .def("hermitianConjugate", &FermionOperator::hermitianConjugate);
+      .def("hermitianConjugate", &FermionOperator::hermitianConjugate)
+      .def("getTerms", &FermionOperator::getTerms)
+      .def("getSubTerms", &FermionOperator::getSubTerms);
 
   k.def("getOperatorPool", [](const std::string &name) {
     return xacc::getService<OperatorPool>(name);
